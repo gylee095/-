@@ -1,0 +1,140 @@
+### N8N Custom Skills API - Test Requests
+### Use with REST Client extension in VS Code or any HTTP client
+
+@baseUrl = http://localhost:3000
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+### 2. List All Skills
+GET {{baseUrl}}/api/skills
+
+### 3. Get Nanobanana Skill Details
+GET {{baseUrl}}/api/skills/nanobanana-prompt
+
+### 4. Execute Nanobanana Skill (Simple)
+POST {{baseUrl}}/api/execute
+Content-Type: application/json
+
+{
+  "skillName": "nanobanana-prompt",
+  "userMessage": "Generate a design prompt for a Christmas coupon with vintage 90s hip-hop aesthetic.",
+  "maxTokens": 4096
+}
+
+### 5. Nanobanana Convenience Endpoint - Christmas Coupon
+POST {{baseUrl}}/api/nanobanana
+Content-Type: application/json
+
+{
+  "intent": "Coupon Promo",
+  "theme": "Christmas",
+  "style": "Vintage 90s hip-hop aesthetic with burnt monochrome color scheme, bold typography, paper texture"
+}
+
+### 6. Nanobanana - Black Friday Sale
+POST {{baseUrl}}/api/nanobanana
+Content-Type: application/json
+
+{
+  "intent": "Social Countdown",
+  "theme": "Black Friday",
+  "style": "Bold modern design with electric colors and geometric shapes",
+  "additionalInstructions": "Focus on urgency and excitement"
+}
+
+### 7. Nanobanana - Summer Beach Party
+POST {{baseUrl}}/api/nanobanana
+Content-Type: application/json
+
+{
+  "intent": "Social Countdown",
+  "theme": "Summer Beach Party",
+  "style": "Vibrant tropical aesthetic with gradient colors",
+  "referenceImageUrl": "https://example.com/template.jpg"
+}
+
+### 8. Nanobanana - Professional CV
+POST {{baseUrl}}/api/nanobanana
+Content-Type: application/json
+
+{
+  "intent": "CV Letter",
+  "theme": "Professional Minimalist",
+  "style": "Clean modern typography with subtle accents",
+  "additionalInstructions": "Keep decorations minimal and professional"
+}
+
+### 9. Execute with Conversation History
+POST {{baseUrl}}/api/execute/conversation
+Content-Type: application/json
+
+{
+  "skillName": "nanobanana-prompt",
+  "messages": [
+    {
+      "role": "user",
+      "content": "I need a design prompt for a New Year sale."
+    },
+    {
+      "role": "assistant",
+      "content": "I'd be happy to help! What intent are you targeting? (e.g., Coupon Promo, Social Countdown, etc.)"
+    },
+    {
+      "role": "user",
+      "content": "It's for a social media countdown post with a neon aesthetic."
+    }
+  ],
+  "maxTokens": 4096
+}
+
+### 10. Error Test - Invalid Skill
+POST {{baseUrl}}/api/execute
+Content-Type: application/json
+
+{
+  "skillName": "non-existent-skill",
+  "userMessage": "Test message"
+}
+
+### 11. Error Test - Missing Required Parameters
+POST {{baseUrl}}/api/nanobanana
+Content-Type: application/json
+
+{
+  "intent": "Coupon Promo"
+}
+
+### 12. Full Example - Valentine's Day Promotion
+POST {{baseUrl}}/api/nanobanana
+Content-Type: application/json
+
+{
+  "intent": "Coupon Promo",
+  "theme": "Valentine's Day",
+  "style": "Romantic pastel aesthetic with soft gradients and elegant typography",
+  "additionalInstructions": "Use heart motifs and romantic color palette (pink, red, cream)",
+  "maxTokens": 8192
+}
+
+### 13. Full Example - Tech Product Launch
+POST {{baseUrl}}/api/nanobanana
+Content-Type: application/json
+
+{
+  "intent": "Social Countdown",
+  "theme": "Tech Innovation",
+  "style": "Futuristic design with neon accents, gradient backgrounds, and sleek typography",
+  "additionalInstructions": "Emphasize cutting-edge technology and innovation",
+  "model": "claude-3-5-sonnet-20241022",
+  "maxTokens": 8192
+}
+
+### 14. cURL Example (copy and paste to terminal)
+# curl -X POST http://localhost:3000/api/nanobanana \
+#   -H "Content-Type: application/json" \
+#   -d '{
+#     "intent": "Coupon Promo",
+#     "theme": "Halloween",
+#     "style": "Spooky vintage aesthetic with dark colors"
+#   }'

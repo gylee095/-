@@ -58,8 +58,8 @@ npx wrangler secret put KEW_SECRET    # 그 외 선택 비밀값도 동일
 - 원격 MCP 커넥터 도구(10개): `get_situation`, `check_emergency_alerts`, `check_seismic_activity`, `check_navigational_warnings`,
   `check_airspace`, `search_news`, `run_monitoring_cycle`, `send_iphone_alert`, `add_analysis_note`, `list_data_sources`
 - 커넥터를 등록하면 claude.ai 채팅·Claude Code 어디서든 "지금 한반도 상황 확인해줘"처럼 물으면 에이전트가 도구를 골라 호출한다.
-- **매시간 자동 분석**: 커넥터를 포함한 예약 작업(새 세션, 이 저장소)을 만들고 프롬프트를 `/kew-scan` 으로 둔다.
-  Claude에게 "kew 커넥터로 매시간 /kew-scan 예약 작업 만들어줘"라고 요청하면 된다.
+- **자동 분석(하루 2회, 08:09·20:09 KST)**: Sonnet 모델의 분석관 세션에 예약 작업이 `/kew-scan` 을 보낸다. 조용한 날은 도구 3회 이내로 끝나 사용량이 작다. 주기·모델을 바꾸려면 Claude 에게 "분석 예약 작업을 ○○로 바꿔줘"라고 요청.
+  
 - 커넥터 호출은 Cloudflare에서 실행되므로 Claude 세션의 네트워크 허용 목록을 바꿀 필요가 없다.
 - 로컬 개발용 stdio 서버: `claude mcp add kew-local -- npx tsx src/mcp/server.ts`
 

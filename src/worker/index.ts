@@ -47,12 +47,25 @@ async function handleMcp(req: Request, env: Env): Promise<Response> {
   return transport.handleRequest(req);
 }
 
+/** 사이클 실행 결과(또는 오류)를 대시보드가 볼 수 있게 기록 */
+async function runAndRecord(env: Env, store: D1Store, now: number, trigger: string) {
+  try {
+    const report = await runCycle(env, store, { now });
+    await store.setKv("last_cycle", JSON.stringify({ at: report.at, trigger, sources: report.sources, alerts: report.alerts, newSignals: report.newSignals }));
+    return report;
+  } catch (e) {
+    await store.setKv("last_cycle", JSON.stringify({ at: now, trigger, error: String((e as Error)?.stack ?? e).slice(0, 800) })).catch(() => {});
+    if (trigger === "cron") throw e;
+    return { error: String((e as Error)?.message ?? e) } as const;
+  }
+}
+
 export default {
   async scheduled(ctrl: ScheduledController, rawEnv: Env, ctx: ExecutionContext) {
     const env = await resolveEnv(rawEnv);
     const store = new D1Store(env.DB);
-    const report = await runCycle(env, store, { now: ctrl.scheduledTime });
-    await store.setKv("last_cycle", JSON.stringify({ at: report.at, sources: report.sources, alerts: report.alerts, newSignals: report.newSignals }));
+    const report = await runAndRecord(env, store, ctrl.scheduledTime, "cron");
+    if (!report || "error" in report) return;
     const d = new Date(report.at);
     if (d.getUTCHours() === 15 && d.getUTCMinutes() < 5) ctx.waitUntil(store.prune(report.at - 30 * 86400_000));
   },
@@ -89,7 +102,8 @@ export default {
     }
     if (url.pathname === "/api/run" && req.method === "POST") {
       const body = (await req.json().catch(() => ({}))) as { only?: string[]; dryRun?: boolean };
-      return json(await runCycle(env, store, { only: body.only, dryRun: body.dryRun }));
+      if (body.only || body.dryRun) return json(await runCycle(env, store, { only: body.only, dryRun: body.dryRun }));
+      return json(await runAndRecord(env, store, Date.now(), "manual"));
     }
     if (url.pathname === "/api/test-push" && req.method === "POST") {
       return json(await sendPush(env, { title: "[테스트] Korea Early Warning", body: "아이폰 푸시 연결 테스트입니다.", priority: 3, url: env.DASHBOARD_URL }));

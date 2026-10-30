@@ -31,6 +31,9 @@ const kst=ms=>ms?new Date(ms+9*36e5).toISOString().slice(5,19).replace("T"," ")+
 const LABEL={CONFIRMED:"공식확인",CORROBORATED:"교차확인",UNVERIFIED:"미확인"};
 let filter="important";
 function tok(){try{const q=new URLSearchParams(location.search).get("key");if(q){localStorage.setItem("kew_token",q);history.replaceState(null,"",location.pathname+location.hash)}return localStorage.getItem("kew_token")}catch{return null}}
+async function runNow(){const b=$("#runbtn");b.disabled=true;b.textContent="수집 중…";
+  try{const r=await fetch("/api/run",{method:"POST",headers:{authorization:"Bearer "+tok()}});const j=await r.json().catch(()=>({error:"HTTP "+r.status}));
+  if(j.error)alert("오류: "+j.error)}catch(e){alert("오류: "+e)}load()}
 function copy(t){navigator.clipboard.writeText(t).then(()=>alert("복사됨"),()=>prompt("복사하세요",t))}
 async function testPush(){const r=await fetch("/api/test-push",{method:"POST",headers:{authorization:"Bearer "+tok()}});const j=await r.json();alert(JSON.stringify(j))}
 function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch{}load()}
@@ -50,7 +53,9 @@ function render(st){
   \${evs.length?evs.map(ev).join(""):'<div class="card mute">표시할 사건이 없습니다.</div>'}
   \${st.notes?.length?\`<h2>에이전트 분석 노트</h2>\${st.notes.slice(0,5).map(n=>\`<div class="card"><small>\${kst(n.at)} · \${esc(n.author)}</small><div style="white-space:pre-wrap">\${esc(n.text)}</div></div>\`).join("")}\`:""}
   <h2>뉴스 대비 성능</h2><div class="card" style="font-size:13px">알림 사건 \${m.alertedEvents}건 · 언론 비교 가능 \${m.withMediaComparison}건 · 언론보다 빠름 \${m.beatMediaCount}건 · 중앙 리드타임 \${m.medianLeadMin==null?"—":m.medianLeadMin.toFixed(1)+"분"}</div>
-  <h2>소스 상태</h2><div class="card"><table><tr><th>소스</th><th>상태</th><th>지연</th></tr>\${st.sources.map(s=>{const h=st.health.find(x=>x.source===s.id);
+  <h2>소스 상태</h2><div class="card" style="font-size:13px">마지막 수집: \${st.lastCycle?kst(st.lastCycle.at)+" ("+(st.lastCycle.trigger==="manual"?"수동":"자동")+")":"아직 없음"}
+    \${st.lastCycle?.error?'<br><span class="bad">수집 오류: '+esc(st.lastCycle.error)+'</span>':""}
+    <br><button class="btn" id="runbtn" onclick="runNow()">지금 수집</button></div><div class="card"><table><tr><th>소스</th><th>상태</th><th>지연</th></tr>\${st.sources.map(s=>{const h=st.health.find(x=>x.source===s.id);
     const stt=!h?'<span class="mute">미실행</span>':h.skipped?'<span class="mute">'+esc(h.skipped)+'</span>':h.ok?'<span class="ok">정상</span> '+h.signalCount+'/'+h.rawCount:'<span class="bad">오류</span> <small>'+esc((h.error||"").slice(0,60))+'</small>';
     return \`<tr><td>\${esc(s.name)}<br><small>\${s.kind}</small></td><td>\${stt}<br><small>\${h?kst(h.fetchedAt):""}</small></td><td><small>\${esc(s.latency)}</small></td></tr>\`}).join("")}</table></div>
   \${st.setup?\`<h2>연결 설정</h2><div class="card" style="font-size:13px">

@@ -47,10 +47,17 @@ async function handleMcp(req: Request, env: Env): Promise<Response> {
   return transport.handleRequest(req);
 }
 
+/** 크론 표현식별 소스 묶음 (wrangler.toml 의 crons 와 일치해야 함) */
+const CRON_GROUPS: Record<string, string[]> = {
+  "*/5 * * * *": ["safetydata", "usgs", "emsc", "opensky"],
+  "2-59/15 * * * *": ["nga_msi"],
+  "4-59/10 * * * *": ["gdelt", "rss_news"],
+};
+
 /** 사이클 실행 결과(또는 오류)를 대시보드가 볼 수 있게 기록 */
-async function runAndRecord(env: Env, store: D1Store, now: number, trigger: string) {
+async function runAndRecord(env: Env, store: D1Store, now: number, trigger: string, only?: string[]) {
   try {
-    const report = await runCycle(env, store, { now });
+    const report = await runCycle(env, store, { now, only });
     await store.setKv("last_cycle", JSON.stringify({ at: report.at, trigger, sources: report.sources, alerts: report.alerts, newSignals: report.newSignals }));
     return report;
   } catch (e) {
@@ -64,7 +71,7 @@ export default {
   async scheduled(ctrl: ScheduledController, rawEnv: Env, ctx: ExecutionContext) {
     const env = await resolveEnv(rawEnv);
     const store = new D1Store(env.DB);
-    const report = await runAndRecord(env, store, ctrl.scheduledTime, "cron");
+    const report = await runAndRecord(env, store, ctrl.scheduledTime, "cron", CRON_GROUPS[ctrl.cron]);
     if (!report || "error" in report) return;
     const d = new Date(report.at);
     if (d.getUTCHours() === 15 && d.getUTCMinutes() < 5) ctx.waitUntil(store.prune(report.at - 30 * 86400_000));

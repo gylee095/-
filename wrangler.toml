@@ -3,9 +3,12 @@ main = "src/worker/index.ts"
 compatibility_date = "2026-10-01"
 compatibility_flags = ["nodejs_compat"]
 
-# 5분마다 감시 사이클 (Workers 무료 플랜: 크론 트리거 5개, 요청 10만/일 이내)
+# 무료 플랜은 실행 1회당 CPU 10ms 제한 → 소스를 묶음별로 나눠 각각 다른 크론에서 실행
+#  - 5분: 재난문자·지진·항공 (빠른 소스)
+#  - 15분: 항행경보 (응답이 큼)
+#  - 10분: 언론 (기준선)
 [triggers]
-crons = ["*/5 * * * *"]
+crons = ["*/5 * * * *", "2-59/15 * * * *", "4-59/10 * * * *"]
 
 [[d1_databases]]
 binding = "DB"

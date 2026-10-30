@@ -60,8 +60,13 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
       try {
         const readings = await latestReadings();
         const now = Date.now();
-        const rows = INDICATORS.map((d) => ({ ...describeReading(readings[d.id], d.id), why: d.why, caveats: d.caveats, direction: d.direction }))
-          .filter((r) => !only_abnormal || r.stateCode === "elevated" || r.stateCode === "anomalous");
+        // 토큰 절약: 설명(why/caveats)은 상승·이상 항목에만 붙인다. 나머지는 docs/INDICATORS.md 참고
+        const rows = INDICATORS.map((d) => {
+          const r = describeReading(readings[d.id], d.id);
+          const abnormal = r.stateCode === "elevated" || r.stateCode === "anomalous";
+          const { meta, ...slim } = r;
+          return abnormal ? { ...r, why: d.why, caveats: d.caveats, direction: d.direction } : { ...slim, direction: d.direction };
+        }).filter((r) => !only_abnormal || r.stateCode === "elevated" || r.stateCode === "anomalous");
         const events = await store.getEvents(now - 7 * 86400_000);
         const patterns = detectPatterns(readings, events, now);
         return out({

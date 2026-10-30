@@ -49,13 +49,16 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
           learningIndicators: st.board.filter((b) => b.reading?.state === "learning").length,
           unavailableIndicators: st.board.filter((b) => !b.reading || b.stateLabel === "측정 불가").map((b) => b.id),
           lastAssessment: st.assessment ? { at: fmtKst(st.assessment.at), text: st.assessment.text } : null,
-          events: st.events.map((e) => ({
+          // 토큰 절약: 중요한 사건 최대 8건만 상세, 나머지는 한 줄
+          events: st.events.filter((e) => e.brief.isProvocation || e.brief.danger.level >= 2).slice(0, 8).map((e) => ({
             id: e.id, status: e.status, severity: e.severity, title: e.title,
             brief: { ...e.brief, at: fmtKst(e.brief.at), latest: e.brief.latest && { ...e.brief.latest, at: fmtKst(e.brief.latest.at) } }, categories: e.categories, sources: e.sources,
             drill: e.drill, retracted: e.retracted,
             times: { event: fmtKst(e.eventTime), published: fmtKst(e.firstPublishedTime), detected: fmtKst(e.firstDetectedTime), alerted: fmtKst(e.alertedTime), firstMedia: fmtKst(e.firstMediaTime) },
-            evidence: e.signals.map((s: any) => ({ source: s.source, kind: s.sourceKind, title: s.title, url: s.url })),
+            evidence: e.signals.slice(0, 3).map((s: any) => ({ source: s.source, kind: s.sourceKind, title: s.title, url: s.url })),
+            moreEvidence: Math.max(0, e.signals.length - 3),
           })),
+          otherEvents: st.events.filter((e) => !(e.brief.isProvocation || e.brief.danger.level >= 2)).slice(0, 10).map((e) => `${e.brief.headline} (${e.sources.join(",")})`),
           health: st.health.map((h) => ({ ...h, fetchedAt: fmtKst(h.fetchedAt) })),
           recentAlerts: st.alerts.slice(0, 10).map((a) => ({ at: fmtKst(a.sentAt), title: a.title, ok: a.ok })),
           notes: st.notes.slice(0, 5).map((n) => ({ at: fmtKst(n.at), text: n.text })),

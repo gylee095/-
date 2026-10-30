@@ -51,7 +51,9 @@ async function handleMcp(req: Request, env: Env): Promise<Response> {
 const CRON_GROUPS: Record<string, string[]> = {
   "* * * * *": ["rss_breaking"],
   "*/5 * * * *": ["safetydata", "usgs", "emsc", "adsb_lol", "rss_news"],
-  "2-59/15 * * * *": ["nga_msi"],
+  "3-59/15 * * * *": ["nga_msi", "bluesky", "markets"],
+  "11 * * * *": ["travel", "korea_kr_mnd", "ioda", "aisstream", "firms"],
+  "41 2 * * *": ["gpsjam"],
 };
 
 /** 사이클 실행 결과(또는 오류)를 대시보드가 볼 수 있게 기록 */

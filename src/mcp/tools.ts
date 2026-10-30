@@ -14,6 +14,7 @@ import { fetchQuakes, quakeToSignal, PUNGGYE_RI, type Quake } from "../core/coll
 import { fetchSafetyMessages } from "../core/collectors/safetydata.js";
 import { fetchNgaWarnings } from "../core/collectors/nga.js";
 import { fetchAircraft, AIR_REGIONS } from "../core/collectors/adsb.js";
+import { registerIndicatorTools, describeReading } from "./tools_indicators.js";
 import { searchGdelt, searchFeeds } from "../core/collectors/news.js";
 
 export interface ToolContext {
@@ -43,6 +44,11 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
           now: fmtKst(st.now),
           threat: st.threat,
           posture: st.posture,
+          patterns: st.patterns.map((p) => ({ name: p.name, confidence: p.confidence, score: p.score, summary: p.summary, alternatives: p.alternatives, checks: p.checks })),
+          abnormalIndicators: st.board.filter((b) => b.reading && (b.reading.state === "elevated" || b.reading.state === "anomalous")).map((b) => describeReading(b.reading, b.id)),
+          learningIndicators: st.board.filter((b) => b.reading?.state === "learning").length,
+          unavailableIndicators: st.board.filter((b) => !b.reading || b.stateLabel === "측정 불가").map((b) => b.id),
+          lastAssessment: st.assessment ? { at: fmtKst(st.assessment.at), text: st.assessment.text } : null,
           events: st.events.map((e) => ({
             id: e.id, status: e.status, severity: e.severity, title: e.title,
             brief: { ...e.brief, at: fmtKst(e.brief.at), latest: e.brief.latest && { ...e.brief.latest, at: fmtKst(e.brief.latest.at) } }, categories: e.categories, sources: e.sources,
@@ -291,4 +297,6 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
     },
     async () => out({ sources: listSources(), disabled: env.DISABLED_SOURCES, health: (await store.getHealth()).filter((h) => !(env.DISABLED_SOURCES ?? "").split(",").includes(h.source)), configured: { safetydata: !!env.SAFETYDATA_API_KEY, push: !!(env.NTFY_TOPIC || env.PUSHOVER_TOKEN) } }),
   );
+
+  registerIndicatorTools(server, ctx);
 }

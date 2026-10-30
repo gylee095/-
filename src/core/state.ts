@@ -4,19 +4,40 @@ import { latencyMetrics } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { listSources } from "./sources.js";
 import { briefEvent, currentThreat } from "./brief.js";
-import type { Signal } from "./types.js";
+import type { Reading, Signal } from "./types.js";
+import { GROUP_LABEL, INDICATORS, STATE_LABEL } from "./indicators.js";
+import type { Pattern } from "./patterns.js";
+
+export interface BoardRow {
+  id: string;
+  label: string;
+  group: string;
+  groupLabel: string;
+  unit: string;
+  direction: "high" | "low" | "both";
+  why: string;
+  latency: string;
+  caveats: string;
+  reading?: Reading;
+  stateLabel: string;
+  /** 최근 24시간 시간별 평균 (스파크라인) */
+  history: { hour: number; avg: number }[];
+}
 
 /** disabledSources: 꺼 둔 소스는 과거 오류 기록이 남아 있어도 상태 목록에서 뺀다 */
 export async function buildState(store: Store, since: number, disabledSources = "") {
   const disabled = new Set(disabledSources.split(",").map((s) => s.trim()).filter(Boolean));
   const now = Date.now();
-  const [events, signals, health, alerts, notes, lastCycle] = await Promise.all([
+  const [events, signals, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourly] = await Promise.all([
     store.getEvents(since),
     store.getSignals(since),
     store.getHealth(),
     store.getAlerts(since),
     store.getNotes(since),
     store.getKv("last_cycle"),
+    store.getKv("readings"),
+    store.getKv("patterns"),
+    store.getMetricHourly(now - 24 * 3600_000),
   ]);
   const byId = new Map(signals.map((s) => [s.id, s]));
   const enriched = events
@@ -37,12 +58,32 @@ export async function buildState(store: Store, since: number, disabledSources = 
     if (later.brief.latest && (!origin.brief.latest || later.brief.latest.at > origin.brief.latest.at)) origin.brief.latest = later.brief.latest;
     enriched.splice(enriched.indexOf(later), 1);
   }
+
+  const readings: Record<string, Reading> = readingsRaw ? JSON.parse(readingsRaw) : {};
+  const board: BoardRow[] = INDICATORS.map((d) => {
+    const r = readings[d.id];
+    // 30시간 넘게 갱신이 없으면 측정 불가로 본다 (일간 지표 포함)
+    const stale = r && now - r.at > 30 * 3600_000;
+    return {
+      id: d.id, label: d.label, group: d.group, groupLabel: GROUP_LABEL[d.group], unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats,
+      reading: r,
+      stateLabel: !r || stale ? STATE_LABEL.unavailable : STATE_LABEL[r.state],
+      history: hourly.filter((h) => h.indicator === d.id).map((h) => ({ hour: h.hour, avg: +h.avg.toFixed(2) })),
+    };
+  });
+  const patterns: { at: number; patterns: Pattern[] } = patternsRaw ? JSON.parse(patternsRaw) : { at: 0, patterns: [] };
+  const assessment = notes.find((n) => n.kind === "assessment");
+
   return {
     now,
     threat: currentThreat(enriched.map((e) => e.brief), now),
     posture: posture(events, now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,
     events: enriched,
+    board,
+    patterns: now - patterns.at < 6 * 3600_000 ? patterns.patterns : [],
+    patternsAt: patterns.at,
+    assessment,
     health: health.filter((h) => !disabled.has(h.source)),
     alerts: alerts.slice(-50).reverse(),
     notes,

@@ -19,7 +19,7 @@
 3. **GitHub Secrets** (저장소 → Settings → Secrets and variables → Actions → New repository secret):
    - `CLOUDFLARE_API_TOKEN` = 2번 토큰
    - `KEW_SECRET` = 20자 이상 무작위 문자열 (커넥터 URL·대시보드 로그인·ntfy 토픽이 모두 여기서 유도됨)
-   - 선택: `SAFETYDATA_API_KEY`(재난문자), `OPENSKY_CLIENT_ID`/`OPENSKY_CLIENT_SECRET`, `PUSHOVER_TOKEN`/`PUSHOVER_USER`
+   - 선택: `SAFETYDATA_API_KEY`(재난문자), `AISSTREAM_API_KEY`(서해 선박), `FIRMS_MAP_KEY`(위성 열점), `PUSHOVER_TOKEN`/`PUSHOVER_USER`
 4. **배포 실행**: Actions 탭 → *Deploy Worker* → 실패한 실행이 있으면 *Re-run jobs*, 없으면 *Run workflow*.
    D1 생성·마이그레이션·배포·비밀값 등록·헬스체크까지 자동. 요약(Summary)에 대시보드 주소가 나온다.
 5. **대시보드**: 아이폰 Safari로 주소 열기 → KEW_SECRET 입력 → 공유 → 홈 화면에 추가.

@@ -10,7 +10,15 @@ export type SourceId =
   | "opensky"
   | "gdelt"
   | "rss_breaking"
-  | "rss_news";
+  | "rss_news"
+  | "travel"
+  | "korea_kr_mnd"
+  | "markets"
+  | "ioda"
+  | "bluesky"
+  | "gpsjam"
+  | "aisstream"
+  | "firms";
 
 export interface SourceMeta {
   id: SourceId;
@@ -138,7 +146,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
   },
   rss_news: {
     id: "rss_news",
-    name: "언론 RSS (NK News, BBC 아시아 — 교차확인용)",
+    name: "언론 RSS (NK News, BBC 아시아, CSIS Beyond Parallel — 교차확인용)",
     kind: "media",
     access: "키 불필요",
     cost: "무료",
@@ -148,6 +156,110 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     terms: "각 언론사 저작권. 제목·링크만 저장, 본문 미저장",
     hosts: ["www.nknews.org", "feeds.bbci.co.uk"],
     notes: "연합뉴스 속보와 독립된 두 번째 언론사로 교차확인. 리드타임 측정에도 사용.",
+  },
+  travel: {
+    id: "travel",
+    name: "미 국무부·영국 외무부 한국 여행경보",
+    kind: "official",
+    access: "키 불필요",
+    cost: "무료",
+    refresh: "1시간",
+    latency: "발표 즉시~1시간",
+    realtime: "minutes",
+    terms: "미국 정부 퍼블릭 도메인 / 영국 Open Government Licence",
+    hosts: ["travel.state.gov", "www.gov.uk"],
+    notes: "'펜타곤 피자 지수'의 공식판. 단계 변경·안보 문구 갱신 시 신호. 주한미대사관 경보(kr.usembassy.gov)와 주한미군(usfk.mil)은 자동 접근을 차단해 제외.",
+  },
+  korea_kr_mnd: {
+    id: "korea_kr_mnd",
+    name: "정책브리핑 국방부 보도자료 (korea.kr)",
+    kind: "official",
+    access: "키 불필요 (HTML)",
+    cost: "무료",
+    refresh: "1시간",
+    latency: "사건 후 수 시간 (합참 기자단 문자보다 늦음)",
+    realtime: "delayed",
+    terms: "공공누리 출처표시",
+    hosts: ["www.korea.kr"],
+    notes: "자동 접근 가능한 유일한 국방부 공식 채널. 합참(jcs.mil.kr)·국방부(mnd.go.kr) 사이트는 해외 접속을 차단.",
+  },
+  markets: {
+    id: "markets",
+    name: "원·달러 환율 (Yahoo Finance)",
+    kind: "sensor",
+    access: "키 불필요 (비공식 API, 간헐적 429)",
+    cost: "무료",
+    refresh: "15분",
+    latency: "수 분",
+    realtime: "minutes",
+    terms: "개인 비상업 참고용",
+    hosts: ["query1.finance.yahoo.com"],
+    notes: "확인 지표. 뉴스 없는 시간대의 급변만 의미. KOSPI 는 요청 제한으로 제외.",
+  },
+  ioda: {
+    id: "ioda",
+    name: "IODA 북한 인터넷 장애 경보 (Georgia Tech)",
+    kind: "sensor",
+    access: "키 불필요",
+    cost: "무료",
+    refresh: "1시간",
+    latency: "수 분~1시간",
+    realtime: "minutes",
+    terms: "학술 공개 API",
+    hosts: ["api.ioda.inetintel.cc.gatech.edu"],
+    notes: "북한 외부망 단절 탐지. 개발 환경에서는 접속 불가로 배포 후 검증.",
+  },
+  bluesky: {
+    id: "bluesky",
+    name: "Bluesky 공개 검색 (사이렌·경보 목격담)",
+    kind: "media",
+    access: "키 불필요",
+    cost: "무료",
+    refresh: "15분",
+    latency: "수 분",
+    realtime: "minutes",
+    terms: "AT Protocol 공개 API",
+    hosts: ["public.api.bsky.app"],
+    notes: "X·네이버는 API 없음. 표본이 작아 보조 지표. 개발 환경에서 403 → 배포 후 검증.",
+  },
+  gpsjam: {
+    id: "gpsjam",
+    name: "GPSJam 일간 GPS 교란 지도",
+    kind: "sensor",
+    access: "키 불필요 (일간 CSV)",
+    cost: "무료",
+    refresh: "하루 1회",
+    latency: "약 1일 (전일 데이터)",
+    realtime: "delayed",
+    terms: "ADS-B Exchange 기반 파생 데이터, 비상업 참고",
+    hosts: ["gpsjam.org"],
+    notes: "한반도·서해·북한 상공 셀만 집계. 실시간 아님을 화면에 명시.",
+  },
+  aisstream: {
+    id: "aisstream",
+    name: "aisstream.io 서해 선박 AIS",
+    kind: "sensor",
+    access: "무료 키 (aisstream.io 가입)",
+    cost: "무료",
+    refresh: "1시간 (25초 표본)",
+    latency: "수 초~수 분",
+    realtime: "near-realtime",
+    terms: "aisstream.io 이용약관 (비상업)",
+    hosts: ["stream.aisstream.io"],
+    notes: "중국·한국·북한 국적 선박 수. 키 없이는 미검증. 휴어기(5/1~8/16)·기상 영향 큼.",
+  },
+  firms: {
+    id: "firms",
+    name: "NASA FIRMS 위성 열 이상 (VIIRS)",
+    kind: "sensor",
+    access: "무료 MAP_KEY (이메일 등록 즉시 발급)",
+    cost: "무료",
+    refresh: "1시간",
+    latency: "약 3시간",
+    realtime: "delayed",
+    terms: "NASA 공개 데이터, 출처 표시",
+    hosts: ["firms.modaps.eosdis.nasa.gov"],
+    notes: "북한 영역 열점과 발사장·시험장 12km 이내 열점. 농업 소각·산불이 대부분.",
   },
 };
 

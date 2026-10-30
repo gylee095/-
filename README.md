@@ -58,13 +58,19 @@ npm run scan:dry
 
 운영 시에는 Worker의 원격 커넥터를 claude.ai에 등록해 쓰고, 로컬 개발 시에는 `claude mcp add kew-local -- npx tsx src/mcp/server.ts`로 같은 도구를 stdio로 쓸 수 있다.
 
+## 징후·경보(I&W) 엔진
+
+사건(미사일·포격 보도) 감지 위에 **징후판**이 있다. 항공·해상·지진·항행경보·정부공식·북한수사·언론템포·SNS·시장·인터넷·GPS·위성열점 12개 영역 23개 징후를 같은 시간대의 평소 값과 비교해 정상/상승/이상으로 판정하고, 독립된 영역이 동시에 흔들릴 때만 '패턴'(발사 준비, 서해 충돌 위험, 공역 통제 의심, 서방 경계 격상 …)으로 묶어 알린다. Claude 는 3시간마다 경쟁가설분석(ACH)으로 해석하고 자동 규칙이 모르는 조합을 찾는다. 자세한 근거·한계는 [docs/INDICATORS.md](docs/INDICATORS.md).
+
 ## 문서
+- [docs/INDICATORS.md](docs/INDICATORS.md) — 징후 카탈로그(왜 보는가), 패턴 규칙, 할 수 없는 것(피자 지수·실시간 위성·CCTV)
 - [docs/SOURCES.md](docs/SOURCES.md) — 데이터 소스 검증표, MCP 서버 조사, 지연 표기 원칙
 - [docs/DEPLOY.md](docs/DEPLOY.md) — 배포(Cloudflare/Cloud Run), 비밀값, 아이폰 푸시, Claude 예약 작업, 운영·장애 대응
 
 ## 디렉터리
 ```
 src/core/        수집기·분류기·상관분석·알림정책·저장소 (Worker/Node 공용)
+src/core/indicators.ts  징후 카탈로그 + 기준선 통계 / patterns.ts  패턴 규칙 / brief.ts  사건 한줄요약
 src/worker/      Cloudflare Worker (크론, D1, 대시보드, API)
 src/mcp/         MCP 도구 정의(tools.ts) + 로컬 stdio 서버
 .github/workflows/deploy.yml   휴대폰용 자동 배포

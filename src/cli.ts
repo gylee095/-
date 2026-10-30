@@ -31,6 +31,9 @@ if (cmd === "scan") {
   console.log(`# 관측 수준 ${r.posture.level} ${r.posture.label}`);
   for (const a of r.alerts) console.log(`  🔔 ${a.sent ? "발송" : "미발송"} ${a.kind} ${a.title} (${a.reason})`);
   for (const s of r.suppressed.slice(0, 10)) console.log(`  · 억제: ${s.title} — ${s.reason}`);
+  console.log(`# 징후판 (${r.readings.length}개 관측)`);
+  for (const x of r.readings) console.log(`  ${x.state === "anomalous" ? "‼" : x.state === "elevated" ? "↑" : x.state === "learning" ? "…" : "·"} ${x.indicator.padEnd(34)} ${String(x.value).padStart(8)}  ${x.baseline !== undefined ? `평소 ${x.baseline.toFixed(1)} z=${x.z?.toFixed(1)}` : ""}`);
+  for (const p of r.patterns) console.log(`  ◆ 패턴 ${p.name} (${p.confidence}, ${p.score}점): ${p.summary}`);
 } else if (cmd === "state") {
   console.log(JSON.stringify(await buildState(store, Date.now() - Number(opt("hours") ?? 24) * 3600_000), null, 2));
 } else if (cmd === "preview") {

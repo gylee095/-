@@ -1,5 +1,5 @@
-import type { AlertRecord, CrisisEvent, Signal } from "../core/types.js";
-import type { AgentNote, SourceHealth, Store } from "../core/store.js";
+import type { AlertRecord, CrisisEvent, Reading, Signal } from "../core/types.js";
+import type { AgentNote, MetricPoint, SourceHealth, Store } from "../core/store.js";
 
 export class D1Store implements Store {
   constructor(private db: D1Database) {}
@@ -81,10 +81,30 @@ export class D1Store implements Store {
     return r.results.map((x) => JSON.parse(x.doc));
   }
 
+  async putMetrics(readings: Reading[]): Promise<void> {
+    if (!readings.length) return;
+    const stmt = this.db.prepare("INSERT OR REPLACE INTO metrics (indicator, at, value, z, state, doc) VALUES (?, ?, ?, ?, ?, ?)");
+    await this.db.batch(readings.map((r) => stmt.bind(r.indicator, r.at, r.value, r.z ?? null, r.state, JSON.stringify(r))));
+  }
+
+  async getMetricHistory(indicator: string, since: number): Promise<MetricPoint[]> {
+    const r = await this.db.prepare("SELECT at, value FROM metrics WHERE indicator = ? AND at >= ? ORDER BY at").bind(indicator, since).all<{ at: number; value: number }>();
+    return r.results;
+  }
+
+  async getMetricHourly(since: number) {
+    const r = await this.db
+      .prepare("SELECT indicator, (at / 3600000) AS hour, AVG(value) AS avg FROM metrics WHERE at >= ? GROUP BY indicator, hour ORDER BY hour")
+      .bind(since)
+      .all<{ indicator: string; hour: number; avg: number }>();
+    return r.results.map((x) => ({ ...x, hour: Math.floor(x.hour) }));
+  }
+
   async prune(olderThan: number): Promise<void> {
     await this.db.batch([
       this.db.prepare("DELETE FROM signals WHERE detected_at < ?").bind(olderThan),
       this.db.prepare("DELETE FROM events WHERE first_detected_at < ?").bind(olderThan),
+      this.db.prepare("DELETE FROM metrics WHERE at < ?").bind(olderThan),
     ]);
   }
 }

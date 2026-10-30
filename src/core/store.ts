@@ -1,5 +1,5 @@
 // 저장소 추상화: Cloudflare D1(운영) / JSON 파일(로컬·에이전트) / 메모리(테스트)
-import type { AlertRecord, CollectResult, CrisisEvent, Signal } from "./types.js";
+import type { AlertRecord, CollectResult, CrisisEvent, Reading, Signal } from "./types.js";
 
 export interface SourceHealth {
   source: string;
@@ -16,6 +16,14 @@ export interface AgentNote {
   author: string;
   text: string;
   eventIds?: string[];
+  /** assessment: 구조화된 분석(data 에 JSON) */
+  kind?: "note" | "assessment";
+  data?: unknown;
+}
+
+export interface MetricPoint {
+  at: number;
+  value: number;
 }
 
 export interface Store {
@@ -31,6 +39,10 @@ export interface Store {
   setKv(k: string, v: string): Promise<void>;
   addNote(n: AgentNote): Promise<void>;
   getNotes(sinceMs: number): Promise<AgentNote[]>;
+  putMetrics(readings: Reading[]): Promise<void>;
+  getMetricHistory(indicator: string, sinceMs: number): Promise<MetricPoint[]>;
+  /** 모든 지표의 시간별 평균 (스파크라인용) */
+  getMetricHourly(sinceMs: number): Promise<{ indicator: string; hour: number; avg: number }[]>;
 }
 
 export function healthOf(r: CollectResult): SourceHealth {
@@ -44,9 +56,10 @@ interface State {
   health: Record<string, SourceHealth>;
   kv: Record<string, string>;
   notes: AgentNote[];
+  metrics: Reading[];
 }
 
-const emptyState = (): State => ({ signals: {}, events: {}, alerts: [], health: {}, kv: {}, notes: [] });
+const emptyState = (): State => ({ signals: {}, events: {}, alerts: [], health: {}, kv: {}, notes: [], metrics: [] });
 
 export class MemoryStore implements Store {
   protected s: State;
@@ -107,10 +120,31 @@ export class MemoryStore implements Store {
   async getNotes(since: number) {
     return this.s.notes.filter((n) => n.at >= since);
   }
+  async putMetrics(readings: Reading[]) {
+    this.s.metrics.push(...readings);
+    await this.save();
+  }
+  async getMetricHistory(indicator: string, since: number) {
+    return this.s.metrics.filter((m) => m.indicator === indicator && m.at >= since).map((m) => ({ at: m.at, value: m.value }));
+  }
+  async getMetricHourly(since: number) {
+    const acc = new Map<string, { sum: number; n: number }>();
+    for (const m of this.s.metrics) {
+      if (m.at < since) continue;
+      const hour = Math.floor(m.at / 3600_000);
+      const k = `${m.indicator}|${hour}`;
+      const a = acc.get(k) ?? { sum: 0, n: 0 };
+      a.sum += m.value;
+      a.n++;
+      acc.set(k, a);
+    }
+    return [...acc.entries()].map(([k, a]) => ({ indicator: k.split("|")[0], hour: Number(k.split("|")[1]), avg: a.sum / a.n }));
+  }
   /** 보존 기간이 지난 데이터 정리 */
   prune(olderThan: number) {
     for (const [k, v] of Object.entries(this.s.signals)) if (v.detectedTime < olderThan) delete this.s.signals[k];
     for (const [k, v] of Object.entries(this.s.events)) if (v.firstDetectedTime < olderThan) delete this.s.events[k];
+    this.s.metrics = this.s.metrics.filter((m) => m.at >= olderThan);
   }
 }
 

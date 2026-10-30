@@ -88,6 +88,29 @@ export interface AlertRecord {
   error?: string;
 }
 
+/** 수치형 징후 관측값 (indicators.ts 카탈로그의 id 사용) */
+export interface Metric {
+  indicator: string;
+  value: number;
+  meta?: Record<string, unknown>;
+}
+
+export type IndicatorState = "normal" | "elevated" | "anomalous" | "learning" | "unavailable";
+
+/** 기준선과 비교된 관측값 */
+export interface Reading {
+  indicator: string;
+  value: number;
+  at: number;
+  baseline?: number;
+  sd?: number;
+  z?: number;
+  /** 이 시간대 기준선에 반영된 표본 수 */
+  n: number;
+  state: IndicatorState;
+  meta?: Record<string, unknown>;
+}
+
 export interface CollectResult {
   source: string;
   ok: boolean;
@@ -99,6 +122,8 @@ export interface CollectResult {
   rawCount: number;
   /** 소스별 부가 측정값 (예: opensky airborne 대수) */
   meta?: Record<string, number>;
+  /** 징후판에 올라가는 수치 관측값 */
+  metrics?: Metric[];
 }
 
 export interface Env {
@@ -113,4 +138,8 @@ export interface Env {
   DASHBOARD_URL?: string;
   /** 쉼표로 구분된 비활성화 소스 목록 */
   DISABLED_SOURCES?: string;
+  /** aisstream.io 무료 키 — 서해 선박(AIS) 관측 */
+  AISSTREAM_API_KEY?: string;
+  /** NASA FIRMS 무료 MAP_KEY — 위성 열 이상(화재·연소) 관측 */
+  FIRMS_MAP_KEY?: string;
 }

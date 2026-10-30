@@ -1,5 +1,6 @@
 // NGA MSI Broadcast Warnings (HYDROPAC 등). 발사 예고·사격 구역·GPS 교란 항행경보는 '선행 신호'다.
-import type { CollectResult, Signal } from "../types.js";
+import type { CollectResult, Metric, Signal } from "../types.js";
+import { isKoreaRelevant } from "../classify.js";
 import { classifyText } from "../classify.js";
 import { fetchJson, parseDtg } from "../util.js";
 
@@ -8,9 +9,19 @@ export async function fetchNgaWarnings(): Promise<any[]> {
   return data["broadcast-warn"] ?? [];
 }
 
+/** 한반도 관련 유효 경보 수와 발사 예고 경보 수 */
+export function navwarnMetrics(rows: any[]): Metric[] {
+  const korea = rows.filter((r) => isKoreaRelevant(String(r.text ?? "")));
+  const launch = korea.filter((r) => /ROCKET|MISSILE|SATELLITE LAUNCH|SPACE DEBRIS/i.test(String(r.text ?? "").replace(/CANCEL THIS MSG[^\n]*/gi, "")));
+  return [
+    { indicator: "navwarn.korea_active", value: korea.length, meta: { refs: korea.slice(0, 8).map((r) => `${r.navArea}-${r.msgNumber}/${r.msgYear}`) } },
+    { indicator: "navwarn.launch_notice_active", value: launch.length, meta: { refs: launch.map((r) => ({ ref: `${r.navArea}-${r.msgNumber}/${r.msgYear}`, authority: r.authority, head: String(r.text ?? "").split("\n").slice(0, 4).join(" ").slice(0, 160) })) } },
+  ];
+}
+
 export async function collectNga(now = Date.now()): Promise<CollectResult> {
   const rows = await fetchNgaWarnings();
-  return { source: "nga_msi", ok: true, fetchedAt: now, rawCount: rows.length, signals: parseNga(rows, now) };
+  return { source: "nga_msi", ok: true, fetchedAt: now, rawCount: rows.length, signals: parseNga(rows, now), metrics: navwarnMetrics(rows) };
 }
 
 /** 경보문에서 첫 번째 좌표("38-12.00N 124-30.00E")를 추출 */

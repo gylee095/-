@@ -109,9 +109,11 @@ export async function fetchQuakes(now: number, lookbackH: number, minMag: number
   return { usgs: pick(usgs), emsc: pick(emsc) };
 }
 
-export async function collectUsgs(now = Date.now(), lookbackH = 6): Promise<CollectResult> {
+export async function collectUsgs(now = Date.now(), lookbackH = 24): Promise<CollectResult> {
   const data = await fetchFdsn(usgsUrl(now, lookbackH, 2.5));
-  return { source: "usgs", ok: true, fetchedAt: now, rawCount: data.features?.length ?? 0, signals: parseUsgs(data, now) };
+  const quakes = usgsToQuakes(data);
+  const metrics = [{ indicator: "seismic.nk_events_24h", value: quakes.filter((q) => now - q.time < 24 * 3600_000).length, meta: { quakes: quakes.slice(0, 5).map((q) => ({ time: q.time, mag: q.mag, depthKm: q.depthKm, place: q.place })) } }];
+  return { source: "usgs", ok: true, fetchedAt: now, rawCount: data.features?.length ?? 0, signals: parseUsgs(data, now), metrics };
 }
 
 export function parseUsgs(data: any, now: number): Signal[] {

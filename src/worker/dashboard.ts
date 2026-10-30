@@ -1,5 +1,6 @@
-// 모바일 우선 대시보드. "지금 얼마나 위험한가 → 가장 최근 속보(몇 분 전) → 무엇을 몇 발, 어디서 어디로" 순서로 보여준다.
-// 데이터는 /api/state 에서 토큰으로 조회. 지도는 Leaflet + CARTO 타일.
+// 모바일 우선 대시보드.
+// 순서: 지금 얼마나 위험한가 → 감지된 패턴 → 가장 최근 속보(몇 분 전, 무엇을 몇 발 어디로, 지도) → 징후판 → 클로드 분석 → 시스템.
+// 데이터는 /api/state 에서 토큰으로 조회. 지도는 Leaflet + Esri 회색 지도.
 // 주의: 아래 클라이언트 코드는 String.raw 템플릿 안에 있으므로 템플릿 리터럴(백틱·${})을 쓰지 않는다.
 export const DASHBOARD_HTML = String.raw`<!doctype html>
 <html lang="ko"><head>
@@ -11,9 +12,9 @@ export const DASHBOARD_HTML = String.raw`<!doctype html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--fg:#111418;--mute:#5f6773;--line:#e2e5e9;--chip:#eef0f3;
---l1:#2e7d32;--l2:#b58105;--l3:#e0650b;--l4:#d32f2f;--l5:#8e0000;--fresh:#d32f2f;--warm:#e0650b;--old:#8a929c;--link:#1f5fbf}
+--l1:#2e7d32;--l2:#b58105;--l3:#e0650b;--l4:#d32f2f;--l5:#8e0000;--fresh:#d32f2f;--warm:#e0650b;--old:#8a929c;--link:#1f5fbf;--learn:#8a929c}
 @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#181b21;--fg:#eceef1;--mute:#9aa3ae;--line:#2a2f37;--chip:#232830;
---l1:#4caf50;--l2:#f2b632;--l3:#ff8a3d;--l4:#ff5252;--l5:#ff1744;--fresh:#ff5252;--warm:#ff8a3d;--old:#8a929c;--link:#7fb0ff}}
+--l1:#4caf50;--l2:#f2b632;--l3:#ff8a3d;--l4:#ff5252;--l5:#ff1744;--fresh:#ff5252;--warm:#ff8a3d;--old:#8a929c;--link:#7fb0ff;--learn:#6b7380}}
 *{box-sizing:border-box}html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;padding:0 16px 48px;padding-top:env(safe-area-inset-top)}
 .wrap{max-width:720px;margin:0 auto}
@@ -41,13 +42,26 @@ body{background:var(--bg);color:var(--fg);font:16px/1.45 -apple-system,BlinkMacS
 #map{height:260px;border-radius:12px;overflow:hidden;margin-top:6px;border:1px solid var(--line)}
 .legend{font-size:12px;color:var(--mute);margin-top:6px}
 .latest{font-size:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.latest a,.src a{color:var(--link);text-decoration:none}
+.latest a,.src a,.pat a{color:var(--link);text-decoration:none}
 details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;list-style:none}details summary::-webkit-details-marker{display:none}
 .src{font-size:14px;padding:8px 0;border-top:1px dashed var(--line)}.src small{color:var(--mute)}
 .row{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.row:first-child{border-top:0}
 .row .t{flex:none;width:76px;font-size:13px;font-weight:700}.row .t.f{color:var(--fresh)}.row .t.w{color:var(--warm)}.row .t.o{color:var(--old)}
 .row .b{flex:1;min-width:0}.row .h{font-weight:600;font-size:15px}.row .x{font-size:12px;color:var(--mute);margin-top:2px}
 .lv{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}.lv1{background:var(--l1)}.lv2{background:var(--l2)}.lv3{background:var(--l3)}.lv4{background:var(--l4)}.lv5{background:var(--l5)}
+.pat{border-left:5px solid var(--l2)}.pat.high{border-left-color:var(--l4)}.pat.low{border-left-color:var(--old);opacity:.85}
+.pat .pn{font-size:17px;font-weight:800}.pat .ps{font-size:14px;margin:6px 0}.pat ul{margin:6px 0 0 18px;padding:0;font-size:13px;color:var(--mute)}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ind{background:var(--chip);border-radius:12px;padding:10px 12px;position:relative;cursor:pointer}
+.ind .il{font-size:12px;color:var(--mute);line-height:1.3;min-height:30px;padding-right:14px}.ind .iv{font-size:18px;font-weight:800;margin-top:4px}.ind .ib{font-size:11px;color:var(--mute)}
+.ind .st{position:absolute;top:10px;right:10px;width:10px;height:10px;border-radius:50%}
+.st.normal{background:var(--l1)}.st.elevated{background:var(--l2)}.st.anomalous{background:var(--l4);animation:pulse 1.2s infinite}.st.learning{background:var(--learn);opacity:.5}.st.unavailable{background:transparent;border:2px solid var(--learn)}
+.ind svg{display:block;width:100%;height:26px;margin-top:4px}
+.ind .why{display:none;font-size:12px;color:var(--fg);margin-top:8px;line-height:1.4}.ind.open .why{display:block}
+.grp{font-size:12px;font-weight:700;color:var(--mute);margin:14px 2px 6px}
+.as .ov{font-size:17px;font-weight:800;margin-bottom:6px}.as .hy{border-top:1px solid var(--line);padding:10px 0}.as .hy b{font-size:15px}
+.as .ev{font-size:13px;margin-top:4px}.as .ev span{display:inline-block;width:38px;color:var(--mute)}
+.lk{font-size:12px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;color:#fff}.lk.high{background:var(--l4)}.lk.medium{background:var(--l2)}.lk.low{background:var(--old)}
 .note{white-space:pre-wrap;font-size:15px}
 .btn{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--link);border-radius:10px;padding:8px 12px;font-size:14px;margin:4px 6px 4px 0;text-decoration:none}
 table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}.ok{color:var(--l1)}.bad{color:var(--l4)}
@@ -62,13 +76,14 @@ table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 4px;bord
 <script>
 var $=function(s){return document.querySelector(s)};
 var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
-var ST=null, map=null, showAll=false;
+var ST=null, map=null;
 function ago(ms){var d=Math.max(0,Date.now()-ms),m=Math.floor(d/60000);if(m<1)return "방금";if(m<60)return m+"분 전";var h=Math.floor(m/60);if(h<3)return h+"시간 "+(m%60)+"분 전";if(h<24)return h+"시간 전";var dd=Math.floor(h/24);return dd<2?dd+"일 "+(h%24)+"시간 전":dd+"일 전"}
 function fresh(ms){var h=(Date.now()-ms)/3600000;return h<1?"f":h<24?"w":"o"}
 function kst(ms){if(!ms)return "—";var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()+" "+String(d.getUTCHours()).padStart(2,"0")+":"+String(d.getUTCMinutes()).padStart(2,"0")}
 function tok(){try{var q=new URLSearchParams(location.search).get("key");if(q){localStorage.setItem("kew_token",q);history.replaceState(null,"",location.pathname+location.hash)}return localStorage.getItem("kew_token")}catch(e){return null}}
 function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch(e){}load()}
 var STATUS={CONFIRMED:"정부 공식확인",CORROBORATED:"복수 출처 교차확인",UNVERIFIED:"단일 출처"};
+var CONF={high:"신뢰도 높음",medium:"신뢰도 보통",low:"신뢰도 낮음"};
 function basisText(e){if(e.basis==="official_quote")return e.status==="CORROBORATED"?"언론 "+e.sources.length+"곳이 공식발표 인용":"속보 1곳 (교차확인 전)";if(e.basis==="media")return "언론 보도만";return STATUS[e.status]}
 async function load(){
   var st=window.__KEW_STATE__;
@@ -80,11 +95,17 @@ function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+ago(st.lastCycle?st.lastCycle.at:st.now);
   var h="";
-  // 1) 지금 상황
-  var lvl=th.level;h+='<div class="threat bg'+lvl+'"><div class="k">지금 한반도 상황</div><div class="v">'+esc(th.label)+'</div><div class="s">'+esc(th.summary)+'</div>';
+  // 1) 지금 상황 (사건 기반 위험도와 패턴 신뢰도 중 높은 쪽)
+  var pats=st.patterns||[];var patLvl=pats.some(function(p){return p.confidence==="high"})?3:pats.some(function(p){return p.confidence==="medium"})?2:1;
+  var lvl=Math.max(th.level,patLvl);var label=lvl===th.level?th.label:(lvl===3?"경계":"주의");
+  h+='<div class="threat bg'+lvl+'"><div class="k">지금 한반도 상황</div><div class="v">'+esc(label)+'</div><div class="s">'+esc(lvl>th.level?"징후 조합이 감지됨 — 아래 패턴 확인":th.summary)+'</div>';
   if(th.lastProvocation)h+='<div class="m">마지막 북한 도발 · <b>'+ago(th.lastProvocation.at)+'</b> · '+esc(th.lastProvocation.headline)+'</div>';
   h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>';
-  // 2) 가장 최근 속보
+  // 2) 패턴
+  if(pats.length){h+='<div class="sec" id="patterns">감지된 징후 조합 · '+ago(st.patternsAt)+'</div>';
+    h+=pats.map(function(p){return '<div class="card pat '+p.confidence+'"><div class="pn">'+esc(p.name)+' <span class="chip">'+CONF[p.confidence]+' · '+p.score+'점</span></div><div class="ps">'+esc(p.summary)+'</div>'+
+      '<details><summary>다른 설명 가능성 · 확인 방법</summary><ul>'+p.alternatives.map(function(a){return '<li>'+esc(a)+'</li>'}).join("")+'</ul><ul style="margin-top:6px">'+p.checks.map(function(c){return '<li>🔎 '+esc(c)+'</li>'}).join("")+'</ul></details></div>'}).join("")}
+  // 3) 가장 최근 속보
   if(top){var b=top.brief;
     h+='<div class="sec">가장 최근 주요 소식</div><div class="card" id="'+esc(top.id)+'">';
     h+='<div><span class="ago '+fresh(b.at)+'"><span class="dot"></span>'+ago(b.at)+'</span><span class="abs">'+kst(b.at)+' KST</span></div>';
@@ -95,28 +116,57 @@ function render(){
     if(b.latest&&b.latest.at>b.at+60000)h+='<div class="latest">최신 보도 <b>'+ago(b.latest.at)+'</b> · '+(b.latest.url?'<a href="'+esc(b.latest.url)+'" target="_blank" rel="noopener">'+esc(b.latest.title)+'</a>':esc(b.latest.title))+'</div>';
     h+=sources(top)+'</div>';
   }
-  // 3) 다른 소식 (최근순)
+  // 4) 징후판
+  h+='<div class="sec" id="board">징후판 — 평소와 다른 것이 있는가</div><div class="card">'+board(st.board||[])+'</div>';
+  // 5) 클로드 분석
+  if(st.assessment&&st.assessment.data){h+='<div class="sec">클로드 분석 · '+ago(st.assessment.at)+'</div><div class="card as">'+assessment(st.assessment.data)+'</div>'}
+  else if(st.notes&&st.notes.length){var n=st.notes[0];h+='<div class="sec">클로드 분석 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
+  // 6) 이전 소식
   var rest=evs.filter(function(e){return e!==top&&Date.now()-e.brief.at<30*86400000});
   var main=rest.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});
   var ref=rest.filter(function(e){return !(e.brief.isProvocation||e.brief.danger.level>=2)});
-  if(main.length){h+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,showAll?50:6).map(row).join("")+'</div>'}
+  if(main.length){h+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,8).map(row).join("")+'</div>'}
   if(ref.length)h+='<details class="card"><summary>참고 기사 '+ref.length+'건 (논평·분석, 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
-  // 4) 클로드 분석
-  if(st.notes&&st.notes.length){var n=st.notes[0];h+='<div class="sec">클로드 분석 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
-  // 5) 시스템
+  // 7) 시스템
   h+='<details class="card"><summary>시스템 상태 · 데이터 출처</summary>'+health(st)+'</details>';
   h+='<details class="card"><summary>알림 설정</summary>'+(st.setup?'<p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button><button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
-  h+='<div class="foot">공개 정보만 사용합니다. 위험도는 보도·관측 사실의 요약이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
+  h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
   if(top)drawMap(top.brief);
 }
 function fact(k,v){return '<div class="fact'+(v?"":" na")+'"><div class="fk">'+k+'</div><div class="fv">'+(v?esc(v):"보도 없음")+'</div></div>'}
+function fmtVal(r){var v=r.reading.value;if(r.unit==="%")return v.toFixed(2)+"%";return (Number.isInteger(v)?v:v.toFixed(1))+(r.unit||"")}
+function spark(hist){if(!hist||hist.length<2)return "";var vs=hist.map(function(p){return p.avg});var mn=Math.min.apply(null,vs),mx=Math.max.apply(null,vs);var W=100,H=26;
+  var pts=hist.map(function(p,i){var x=i/(hist.length-1)*W;var y=mx===mn?H/2:H-2-((p.avg-mn)/(mx-mn))*(H-4);return x.toFixed(1)+","+y.toFixed(1)}).join(" ");
+  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><polyline fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.5" points="'+pts+'"/></svg>'}
+function board(rows){var groups={};rows.forEach(function(r){(groups[r.groupLabel]=groups[r.groupLabel]||[]).push(r)});
+  var order=["항공","항행경보","정부 공식","북한 수사","언론 템포","해상","지진","GPS 교란","위성 열점","SNS","시장","인터넷"];
+  var abn=rows.filter(function(r){return r.reading&&(r.reading.state==="anomalous"||r.reading.state==="elevated")&&r.stateLabel!=="측정 불가"});
+  var h="";
+  if(abn.length)h+='<div class="grp" style="color:var(--l3)">⚠ 평소와 다른 징후 '+abn.length+'개</div><div class="board">'+abn.map(ind).join("")+'</div>';
+  else h+='<div class="grp" style="color:var(--l1)">✓ 측정 가능한 징후가 모두 평소 범위 안</div>';
+  order.forEach(function(g){if(!groups[g])return;h+='<div class="grp">'+g+'</div><div class="board">'+groups[g].map(ind).join("")+'</div>'});
+  var learning=rows.filter(function(r){return r.reading&&r.reading.state==="learning"}).length;
+  h+='<p style="font-size:12px;color:var(--mute);margin:12px 0 0">● 정상 · ● 상승 · ● 이상 · ○ 학습 중/측정 불가. 기준선은 같은 시간대의 최근 며칠 평균입니다'+(learning?' (아직 학습 중인 징후 '+learning+'개 — 하루쯤 지나면 안정됩니다)':'')+'. 항목을 누르면 왜 중요한지 설명이 나옵니다.</p>';
+  return h}
+function ind(r){var rd=r.reading,unavail=!rd||r.stateLabel==="측정 불가";var stc=unavail?"unavailable":rd.state;
+  var base=rd&&rd.baseline!=null&&!unavail&&rd.state!=="learning"?"평소 "+(r.unit==="%"?rd.baseline.toFixed(2)+"%":(Math.round(rd.baseline)+(r.unit||"")))+(rd.z!=null?" · z "+rd.z.toFixed(1):""):(unavail?"측정 불가":"기준선 학습 중 "+(rd?rd.n:0)+"/10");
+  var extra="";if(rd&&rd.meta){var m=rd.meta;if(m.aircraft&&m.aircraft.length)extra=m.aircraft.slice(0,3).map(function(a){return a.what.split("(")[0]}).join(", ");else if(m.titles&&m.titles.length)extra=m.titles[0];else if(m.note)extra=m.note;else if(m.signedPct!=null)extra=(m.signedPct>0?"+":"")+m.signedPct+"% · "+m.price+"원"}
+  return '<div class="ind" onclick="this.classList.toggle(\'open\')"><span class="st '+stc+'"></span><div class="il">'+esc(r.label)+'</div><div class="iv">'+(unavail?"—":fmtVal(r))+'</div><div class="ib">'+esc(base)+'</div>'+spark(r.history)+(extra?'<div class="ib" style="margin-top:2px">'+esc(extra).slice(0,70)+'</div>':"")+'<div class="why"><b>왜 보나:</b> '+esc(r.why)+'<br><b>지연:</b> '+esc(r.latency)+'<br><b>주의:</b> '+esc(r.caveats)+(rd?'<br><b>관측:</b> '+kst(rd.at):'')+'</div></div>'}
+function assessment(a){var h='<div class="ov"><span class="lv lv'+a.overall_level+'"></span>'+a.overall_level+'단계 · '+esc(a.overall)+'</div>';
+  (a.hypotheses||[]).forEach(function(x){h+='<div class="hy"><b>'+esc(x.hypothesis)+'</b><span class="lk '+x.likelihood+'">'+({high:"가능성 높음",medium:"가능성 보통",low:"가능성 낮음"})[x.likelihood]+'</span>';
+    if(x.evidence_for&&x.evidence_for.length)h+='<div class="ev"><span>찬성</span>'+esc(x.evidence_for.join(" · "))+'</div>';
+    if(x.evidence_against&&x.evidence_against.length)h+='<div class="ev"><span>반대</span>'+esc(x.evidence_against.join(" · "))+'</div>';
+    if(x.next_checks&&x.next_checks.length)h+='<div class="ev"><span>확인</span>'+esc(x.next_checks.join(" · "))+'</div>';h+='</div>'});
+  if(a.anomalies&&a.anomalies.length)h+='<div class="hy"><b>새로 눈에 띈 것</b><div class="ev">'+esc(a.anomalies.join(" · "))+'</div></div>';
+  if(a.gaps&&a.gaps.length)h+='<div class="hy"><b>감시 공백</b><div class="ev">'+esc(a.gaps.join(" · "))+'</div></div>';
+  return h}
 function row(e){var b=e.brief;return '<div class="row" onclick="this.querySelector(\'.more\').hidden=!this.querySelector(\'.more\').hidden"><div class="t '+fresh(b.at)+'">'+ago(b.at)+'</div><div class="b"><div class="h"><span class="lv lv'+b.danger.level+'"></span>'+esc(b.headline)+'</div><div class="x">'+kst(b.at)+' · 위험도 '+esc(b.danger.label)+' · '+esc(basisText(e))+'</div><div class="more" hidden>'+sources(e,true)+'</div></div></div>'}
 function sources(e,open){var s=e.signals.slice().sort(function(a,b){return (b.publishedTime||b.detectedTime)-(a.publishedTime||a.detectedTime)});
   var inner=s.map(function(x){return '<div class="src"><small>'+ago(x.publishedTime||x.detectedTime)+' · '+esc(x.summary||x.source)+'</small><br>'+(x.url?'<a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a>':esc(x.title))+'</div>'}).join("");
   return open?inner:'<details><summary>근거 기사·데이터 '+s.length+'건 보기</summary>'+inner+'</details>'}
 function health(st){return '<p style="font-size:13px">마지막 수집 '+(st.lastCycle?ago(st.lastCycle.at):"없음")+' <button class="btn" id="runbtn" onclick="runNow()">지금 수집</button></p><table>'+st.sources.map(function(s){var h=st.health.find(function(x){return x.source===s.id});
-  var stt=!h?'<span>대기</span>':h.skipped?'<span>꺼짐</span>':h.ok?'<span class="ok">정상</span>':'<span class="bad">오류</span>';
+  var stt=!h?'<span>대기</span>':h.skipped?'<span>꺼짐 <small>'+esc(h.skipped).slice(0,40)+'</small></span>':h.ok?'<span class="ok">정상</span>'+(h.error?' <small class="bad">'+esc(h.error).slice(0,50)+'</small>':''):'<span class="bad">오류</span> <small>'+esc(h.error||"").slice(0,60)+'</small>';
   return '<tr><td>'+esc(s.name)+'<br><small>'+esc(s.latency)+'</small></td><td>'+stt+'<br><small>'+(h?ago(h.fetchedAt):"")+'</small></td></tr>'}).join("")+'</table>'}
 function drawMap(b){var el=$("#map");if(!el||!window.L)return;if(map){map.remove();map=null}
   var dark=matchMedia("(prefers-color-scheme: dark)").matches;

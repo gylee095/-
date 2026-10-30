@@ -1,15 +1,18 @@
-// 한 번의 감시 사이클: 수집 → 저장(중복 제거) → 상관분석 → 알림 판단 → 발송 → 기록
+// 한 번의 감시 사이클: 수집 → 저장(중복 제거) → 상관분석 → 징후 기준선 비교 → 패턴 탐지 → 알림 판단 → 발송 → 기록
 import { briefEvent } from "./brief.js";
-import type { CollectResult, CrisisEvent, Env } from "./types.js";
+import type { CollectResult, CrisisEvent, Env, Metric, Reading, Signal } from "./types.js";
 import type { Store } from "./store.js";
 import { healthOf } from "./store.js";
 import { runCollectors } from "./collectors/index.js";
-import { airspaceAnomaly, updateBaseline } from "./collectors/opensky.js";
 import { correlate } from "./correlate.js";
 import { decideAlerts, formatAlert, posture, type AlertDecision } from "./policy.js";
 import { sendPush } from "./notify.js";
+import { INDICATOR_BY_ID, evaluate, slotKey, updateBaseline, type Baseline } from "./indicators.js";
+import { detectPatterns, type Pattern } from "./patterns.js";
 
 export const LOOKBACK_MS = 72 * 3600_000;
+/** 같은 패턴은 이 간격 안에서 한 번만 알린다 (신뢰도가 올라가면 다시 알림) */
+const PATTERN_ALERT_INTERVAL = 6 * 3600_000;
 
 export interface CycleOptions {
   only?: string[];
@@ -25,29 +28,82 @@ export interface CycleReport {
   sources: { source: string; ok: boolean; raw: number; signals: number; error?: string; skipped?: string }[];
   newSignals: number;
   events: CrisisEvent[];
-  alerts: { eventId: string; kind: AlertDecision["kind"]; title: string; sent: boolean; reason: string }[];
+  alerts: { eventId: string; kind: AlertDecision["kind"] | "pattern"; title: string; sent: boolean; reason: string }[];
   suppressed: { eventId: string; title: string; reason: string }[];
   posture: ReturnType<typeof posture>;
+  readings: Reading[];
+  patterns: Pattern[];
+}
+
+type BaselineMap = Record<string, Baseline & { updatedAt?: number }>;
+
+/** 기준선 갱신 간격: 시간대 구간은 매 표본, 6시간 블록은 15분, 하루 구간은 1시간 */
+function updateIntervalMs(slots: 24 | 4 | 1): number {
+  return slots === 24 ? 0 : slots === 4 ? 15 * 60_000 : 60 * 60_000;
+}
+
+/** 기준선 기억 길이: 하루 구간은 더 길게 (약 3일), 나머지는 약 33 표본 */
+function alphaFor(slots: 24 | 4 | 1): number {
+  return slots === 1 ? 0.015 : 0.03;
+}
+
+/** 관측값을 기준선과 비교하고 기준선을 갱신한다. 이상치는 기준선에 반영하지 않는다(오염 방지). */
+export async function processMetrics(store: Store, metrics: Metric[], now: number): Promise<Reading[]> {
+  if (!metrics.length) return [];
+  const raw = await store.getKv("baselines");
+  const baselines: BaselineMap = raw ? JSON.parse(raw) : {};
+  const readingsRaw = await store.getKv("readings");
+  const latest: Record<string, Reading> = readingsRaw ? JSON.parse(readingsRaw) : {};
+  const readings: Reading[] = [];
+  for (const m of metrics) {
+    const def = INDICATOR_BY_ID[m.indicator];
+    if (!def) continue;
+    const key = `${def.id}|${slotKey(def, now)}`;
+    const prev = baselines[key];
+    const reading = evaluate(def, m.value, now, prev, m.meta);
+    readings.push(reading);
+    latest[def.id] = reading;
+    const due = !prev?.updatedAt || now - prev.updatedAt >= updateIntervalMs(def.slots);
+    const contaminating = reading.state === "anomalous" && (prev?.n ?? 0) >= 10;
+    if (due && !contaminating) baselines[key] = { ...updateBaseline(prev, m.value, alphaFor(def.slots)), updatedAt: now };
+  }
+  await store.setKv("baselines", JSON.stringify(baselines));
+  await store.setKv("readings", JSON.stringify(latest));
+  await store.putMetrics(readings);
+  return readings;
+}
+
+/** 민항기 급감 → 공역 이상 신호 (사건 목록에도 올린다) */
+function airspaceSignal(readings: Reading[], now: number): Signal | null {
+  const r = readings.find((x) => x.indicator === "air.civil_airborne");
+  if (!r || r.state !== "anomalous" || r.baseline === undefined || r.value >= r.baseline || r.baseline < 15) return null;
+  return {
+    id: `adsb_lol:airspace:${Math.floor(now / (30 * 60_000))}`,
+    source: "adsb_lol",
+    sourceKind: "sensor",
+    category: "airspace_anomaly",
+    title: `한반도 상공 항공기 급감: ${r.value}대 (이 시간대 평소 ${r.baseline.toFixed(0)}대)`,
+    summary: `z=${r.z?.toFixed(1)} · 공역 통제 가능성. 단, 기상·수신기 장애·명절일 수 있음`,
+    url: "https://adsb.lol/?lat=36.8&lon=127.6&zoom=6",
+    lat: 37.5,
+    lon: 127.5,
+    publishedTime: now,
+    detectedTime: now,
+    severity: r.value < r.baseline * 0.2 ? 60 : 45,
+  };
 }
 
 export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}): Promise<CycleReport> {
   const now = opts.now ?? Date.now();
-  const results = opts.collect ? await opts.collect() : await runCollectors(env, opts.only, now);
+  const results = opts.collect ? await opts.collect() : await runCollectors(env, opts.only, now, store);
 
-  // 항공기 수 → 시간대별 기준선 갱신 및 급감 감지
-  for (const r of results) {
-    const airborne = r.meta?.airborne;
-    if (airborne === undefined) continue;
-    const key = `${r.source}:baseline:h${new Date(now + 9 * 3600_000).getUTCHours()}`;
-    const prev = await store.getKv(key);
-    const baseline = prev ? Number(prev) : undefined;
-    const anomaly = airspaceAnomaly(airborne, baseline, now, undefined, r.source);
-    if (anomaly) r.signals.push(anomaly);
-    // 이상 상황에서는 기준선을 오염시키지 않는다
-    else await store.setKv(key, String(updateBaseline(baseline, airborne)));
-  }
+  // 징후 관측값 → 기준선 비교
+  const readings = await processMetrics(store, results.flatMap((r) => r.metrics ?? []), now);
+  const air = airspaceSignal(readings, now);
+  const incoming = results.flatMap((r) => r.signals);
+  if (air) incoming.push(air);
 
-  const newSignals = await store.putSignals(results.flatMap((r) => r.signals));
+  const newSignals = await store.putSignals(incoming);
   await store.putHealth(results.map(healthOf));
 
   const signals = await store.getSignals(now - LOOKBACK_MS);
@@ -76,6 +132,35 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
   }
   await store.putEvents(events);
 
+  // 패턴 탐지 (최신 관측값 전체 기준)
+  const latestRaw = await store.getKv("readings");
+  const latest: Record<string, Reading> = latestRaw ? JSON.parse(latestRaw) : {};
+  const patterns = detectPatterns(latest, events, now);
+  await store.setKv("patterns", JSON.stringify({ at: now, patterns }));
+  for (const p of patterns) {
+    if (p.confidence === "low") continue;
+    const key = `pattern_alert:${p.id}`;
+    const prevRaw = await store.getKv(key);
+    const prev = prevRaw ? (JSON.parse(prevRaw) as { at: number; confidence: string }) : undefined;
+    const upgraded = prev && prev.confidence === "medium" && p.confidence === "high";
+    if (prev && now - prev.at < PATTERN_ALERT_INTERVAL && !upgraded) continue;
+    const title = `[패턴 감지·미확인] ${p.name}`;
+    const body = [
+      `신뢰도 ${p.confidence === "high" ? "높음" : "보통"} (점수 ${p.score}) · 근거: ${p.summary}`,
+      `다른 설명 가능: ${p.alternatives[0]}`,
+      "자동 탐지된 징후 조합입니다. 사건이 확인된 것이 아니며, 클로드 분석과 공식 발표를 확인하세요.",
+      env.DASHBOARD_URL ? `${env.DASHBOARD_URL}#patterns` : "",
+    ].filter(Boolean).join("\n");
+    let ok = true;
+    if (!opts.dryRun) {
+      const res = await sendPush(env, { title, body, priority: p.confidence === "high" ? 4 : 3, url: env.DASHBOARD_URL }, opts.fetchImpl);
+      ok = res.some((r) => r.ok);
+      await store.logAlert({ eventId: `pattern:${p.id}`, sentAt: now, status: "UNVERIFIED", severity: p.score, title, body, channel: res.map((r) => r.channel).join(","), ok });
+      if (ok) await store.setKv(key, JSON.stringify({ at: now, confidence: p.confidence }));
+    }
+    alerts.push({ eventId: `pattern:${p.id}`, kind: "pattern", title, sent: ok && !opts.dryRun, reason: `패턴 신뢰도 ${p.confidence}` });
+  }
+
   return {
     at: now,
     sources: results.map((r) => ({ source: r.source, ok: r.ok, raw: r.rawCount, signals: r.signals.length, error: r.error, skipped: r.skipped })),
@@ -84,6 +169,8 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
     alerts,
     suppressed: suppressed.map((s) => ({ eventId: s.event.id, title: s.event.title, reason: s.reason })),
     posture: posture(events, now),
+    readings,
+    patterns,
   };
 }
 

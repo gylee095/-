@@ -1,5 +1,5 @@
 // 언론(GDELT, RSS) — 알림 트리거가 아니라 교차검증과 '뉴스 대비 리드타임' 측정용
-import type { CollectResult, Signal } from "../types.js";
+import type { CollectResult, Metric, Signal } from "../types.js";
 import { classifyText, isKoreaRelevant } from "../classify.js";
 import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 
@@ -39,7 +39,7 @@ export function parseGdelt(arts: any[], now: number): Signal[] {
 /** 1분마다 확인하는 속보 피드 (연합뉴스: 합참·日방위성 발표를 가장 먼저 [속보]로 전하는 국내 매체) */
 export const BREAKING_FEEDS = ["https://www.yna.co.kr/rss/news.xml", "https://www.yna.co.kr/rss/northkorea.xml"];
 /** 5분마다 확인하는 교차확인용 피드 */
-export const SLOW_FEEDS = ["https://www.nknews.org/feed/", "https://feeds.bbci.co.uk/news/world/asia/rss.xml"];
+export const SLOW_FEEDS = ["https://www.nknews.org/feed/", "https://feeds.bbci.co.uk/news/world/asia/rss.xml", "https://beyondparallel.csis.org/feed/"];
 export const DEFAULT_FEEDS = [...BREAKING_FEEDS, ...SLOW_FEEDS];
 
 /** 기본 피드들의 기사 중 질의어가 하나라도 제목에 포함된 것 */
@@ -52,20 +52,42 @@ export async function searchFeeds(query: string, sinceMs: number, feeds = DEFAUL
   return { hits, errors };
 }
 
+// 북한 담화·성명류 보도 / 적대 수사 핵심어 (연합뉴스 북한 섹션 제목 기준)
+const NK_STATEMENT_RE = /담화|성명|대변인|경고|위협|비난|규탄|맹비난|反발|반발/;
+const NK_HOSTILE_RE = /핵\s?(무력|공격|타격|전쟁|보복|사용)|선제|초토화|보복|섬멸|파멸|궤멸|불바다|전면전|전쟁\s?(불사|준비|상태)|적대국|주적|응징|격멸|전술핵|핵탄두/;
+const NK_RE = /북한|北|김정은|김여정|평양|조선중앙|노동신문|North Korea|DPRK|Kim Jong/i;
+
+/** 최근 기사 제목들에서 언론 템포·북한 수사 지표를 계산한다 */
+export function newsMetrics(items: { title: string; pubDate?: number }[], now: number, source: string): Metric[] {
+  const day = items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 24 * 3600_000 && NK_RE.test(i.title));
+  const metrics: Metric[] = [];
+  if (source === "rss_breaking") {
+    const hour = items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 3600_000 && /\[속보\]|\[1보\]/.test(i.title) && NK_RE.test(i.title) && classifyText(i.title));
+    metrics.push({ indicator: "media.breaking_nk_1h", value: hour.length, meta: { titles: hour.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
+    const statements = day.filter((i) => NK_STATEMENT_RE.test(i.title));
+    const hostile = day.filter((i) => NK_HOSTILE_RE.test(i.title));
+    metrics.push({ indicator: "rhetoric.nk_statements_24h", value: statements.length, meta: { titles: statements.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
+    metrics.push({ indicator: "rhetoric.nk_hostile_24h", value: hostile.length, meta: { titles: hostile.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
+  }
+  return metrics;
+}
+
 export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source = "rss_news"): Promise<CollectResult> {
   const signals: Signal[] = [];
+  const all: { title: string; pubDate?: number }[] = [];
   let rawCount = 0;
   const errors: string[] = [];
   for (const f of feeds) {
     try {
       const items = parseRss(await fetchText(f));
       rawCount += items.length;
+      all.push(...items);
       for (const it of items) signals.push(...mediaSignal(source, it.link, it.title, it.pubDate, now));
     } catch (e) {
       errors.push(String(e));
     }
   }
-  return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals };
+  return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals, metrics: newsMetrics(all, now, source) };
 }
 
 export function parseRss(xml: string): { title: string; link: string; pubDate?: number }[] {

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "korea-early-warning": {
+      "type": "http",
+      "url": "https://korea-early-warning.gylee-30d.workers.dev/mcp/${KEW_SECRET}"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 ---
 description: 한반도 위기 조기감지 — 정기 감시·분석 1회 실행 (예약 작업이 매시간 호출)
 ---
-너는 Korea Early Warning 시스템의 분석 에이전트다. **korea-early-warning 커넥터**(원격 MCP)의 도구를 상황에 맞게 골라 쓴다.
+너는 Korea Early Warning 시스템의 분석 에이전트다. **korea-early-warning** 원격 MCP 서버(저장소 `.mcp.json`)의 도구를 상황에 맞게 골라 쓴다.
 커넥터 도구가 보이지 않으면 아무것도 지어내지 말고 "커넥터 미연결"이라고 보고하고 끝낸다.
 
 ## 원칙

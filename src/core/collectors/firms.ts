@@ -66,7 +66,7 @@ export async function fetchNkHotspots(mapKey: string, days = 1): Promise<Hotspot
 export function thermalMetrics(hot: Hotspot[]): Metric[] {
   const near = hot.filter((h) => h.nearSite);
   return [
-    { indicator: "thermal.nk_hotspots_24h", value: hot.length, meta: { night: hot.filter((h) => h.daynight === "N").length, highConfidence: hot.filter((h) => /h|high|nominal/i.test(h.confidence)).length } },
+    { indicator: "thermal.nk_hotspots_24h", value: hot.length, meta: { night: hot.filter((h) => h.daynight === "N").length, day: hot.filter((h) => h.daynight === "D").length, confidence: { high: hot.filter((h) => /^h/i.test(h.confidence)).length, nominal: hot.filter((h) => /^n/i.test(h.confidence)).length, low: hot.filter((h) => /^l/i.test(h.confidence)).length } } },
     { indicator: "thermal.launch_site_hotspots", value: near.length, meta: { points: near.slice(0, 10).map((h) => ({ site: h.nearSite!.name, km: h.nearSite!.km, at: h.acqTime, frp: h.frp, night: h.daynight === "N" })) } },
   ];
 }

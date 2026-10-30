@@ -129,6 +129,18 @@ export default {
       }
       return json({ topic, results, okRate: results.filter((r) => r.status === 200).length / results.length });
     }
+    if (url.pathname === "/api/ais-probe" && req.method === "POST") {
+      // aisstream 진단: 지정 영역을 짧게 표본 수집해 프레임 수·형식·종료 사유를 반환 (키 값은 반환하지 않음)
+      if (!env.AISSTREAM_API_KEY) return json({ error: "AISSTREAM_API_KEY 미설정" }, 400);
+      const body = (await req.json().catch(() => ({}))) as { box?: [[number, number], [number, number]]; ms?: number };
+      const { sampleAis, vesselMetrics } = await import("../core/collectors/ais.js");
+      try {
+        const s = await sampleAis(env.AISSTREAM_API_KEY, body.box, Math.min(body.ms ?? 10000, 25000));
+        return json({ box: body.box ?? "yellow_sea", messages: s.messages, vessels: s.vessels.size, diag: s.diag, metrics: vesselMetrics(s) });
+      } catch (e) {
+        return json({ error: String((e as Error)?.message ?? e) }, 200);
+      }
+    }
     if (url.pathname === "/api/test-push" && req.method === "POST") {
       return json(await sendPush(env, { title: "[테스트] Korea Early Warning", body: "아이폰 푸시 연결 테스트입니다.", priority: 3, url: env.DASHBOARD_URL }));
     }

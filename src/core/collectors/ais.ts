@@ -16,6 +16,16 @@ export function flagOf(mmsi: number | string): "CN" | "KR" | "KP" | "other" {
 export interface VesselSample {
   vessels: Map<string, { flag: string; lat?: number; lon?: number; type?: number }>;
   messages: number;
+  /** 연결 진단 (키·구독·수신 범위 문제를 구분하기 위해) */
+  diag?: { frames: number; parseErrors: number; dataTypes: string[]; firstFrame?: string; closeCode?: number; closeReason?: string };
+}
+
+/** 프레임 데이터를 문자열로 (문자열·ArrayBuffer·Uint8Array·Blob 모두 처리) */
+async function frameText(data: any): Promise<string> {
+  if (typeof data === "string") return data;
+  if (data && typeof data.text === "function") return data.text(); // Blob
+  if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) return new TextDecoder().decode(data as ArrayBuffer);
+  return String(data);
 }
 
 /** aisstream 메시지 한 건을 표본에 반영 */
@@ -48,7 +58,8 @@ export function vesselMetrics(sample: VesselSample): Metric[] {
 
 /** 웹소켓으로 지정 시간 동안 메시지를 모은다. Node 22+ 와 Cloudflare Workers 양쪽 지원. */
 export async function sampleAis(apiKey: string, box = YELLOW_SEA_BOX, ms = 25000): Promise<VesselSample> {
-  const sample: VesselSample = { vessels: new Map(), messages: 0 };
+  const diag: NonNullable<VesselSample["diag"]> = { frames: 0, parseErrors: 0, dataTypes: [] };
+  const sample: VesselSample = { vessels: new Map(), messages: 0, diag };
   const subscribe = JSON.stringify({ APIKey: apiKey, BoundingBoxes: [box], FilterMessageTypes: ["PositionReport", "ShipStaticData"] });
   const ws = await openSocket("wss://stream.aisstream.io/v0/stream");
   await new Promise<void>((resolve, reject) => {
@@ -60,9 +71,13 @@ export async function sampleAis(apiKey: string, box = YELLOW_SEA_BOX, ms = 25000
       }
       resolve();
     }, ms);
-    ws.addEventListener("message", (ev: any) => {
+    ws.addEventListener("message", async (ev: any) => {
+      diag.frames++;
+      const t = ev.data?.constructor?.name ?? typeof ev.data;
+      if (!diag.dataTypes.includes(t)) diag.dataTypes.push(t);
       try {
-        const text = typeof ev.data === "string" ? ev.data : new TextDecoder().decode(ev.data);
+        const text = await frameText(ev.data);
+        if (!diag.firstFrame) diag.firstFrame = text.slice(0, 240);
         const msg = JSON.parse(text);
         if (msg.error) {
           clearTimeout(timer);
@@ -71,14 +86,16 @@ export async function sampleAis(apiKey: string, box = YELLOW_SEA_BOX, ms = 25000
         }
         ingest(sample, msg);
       } catch {
-        /* 비정상 프레임 무시 */
+        diag.parseErrors++;
       }
     });
     ws.addEventListener("error", () => {
       clearTimeout(timer);
       reject(new Error("aisstream 웹소켓 오류"));
     });
-    ws.addEventListener("close", () => {
+    ws.addEventListener("close", (ev: any) => {
+      diag.closeCode = ev?.code;
+      diag.closeReason = ev?.reason;
       clearTimeout(timer);
       resolve();
     });
@@ -108,5 +125,10 @@ async function openSocket(url: string): Promise<any> {
 export async function collectAis(apiKey: string | undefined, now = Date.now()): Promise<CollectResult> {
   if (!apiKey) return { source: "aisstream", ok: true, skipped: "AISSTREAM_API_KEY 미설정 (aisstream.io 무료 키)", signals: [], fetchedAt: now, rawCount: 0 };
   const sample = await sampleAis(apiKey);
+  const d = sample.diag;
+  // 메시지가 0건이면 기준선을 오염시키지 않도록 관측값을 내지 않고 사유를 남긴다
+  if (sample.messages === 0) {
+    return { source: "aisstream", ok: false, error: `25초 동안 선박 메시지 0건 (프레임 ${d?.frames ?? 0}, 파싱오류 ${d?.parseErrors ?? 0}${d?.closeCode ? `, 종료코드 ${d.closeCode} ${d.closeReason ?? ""}` : ""})`, fetchedAt: now, rawCount: 0, signals: [] };
+  }
   return { source: "aisstream", ok: true, fetchedAt: now, rawCount: sample.vessels.size, signals: [], metrics: vesselMetrics(sample) };
 }

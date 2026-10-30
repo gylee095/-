@@ -62,7 +62,7 @@ async function runAndRecord(env: Env, store: D1Store, now: number, trigger: stri
     return report;
   } catch (e) {
     await store.setKv("last_cycle", JSON.stringify({ at: now, trigger, error: String((e as Error)?.stack ?? e).slice(0, 800) })).catch(() => {});
-    if (trigger === "cron") throw e;
+    if (trigger.startsWith("cron")) throw e;
     return { error: String((e as Error)?.message ?? e) } as const;
   }
 }
@@ -71,7 +71,10 @@ export default {
   async scheduled(ctrl: ScheduledController, rawEnv: Env, ctx: ExecutionContext) {
     const env = await resolveEnv(rawEnv);
     const store = new D1Store(env.DB);
-    const report = await runAndRecord(env, store, ctrl.scheduledTime, "cron", CRON_GROUPS[ctrl.cron]);
+    // 알 수 없는 크론(배포 직후 이전 스케줄 등)은 전 소스를 돌리지 않고 속보 묶음만 실행 (CPU 한도 보호)
+    const group = CRON_GROUPS[ctrl.cron] ?? CRON_GROUPS["* * * * *"];
+    await store.setKv(`cron_seen:${ctrl.cron}`, String(ctrl.scheduledTime));
+    const report = await runAndRecord(env, store, ctrl.scheduledTime, `cron ${ctrl.cron}`, group);
     if (!report || "error" in report) return;
     const d = new Date(report.at);
     if (d.getUTCHours() === 15 && d.getUTCMinutes() < 5) ctx.waitUntil(store.prune(report.at - 30 * 86400_000));

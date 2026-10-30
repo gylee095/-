@@ -24,8 +24,8 @@
 | adsb.lol /v2/mil (군용기) | ✅ 정상 | 동북아 야간 1~3대 수준 |
 | GPSJam 일간 CSV | ✅ 정상 (한반도 276셀, 교란 0.01%) | 전일 데이터 |
 | NASA FIRMS 지역 CSV(키 없음) | ✅ 접근 가능하나 1.5MB → Worker CPU 한도 초과 | 키 기반 영역 API 사용(FIRMS_MAP_KEY) |
-| IODA(북한 인터넷) | ⚠ 개발 환경 접속 불가 | 배포 후 Worker 에서 검증 |
-| Bluesky 공개 검색 | ⚠ 개발 환경 403 | 배포 후 Worker 에서 검증 |
+| IODA(북한 인터넷) | ✅ Worker 에서 정상 | 개발 환경에서는 접속 불가 |
+| Bluesky 공개 검색 | ❌ Worker 에서도 403 | DISABLED_SOURCES 로 꺼 둠 |
 | KCNA Watch RSS / 38 North RSS | ❌ HTML 리다이렉트 / 403 | 연합뉴스 북한 섹션으로 대체 |
 | Reddit JSON / X / 텔레그램 | ❌ 403 / 유료 / 약관 | 제외 |
 

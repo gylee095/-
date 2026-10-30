@@ -20,7 +20,7 @@ migrations_dir = "migrations"
 
 [vars]
 NTFY_SERVER = "https://ntfy.sh"
-DISABLED_SOURCES = "opensky,gdelt"   # Cloudflare 서버에서 opensky 무응답, gdelt 429 (2026-10-30 실측)
+DISABLED_SOURCES = "opensky,gdelt,bluesky"   # Cloudflare 서버에서 opensky 무응답, gdelt 429, bluesky 403 (2026-10-30 실측)
 
 # 비밀값은 여기 적지 않는다. GitHub Actions(.github/workflows/deploy.yml)가 GitHub Secrets 에서
 # `wrangler secret put` 으로 등록한다: KEW_SECRET(필수), SAFETYDATA_API_KEY, NTFY_TOPIC, NTFY_TOKEN,

@@ -131,9 +131,11 @@ export function detectPatterns(r: R, events: CrisisEvent[], now = Date.now()): P
     add(p, r, "navwarn.korea_active", now, { anomalous: 15, elevated: 10 });
     add(p, r, "official.mnd_provocation_24h", now, { any: (x) => (x.value >= 1 ? 20 : 0) });
     add(p, r, "rhetoric.nk_statements_24h", now, { anomalous: 10, elevated: 5 });
-    if (recentEvents(events, now, 48, ["artillery"]).length) {
+    // 서해·NLL 과 관련된 포격·해안포 사건만 (내륙 방사포 시험사격은 제외)
+    const ws = recentEvents(events, now, 48, ["artillery"]).filter((e) => /서해|NLL|연평|백령|해안포|Yeonpyeong|Baengnyeong|Yellow Sea|West Sea/i.test(e.title));
+    if (ws.length) {
       p.score += 30;
-      p.evidence.push({ indicator: "events.artillery", label: "최근 48시간 포격 사건", value: 1, state: "event", points: 30 });
+      p.evidence.push({ indicator: "events.artillery", label: "최근 48시간 서해 포격·해안포 사건", value: ws.length, state: "event", points: 30 });
     }
     out.push(finalize(p));
   }

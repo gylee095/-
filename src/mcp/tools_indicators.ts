@@ -176,7 +176,7 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
     "check_social_pulse",
     {
       title: "SNS 목격담 검색 (Bluesky)",
-      description: "임의 질의로 Bluesky 최신 게시물을 검색한다. 사이렌·폭발음·전투기 소음 같은 현장 목격담을 찾을 때 쓴다. 표본이 작고 가짜 뉴스가 섞이므로 단독 근거로 쓰지 말 것.",
+      description: "임의 질의로 Bluesky 최신 게시물을 검색한다. 사이렌·폭발음·전투기 소음 같은 현장 목격담을 찾을 때 쓴다. 표본이 작고 가짜 뉴스가 섞이므로 단독 근거로 쓰지 말 것. (2026-10-30 현재 Cloudflare 서버에서 403 — 실패하면 search_news 로 대체)",
       inputSchema: { query: z.string().min(2).optional().describe("비우면 기본 경보 키워드 묶음"), hours: z.number().int().min(1).max(48).default(3) },
     },
     async ({ query, hours }) => {

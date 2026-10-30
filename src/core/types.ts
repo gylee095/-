@@ -138,6 +138,9 @@ export interface Env {
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
   DISCORD_WEBHOOK_URL?: string;
+  /** Bark iOS 앱 디바이스 키 (무료, 계정 불필요) */
+  BARK_KEY?: string;
+  BARK_SERVER?: string;
   DASHBOARD_URL?: string;
   /** 쉼표로 구분된 비활성화 소스 목록 */
   DISABLED_SOURCES?: string;

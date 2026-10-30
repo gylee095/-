@@ -31,7 +31,8 @@ ntfy.sh 는 **발신 IP 단위**로 요청을 제한한다. Cloudflare Workers �
 
 | 채널 | 비용 | 설정 (휴대폰 5분) | Secret |
 |---|---|---|---|
-| **Telegram (권장)** | 무료 | ① 텔레그램에서 `@BotFather` → `/newbot` → 토큰 복사 ② 새 봇과 대화창을 열고 아무 메시지 전송 ③ `https://api.telegram.org/bot<토큰>/getUpdates` 를 브라우저로 열어 `"chat":{"id":숫자}` 확인 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
+| **Bark (아이폰 권장)** | 무료, 계정 불필요 | 앱스토어에서 *Bark* 설치 → 첫 화면에 보이는 주소 `https://api.day.app/XXXX/` 의 `XXXX` 가 키. 앱 알림 허용 | `BARK_KEY` |
+| Telegram | 무료 | ① 텔레그램에서 `@BotFather` → `/newbot` → 토큰 복사 ② 새 봇과 대화창을 열고 아무 메시지 전송 ③ `https://api.telegram.org/bot<토큰>/getUpdates` 를 브라우저로 열어 `"chat":{"id":숫자}` 확인 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
 | Discord | 무료 | 서버 → 채널 설정 → 연동 → 웹후크 만들기 → URL 복사. 휴대폰 Discord 앱 알림 켜기 | `DISCORD_WEBHOOK_URL` |
 | ntfy 계정 토큰 | 무료(제한 완화) | ntfy.sh 가입 → Account → Access tokens | `NTFY_TOKEN` (토픽은 기존 유지) |
 | Pushover | 1회 $5 | 앱 구매 → Application 생성 | `PUSHOVER_TOKEN`, `PUSHOVER_USER` |

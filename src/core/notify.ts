@@ -2,6 +2,7 @@
 //  - ntfy      : 무료 iOS 앱. 단, ntfy.sh 는 발신 IP 단위로 요청을 제한해 Cloudflare 공유 IP 에서 429 가 잦다 → 계정 토큰(NTFY_TOKEN) 사용 권장
 //  - Telegram  : 봇 토큰 + 채팅 ID. 무료·안정적(IP 제한 없음). 권장 보조 채널
 //  - Discord   : 웹훅 URL. 무료
+//  - Bark      : 무료 iOS 앱(계정 불필요). 앱이 주는 키 하나로 전송, 긴급 알림(무음 돌파) 지원. ntfy 대체로 권장
 //  - Pushover  : 유료(1회 구매). iOS 긴급 알림(무음 돌파) 가능
 import type { Env } from "./types.js";
 
@@ -23,15 +24,20 @@ interface PushEnv extends Env {
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
   DISCORD_WEBHOOK_URL?: string;
+  BARK_KEY?: string;
+  BARK_SERVER?: string;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** 429(요청 제한)면 잠깐 기다렸다 한 번 더 시도한다 */
-async function postWithRetry(fetchImpl: typeof fetch, url: string, init: RequestInit): Promise<Response> {
+/**
+ * 429(요청 제한)·5xx 면 간격을 늘려 가며 최대 4회 시도한다.
+ * Cloudflare 의 발신 IP 는 요청마다 바뀔 수 있어, ntfy.sh 처럼 IP 단위로 제한하는 서버에는 재시도 자체가 효과가 있다.
+ */
+export async function postWithRetry(fetchImpl: typeof fetch, url: string, init: RequestInit, attempts = 4): Promise<Response> {
   let res = await fetchImpl(url, init);
-  if (res.status === 429) {
-    await sleep(1500);
+  for (let i = 1; i < attempts && (res.status === 429 || res.status >= 500); i++) {
+    await sleep(600 * i + Math.random() * 400);
     res = await fetchImpl(url, init);
   }
   return res;
@@ -97,6 +103,34 @@ export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof
     );
   }
 
+  if (env.BARK_KEY) {
+    tasks.push(
+      (async () => {
+        try {
+          const server = (env.BARK_SERVER ?? "https://api.day.app").replace(/\/$/, "");
+          const res = await postWithRetry(fetchImpl, `${server}/push`, {
+            method: "POST",
+            headers: { "content-type": "application/json; charset=utf-8" },
+            body: JSON.stringify({
+              device_key: env.BARK_KEY,
+              title: msg.title,
+              body: msg.body,
+              // critical: 무음·집중모드 돌파 (공습경보급) / timeSensitive: 잠금화면에 바로 표시
+              level: msg.priority >= 5 ? "critical" : msg.priority >= 4 ? "timeSensitive" : "active",
+              group: "korea-early-warning",
+              ...(msg.url ? { url: msg.url } : {}),
+            }),
+          });
+          const text = await res.text();
+          const okBody = res.ok && !/"code"\s*:\s*(?!200)\d+/.test(text);
+          return { channel: "bark", ok: okBody, error: okBody ? undefined : `HTTP ${res.status} ${text.slice(0, 100)}` };
+        } catch (e) {
+          return { channel: "bark", ok: false, error: String(e) };
+        }
+      })(),
+    );
+  }
+
   if (env.PUSHOVER_TOKEN && env.PUSHOVER_USER) {
     tasks.push(
       (async () => {
@@ -121,7 +155,7 @@ export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof
     );
   }
 
-  if (!tasks.length) return [{ channel: "none", ok: false, error: "푸시 채널 미설정 (NTFY_TOPIC / TELEGRAM_* / DISCORD_WEBHOOK_URL / PUSHOVER_*)" }];
+  if (!tasks.length) return [{ channel: "none", ok: false, error: "푸시 채널 미설정 (NTFY_TOPIC / BARK_KEY / TELEGRAM_* / DISCORD_WEBHOOK_URL / PUSHOVER_*)" }];
   return Promise.all(tasks);
 }
 
@@ -131,6 +165,7 @@ export function pushChannels(env: PushEnv): string[] {
   if (env.NTFY_TOPIC) out.push(env.NTFY_TOKEN ? "ntfy(계정 토큰)" : "ntfy(익명)");
   if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) out.push("telegram");
   if (env.DISCORD_WEBHOOK_URL) out.push("discord");
+  if (env.BARK_KEY) out.push("bark");
   if (env.PUSHOVER_TOKEN && env.PUSHOVER_USER) out.push("pushover");
   return out;
 }

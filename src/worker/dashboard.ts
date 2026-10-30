@@ -105,7 +105,11 @@ function render(){
   h+='<div class="threat bg'+lvl+'"><div class="k">지금 한반도 상황</div><div class="v">'+esc(label)+'</div><div class="s">'+esc(lvl>th.level?"징후 조합이 감지됨 — 아래 패턴 확인":th.summary)+'</div>';
   if(th.lastProvocation)h+='<div class="m">마지막 북한 도발 · <b>'+ago(th.lastProvocation.at)+'</b> · '+esc(th.lastProvocation.headline)+'</div>';
   h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>';
-  // 2) 지금 상황 해설 (규칙 기반, 5분마다 갱신)
+  // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다
+  if(st.assessment&&st.assessment.data){var stale=Date.now()-st.assessment.at>14*3600000;
+    h+='<div class="sec">클로드 분석관 판단 · '+ago(st.assessment.at)+(stale?' <span style="color:var(--l3)">(오래됨)</span>':'')+' · 다음 분석 08:09 / 20:09</div><div class="card as">'+assessment(st.assessment.data)+'</div>'}
+  else if(st.notes&&st.notes.length){var n=st.notes[0];h+='<div class="sec">클로드 분석관 판단 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
+  // 2a) 지금 상황 해설 (규칙 기반, 5분마다 갱신)
   var it=st.interpretation;
   if(it){var ICON={warning:"⚠️",reassuring:"✅",caveat:"🔍",gap:"⬜"};var KIND={warning:"위험 쪽 힌트",reassuring:"안심 쪽 힌트",caveat:"해석 주의",gap:"사각지대"};
     h+='<div class="sec">지금 상황 해설 <span style="font-weight:400">· 자동(규칙 기반) · 5분마다 갱신</span></div><div class="card ex"><div class="hd">'+esc(it.headline)+'</div>'+it.narrative.map(function(p){return '<p>'+esc(p)+'</p>'}).join("");
@@ -129,9 +133,6 @@ function render(){
   }
   // 4) 징후판
   h+='<div class="sec" id="board">징후판 — 숫자 (항목을 누르면 뜻풀이)</div><div class="card">'+board(st.board||[])+'</div>';
-  // 5) 클로드 분석
-  if(st.assessment&&st.assessment.data){h+='<div class="sec">클로드 분석 · '+ago(st.assessment.at)+'</div><div class="card as">'+assessment(st.assessment.data)+'</div>'}
-  else if(st.notes&&st.notes.length){var n=st.notes[0];h+='<div class="sec">클로드 분석 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
   // 6) 이전 소식
   var rest=evs.filter(function(e){return e!==top&&Date.now()-e.brief.at<30*86400000});
   var main=rest.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});
@@ -141,7 +142,7 @@ function render(){
   // 7) 시스템
   h+='<details class="card"><summary>시스템 상태 · 데이터 출처</summary>'+health(st)+'</details>';
   var lastFail=(st.alerts||[]).find(function(a){return !a.ok});var lastOk=(st.alerts||[]).find(function(a){return a.ok});
-  var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패 '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 Cloudflare 서버에서 자주 막힙니다. Telegram 채널(무료) 추가를 권장합니다 (docs/DEPLOY.md).</p>':"";
+  var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패 '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 재시도를 넣었지만 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).</p>':"";
   h+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+(st.setup?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p><p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button><button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
@@ -167,13 +168,19 @@ function ind(r){var rd=r.reading,unavail=!rd||r.stateLabel==="측정 불가";var
   var extra="";if(rd&&rd.meta){var m=rd.meta;if(m.aircraft&&m.aircraft.length)extra=m.aircraft.slice(0,3).map(function(a){return a.what.split("(")[0]}).join(", ");else if(m.titles&&m.titles.length)extra=m.titles[0];else if(m.note)extra=m.note;else if(m.signedPct!=null)extra=(m.signedPct>0?"+":"")+m.signedPct+"% · "+m.price+"원"}
   var meaning=ST&&ST.interpretation&&ST.interpretation.perIndicator?ST.interpretation.perIndicator[r.id]:"";
   return '<div class="ind" onclick="this.classList.toggle(\'open\')"><span class="st '+stc+'"></span><div class="il">'+esc(r.label)+'</div><div class="iv">'+(unavail?"—":fmtVal(r))+'</div><div class="ib">'+esc(base)+'</div>'+spark(r.history)+(extra?'<div class="ib" style="margin-top:2px">'+esc(extra).slice(0,70)+'</div>':"")+'<div class="why">'+(meaning?'<b>뜻:</b> '+esc(meaning)+'<br>':'')+'<b>왜 보나:</b> '+esc(r.why)+'<br><b>지연:</b> '+esc(r.latency)+'<br><b>주의:</b> '+esc(r.caveats)+(rd?'<br><b>관측:</b> '+kst(rd.at):'')+'</div></div>'}
-function assessment(a){var h='<div class="ov"><span class="lv lv'+a.overall_level+'"></span>'+a.overall_level+'단계 · '+esc(a.overall)+'</div>';
-  (a.hypotheses||[]).forEach(function(x){h+='<div class="hy"><b>'+esc(x.hypothesis)+'</b><span class="lk '+x.likelihood+'">'+({high:"가능성 높음",medium:"가능성 보통",low:"가능성 낮음"})[x.likelihood]+'</span>';
-    if(x.evidence_for&&x.evidence_for.length)h+='<div class="ev"><span>찬성</span>'+esc(x.evidence_for.join(" · "))+'</div>';
-    if(x.evidence_against&&x.evidence_against.length)h+='<div class="ev"><span>반대</span>'+esc(x.evidence_against.join(" · "))+'</div>';
-    if(x.next_checks&&x.next_checks.length)h+='<div class="ev"><span>확인</span>'+esc(x.next_checks.join(" · "))+'</div>';h+='</div>'});
+function assessment(a){var LK={high:"가능성 높음",medium:"가능성 보통",low:"가능성 낮음"};
+  var h='<div class="ov"><span class="lv lv'+a.overall_level+'"></span>'+a.overall_level+'단계 · '+esc(a.overall)+'</div>';
+  var hy=a.hypotheses||[];
+  if(hy.length){h+='<div style="font-size:13px;color:var(--mute);margin:10px 0 2px">클로드가 세운 가설과 판단</div>';
+    hy.forEach(function(x){h+='<div class="hy"><b>'+esc(x.hypothesis)+'</b><span class="lk '+x.likelihood+'">'+LK[x.likelihood]+'</span>';
+      var det='';
+      if(x.evidence_for&&x.evidence_for.length)det+='<div class="ev"><span>근거</span>'+esc(x.evidence_for.join(" · "))+'</div>';
+      if(x.evidence_against&&x.evidence_against.length)det+='<div class="ev"><span>반대</span>'+esc(x.evidence_against.join(" · "))+'</div>';
+      if(x.next_checks&&x.next_checks.length)det+='<div class="ev"><span>확인</span>'+esc(x.next_checks.join(" · "))+'</div>';
+      if(det)h+='<details><summary style="margin-top:4px;font-size:13px">근거 · 반대 해석 · 다음 확인</summary>'+det+'</details>';
+      h+='</div>'})}
   if(a.anomalies&&a.anomalies.length)h+='<div class="hy"><b>새로 눈에 띈 것</b><div class="ev">'+esc(a.anomalies.join(" · "))+'</div></div>';
-  if(a.gaps&&a.gaps.length)h+='<div class="hy"><b>감시 공백</b><div class="ev">'+esc(a.gaps.join(" · "))+'</div></div>';
+  if(a.gaps&&a.gaps.length)h+='<details class="hy"><summary style="margin:0;font-size:14px;color:var(--mute)">지금 못 보고 있는 것 '+a.gaps.length+'개</summary><div class="ev">'+esc(a.gaps.join(" · "))+'</div></details>';
   return h}
 function row(e){var b=e.brief;return '<div class="row" onclick="this.querySelector(\'.more\').hidden=!this.querySelector(\'.more\').hidden"><div class="t '+fresh(b.at)+'">'+ago(b.at)+'</div><div class="b"><div class="h"><span class="lv lv'+b.danger.level+'"></span>'+esc(b.headline)+'</div><div class="x">'+kst(b.at)+' · 위험도 '+esc(b.danger.label)+' · '+esc(basisText(e))+'</div><div class="more" hidden>'+sources(e,true)+'</div></div></div>'}
 function sources(e,open){var s=e.signals.slice().sort(function(a,b){return (b.publishedTime||b.detectedTime)-(a.publishedTime||a.detectedTime)});

@@ -4,7 +4,7 @@ import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/
 import type { Env as CoreEnv } from "../core/types.js";
 import { runCycle } from "../core/pipeline.js";
 import { buildState } from "../core/state.js";
-import { pushChannels, sendPush } from "../core/notify.js";
+import { postWithRetry, pushChannels, sendPush } from "../core/notify.js";
 import { registerTools } from "../mcp/tools.js";
 import { D1Store } from "./d1store.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
@@ -117,6 +117,17 @@ export default {
       const body = (await req.json().catch(() => ({}))) as { only?: string[]; dryRun?: boolean };
       if (body.only || body.dryRun) return json(await runCycle(env, store, { only: body.only, dryRun: body.dryRun }));
       return json(await runAndRecord(env, store, Date.now(), "manual"));
+    }
+    if (url.pathname === "/api/push-probe" && req.method === "POST") {
+      // ntfy.sh 가 이 Worker 의 발신 IP 를 얼마나 막는지 측정한다. 아무도 구독하지 않는 임시 토픽으로 보낸다.
+      const topic = `kew-probe-${crypto.randomUUID().slice(0, 8)}`;
+      const results: { attempt: number; status: number; ms: number }[] = [];
+      for (let i = 0; i < 5; i++) {
+        const t0 = Date.now();
+        const res = await postWithRetry(fetch, env.NTFY_SERVER ?? "https://ntfy.sh", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ topic, message: `probe ${i}` }) });
+        results.push({ attempt: i + 1, status: res.status, ms: Date.now() - t0 });
+      }
+      return json({ topic, results, okRate: results.filter((r) => r.status === 200).length / results.length });
     }
     if (url.pathname === "/api/test-push" && req.method === "POST") {
       return json(await sendPush(env, { title: "[테스트] Korea Early Warning", body: "아이폰 푸시 연결 테스트입니다.", priority: 3, url: env.DASHBOARD_URL }));

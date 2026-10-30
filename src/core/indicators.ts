@@ -68,7 +68,7 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "USGS·EMSC 에서 북한 영역 규모 2.5 이상 지진 수", latency: "10~30분", caveats: "자연지진도 있다. 깊이·위치(풍계리 거리)로 구분한다.",
   },
   {
-    id: "navwarn.korea_active", label: "한반도 주변 항행경보 수", group: "navwarn", unit: "건", direction: "high", slots: 1, absolute: { elevated: 3, anomalous: 6 },
+    id: "navwarn.korea_active", label: "한반도 주변 항행경보 수", group: "navwarn", unit: "건", direction: "high", slots: 1,
     why: "로켓 발사·사격훈련·GPS 교란 항행경보는 사건 '이전'에 공개되는 몇 안 되는 선행 신호다.",
     measure: "NGA 항행경보 중 한반도·서해·동해 관련 유효 경보 수", latency: "선행(수일 전)~수 시간", caveats: "한국·일본 해양당국 경보 원문은 아직 수집하지 않는다(미국 NGA 재배포분만).",
   },

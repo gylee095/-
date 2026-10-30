@@ -1,6 +1,5 @@
 // NGA MSI Broadcast Warnings (HYDROPAC 등). 발사 예고·사격 구역·GPS 교란 항행경보는 '선행 신호'다.
 import type { CollectResult, Metric, Signal } from "../types.js";
-import { isKoreaRelevant } from "../classify.js";
 import { classifyText } from "../classify.js";
 import { fetchJson, parseDtg } from "../util.js";
 
@@ -9,9 +8,12 @@ export async function fetchNgaWarnings(): Promise<any[]> {
   return data["broadcast-warn"] ?? [];
 }
 
+/** 지표용 '한반도 주변' 판정은 신호용(isKoreaRelevant)보다 좁다 — 일본 열도 일반 경보는 제외 */
+const KOREA_WATERS_RE = /KOREA|DPRK|YELLOW SEA|SEA OF JAPAN|EAST SEA|TSUSHIMA|KOREA STRAIT|PYONGYANG/i;
+
 /** 한반도 관련 유효 경보 수와 발사 예고 경보 수 */
 export function navwarnMetrics(rows: any[]): Metric[] {
-  const korea = rows.filter((r) => isKoreaRelevant(String(r.text ?? "")));
+  const korea = rows.filter((r) => KOREA_WATERS_RE.test(String(r.text ?? "")));
   const launch = korea.filter((r) => /ROCKET|MISSILE|SATELLITE LAUNCH|SPACE DEBRIS/i.test(String(r.text ?? "").replace(/CANCEL THIS MSG[^\n]*/gi, "")));
   return [
     { indicator: "navwarn.korea_active", value: korea.length, meta: { refs: korea.slice(0, 8).map((r) => `${r.navArea}-${r.msgNumber}/${r.msgYear}`) } },

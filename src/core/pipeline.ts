@@ -141,9 +141,12 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
     if (p.confidence === "low") continue;
     const key = `pattern_alert:${p.id}`;
     const prevRaw = await store.getKv(key);
-    const prev = prevRaw ? (JSON.parse(prevRaw) as { at: number; confidence: string }) : undefined;
+    const prev = prevRaw ? (JSON.parse(prevRaw) as { at: number; confidence: string; ok?: boolean; failures?: number }) : undefined;
     const upgraded = prev && prev.confidence === "medium" && p.confidence === "high";
-    if (prev && now - prev.at < PATTERN_ALERT_INTERVAL && !upgraded) continue;
+    // 성공 후 6시간 억제. 실패했으면 30분 뒤 재시도하되 3회까지만 (푸시 설정 오류로 매 분 재시도하지 않도록)
+    const failures = prev?.ok === false ? (prev.failures ?? 1) : 0;
+    const retryAfter = prev?.ok === false ? 30 * 60_000 : PATTERN_ALERT_INTERVAL;
+    if (prev && !upgraded && (now - prev.at < retryAfter || failures >= 3)) continue;
     const title = `[패턴 감지·미확인] ${p.name}`;
     const body = [
       `신뢰도 ${p.confidence === "high" ? "높음" : "보통"} (점수 ${p.score}) · 근거: ${p.summary}`,
@@ -155,8 +158,9 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
     if (!opts.dryRun) {
       const res = await sendPush(env, { title, body, priority: p.confidence === "high" ? 4 : 3, url: env.DASHBOARD_URL }, opts.fetchImpl);
       ok = res.some((r) => r.ok);
-      await store.logAlert({ eventId: `pattern:${p.id}`, sentAt: now, status: "UNVERIFIED", severity: p.score, title, body, channel: res.map((r) => r.channel).join(","), ok });
-      if (ok) await store.setKv(key, JSON.stringify({ at: now, confidence: p.confidence }));
+      const error = res.filter((r) => !r.ok).map((r) => `${r.channel}: ${r.error}`).join("; ") || undefined;
+      await store.logAlert({ eventId: `pattern:${p.id}`, sentAt: now, status: "UNVERIFIED", severity: p.score, title, body, channel: res.map((r) => r.channel).join(","), ok, error });
+      await store.setKv(key, JSON.stringify({ at: now, confidence: p.confidence, ok, failures: ok ? 0 : failures + 1 }));
     }
     alerts.push({ eventId: `pattern:${p.id}`, kind: "pattern", title, sent: ok && !opts.dryRun, reason: `패턴 신뢰도 ${p.confidence}` });
   }

@@ -129,8 +129,10 @@ describe("엔드투엔드 사이클: 탐지 → 알림 → 중복 억제 → 정
     expect(r1.alerts).toHaveLength(1);
     expect(r1.alerts[0].title).toContain("[공식확인]");
     expect(calls).toHaveLength(1);
-    expect(calls[0].url).toBe("https://ntfy.sh/kew-test");
-    expect((calls[0].init.headers as any).Priority).toBe("5");
+    expect(calls[0].url).toBe("https://ntfy.sh");
+    const sent = JSON.parse(calls[0].init.body as string);
+    expect(sent.topic).toBe("kew-test");
+    expect(sent.priority).toBe(5);
     // 훈련 문자는 억제 사유와 함께 남는다
     expect(r1.suppressed.some((s) => s.reason === "훈련 발령")).toBe(true);
 
@@ -279,7 +281,7 @@ describe("실제 사례 2026-10-29 북한 탄도미사일 일제 발사 (공개 
     const r1 = await runCycle(env, store, { now: t1, fetchImpl: f, collect: async () => [await collectFrom(items().slice(0, 1), t1)] });
     expect(r1.alerts).toHaveLength(1); // 연합뉴스 [속보] 日방위성 인용 → 1분 내 감지 즉시 알림
     expect(r1.alerts[0].title).toContain("[속보·공식발표 인용]");
-    expect((calls[0].init.headers as any).Priority).toBe("4");
+    expect(JSON.parse(calls[0].init.body as string).priority).toBe(4);
 
     const t2 = Date.UTC(2026, 9, 29, 3, 55);
     const r2 = await runCycle(env, store, { now: t2, fetchImpl: f, collect: async () => [await collectFrom(items(), t2)] });

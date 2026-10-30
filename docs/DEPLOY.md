@@ -26,6 +26,18 @@
 6. **아이폰 푸시**: App Store에서 *ntfy* 설치 → 대시보드 *연결 설정*의 "토픽 주소 복사" → ntfy 앱에서 구독 → "테스트 푸시".
 7. **Claude 커넥터**: 대시보드 "커넥터 URL 복사" → claude.ai → 설정 → 커넥터 → *사용자 지정 커넥터 추가* → 이름 `korea-early-warning`, URL 붙여넣기.
 
+### 알림 채널 — ntfy 만으로는 부족하다
+ntfy.sh 는 **발신 IP 단위**로 요청을 제한한다. Cloudflare Workers 는 수많은 사용자가 IP 를 공유하므로 실제 운영에서 `HTTP 429` 로 발송이 막히는 일이 있었다(2026-10-30 실측). 아래 중 하나를 **꼭 추가**한다.
+
+| 채널 | 비용 | 설정 (휴대폰 5분) | Secret |
+|---|---|---|---|
+| **Telegram (권장)** | 무료 | ① 텔레그램에서 `@BotFather` → `/newbot` → 토큰 복사 ② 새 봇과 대화창을 열고 아무 메시지 전송 ③ `https://api.telegram.org/bot<토큰>/getUpdates` 를 브라우저로 열어 `"chat":{"id":숫자}` 확인 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
+| Discord | 무료 | 서버 → 채널 설정 → 연동 → 웹후크 만들기 → URL 복사. 휴대폰 Discord 앱 알림 켜기 | `DISCORD_WEBHOOK_URL` |
+| ntfy 계정 토큰 | 무료(제한 완화) | ntfy.sh 가입 → Account → Access tokens | `NTFY_TOKEN` (토픽은 기존 유지) |
+| Pushover | 1회 $5 | 앱 구매 → Application 생성 | `PUSHOVER_TOKEN`, `PUSHOVER_USER` |
+
+Secret 등록 후 Actions 에서 **Deploy Worker** 재실행 → 대시보드 '알림 설정'에서 채널 목록 확인 → '테스트 푸시'.
+
 커넥터 URL에 비밀값이 들어 있으므로 다른 사람과 공유하지 말 것. 유출 시 `KEW_SECRET`을 바꾸고 워크플로를 다시 실행하면 이전 URL·토픽은 무효가 된다.
 
 ### 재난문자 API 키 (선택이지만 가장 중요한 공식 소스)

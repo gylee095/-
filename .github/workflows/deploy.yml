@@ -1,7 +1,8 @@
 # 휴대폰만으로 배포: GitHub Secrets 를 등록하고 이 워크플로를 실행(또는 main 에 푸시)하면 끝.
 # 필요한 Secrets: CLOUDFLARE_API_TOKEN, KEW_SECRET  (CLOUDFLARE_ACCOUNT_ID 는 비우면 자동 조회)
 # 선택 Secrets:   SAFETYDATA_API_KEY, NTFY_TOPIC, NTFY_TOKEN, PUSHOVER_TOKEN, PUSHOVER_USER,
-#                 OPENSKY_CLIENT_ID, OPENSKY_CLIENT_SECRET, AISSTREAM_API_KEY, FIRMS_MAP_KEY
+#                 OPENSKY_CLIENT_ID, OPENSKY_CLIENT_SECRET, AISSTREAM_API_KEY, FIRMS_MAP_KEY,
+#                 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, DISCORD_WEBHOOK_URL
 name: Deploy Worker
 
 on:
@@ -67,10 +68,13 @@ jobs:
           OPENSKY_CLIENT_SECRET: ${{ secrets.OPENSKY_CLIENT_SECRET }}
           AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
           FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           # 값이 있는 것만 JSON 으로 묶어 한 번에 등록 (로그에 값이 찍히지 않음)
           node -e '
-            const keys=["KEW_SECRET","SAFETYDATA_API_KEY","NTFY_TOPIC","NTFY_TOKEN","PUSHOVER_TOKEN","PUSHOVER_USER","OPENSKY_CLIENT_ID","OPENSKY_CLIENT_SECRET","AISSTREAM_API_KEY","FIRMS_MAP_KEY"];
+            const keys=["KEW_SECRET","SAFETYDATA_API_KEY","NTFY_TOPIC","NTFY_TOKEN","PUSHOVER_TOKEN","PUSHOVER_USER","OPENSKY_CLIENT_ID","OPENSKY_CLIENT_SECRET","AISSTREAM_API_KEY","FIRMS_MAP_KEY","TELEGRAM_BOT_TOKEN","TELEGRAM_CHAT_ID","DISCORD_WEBHOOK_URL"];
             const o={}; for (const k of keys) if (process.env[k]) o[k]=process.env[k];
             require("fs").writeFileSync("/tmp/secrets.json", JSON.stringify(o));
             console.log("등록할 비밀값:", Object.keys(o).join(", "));'

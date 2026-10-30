@@ -135,6 +135,9 @@ export interface Env {
   NTFY_TOKEN?: string;
   PUSHOVER_TOKEN?: string;
   PUSHOVER_USER?: string;
+  TELEGRAM_BOT_TOKEN?: string;
+  TELEGRAM_CHAT_ID?: string;
+  DISCORD_WEBHOOK_URL?: string;
   DASHBOARD_URL?: string;
   /** 쉼표로 구분된 비활성화 소스 목록 */
   DISABLED_SOURCES?: string;

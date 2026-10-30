@@ -4,7 +4,7 @@ import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/
 import type { Env as CoreEnv } from "../core/types.js";
 import { runCycle } from "../core/pipeline.js";
 import { buildState } from "../core/state.js";
-import { sendPush } from "../core/notify.js";
+import { pushChannels, sendPush } from "../core/notify.js";
 import { registerTools } from "../mcp/tools.js";
 import { D1Store } from "./d1store.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
@@ -109,6 +109,7 @@ export default {
         setup: {
           ntfySubscribeUrl: env.NTFY_TOPIC ? `${env.NTFY_SERVER ?? "https://ntfy.sh"}/${env.NTFY_TOPIC}` : null,
           connectorUrl: `${url.origin}/mcp/${env.KEW_SECRET}`,
+          pushChannels: pushChannels(env),
         },
       });
     }

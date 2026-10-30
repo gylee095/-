@@ -46,21 +46,21 @@ export const INDICATORS: IndicatorDef[] = [
     latency: "수 초~수십 초", caveats: "기종 코드만으로 RC-135와 WC-135, KC-135를 완전히 구분하지 못한다(목록의 등록번호·콜사인 확인 필요).",
   },
   {
-    id: "sea.ys_vessels_total", label: "서해 선박 수 (AIS)", group: "sea", unit: "척", direction: "low", slots: 24,
+    id: "sea.ys_vessels_total", label: "한반도 해역 선박 수 (AIS 수신분)", group: "sea", unit: "척", direction: "low", slots: 24,
     why: "선박이 일제히 사라지는 해역은 사격·봉쇄·기상 악화 중 하나다. 서해 NLL 일대 어선 이탈은 충돌 전 징후로 거론된다.",
-    measure: "aisstream.io 로 서해(위도 34~39.5°, 경도 122~126.5°) 위치 보고를 25초간 수집해 고유 MMSI 수 계산 (키 필요)",
-    latency: "수 초~수 분", caveats: "AIS 미장착 소형 어선은 보이지 않는다. 기상·조업 금지기간(중국 5~8월 휴어기)에 따라 크게 변한다.",
+    measure: "aisstream.io 로 한반도 전 해역(위도 33~43°, 경도 123~132°) 위치 보고를 25초간 수집해 고유 MMSI 수 계산 (키 필요)",
+    latency: "수 초~수 분", caveats: "aisstream 수신소가 한국 연안 일부뿐이라 25초에 수 척 수준(2026-10-31 실측 7척). 해역 전체가 아니라 '수신되는 일부'의 변화만 본다. 수신기 장애로도 0이 된다.",
   },
   {
     id: "sea.ys_china_vessels", label: "서해 중국 선박 수 (AIS)", group: "sea", unit: "척", direction: "low", slots: 24,
     why: "'중국 어선이 모두 사라졌다'는 현장 보고는 위기 때 반복된 관찰이다. 중국 당국이 자국 어선을 철수시키면 사전 인지의 간접 증거일 수 있다.",
-    measure: "서해 AIS 고유 MMSI 중 국가코드(MID) 412·413·414 인 선박 수",
-    latency: "수 초~수 분", caveats: "휴어기(5/1~8/16)·태풍·조업 패턴에 따라 평소에도 큰 폭으로 변한다. 단독으로는 결론 내지 말 것.",
+    measure: "현재 측정 불가 — aisstream 수신소가 중국 연안·서해에 없음(2026-10-31 실측 0척). Global Fishing Watch 위성 AIS(3~5일 지연)로 대체 가능",
+    latency: "—", caveats: "휴어기(5/1~8/16)·태풍·조업 패턴에 따라 평소에도 큰 폭으로 변한다. 단독으로는 결론 내지 말 것.",
   },
   {
     id: "sea.nk_flag_vessels", label: "북한 국적 선박 수 (AIS)", group: "sea", unit: "척", direction: "both", slots: 4, absolute: { elevated: 3, anomalous: 8 },
     why: "북한 선박의 AIS 송출은 드물다. 평소와 다른 움직임(일제 귀항·집결)은 참고 징후다.",
-    measure: "서해·동해 AIS 중 MID 445 선박 수", latency: "수 초~수 분", caveats: "북한 선박 대부분은 AIS를 끄고 다닌다.",
+    measure: "현재 측정 불가 — aisstream 수신 범위 밖", latency: "—", caveats: "북한 선박 대부분은 AIS를 끄고 다닌다.",
   },
   {
     id: "seismic.nk_events_24h", label: "북한 지역 지진 (24시간)", group: "seismic", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },

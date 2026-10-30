@@ -37,7 +37,7 @@ describe("해석 엔진", () => {
     const it_ = interpret({ now: NOW, threat, board: quietBoard(), patterns: [], briefs: [] });
     expect(it_.headline).toBe("평소와 다른 징후 없음");
     expect(it_.hints.some((h) => h.kind === "reassuring" && h.title.includes("임박 징후는 없음"))).toBe(true);
-    expect(it_.hints.find((h) => h.kind === "gap")!.reasoning).toMatch(/서해 선박.*위성 열점/);
+    expect(it_.hints.find((h) => h.kind === "gap")!.reasoning).toMatch(/서해 중국 어선.*위성 열점/);
     expect(it_.narrative.join(" ")).toMatch(/평소와 다른 것이 없다/);
     expect(it_.perIndicator["navwarn.launch_notice_active"]).toMatch(/단거리 미사일은 예고 없이/);
     expect(it_.abnormalCount).toBe(0);
@@ -86,7 +86,8 @@ describe("해석 엔진", () => {
     expect(it_.hints.find((h) => h.title.includes("서방 정부"))!.reasoning).toMatch(/피자 지수/);
   });
   it("측정 불가·학습 중 뜻풀이", () => {
-    expect(meaningOf(row("sea.ys_china_vessels"), { night: false, exercise: false, moratorium: false })).toMatch(/키가 없어/);
+    expect(meaningOf(row("sea.ys_china_vessels"), { night: false, exercise: false, moratorium: false })).toMatch(/수신소가 중국 연안·서해에 없어/);
+    expect(meaningOf(row("thermal.launch_site_hotspots"), { night: false, exercise: false, moratorium: false })).toMatch(/키가 없어/);
     expect(meaningOf(row("air.civil_airborne", { value: 20, baseline: 21, n: 3, state: "learning" }), { night: true, exercise: false, moratorium: false })).toMatch(/학습 중 3\/10/);
   });
 });

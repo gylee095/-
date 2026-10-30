@@ -93,7 +93,8 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
   const r = row.reading;
   const id = row.id;
   if (isUnavailable(row)) {
-    if (id.startsWith("sea.")) return "측정 불가 — 서해 선박(AIS) 키가 없어 '중국 어선이 사라졌는가' 같은 해상 힌트는 지금 볼 수 없음";
+    if (id === "sea.ys_vessels_total") return "측정 불가 — AIS 수신 실패 또는 키 없음";
+    if (id.startsWith("sea.")) return "측정 불가 — 공개 AIS 수신소가 중국 연안·서해에 없어 '중국 어선이 사라졌는가'는 지금 볼 수 없음 (위성 AIS 인 Global Fishing Watch 로만 가능, 3~5일 지연)";
     if (id.startsWith("thermal.")) return "측정 불가 — 위성 열점(FIRMS) 키가 없어 발사장·시험장의 열 활동은 볼 수 없음";
     if (id.startsWith("social.")) return "측정 불가 — SNS 공개 검색이 서버에서 차단됨. 사이렌·폭발음 목격담은 수집 안 됨";
     return "측정 불가 — 최근 30시간 내 관측 없음(소스 오류 또는 미설정)";
@@ -123,8 +124,8 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
       return `정찰·급유기 ${v}대 관측: ${names}. ${ctx.exercise ? "연합훈련 철 정례 비행일 가능성 높음" : "RC-135S·WC-135 면 발사·핵실험 관측 임무 가능성 — 등록번호로 확인 필요"}`;
     }
     case "sea.ys_vessels_total":
-      if (isAbnormal(row) && p !== undefined && p < 100) return `서해 선박 ${v}척 — 평소의 ${p}%. 해역이 비는 것은 사격·봉쇄 또는 기상 악화${ctx.moratorium ? ", 지금은 중국 휴어기라 어선이 원래 적음" : ""}`;
-      return `서해 선박 ${v}척${vs}${learn} → 해역 활동 평소 수준`;
+      if (isAbnormal(row) && p !== undefined && p < 100) return `한반도 해역에서 수신된 선박 ${v}척 — 평소의 ${p}%. 수신기 장애일 가능성이 가장 크고, 그다음이 기상 악화·해역 통제`;
+      return `한반도 해역에서 수신된 선박 ${v}척${vs}${learn} → 평소 수준 (수신소가 한국 연안 일부뿐이라 참고용)`;
     case "sea.ys_china_vessels":
       if (isAbnormal(row) && p !== undefined && p < 100) return `중국 선박 ${v}척 — 평소의 ${p}%. '중국 어선이 사라졌다'는 위기 때 반복된 관찰${ctx.moratorium ? ". 단 지금은 휴어기(5/1~8/16)라 정상일 수 있음" : ""}`;
       return `서해 중국 선박 ${v}척${vs}${learn} → 중국 어선 철수 징후 없음`;
@@ -349,7 +350,7 @@ export function interpret(input: InterpretInput): Interpretation {
   }
   // 13) 사각지대
   const blind: string[] = [];
-  if (unavailable.some((u) => u.id.startsWith("sea."))) blind.push("서해 선박(AIS 키 없음) — '중국 어선 철수' 같은 해상 힌트를 못 봄");
+  if (unavailable.some((u) => u.id === "sea.ys_china_vessels")) blind.push("서해 중국 어선(공개 AIS 수신소 없음) — '중국 어선 철수' 같은 해상 힌트를 못 봄");
   if (unavailable.some((u) => u.id.startsWith("thermal."))) blind.push("위성 열점(FIRMS 키 없음) — 발사장 엔진 시험 열을 못 봄");
   if (unavailable.some((u) => u.id.startsWith("social."))) blind.push("SNS 목격담(차단) — 사이렌·폭발음 현장 보고를 못 봄");
   if (blind.length) {

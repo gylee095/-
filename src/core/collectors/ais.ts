@@ -1,8 +1,12 @@
-// aisstream.io 선박 위치(AIS) — 무료 키 필요. 서해(한·중 어장, NLL) 선박 수와 국적 구성을 25초간 표본 수집한다.
-// ⚠ 키 없이는 실측 검증을 하지 못했다 (메시지 파싱만 픽스처로 검증). 운영 전 fetch_source 로 한 번 확인할 것.
+// aisstream.io 선박 위치(AIS) — 무료 키 필요. 한반도 해역 선박 수를 25초간 표본 수집한다.
+// 실측(2026-10-31, Worker): 한반도 전 해역 25초 7척(전부 한국 선박), 중국 동부 연안·발해만 25초 0척, 도쿄만 10초 9척, 전 세계 8초 542척.
+// → aisstream 은 자원봉사 지상 수신기 기반이라 중국 연안·서해 수신소가 없다. 중국·북한 국적 선박 지표는 내지 않는다(0 이 기준선이 되면 오해를 부른다).
+//   서해 중국 어선은 위성 AIS 기반 Global Fishing Watch(3~5일 지연)로만 볼 수 있다.
 import type { CollectResult, Metric } from "../types.js";
 
 export const YELLOW_SEA_BOX: [[number, number], [number, number]] = [[34, 122], [39.5, 126.5]];
+/** 수집기 기본 범위: 한반도 전 해역 (서해만으로는 수신 0척) */
+export const KOREA_WATERS_BOX: [[number, number], [number, number]] = [[33, 123], [43, 132]];
 
 /** MMSI 앞 3자리(MID) → 국가 */
 export function flagOf(mmsi: number | string): "CN" | "KR" | "KP" | "other" {
@@ -124,11 +128,12 @@ async function openSocket(url: string): Promise<any> {
 
 export async function collectAis(apiKey: string | undefined, now = Date.now()): Promise<CollectResult> {
   if (!apiKey) return { source: "aisstream", ok: true, skipped: "AISSTREAM_API_KEY 미설정 (aisstream.io 무료 키)", signals: [], fetchedAt: now, rawCount: 0 };
-  const sample = await sampleAis(apiKey);
+  const sample = await sampleAis(apiKey, KOREA_WATERS_BOX);
   const d = sample.diag;
   // 메시지가 0건이면 기준선을 오염시키지 않도록 관측값을 내지 않고 사유를 남긴다
   if (sample.messages === 0) {
     return { source: "aisstream", ok: false, error: `25초 동안 선박 메시지 0건 (프레임 ${d?.frames ?? 0}, 파싱오류 ${d?.parseErrors ?? 0}${d?.closeCode ? `, 종료코드 ${d.closeCode} ${d.closeReason ?? ""}` : ""})`, fetchedAt: now, rawCount: 0, signals: [] };
   }
-  return { source: "aisstream", ok: true, fetchedAt: now, rawCount: sample.vessels.size, signals: [], metrics: vesselMetrics(sample) };
+  // 수신 범위가 한국 연안 일부뿐이므로 총 선박 수만 참고 지표로 낸다
+  return { source: "aisstream", ok: true, fetchedAt: now, rawCount: sample.vessels.size, signals: [], metrics: vesselMetrics(sample).filter((m) => m.indicator === "sea.ys_vessels_total") };
 }

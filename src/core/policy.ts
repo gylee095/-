@@ -1,4 +1,5 @@
 // 알림 정책: '중요한 새 사건'만 푸시. 오탐 억제·중복 억제·속도 제한·정정 알림.
+import type { EventBrief } from "./brief.js";
 import type { AlertRecord, CrisisEvent, EventStatus } from "./types.js";
 import { statusRank } from "./correlate.js";
 
@@ -81,17 +82,22 @@ export const STATUS_LABEL: Record<EventStatus, string> = {
   UNVERIFIED: "미확인",
 };
 
-export function formatAlert(d: AlertDecision, dashboardUrl?: string): { title: string; body: string; priority: number } {
+export function formatAlert(
+  d: AlertDecision,
+  dashboardUrl?: string,
+  brief?: EventBrief,
+): { title: string; body: string; priority: number } {
   const e = d.event;
   const label =
     e.basis === "official_quote" && e.status === "UNVERIFIED" ? "속보·공식발표 인용" : STATUS_LABEL[e.status] + (e.basis === "official_quote" ? "·언론인용" : "");
   const prefix = d.kind === "correction" ? "[정정]" : d.kind === "upgrade" ? `[갱신·${label}]` : `[${label}]`;
-  const title = `${prefix} ${e.title}`.slice(0, 120);
+  const title = `${prefix} ${brief?.isProvocation ? brief.headline : e.title}`.slice(0, 120);
   const body = [
-    d.kind === "correction" ? "앞서 알린 사건이 정정·해제되었습니다." : `심각도 ${e.severity}/100 · 출처 ${e.sources.join(", ")}`,
+    d.kind === "correction" ? "앞서 알린 사건이 정정·해제되었습니다." : brief ? `위험도 ${brief.danger.label} (${brief.danger.reason}) · 출처 ${e.sources.join(", ")}` : `심각도 ${e.severity}/100 · 출처 ${e.sources.join(", ")}`,
+    brief?.isProvocation && brief.headline !== e.title ? `원문: ${e.title}` : "",
     e.status === "UNVERIFIED" && e.basis !== "official_quote" ? "⚠ 단일 출처 미확인 신호입니다. 공식 발표를 확인하세요." : "",
     e.status === "UNVERIFIED" && e.basis === "official_quote" ? "언론사 1곳의 속보 기준이며 아직 교차확인 전입니다." : "",
-    e.basis === "official_quote" ? "공식 발표를 인용한 복수 언론 보도 기준입니다 (원문 직접 확인 아님)." : "",
+    e.basis === "official_quote" && e.status !== "UNVERIFIED" ? "공식 발표를 인용한 복수 언론 보도 기준입니다 (원문 직접 확인 아님)." : "",
     dashboardUrl ? `${dashboardUrl}#${e.id}` : "",
   ]
     .filter(Boolean)

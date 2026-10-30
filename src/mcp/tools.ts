@@ -41,9 +41,11 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
         const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES);
         return out({
           now: fmtKst(st.now),
+          threat: st.threat,
           posture: st.posture,
           events: st.events.map((e) => ({
-            id: e.id, status: e.status, severity: e.severity, title: e.title, categories: e.categories, sources: e.sources,
+            id: e.id, status: e.status, severity: e.severity, title: e.title,
+            brief: { ...e.brief, at: fmtKst(e.brief.at), latest: e.brief.latest && { ...e.brief.latest, at: fmtKst(e.brief.latest.at) } }, categories: e.categories, sources: e.sources,
             drill: e.drill, retracted: e.retracted,
             times: { event: fmtKst(e.eventTime), published: fmtKst(e.firstPublishedTime), detected: fmtKst(e.firstDetectedTime), alerted: fmtKst(e.alertedTime), firstMedia: fmtKst(e.firstMediaTime) },
             evidence: e.signals.map((s: any) => ({ source: s.source, kind: s.sourceKind, title: s.title, url: s.url })),

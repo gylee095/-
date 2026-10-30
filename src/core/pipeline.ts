@@ -1,4 +1,5 @@
 // 한 번의 감시 사이클: 수집 → 저장(중복 제거) → 상관분석 → 알림 판단 → 발송 → 기록
+import { briefEvent } from "./brief.js";
 import type { CollectResult, CrisisEvent, Env } from "./types.js";
 import type { Store } from "./store.js";
 import { healthOf } from "./store.js";
@@ -56,7 +57,8 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
 
   const alerts: CycleReport["alerts"] = [];
   for (const d of send) {
-    const msg = formatAlert(d, env.DASHBOARD_URL);
+    const ids = new Set(d.event.signalIds);
+    const msg = formatAlert(d, env.DASHBOARD_URL, briefEvent(d.event, signals.filter((s) => ids.has(s.id))));
     let ok = true;
     let error: string | undefined;
     let channel = "dry-run";

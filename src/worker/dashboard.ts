@@ -49,6 +49,10 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .row .t{flex:none;width:76px;font-size:13px;font-weight:700}.row .t.f{color:var(--fresh)}.row .t.w{color:var(--warm)}.row .t.o{color:var(--old)}
 .row .b{flex:1;min-width:0}.row .h{font-weight:600;font-size:15px}.row .x{font-size:12px;color:var(--mute);margin-top:2px}
 .lv{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}.lv1{background:var(--l1)}.lv2{background:var(--l2)}.lv3{background:var(--l3)}.lv4{background:var(--l4)}.lv5{background:var(--l5)}
+.ex .hd{font-size:18px;font-weight:800;line-height:1.3;margin-bottom:8px}.ex p{margin:6px 0;font-size:15px;line-height:1.55}
+.hint{border-top:1px solid var(--line);padding:10px 0}.hint .ht{font-weight:700;font-size:15px}.hint .hr{font-size:14px;margin-top:3px}.hint .hc{font-size:13px;color:var(--mute);margin-top:3px}
+.hint.warning .ht{color:var(--l3)}.hint.reassuring .ht{color:var(--l1)}.hint.gap .ht{color:var(--mute)}
+.ctx{font-size:12px;color:var(--mute);margin-top:8px}
 .pat{border-left:5px solid var(--l2)}.pat.high{border-left-color:var(--l4)}.pat.low{border-left-color:var(--old);opacity:.85}
 .pat .pn{font-size:17px;font-weight:800}.pat .ps{font-size:14px;margin:6px 0}.pat ul{margin:6px 0 0 18px;padding:0;font-size:13px;color:var(--mute)}
 .board{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -101,7 +105,14 @@ function render(){
   h+='<div class="threat bg'+lvl+'"><div class="k">지금 한반도 상황</div><div class="v">'+esc(label)+'</div><div class="s">'+esc(lvl>th.level?"징후 조합이 감지됨 — 아래 패턴 확인":th.summary)+'</div>';
   if(th.lastProvocation)h+='<div class="m">마지막 북한 도발 · <b>'+ago(th.lastProvocation.at)+'</b> · '+esc(th.lastProvocation.headline)+'</div>';
   h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>';
-  // 2) 패턴
+  // 2) 지금 상황 해설 (규칙 기반, 5분마다 갱신)
+  var it=st.interpretation;
+  if(it){var ICON={warning:"⚠️",reassuring:"✅",caveat:"🔍",gap:"⬜"};var KIND={warning:"위험 쪽 힌트",reassuring:"안심 쪽 힌트",caveat:"해석 주의",gap:"사각지대"};
+    h+='<div class="sec">지금 상황 해설 <span style="font-weight:400">· 자동(규칙 기반) · 5분마다 갱신</span></div><div class="card ex"><div class="hd">'+esc(it.headline)+'</div>'+it.narrative.map(function(p){return '<p>'+esc(p)+'</p>'}).join("");
+    if(it.hints.length){h+='<details open><summary>힌트 '+it.hints.length+'개 — 근거와 반대 해석</summary>'+it.hints.map(function(x){return '<div class="hint '+x.kind+'"><div class="ht">'+ICON[x.kind]+' '+esc(x.title)+' <span class="chip" style="font-size:11px;padding:1px 7px">'+KIND[x.kind]+'</span></div><div class="hr">'+esc(x.reasoning)+'</div>'+(x.counter?'<div class="hc">↔ 반대 해석: '+esc(x.counter)+'</div>':'')+(x.check?'<div class="hc">🔎 확인: '+esc(x.check)+'</div>':'')+'</div>'}).join("")+'</details>'}
+    if(it.context&&it.context.length)h+='<div class="ctx">맥락: '+esc(it.context.join(" · "))+'</div>';
+    h+='</div>'}
+  // 2b) 패턴
   if(pats.length){h+='<div class="sec" id="patterns">감지된 징후 조합 · '+ago(st.patternsAt)+'</div>';
     h+=pats.map(function(p){return '<div class="card pat '+p.confidence+'"><div class="pn">'+esc(p.name)+' <span class="chip">'+CONF[p.confidence]+' · '+p.score+'점</span></div><div class="ps">'+esc(p.summary)+'</div>'+
       '<details><summary>다른 설명 가능성 · 확인 방법</summary><ul>'+p.alternatives.map(function(a){return '<li>'+esc(a)+'</li>'}).join("")+'</ul><ul style="margin-top:6px">'+p.checks.map(function(c){return '<li>🔎 '+esc(c)+'</li>'}).join("")+'</ul></details></div>'}).join("")}
@@ -117,7 +128,7 @@ function render(){
     h+=sources(top)+'</div>';
   }
   // 4) 징후판
-  h+='<div class="sec" id="board">징후판 — 평소와 다른 것이 있는가</div><div class="card">'+board(st.board||[])+'</div>';
+  h+='<div class="sec" id="board">징후판 — 숫자 (항목을 누르면 뜻풀이)</div><div class="card">'+board(st.board||[])+'</div>';
   // 5) 클로드 분석
   if(st.assessment&&st.assessment.data){h+='<div class="sec">클로드 분석 · '+ago(st.assessment.at)+'</div><div class="card as">'+assessment(st.assessment.data)+'</div>'}
   else if(st.notes&&st.notes.length){var n=st.notes[0];h+='<div class="sec">클로드 분석 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
@@ -154,7 +165,8 @@ function board(rows){var groups={};rows.forEach(function(r){(groups[r.groupLabel
 function ind(r){var rd=r.reading,unavail=!rd||r.stateLabel==="측정 불가";var stc=unavail?"unavailable":rd.state;
   var base=rd&&rd.baseline!=null&&!unavail&&rd.state!=="learning"?"평소 "+(r.unit==="%"?rd.baseline.toFixed(2)+"%":(Math.round(rd.baseline)+(r.unit||"")))+(rd.z!=null?" · z "+rd.z.toFixed(1):""):(unavail?"측정 불가":"기준선 학습 중 "+(rd?rd.n:0)+"/10");
   var extra="";if(rd&&rd.meta){var m=rd.meta;if(m.aircraft&&m.aircraft.length)extra=m.aircraft.slice(0,3).map(function(a){return a.what.split("(")[0]}).join(", ");else if(m.titles&&m.titles.length)extra=m.titles[0];else if(m.note)extra=m.note;else if(m.signedPct!=null)extra=(m.signedPct>0?"+":"")+m.signedPct+"% · "+m.price+"원"}
-  return '<div class="ind" onclick="this.classList.toggle(\'open\')"><span class="st '+stc+'"></span><div class="il">'+esc(r.label)+'</div><div class="iv">'+(unavail?"—":fmtVal(r))+'</div><div class="ib">'+esc(base)+'</div>'+spark(r.history)+(extra?'<div class="ib" style="margin-top:2px">'+esc(extra).slice(0,70)+'</div>':"")+'<div class="why"><b>왜 보나:</b> '+esc(r.why)+'<br><b>지연:</b> '+esc(r.latency)+'<br><b>주의:</b> '+esc(r.caveats)+(rd?'<br><b>관측:</b> '+kst(rd.at):'')+'</div></div>'}
+  var meaning=ST&&ST.interpretation&&ST.interpretation.perIndicator?ST.interpretation.perIndicator[r.id]:"";
+  return '<div class="ind" onclick="this.classList.toggle(\'open\')"><span class="st '+stc+'"></span><div class="il">'+esc(r.label)+'</div><div class="iv">'+(unavail?"—":fmtVal(r))+'</div><div class="ib">'+esc(base)+'</div>'+spark(r.history)+(extra?'<div class="ib" style="margin-top:2px">'+esc(extra).slice(0,70)+'</div>':"")+'<div class="why">'+(meaning?'<b>뜻:</b> '+esc(meaning)+'<br>':'')+'<b>왜 보나:</b> '+esc(r.why)+'<br><b>지연:</b> '+esc(r.latency)+'<br><b>주의:</b> '+esc(r.caveats)+(rd?'<br><b>관측:</b> '+kst(rd.at):'')+'</div></div>'}
 function assessment(a){var h='<div class="ov"><span class="lv lv'+a.overall_level+'"></span>'+a.overall_level+'단계 · '+esc(a.overall)+'</div>';
   (a.hypotheses||[]).forEach(function(x){h+='<div class="hy"><b>'+esc(x.hypothesis)+'</b><span class="lk '+x.likelihood+'">'+({high:"가능성 높음",medium:"가능성 보통",low:"가능성 낮음"})[x.likelihood]+'</span>';
     if(x.evidence_for&&x.evidence_for.length)h+='<div class="ev"><span>찬성</span>'+esc(x.evidence_for.join(" · "))+'</div>';

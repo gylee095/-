@@ -47,6 +47,27 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
   };
 
   server.registerTool(
+    "get_interpretation",
+    {
+      title: "자동 해설 (숫자 → 뜻 → 조합 힌트)",
+      description:
+        "규칙 기반 해석 엔진이 징후판을 읽어 만든 결론 한 줄, 상황 설명 문단, 힌트 목록(위험/안심/주의/사각지대 — 각각 근거·반대 해석·확인 방법), 징후별 뜻풀이를 반환한다. " +
+        "분석을 시작할 때 get_situation 과 함께 먼저 읽고, 여기에 없는 조합·맥락(뉴스·외교 일정·훈련 등)을 보태는 것이 분석관의 일이다. 규칙 엔진의 결론을 그대로 베끼지 말고 반증을 시도할 것.",
+      inputSchema: { include_per_indicator: z.boolean().default(false).describe("true면 23개 징후 각각의 뜻풀이도 포함") },
+    },
+    async ({ include_per_indicator }) => {
+      try {
+        const { buildState } = await import("../core/state.js");
+        const st = await buildState(store, Date.now() - 72 * 3600_000, env.DISABLED_SOURCES);
+        const it = st.interpretation;
+        return out({ now: fmtKst(st.now), headline: it.headline, narrative: it.narrative, context: it.context, hints: it.hints, counts: { abnormal: it.abnormalCount, learning: it.learningCount, unavailable: it.unavailableCount }, perIndicator: include_per_indicator ? it.perIndicator : undefined });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
     "get_indicator_board",
     {
       title: "징후판 (모든 징후의 현재 상태)",

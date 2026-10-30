@@ -7,6 +7,7 @@ import { briefEvent, currentThreat } from "./brief.js";
 import type { Reading, Signal } from "./types.js";
 import { GROUP_LABEL, INDICATORS, STATE_LABEL } from "./indicators.js";
 import type { Pattern } from "./patterns.js";
+import { interpret } from "./interpret.js";
 
 export interface BoardRow {
   id: string;
@@ -72,16 +73,21 @@ export async function buildState(store: Store, since: number, disabledSources = 
     };
   });
   const patterns: { at: number; patterns: Pattern[] } = patternsRaw ? JSON.parse(patternsRaw) : { at: 0, patterns: [] };
+  const livePatterns = now - patterns.at < 6 * 3600_000 ? patterns.patterns : [];
   const assessment = notes.find((n) => n.kind === "assessment");
+  const threat = currentThreat(enriched.map((e) => e.brief), now);
+  // 규칙 기반 해설: 숫자 → 뜻 → 조합 힌트 (클로드 분석관은 이 위에서 추론한다)
+  const interpretation = interpret({ now, threat, board, patterns: livePatterns, briefs: enriched.map((e) => e.brief) });
 
   return {
     now,
-    threat: currentThreat(enriched.map((e) => e.brief), now),
+    threat,
+    interpretation,
     posture: posture(events, now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,
     events: enriched,
     board,
-    patterns: now - patterns.at < 6 * 3600_000 ? patterns.patterns : [],
+    patterns: livePatterns,
     patternsAt: patterns.at,
     assessment,
     health: health.filter((h) => !disabled.has(h.source)),

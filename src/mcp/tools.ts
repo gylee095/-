@@ -43,6 +43,7 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
         return out({
           now: fmtKst(st.now),
           threat: st.threat,
+          interpretation: { headline: st.interpretation.headline, narrative: st.interpretation.narrative, hints: st.interpretation.hints.map((h) => ({ kind: h.kind, title: h.title, reasoning: h.reasoning, counter: h.counter, check: h.check })), context: st.interpretation.context },
           posture: st.posture,
           patterns: st.patterns.map((p) => ({ name: p.name, confidence: p.confidence, score: p.score, summary: p.summary, alternatives: p.alternatives, checks: p.checks })),
           abnormalIndicators: st.board.filter((b) => b.reading && (b.reading.state === "elevated" || b.reading.state === "anomalous")).map((b) => describeReading(b.reading, b.id)),

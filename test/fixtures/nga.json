@@ -1,0 +1,6 @@
+{"broadcast-warn":[
+ {"msgYear":2026,"msgNumber":1234,"navArea":"P","subregion":"94","text":"YELLOW SEA.\nEAST CHINA SEA.\nNORTH KOREA.\n1. ROCKET LAUNCHING OPERATIONS 041500Z TO 111500Z NOV 26\n   IN AREAS BOUNDED BY:\n   A. 37-10.00N 124-05.00E, 36-55.00N 124-20.00E,\n2. CANCEL THIS MSG 111600Z NOV 26.","status":"A","issueDate":"021003Z NOV 2026","authority":"DPRK"},
+ {"msgYear":2026,"msgNumber":1240,"navArea":"P","subregion":"95","text":"SEA OF JAPAN.\nKOREA.\n1. GUNNERY EXERCISES 050000Z TO 051200Z NOV 26 IN AREA 36-30.00N 129-40.00E.","status":"A","issueDate":"021500Z NOV 2026","authority":"ROK NAVY"},
+ {"msgYear":2026,"msgNumber":1300,"navArea":"4","subregion":"11","text":"GULF OF MEXICO.\n1. ROCKET LAUNCHING OPERATIONS 0300Z TO 0500Z DAILY 03 THRU 06 NOV.","status":"A","issueDate":"011200Z NOV 2026","authority":"NASA"},
+ {"msgYear":2026,"msgNumber":1310,"navArea":"P","subregion":"94","text":"YELLOW SEA.\nKOREA.\nGPS SIGNAL INTERFERENCE REPORTED IN VICINITY 37-40.00N 126-10.00E. MARINERS ADVISED TO EXERCISE CAUTION.","status":"A","issueDate":"021800Z NOV 2026","authority":"KHOA"}
+]}

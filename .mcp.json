@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "korea-early-warning": {
+      "command": "npx",
+      "args": ["tsx", "src/mcp/server.ts"],
+      "env": { "NODE_USE_ENV_PROXY": "1", "NODE_NO_WARNINGS": "1" }
+    }
+  }
+}

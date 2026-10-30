@@ -1,0 +1,135 @@
+// 저장소 추상화: Cloudflare D1(운영) / JSON 파일(로컬·에이전트) / 메모리(테스트)
+import type { AlertRecord, CollectResult, CrisisEvent, Signal } from "./types.js";
+
+export interface SourceHealth {
+  source: string;
+  ok: boolean;
+  error?: string;
+  skipped?: string;
+  fetchedAt: number;
+  rawCount: number;
+  signalCount: number;
+}
+
+export interface AgentNote {
+  at: number;
+  author: string;
+  text: string;
+  eventIds?: string[];
+}
+
+export interface Store {
+  getSignals(sinceMs: number): Promise<Signal[]>;
+  putSignals(signals: Signal[]): Promise<number>; // 새로 추가된 개수
+  putEvents(events: CrisisEvent[]): Promise<void>;
+  getEvents(sinceMs: number): Promise<CrisisEvent[]>;
+  logAlert(a: AlertRecord): Promise<void>;
+  getAlerts(sinceMs: number): Promise<AlertRecord[]>;
+  putHealth(h: SourceHealth[]): Promise<void>;
+  getHealth(): Promise<SourceHealth[]>;
+  getKv(k: string): Promise<string | undefined>;
+  setKv(k: string, v: string): Promise<void>;
+  addNote(n: AgentNote): Promise<void>;
+  getNotes(sinceMs: number): Promise<AgentNote[]>;
+}
+
+export function healthOf(r: CollectResult): SourceHealth {
+  return { source: r.source, ok: r.ok, error: r.error, skipped: r.skipped, fetchedAt: r.fetchedAt, rawCount: r.rawCount, signalCount: r.signals.length };
+}
+
+interface State {
+  signals: Record<string, Signal>;
+  events: Record<string, CrisisEvent>;
+  alerts: AlertRecord[];
+  health: Record<string, SourceHealth>;
+  kv: Record<string, string>;
+  notes: AgentNote[];
+}
+
+const emptyState = (): State => ({ signals: {}, events: {}, alerts: [], health: {}, kv: {}, notes: [] });
+
+export class MemoryStore implements Store {
+  protected s: State;
+  constructor(initial?: State) {
+    this.s = initial ?? emptyState();
+  }
+  protected async save(): Promise<void> {}
+  async getSignals(since: number) {
+    return Object.values(this.s.signals).filter((x) => x.detectedTime >= since || (x.eventTime ?? 0) >= since);
+  }
+  async putSignals(signals: Signal[]) {
+    let n = 0;
+    for (const sig of signals) if (!this.s.signals[sig.id]) {
+      // raw 는 용량 절약을 위해 저장하지 않는다
+      const { raw: _raw, ...rest } = sig;
+      this.s.signals[sig.id] = rest;
+      n++;
+    }
+    await this.save();
+    return n;
+  }
+  async putEvents(events: CrisisEvent[]) {
+    for (const e of events) {
+      // 최초 알림 시각은 보존
+      const prev = this.s.events[e.id];
+      this.s.events[e.id] = { ...e, alertedTime: e.alertedTime ?? prev?.alertedTime };
+    }
+    await this.save();
+  }
+  async getEvents(since: number) {
+    return Object.values(this.s.events).filter((e) => e.firstDetectedTime >= since).sort((a, b) => b.firstDetectedTime - a.firstDetectedTime);
+  }
+  async logAlert(a: AlertRecord) {
+    this.s.alerts.push(a);
+    await this.save();
+  }
+  async getAlerts(since: number) {
+    return this.s.alerts.filter((a) => a.sentAt >= since);
+  }
+  async putHealth(h: SourceHealth[]) {
+    for (const x of h) this.s.health[x.source] = x;
+    await this.save();
+  }
+  async getHealth() {
+    return Object.values(this.s.health);
+  }
+  async getKv(k: string) {
+    return this.s.kv[k];
+  }
+  async setKv(k: string, v: string) {
+    this.s.kv[k] = v;
+    await this.save();
+  }
+  async addNote(n: AgentNote) {
+    this.s.notes.push(n);
+    await this.save();
+  }
+  async getNotes(since: number) {
+    return this.s.notes.filter((n) => n.at >= since);
+  }
+  /** 보존 기간이 지난 데이터 정리 */
+  prune(olderThan: number) {
+    for (const [k, v] of Object.entries(this.s.signals)) if (v.detectedTime < olderThan) delete this.s.signals[k];
+    for (const [k, v] of Object.entries(this.s.events)) if (v.firstDetectedTime < olderThan) delete this.s.events[k];
+  }
+}
+
+/** Node 전용 파일 저장소. MCP 서버/CLI가 사용한다. */
+export async function openFileStore(path: string): Promise<Store> {
+  const fs = await import("node:fs/promises");
+  const { dirname } = await import("node:path");
+  let state = emptyState();
+  try {
+    state = { ...emptyState(), ...JSON.parse(await fs.readFile(path, "utf8")) };
+  } catch {
+    /* 첫 실행 */
+  }
+  class FileStore extends MemoryStore {
+    protected async save() {
+      this.prune(Date.now() - 30 * 86400_000);
+      await fs.mkdir(dirname(path), { recursive: true });
+      await fs.writeFile(path, JSON.stringify(this.s));
+    }
+  }
+  return new FileStore(state);
+}

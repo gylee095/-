@@ -1,0 +1,7 @@
+# Korea Early Warning — 에이전트 작업 지침
+
+- 이 저장소는 공개 정보 기반 한반도 위기 조기감지 시스템이다. 구조와 운영은 README.md, docs/ 참고.
+- 정기 감시는 `/kew-scan` 커맨드(.claude/commands/kew-scan.md)를 따른다. MCP 서버 `korea-early-warning`(.mcp.json)이 도구를 제공한다.
+- 세션 시작 시 `node_modules`가 없으면 `npm ci`를 먼저 실행한다.
+- 코드 변경 시 `npm test`와 `npm run typecheck`를 통과시킨다. 탐지 규칙을 바꾸면 test/fixtures 에 사례를 추가한다.
+- 비밀값(API 키, 푸시 토픽, 토큰)을 코드·커밋·로그·노트에 쓰지 않는다.

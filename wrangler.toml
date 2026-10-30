@@ -1,0 +1,23 @@
+name = "korea-early-warning"
+main = "src/worker/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# 5분마다 감시 사이클 (Workers 무료 플랜: 크론 트리거 5개, 요청 10만/일 이내)
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kew"
+database_id = "REPLACE_WITH_D1_ID"   # wrangler d1 create kew 출력값
+migrations_dir = "migrations"
+
+[vars]
+NTFY_SERVER = "https://ntfy.sh"
+DASHBOARD_URL = "https://korea-early-warning.YOUR_SUBDOMAIN.workers.dev"
+DISABLED_SOURCES = ""
+
+# 비밀값은 여기 적지 말고 `wrangler secret put <NAME>` 으로 등록:
+#   SAFETYDATA_API_KEY, NTFY_TOPIC, NTFY_TOKEN, PUSHOVER_TOKEN, PUSHOVER_USER,
+#   OPENSKY_CLIENT_ID, OPENSKY_CLIENT_SECRET, DASHBOARD_TOKEN, AGENT_TOKEN

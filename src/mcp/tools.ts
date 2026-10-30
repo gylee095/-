@@ -38,7 +38,7 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
     },
     async ({ hours }) => {
       try {
-        const st = await buildState(store, Date.now() - hours * 3600_000);
+        const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES);
         return out({
           now: fmtKst(st.now),
           posture: st.posture,
@@ -287,6 +287,6 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
       description: "각 소스의 성격(공식/센서/언론), 접근 권한, 비용, 갱신 주기, 지연 시간, 약관과 최근 수집 상태를 반환한다.",
       inputSchema: {},
     },
-    async () => out({ sources: listSources(), health: await store.getHealth(), configured: { safetydata: !!env.SAFETYDATA_API_KEY, push: !!(env.NTFY_TOPIC || env.PUSHOVER_TOKEN) } }),
+    async () => out({ sources: listSources(), disabled: env.DISABLED_SOURCES, health: (await store.getHealth()).filter((h) => !(env.DISABLED_SOURCES ?? "").split(",").includes(h.source)), configured: { safetydata: !!env.SAFETYDATA_API_KEY, push: !!(env.NTFY_TOPIC || env.PUSHOVER_TOKEN) } }),
   );
 }

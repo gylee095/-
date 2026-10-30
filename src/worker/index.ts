@@ -98,7 +98,7 @@ export default {
 
     if (url.pathname === "/api/state" && req.method === "GET") {
       const hours = Math.min(Number(url.searchParams.get("hours") ?? 72), 720);
-      const st = await buildState(store, Date.now() - hours * 3600_000);
+      const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES);
       return json({
         ...st,
         setup: {

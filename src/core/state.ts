@@ -4,7 +4,9 @@ import { latencyMetrics } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { listSources } from "./sources.js";
 
-export async function buildState(store: Store, since: number) {
+/** disabledSources: 꺼 둔 소스는 과거 오류 기록이 남아 있어도 상태 목록에서 뺀다 */
+export async function buildState(store: Store, since: number, disabledSources = "") {
+  const disabled = new Set(disabledSources.split(",").map((s) => s.trim()).filter(Boolean));
   const now = Date.now();
   const [events, signals, health, alerts, notes, lastCycle] = await Promise.all([
     store.getEvents(since),
@@ -20,10 +22,10 @@ export async function buildState(store: Store, since: number) {
     posture: posture(events, now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,
     events: events.map((e) => ({ ...e, signals: e.signalIds.map((id) => byId.get(id)).filter(Boolean) })),
-    health,
+    health: health.filter((h) => !disabled.has(h.source)),
     alerts: alerts.slice(-50).reverse(),
     notes,
     metrics: latencyMetrics(events),
-    sources: listSources(),
+    sources: listSources().filter((s) => !disabled.has(s.id)),
   };
 }

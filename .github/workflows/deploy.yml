@@ -1,0 +1,87 @@
+# 휴대폰만으로 배포: GitHub Secrets 를 등록하고 이 워크플로를 실행(또는 main 에 푸시)하면 끝.
+# 필요한 Secrets: CLOUDFLARE_API_TOKEN, KEW_SECRET  (CLOUDFLARE_ACCOUNT_ID 는 비우면 자동 조회)
+# 선택 Secrets:   SAFETYDATA_API_KEY, NTFY_TOPIC, NTFY_TOKEN, PUSHOVER_TOKEN, PUSHOVER_USER,
+#                 OPENSKY_CLIENT_ID, OPENSKY_CLIENT_SECRET
+name: Deploy Worker
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, claude/korea-early-warning]
+
+concurrency: deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Check required secrets
+        env:
+          KEW_SECRET: ${{ secrets.KEW_SECRET }}
+        run: |
+          missing=""
+          [ -z "$CLOUDFLARE_API_TOKEN" ] && missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -z "$KEW_SECRET" ] && missing="$missing KEW_SECRET"
+          if [ -n "$missing" ]; then echo "::error::GitHub Secrets 누락:$missing"; exit 1; fi
+          if [ ${#KEW_SECRET} -lt 20 ]; then echo "::error::KEW_SECRET 은 20자 이상이어야 합니다"; exit 1; fi
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            acc=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" https://api.cloudflare.com/client/v4/accounts | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);if(!j.success){console.error(JSON.stringify(j.errors));process.exit(1)}process.stdout.write(j.result[0]?.id??"")})')
+            [ -z "$acc" ] && { echo "::error::API 토큰으로 계정을 찾지 못했습니다 (Account Settings: Read 권한 필요)"; exit 1; }
+            echo "CLOUDFLARE_ACCOUNT_ID=$acc" >> $GITHUB_ENV
+          fi
+
+      - name: Ensure D1 database
+        run: |
+          id=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const db=JSON.parse(s).find(x=>x.name==="kew");process.stdout.write(db?db.uuid:"")})')
+          if [ -z "$id" ]; then
+            npx wrangler d1 create kew
+            id=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).find(x=>x.name==="kew").uuid))')
+          fi
+          sed -i "s/REPLACE_WITH_D1_ID/$id/" wrangler.toml
+          npx wrangler d1 migrations apply kew --remote
+
+      - name: Deploy
+        run: npx wrangler deploy
+
+      - name: Upload secrets
+        env:
+          KEW_SECRET: ${{ secrets.KEW_SECRET }}
+          SAFETYDATA_API_KEY: ${{ secrets.SAFETYDATA_API_KEY }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+          OPENSKY_CLIENT_ID: ${{ secrets.OPENSKY_CLIENT_ID }}
+          OPENSKY_CLIENT_SECRET: ${{ secrets.OPENSKY_CLIENT_SECRET }}
+        run: |
+          # 값이 있는 것만 JSON 으로 묶어 한 번에 등록 (로그에 값이 찍히지 않음)
+          node -e '
+            const keys=["KEW_SECRET","SAFETYDATA_API_KEY","NTFY_TOPIC","NTFY_TOKEN","PUSHOVER_TOKEN","PUSHOVER_USER","OPENSKY_CLIENT_ID","OPENSKY_CLIENT_SECRET"];
+            const o={}; for (const k of keys) if (process.env[k]) o[k]=process.env[k];
+            require("fs").writeFileSync("/tmp/secrets.json", JSON.stringify(o));
+            console.log("등록할 비밀값:", Object.keys(o).join(", "));'
+          npx wrangler secret bulk /tmp/secrets.json
+          rm -f /tmp/secrets.json
+
+      - name: Smoke test
+        run: |
+          sub=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).result?.subdomain??""))')
+          base="https://korea-early-warning.$sub.workers.dev"
+          sleep 5
+          curl -sf "$base/health"
+          echo
+          echo "### 배포 완료" >> $GITHUB_STEP_SUMMARY
+          echo "- 대시보드: $base (처음 열 때 KEW_SECRET 입력)" >> $GITHUB_STEP_SUMMARY
+          echo "- 커넥터 URL: $base/mcp/<KEW_SECRET> — 대시보드의 '커넥터 URL 복사' 버튼 사용" >> $GITHUB_STEP_SUMMARY

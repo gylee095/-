@@ -6,14 +6,27 @@ import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 const GDELT_QUERY =
   '("North Korea" OR DPRK OR 북한) (missile OR artillery OR "nuclear test" OR shelling OR 미사일 OR 포격 OR 경계경보)';
 
-export async function collectGdelt(now = Date.now()): Promise<CollectResult> {
+export async function searchGdelt(query: string, timespan = "3h", max = 75): Promise<any[]> {
   const url =
-    `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(GDELT_QUERY)}` +
-    `&mode=artlist&format=json&timespan=3h&maxrecords=75&sort=datedesc`;
+    `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}` +
+    `&mode=artlist&format=json&timespan=${timespan}&maxrecords=${max}&sort=datedesc`;
   const txt = await fetchText(url);
-  // GDELT는 결과가 없으면 빈 본문 또는 '{}'를 반환한다
-  const data = txt.trim().startsWith("{") ? JSON.parse(txt) : {};
-  const arts: any[] = data.articles ?? [];
+  // GDELT는 결과가 없거나 쿼리 오류면 JSON이 아닌 본문을 반환한다
+  if (!txt.trim().startsWith("{")) {
+    if (txt.trim()) throw new Error(`GDELT: ${txt.trim().slice(0, 200)}`);
+    return [];
+  }
+  return JSON.parse(txt).articles ?? [];
+}
+
+export function googleNewsUrl(query: string, lang: "ko" | "en" = "ko") {
+  return lang === "ko"
+    ? `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ko&gl=KR&ceid=KR:ko`
+    : `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
+}
+
+export async function collectGdelt(now = Date.now()): Promise<CollectResult> {
+  const arts = await searchGdelt(GDELT_QUERY);
   return { source: "gdelt", ok: true, fetchedAt: now, rawCount: arts.length, signals: parseGdelt(arts, now) };
 }
 

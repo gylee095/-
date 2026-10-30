@@ -9,61 +9,47 @@
 | 에이전트 분석 | Claude Code 예약 작업(매시간) | 사용 중인 Claude 플랜 사용량에서 차감 |
 | 대안 | Google Cloud Run Job + Cloud Scheduler + Secret Manager | 무료 구간 내 가능, Scheduler 작업 3개까지 무료 |
 
-## 1. 사전 준비 — 키 발급
+## 1. 휴대폰만으로 배포하기 (권장)
 
-1. **재난문자 API**: [safetydata.go.kr](https://www.safetydata.go.kr/disaster-data/view?dataSn=228) 가입 → 긴급재난문자 API 활용신청 → 인증키. 승인 후 미리보기로 응답 필드명이 `SN, CRT_DT, MSG_CN, RCPTN_RGN_NM, EMRG_STEP_NM, DST_SE_NM`인지 확인 (다르면 `src/core/collectors/safetydata.ts` 수정).
-2. **OpenSky (선택)**: 계정 페이지에서 API client 생성 → client id/secret.
-3. **ntfy**: 아이폰에 ntfy 앱 설치 → 추측 불가능한 토픽 이름 구독 (예: `kew-` + 무작위 20자). 토픽 이름 자체가 비밀번호 역할이다.
-   더 안전하게 하려면 ntfy 계정 + 접근 토큰(`NTFY_TOKEN`)으로 보호된 토픽을 사용.
-4. **토큰 생성**: `openssl rand -hex 24` 로 `DASHBOARD_TOKEN`(보기 전용), `AGENT_TOKEN`(에이전트 실행용) 2개.
+배포는 GitHub Actions(`.github/workflows/deploy.yml`)가 한다. 사람이 할 일은 계정·비밀값 등록뿐이다.
 
-## 2. Cloudflare Workers 배포 (권장)
+1. **Cloudflare 가입** → 대시보드에서 *Workers & Pages* 메뉴를 한 번 열어 workers.dev 서브도메인을 만든다.
+2. **API 토큰**: 내 프로필 → API 토큰 → 토큰 생성 → 템플릿 *Cloudflare Workers 편집* →
+   *권한 추가*: 계정 · **D1** · 편집 → 토큰 생성 → 복사.
+3. **GitHub Secrets** (저장소 → Settings → Secrets and variables → Actions → New repository secret):
+   - `CLOUDFLARE_API_TOKEN` = 2번 토큰
+   - `KEW_SECRET` = 20자 이상 무작위 문자열 (커넥터 URL·대시보드 로그인·ntfy 토픽이 모두 여기서 유도됨)
+   - 선택: `SAFETYDATA_API_KEY`(재난문자), `OPENSKY_CLIENT_ID`/`OPENSKY_CLIENT_SECRET`, `PUSHOVER_TOKEN`/`PUSHOVER_USER`
+4. **배포 실행**: Actions 탭 → *Deploy Worker* → 실패한 실행이 있으면 *Re-run jobs*, 없으면 *Run workflow*.
+   D1 생성·마이그레이션·배포·비밀값 등록·헬스체크까지 자동. 요약(Summary)에 대시보드 주소가 나온다.
+5. **대시보드**: 아이폰 Safari로 주소 열기 → KEW_SECRET 입력 → 공유 → 홈 화면에 추가.
+6. **아이폰 푸시**: App Store에서 *ntfy* 설치 → 대시보드 *연결 설정*의 "토픽 주소 복사" → ntfy 앱에서 구독 → "테스트 푸시".
+7. **Claude 커넥터**: 대시보드 "커넥터 URL 복사" → claude.ai → 설정 → 커넥터 → *사용자 지정 커넥터 추가* → 이름 `korea-early-warning`, URL 붙여넣기.
 
+커넥터 URL에 비밀값이 들어 있으므로 다른 사람과 공유하지 말 것. 유출 시 `KEW_SECRET`을 바꾸고 워크플로를 다시 실행하면 이전 URL·토픽은 무효가 된다.
+
+### 재난문자 API 키 (선택이지만 가장 중요한 공식 소스)
+[safetydata.go.kr](https://www.safetydata.go.kr/disaster-data/view?dataSn=228) 가입 → 긴급재난문자 API 활용신청 → 승인 후 인증키를 `SAFETYDATA_API_KEY` Secret 으로 등록하고 워크플로 재실행.
+승인 후 커넥터의 `check_emergency_alerts`로 응답 필드명(SN, CRT_DT, MSG_CN …)이 맞는지 확인할 것.
+
+## 2. 수동 배포 (PC)
 ```bash
-npm ci
-npx wrangler login
-npx wrangler d1 create kew                 # 출력된 database_id 를 wrangler.toml 에 입력
+npm ci && npx wrangler login
+npx wrangler d1 create kew            # database_id 를 wrangler.toml 에 입력
 npx wrangler d1 migrations apply kew --remote
-
-# 비밀값은 Cloudflare Secrets 에 저장 (코드·git 에 남지 않음)
-for k in SAFETYDATA_API_KEY NTFY_TOPIC DASHBOARD_TOKEN AGENT_TOKEN; do npx wrangler secret put $k; done
-# 선택: NTFY_TOKEN PUSHOVER_TOKEN PUSHOVER_USER OPENSKY_CLIENT_ID OPENSKY_CLIENT_SECRET
-
-# wrangler.toml 의 DASHBOARD_URL 을 실제 workers.dev 주소로 수정 후
 npx wrangler deploy
+npx wrangler secret put KEW_SECRET    # 그 외 선택 비밀값도 동일
 ```
 
-확인:
-```bash
-URL=https://korea-early-warning.<subdomain>.workers.dev
-curl -X POST $URL/api/run -H "authorization: Bearer $AGENT_TOKEN" -d '{"dryRun":true}' | jq '.sources'
-curl -X POST $URL/api/notify -H "authorization: Bearer $AGENT_TOKEN" \
-  -d '{"title":"[테스트] KEW","body":"푸시 테스트","dedupeKey":"test-1"}'
-```
+## 3. Claude 에이전트 — 커넥터 + 예약 작업
 
-아이폰 대시보드: Safari에서 `$URL/?key=<DASHBOARD_TOKEN>` 한 번 열기(토큰은 기기에 저장되고 주소창에서 지워짐) → 공유 → **홈 화면에 추가**.
-
-## 3. Claude Code 에이전트 (매시간)
-
-에이전트는 이 저장소의 `.mcp.json`(MCP 서버)과 `.claude/commands/kew-scan.md`(절차)를 사용한다.
-
-### 3-1. 클라우드 환경 설정 (claude.ai/code)
-세션 상단의 클라우드 환경 메뉴 → Edit:
-- **환경 변수**: `KEW_API_URL=https://korea-early-warning.<subdomain>.workers.dev`, `KEW_AGENT_TOKEN=<AGENT_TOKEN>`
-  (Worker를 쓰면 데이터 소스 키는 Worker에만 있으면 된다. Worker 없이 쓰려면 `SAFETYDATA_API_KEY`, `NTFY_TOPIC` 등도 여기에 추가)
-- **네트워크 접근**: Limited 수준이면 Allowed domains에 추가
-  - Worker 사용 시: `<subdomain>.workers.dev` 만으로 충분 (`fetch_source` 직접 조회까지 쓰려면 아래도)
-  - Worker 미사용 시: `www.safetydata.go.kr, earthquake.usgs.gov, www.seismicportal.eu, msi.nga.mil, opensky-network.org, auth.opensky-network.org, api.gdeltproject.org, news.google.com, www.yna.co.kr, ntfy.sh, api.pushover.net`
-- 네트워크 설정 방법: https://code.claude.com/docs/en/cloud-environments#network-access
-
-### 3-2. 예약 작업 생성
-Claude Code에서 "이 저장소로 매시간 `/kew-scan` 을 실행하는 예약 작업을 만들어줘"라고 요청하면 된다 (각 실행마다 새 세션, 이 저장소 체크아웃).
-수동으로 만들 때 프롬프트 예시:
-```
-/kew-scan
-```
-- 예약 작업 최소 간격은 보통 1시간 → **실시간 탐지는 Worker가 담당**하고, 에이전트는 해석·요약·감시 공백 점검을 담당한다.
-- 로컬 Claude Code에서만 돌릴 경우 `/loop 1h /kew-scan` 도 가능하지만 세션이 열려 있어야 하고 7일 후 만료된다.
+- 원격 MCP 커넥터 도구(10개): `get_situation`, `check_emergency_alerts`, `check_seismic_activity`, `check_navigational_warnings`,
+  `check_airspace`, `search_news`, `run_monitoring_cycle`, `send_iphone_alert`, `add_analysis_note`, `list_data_sources`
+- 커넥터를 등록하면 claude.ai 채팅·Claude Code 어디서든 "지금 한반도 상황 확인해줘"처럼 물으면 에이전트가 도구를 골라 호출한다.
+- **매시간 자동 분석**: 커넥터를 포함한 예약 작업(새 세션, 이 저장소)을 만들고 프롬프트를 `/kew-scan` 으로 둔다.
+  Claude에게 "kew 커넥터로 매시간 /kew-scan 예약 작업 만들어줘"라고 요청하면 된다.
+- 커넥터 호출은 Cloudflare에서 실행되므로 Claude 세션의 네트워크 허용 목록을 바꿀 필요가 없다.
+- 로컬 개발용 stdio 서버: `claude mcp add kew-local -- npx tsx src/mcp/server.ts`
 
 ## 4. 대안: Google Cloud Run
 
@@ -102,12 +88,12 @@ gcloud scheduler jobs create http kew-every-5m --location asia-northeast3 --sche
 ### 장애 대응
 | 증상 | 조치 |
 |---|---|
-| 특정 소스 연속 오류 | `fetch_source` 도구 또는 `/api/run {"only":["usgs"],"dryRun":true}` 로 원인 확인. 영구 장애면 `DISABLED_SOURCES`에 추가 |
-| 알림 미수신 | `/api/notify` 테스트, ntfy 앱 알림 권한·집중 모드 확인. 3회 실패한 사건은 대시보드 억제 사유에 "발송 3회 실패" |
+| 특정 소스 연속 오류 | 커넥터의 해당 `check_*` 도구로 원인 확인. 영구 장애면 `DISABLED_SOURCES`에 추가 |
+| 알림 미수신 | 대시보드 "테스트 푸시", ntfy 앱 알림 권한·집중 모드 확인. 3회 실패한 사건은 대시보드 억제 사유에 "발송 3회 실패" |
 | Worker CPU 한도 초과 | Workers Paid 전환 또는 GDELT/RSS 비활성화 |
 | 오탐 알림 | 대시보드 사건의 출처 확인 → 픽스처 추가 → 규칙 수정 |
 
 ### 보안
-- 비밀값은 Cloudflare Secrets / GCP Secret Manager / 클라우드 환경 변수에만. `.dev.vars`, `.env`는 gitignore.
-- `/api/state`는 DASHBOARD_TOKEN, 실행·알림 API는 AGENT_TOKEN 필요 (상수 시간 비교).
+- 비밀값은 GitHub Secrets → Cloudflare Secrets 로만 전달 (워크플로 로그에 값이 찍히지 않음). `.dev.vars`, `.env`는 gitignore.
+- 커넥터 경로·`/api/*` 모두 KEW_SECRET 필요 (상수 시간 비교). 잘못된 커넥터 경로는 404.
 - 언론 기사는 제목·링크만 저장.

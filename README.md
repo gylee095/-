@@ -16,16 +16,18 @@
  재난문자·지진   │                   │ D1 (사건·신호·알림 이력)              │
  항행경보·ADS-B  │  /  모바일 대시보드   /api/state  /api/run  /api/notify     │
  언론(기준선)    └──────────────────────────▲─────────────────────────────────┘
-                                            │ HTTPS (AGENT_TOKEN)
-          ┌─────────────── Claude Code 예약 작업 (매시간) ───────────────┐
-          │ /kew-scan  →  MCP 서버 korea-early-warning                    │
-          │   run_cycle · get_state · fetch_source · add_note · send_alert │
-          │   여러 영역 사건의 '조합'을 해석해 노트·추가 알림              │
-          └───────────────────────────────────────────────────────────────┘
+                                            │ 원격 MCP 커넥터  /mcp/<KEW_SECRET>
+          ┌──────── claude.ai 커넥터 → Claude 에이전트 (채팅·매시간 예약 작업) ────────┐
+          │ get_situation · check_emergency_alerts · check_seismic_activity            │
+          │ check_navigational_warnings · check_airspace · search_news                 │
+          │ run_monitoring_cycle · send_iphone_alert · add_analysis_note · list_...   │
+          │ → 상황에 맞게 도구를 골라 확인하고, 영역 간 '조합'을 해석해 노트·추가 알림 │
+          └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 - **왜 둘로 나눴나**: Claude 예약 작업은 최소 간격이 1시간이라 그것만으로는 뉴스보다 빠를 수 없다. 탐지·알림은 5분 크론 Worker가 결정론적으로 하고, Claude 에이전트는 매시간 MCP 도구로 상태를 읽어 **교차 해석·감시 공백 점검·요약**을 맡는다.
-- Worker 없이도 동작: `KEW_API_URL`이 없으면 MCP 서버가 로컬 JSON 파일에 상태를 저장하고 직접 수집·알림한다.
+- 데이터 조회는 MCP **커넥터 도구**로 한다. 에이전트가 "재난문자 원문 → 뉴스 첫 보도 → 동해 공역"처럼 상황에 따라 순서를 정한다.
+- 배포는 GitHub Actions가 한다. 휴대폰으로 Secrets만 등록하면 된다 ([배포 가이드](docs/DEPLOY.md)).
 
 ## MVP 범위 (v0.1)
 
@@ -54,7 +56,7 @@ KEW_DATA=data/demo.json npx tsx src/cli.ts preview   # → data/preview.html
 npm run scan:dry
 ```
 
-Claude Code에서 이 저장소를 열면 `.mcp.json`의 `korea-early-warning` MCP 서버가 연결되고 `/kew-scan`으로 감시 절차를 실행할 수 있다.
+운영 시에는 Worker의 원격 커넥터를 claude.ai에 등록해 쓰고, 로컬 개발 시에는 `claude mcp add kew-local -- npx tsx src/mcp/server.ts`로 같은 도구를 stdio로 쓸 수 있다.
 
 ## 문서
 - [docs/SOURCES.md](docs/SOURCES.md) — 데이터 소스 검증표, MCP 서버 조사, 지연 표기 원칙
@@ -64,7 +66,8 @@ Claude Code에서 이 저장소를 열면 `.mcp.json`의 `korea-early-warning` M
 ```
 src/core/        수집기·분류기·상관분석·알림정책·저장소 (Worker/Node 공용)
 src/worker/      Cloudflare Worker (크론, D1, 대시보드, API)
-src/mcp/         MCP 서버 (에이전트용 도구)
+src/mcp/         MCP 도구 정의(tools.ts) + 로컬 stdio 서버
+.github/workflows/deploy.yml   휴대폰용 자동 배포
 src/cli.ts       로컬/서버 실행 CLI
 test/            vitest + fixtures
 .claude/commands/kew-scan.md   에이전트 정기 감시 절차

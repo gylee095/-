@@ -20,17 +20,30 @@ async function getToken(id: string, secret: string): Promise<string> {
   return JSON.parse(txt).access_token;
 }
 
+export type BBox = typeof KOREA_AIR_BOX;
+
+export async function fetchStates(creds: { id?: string; secret?: string }, b: BBox = KOREA_AIR_BOX): Promise<any> {
+  const headers: Record<string, string> = {};
+  if (creds.id && creds.secret) headers.Authorization = `Bearer ${await getToken(creds.id, creds.secret)}`;
+  return fetchJson<any>(
+    `https://opensky-network.org/api/states/all?lamin=${b.lamin}&lomin=${b.lomin}&lamax=${b.lamax}&lomax=${b.lomax}`,
+    { headers },
+  );
+}
+
+/** 에이전트가 읽기 쉬운 형태로 상태 벡터 변환 */
+export function describeStates(states: any[]) {
+  return states.map((s) => ({
+    icao24: s[0], callsign: String(s[1] ?? "").trim(), country: s[2], lat: s[6], lon: s[5],
+    altitudeM: s[13] ?? s[7], onGround: s[8], speedMs: s[9], squawk: s[14],
+  }));
+}
+
 export async function collectOpenSky(
   creds: { id?: string; secret?: string },
   now = Date.now(),
 ): Promise<CollectResult> {
-  const headers: Record<string, string> = {};
-  if (creds.id && creds.secret) headers.Authorization = `Bearer ${await getToken(creds.id, creds.secret)}`;
-  const b = KOREA_AIR_BOX;
-  const data = await fetchJson<any>(
-    `https://opensky-network.org/api/states/all?lamin=${b.lamin}&lomin=${b.lomin}&lamax=${b.lamax}&lomax=${b.lomax}`,
-    { headers },
-  );
+  const data = await fetchStates(creds);
   const states: any[] = data.states ?? [];
   return {
     source: "opensky",

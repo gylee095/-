@@ -5,14 +5,19 @@ import type { CollectResult, Signal } from "../types.js";
 import { classifyText } from "../classify.js";
 import { fetchJson, parseKst } from "../util.js";
 
-export async function collectSafetyData(apiKey: string | undefined, now = Date.now()): Promise<CollectResult> {
-  if (!apiKey) return { source: "safetydata", ok: true, skipped: "SAFETYDATA_API_KEY 미설정", signals: [], fetchedAt: now, rawCount: 0 };
-  const kstDate = new Date(now + 9 * 3600_000 - 24 * 3600_000).toISOString().slice(0, 10).replace(/-/g, "");
+/** 최근 lookbackDays 일 이후 발송된 재난문자 원문 (군사 무관 문자 포함) */
+export async function fetchSafetyMessages(apiKey: string, now: number, lookbackDays = 1): Promise<any[]> {
+  const kstDate = new Date(now + 9 * 3600_000 - lookbackDays * 86400_000).toISOString().slice(0, 10).replace(/-/g, "");
   const url =
     `https://www.safetydata.go.kr/V2/api/DSSP-IF-00247?serviceKey=${encodeURIComponent(apiKey)}` +
     `&returnType=json&pageNo=1&numOfRows=100&crtDt=${kstDate}`;
   const data = await fetchJson<any>(url);
-  const rows: any[] = Array.isArray(data.body) ? data.body : (data.body?.items ?? data.items ?? []);
+  return Array.isArray(data.body) ? data.body : (data.body?.items ?? data.items ?? []);
+}
+
+export async function collectSafetyData(apiKey: string | undefined, now = Date.now()): Promise<CollectResult> {
+  if (!apiKey) return { source: "safetydata", ok: true, skipped: "SAFETYDATA_API_KEY 미설정", signals: [], fetchedAt: now, rawCount: 0 };
+  const rows = await fetchSafetyMessages(apiKey, now);
   return { source: "safetydata", ok: true, fetchedAt: now, rawCount: rows.length, signals: parseSafetyData(rows, now) };
 }
 

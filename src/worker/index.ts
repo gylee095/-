@@ -1,25 +1,36 @@
-// Cloudflare Worker: 5분 크론 감시 사이클 + 모바일 대시보드 + 에이전트용 API
+// Cloudflare Worker: 5분 크론 감시 사이클 + 원격 MCP 커넥터 + 모바일 대시보드
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { Env as CoreEnv } from "../core/types.js";
 import { runCycle } from "../core/pipeline.js";
 import { buildState } from "../core/state.js";
 import { sendPush } from "../core/notify.js";
+import { registerTools } from "../mcp/tools.js";
 import { D1Store } from "./d1store.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
 
 interface Env extends CoreEnv {
   DB: D1Database;
-  DASHBOARD_TOKEN?: string;
-  AGENT_TOKEN?: string;
+  /** 하나의 개인 비밀값으로 커넥터 경로·대시보드 토큰·ntfy 토픽을 모두 유도한다 */
+  KEW_SECRET?: string;
 }
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 
-function bearer(req: Request): string | undefined {
-  return req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+async function sha256Hex(s: string): Promise<string> {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/** 타이밍 공격 방지용 상수 시간 비교 */
+/** NTFY_TOPIC 을 따로 정하지 않으면 KEW_SECRET 에서 추측 불가능한 토픽을 만든다 */
+async function resolveEnv(env: Env, origin?: string): Promise<Env> {
+  const e = { ...env };
+  if (!e.NTFY_TOPIC && e.KEW_SECRET) e.NTFY_TOPIC = `kew-${(await sha256Hex(`ntfy:${e.KEW_SECRET}`)).slice(0, 24)}`;
+  if (!e.DASHBOARD_URL && origin) e.DASHBOARD_URL = origin;
+  return e;
+}
+
 function safeEq(a: string | undefined, b: string | undefined): boolean {
   if (!a || !b || a.length !== b.length) return false;
   let r = 0;
@@ -27,52 +38,61 @@ function safeEq(a: string | undefined, b: string | undefined): boolean {
   return r === 0;
 }
 
+async function handleMcp(req: Request, env: Env): Promise<Response> {
+  // 요청마다 새 서버·무상태 트랜스포트 (Workers 에는 요청 간 메모리 공유가 보장되지 않음)
+  const server = new McpServer({ name: "korea-early-warning", version: "0.2.0" });
+  registerTools(server, { env, store: new D1Store(env.DB) });
+  const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
+  await server.connect(transport);
+  return transport.handleRequest(req);
+}
+
 export default {
-  async scheduled(_ctrl: ScheduledController, env: Env, ctx: ExecutionContext) {
+  async scheduled(ctrl: ScheduledController, rawEnv: Env, ctx: ExecutionContext) {
+    const env = await resolveEnv(rawEnv);
     const store = new D1Store(env.DB);
-    const report = await runCycle(env, store);
+    const report = await runCycle(env, store, { now: ctrl.scheduledTime });
     await store.setKv("last_cycle", JSON.stringify({ at: report.at, sources: report.sources, alerts: report.alerts, newSignals: report.newSignals }));
-    // 하루 한 번(00시대 첫 실행) 30일 지난 데이터 정리
-    if (new Date(report.at).getUTCHours() === 15 && new Date(report.at).getUTCMinutes() < 5) ctx.waitUntil(store.prune(report.at - 30 * 86400_000));
+    const d = new Date(report.at);
+    if (d.getUTCHours() === 15 && d.getUTCMinutes() < 5) ctx.waitUntil(store.prune(report.at - 30 * 86400_000));
   },
 
-  async fetch(req: Request, env: Env): Promise<Response> {
+  async fetch(req: Request, rawEnv: Env): Promise<Response> {
     const url = new URL(req.url);
+    const env = await resolveEnv(rawEnv, url.origin);
     const store = new D1Store(env.DB);
 
     if (url.pathname === "/" || url.pathname === "/index.html") {
       return new Response(DASHBOARD_HTML, { headers: { "content-type": "text/html; charset=utf-8" } });
     }
+    if (url.pathname === "/health") return json({ ok: true, configured: !!env.KEW_SECRET });
 
-    const isAgent = safeEq(bearer(req), env.AGENT_TOKEN);
-    const isViewer = isAgent || safeEq(bearer(req), env.DASHBOARD_TOKEN);
-
-    if (url.pathname === "/api/state" && req.method === "GET") {
-      if (!isViewer) return json({ error: "unauthorized" }, 401);
-      const hours = Math.min(Number(url.searchParams.get("hours") ?? 72), 720);
-      return json(await buildState(store, Date.now() - hours * 3600_000));
+    // 원격 MCP 커넥터: claude.ai 설정 → 커넥터 → 사용자 지정 커넥터 추가 에 이 URL 을 등록
+    if (url.pathname.startsWith("/mcp/")) {
+      if (!safeEq(url.pathname.slice(5), env.KEW_SECRET)) return json({ error: "not found" }, 404);
+      return handleMcp(req, env);
     }
 
-    if (!isAgent) return json({ error: "unauthorized" }, 401);
+    const authed = safeEq(req.headers.get("authorization")?.replace(/^Bearer\s+/i, ""), env.KEW_SECRET);
+    if (!authed) return json({ error: "unauthorized" }, 401);
 
+    if (url.pathname === "/api/state" && req.method === "GET") {
+      const hours = Math.min(Number(url.searchParams.get("hours") ?? 72), 720);
+      const st = await buildState(store, Date.now() - hours * 3600_000);
+      return json({
+        ...st,
+        setup: {
+          ntfySubscribeUrl: env.NTFY_TOPIC ? `${env.NTFY_SERVER ?? "https://ntfy.sh"}/${env.NTFY_TOPIC}` : null,
+          connectorUrl: `${url.origin}/mcp/${env.KEW_SECRET}`,
+        },
+      });
+    }
     if (url.pathname === "/api/run" && req.method === "POST") {
       const body = (await req.json().catch(() => ({}))) as { only?: string[]; dryRun?: boolean };
       return json(await runCycle(env, store, { only: body.only, dryRun: body.dryRun }));
     }
-    if (url.pathname === "/api/notes" && req.method === "POST") {
-      const body = (await req.json()) as { text: string; author?: string; eventIds?: string[] };
-      if (!body.text) return json({ error: "text required" }, 400);
-      await store.addNote({ at: Date.now(), author: body.author ?? "agent", text: body.text.slice(0, 4000), eventIds: body.eventIds });
-      return json({ ok: true });
-    }
-    if (url.pathname === "/api/notify" && req.method === "POST") {
-      const body = (await req.json()) as { title: string; body: string; priority?: number; dedupeKey: string };
-      if (!body.dedupeKey) return json({ error: "dedupeKey required" }, 400);
-      const key = `agent_push:${body.dedupeKey}`;
-      if (await store.getKv(key)) return json({ ok: true, suppressed: "이미 같은 dedupeKey로 발송됨" });
-      const res = await sendPush(env, { title: body.title, body: body.body, priority: body.priority ?? 3, url: env.DASHBOARD_URL });
-      if (res.some((r) => r.ok)) await store.setKv(key, String(Date.now()));
-      return json({ ok: res.some((r) => r.ok), results: res });
+    if (url.pathname === "/api/test-push" && req.method === "POST") {
+      return json(await sendPush(env, { title: "[테스트] Korea Early Warning", body: "아이폰 푸시 연결 테스트입니다.", priority: 3, url: env.DASHBOARD_URL }));
     }
     return json({ error: "not found" }, 404);
   },

@@ -55,70 +55,68 @@ export function quakeToSignal(q: Quake, source: "usgs" | "emsc", now: number): S
   };
 }
 
-export async function collectUsgs(now = Date.now(), lookbackH = 6): Promise<CollectResult> {
+function usgsUrl(now: number, lookbackH: number, minMag: number) {
   const start = new Date(now - lookbackH * 3600_000).toISOString();
-  const url =
-    `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&minmagnitude=2.5` +
+  return (
+    `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&minmagnitude=${minMag}` +
     `&starttime=${start}&minlatitude=${NK_BOX.minLat}&maxlatitude=${NK_BOX.maxLat}` +
-    `&minlongitude=${NK_BOX.minLon}&maxlongitude=${NK_BOX.maxLon}`;
-  const data = await fetchJson<any>(url);
+    `&minlongitude=${NK_BOX.minLon}&maxlongitude=${NK_BOX.maxLon}`
+  );
+}
+
+function emscUrl(now: number, lookbackH: number, minMag: number) {
+  const start = new Date(now - lookbackH * 3600_000).toISOString().slice(0, 19);
+  return (
+    `https://www.seismicportal.eu/fdsnws/event/1/query?format=json&limit=100&minmag=${minMag}&start=${start}` +
+    `&minlat=${NK_BOX.minLat}&maxlat=${NK_BOX.maxLat}&minlon=${NK_BOX.minLon}&maxlon=${NK_BOX.maxLon}`
+  );
+}
+
+export function usgsToQuakes(data: any): Quake[] {
+  return (data.features ?? []).map((f: any) => {
+    const [lon, lat, depth] = f.geometry.coordinates;
+    return {
+      nativeId: f.id, time: f.properties.time, updated: f.properties.updated, lat, lon, depthKm: depth,
+      mag: f.properties.mag, place: f.properties.place ?? "", type: f.properties.type ?? "earthquake", url: f.properties.url,
+    };
+  });
+}
+
+export function emscToQuakes(data: any): Quake[] {
+  return (data.features ?? []).map((f: any) => {
+    const p = f.properties;
+    return {
+      nativeId: p.unid ?? f.id, time: Date.parse(p.time), lat: p.lat, lon: p.lon, depthKm: p.depth, mag: p.mag,
+      place: p.flynn_region ?? "", type: p.evtype === "ex" ? "explosion" : "earthquake",
+      url: `https://www.seismicportal.eu/eventdetails.html?unid=${p.unid}`,
+    };
+  });
+}
+
+/** 에이전트 도구용: 두 지진 네트워크의 북한 영역 지진 전체(필터 전) */
+export async function fetchQuakes(now: number, lookbackH: number, minMag: number) {
+  const [usgs, emsc] = await Promise.allSettled([
+    fetchJson<any>(usgsUrl(now, lookbackH, minMag)).then(usgsToQuakes),
+    fetchJson<any>(emscUrl(now, lookbackH, minMag)).then(emscToQuakes),
+  ]);
+  const pick = (r: PromiseSettledResult<Quake[]>) => (r.status === "fulfilled" ? { ok: true, quakes: r.value } : { ok: false, error: String(r.reason), quakes: [] as Quake[] });
+  return { usgs: pick(usgs), emsc: pick(emsc) };
+}
+
+export async function collectUsgs(now = Date.now(), lookbackH = 6): Promise<CollectResult> {
+  const data = await fetchJson<any>(usgsUrl(now, lookbackH, 2.5));
   return { source: "usgs", ok: true, fetchedAt: now, rawCount: data.features?.length ?? 0, signals: parseUsgs(data, now) };
 }
 
 export function parseUsgs(data: any, now: number): Signal[] {
-  const out: Signal[] = [];
-  for (const f of data.features ?? []) {
-    const [lon, lat, depth] = f.geometry.coordinates;
-    const s = quakeToSignal(
-      {
-        nativeId: f.id,
-        time: f.properties.time,
-        updated: f.properties.updated,
-        lat,
-        lon,
-        depthKm: depth,
-        mag: f.properties.mag,
-        place: f.properties.place ?? "",
-        type: f.properties.type ?? "earthquake",
-        url: f.properties.url,
-      },
-      "usgs",
-      now,
-    );
-    if (s) out.push(s);
-  }
-  return out;
+  return usgsToQuakes(data).flatMap((q) => quakeToSignal(q, "usgs", now) ?? []);
 }
 
 export async function collectEmsc(now = Date.now(), lookbackH = 6): Promise<CollectResult> {
-  const start = new Date(now - lookbackH * 3600_000).toISOString().slice(0, 19);
-  const url =
-    `https://www.seismicportal.eu/fdsnws/event/1/query?format=json&limit=100&minmag=2.5&start=${start}` +
-    `&minlat=${NK_BOX.minLat}&maxlat=${NK_BOX.maxLat}&minlon=${NK_BOX.minLon}&maxlon=${NK_BOX.maxLon}`;
-  const data = await fetchJson<any>(url);
+  const data = await fetchJson<any>(emscUrl(now, lookbackH, 2.5));
   return { source: "emsc", ok: true, fetchedAt: now, rawCount: data.features?.length ?? 0, signals: parseEmsc(data, now) };
 }
 
 export function parseEmsc(data: any, now: number): Signal[] {
-  const out: Signal[] = [];
-  for (const f of data.features ?? []) {
-    const p = f.properties;
-    const s = quakeToSignal(
-      {
-        nativeId: p.unid ?? f.id,
-        time: Date.parse(p.time),
-        lat: p.lat,
-        lon: p.lon,
-        depthKm: p.depth,
-        mag: p.mag,
-        place: p.flynn_region ?? "",
-        type: p.evtype === "ex" ? "explosion" : "earthquake",
-        url: `https://www.seismicportal.eu/eventdetails.html?unid=${p.unid}`,
-      },
-      "emsc",
-      now,
-    );
-    if (s) out.push(s);
-  }
-  return out;
+  return emscToQuakes(data).flatMap((q) => quakeToSignal(q, "emsc", now) ?? []);
 }

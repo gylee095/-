@@ -18,10 +18,11 @@ details{margin-top:6px}summary{cursor:pointer;color:var(--blue);font-size:13px}.
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:5px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 .ok{color:var(--green)}.bad{color:var(--red)}h2{font-size:15px;margin:22px 0 4px}nav{display:flex;gap:8px;overflow-x:auto;padding:4px 0}
 nav button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:16px;padding:4px 12px;font-size:13px}nav button.on{background:var(--fg);color:var(--bg)}
+.btn{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--blue);border-radius:8px;padding:6px 10px;font-size:13px;text-decoration:none;margin:2px 4px 2px 0}
 #login{display:none}#login input{width:100%;padding:10px;font-size:16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
 </style></head><body>
 <header><h1>🇰🇷 Korea Early Warning</h1><small id="upd"></small></header>
-<div id="login" class="card"><p>대시보드 토큰을 입력하세요.</p><input id="tok" type="password" autocomplete="current-password"><p><button onclick="saveTok()">확인</button></p></div>
+<div id="login" class="card"><p>KEW_SECRET 값을 입력하세요.</p><input id="tok" type="password" autocomplete="current-password"><p><button onclick="saveTok()">확인</button></p></div>
 <div id="app"></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -30,6 +31,8 @@ const kst=ms=>ms?new Date(ms+9*36e5).toISOString().slice(5,19).replace("T"," ")+
 const LABEL={CONFIRMED:"공식확인",CORROBORATED:"교차확인",UNVERIFIED:"미확인"};
 let filter="important";
 function tok(){try{const q=new URLSearchParams(location.search).get("key");if(q){localStorage.setItem("kew_token",q);history.replaceState(null,"",location.pathname+location.hash)}return localStorage.getItem("kew_token")}catch{return null}}
+function copy(t){navigator.clipboard.writeText(t).then(()=>alert("복사됨"),()=>prompt("복사하세요",t))}
+async function testPush(){const r=await fetch("/api/test-push",{method:"POST",headers:{authorization:"Bearer "+tok()}});const j=await r.json();alert(JSON.stringify(j))}
 function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch{}load()}
 async function load(){
   let st=window.__KEW_STATE__;
@@ -50,6 +53,11 @@ function render(st){
   <h2>소스 상태</h2><div class="card"><table><tr><th>소스</th><th>상태</th><th>지연</th></tr>\${st.sources.map(s=>{const h=st.health.find(x=>x.source===s.id);
     const stt=!h?'<span class="mute">미실행</span>':h.skipped?'<span class="mute">'+esc(h.skipped)+'</span>':h.ok?'<span class="ok">정상</span> '+h.signalCount+'/'+h.rawCount:'<span class="bad">오류</span> <small>'+esc((h.error||"").slice(0,60))+'</small>';
     return \`<tr><td>\${esc(s.name)}<br><small>\${s.kind}</small></td><td>\${stt}<br><small>\${h?kst(h.fetchedAt):""}</small></td><td><small>\${esc(s.latency)}</small></td></tr>\`}).join("")}</table></div>
+  \${st.setup?\`<h2>연결 설정</h2><div class="card" style="font-size:13px">
+    <p style="margin:0 0 8px">① 아이폰 푸시: ntfy 앱 설치 후 아래 버튼으로 구독</p>
+    <p><a class="btn" href="\${esc(st.setup.ntfySubscribeUrl)}" target="_blank" rel="noopener">ntfy 토픽 열기</a> <button class="btn" onclick="copy('\${esc(st.setup.ntfySubscribeUrl)}')">토픽 주소 복사</button> <button class="btn" onclick="testPush()">테스트 푸시</button></p>
+    <p style="margin:12px 0 8px">② Claude 커넥터: claude.ai → 설정 → 커넥터 → 사용자 지정 커넥터 추가에 붙여넣기</p>
+    <p><button class="btn" onclick="copy('\${esc(st.setup.connectorUrl)}')">커넥터 URL 복사</button></p></div>\`:""}
   <p class="mute" style="font-size:12px">공개 정보만 사용합니다. 군 레이더·비공개 정보에 접근하지 않습니다. 단일 이상징후는 전쟁 임박을 의미하지 않으며, 대피 등 행동은 반드시 정부 공식 안내(재난문자·국민재난안전포털)를 따르세요.</p>\`;
   if(location.hash){const el=document.getElementById(location.hash.slice(1));if(el){el.scrollIntoView();el.querySelector("details")?.setAttribute("open","")}}}
 function ev(e){

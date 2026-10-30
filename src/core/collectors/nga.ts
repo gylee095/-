@@ -3,9 +3,13 @@ import type { CollectResult, Signal } from "../types.js";
 import { classifyText } from "../classify.js";
 import { fetchJson, parseDtg } from "../util.js";
 
-export async function collectNga(now = Date.now()): Promise<CollectResult> {
+export async function fetchNgaWarnings(): Promise<any[]> {
   const data = await fetchJson<any>("https://msi.nga.mil/api/publications/broadcast-warn?output=json&status=A");
-  const rows: any[] = data["broadcast-warn"] ?? [];
+  return data["broadcast-warn"] ?? [];
+}
+
+export async function collectNga(now = Date.now()): Promise<CollectResult> {
+  const rows = await fetchNgaWarnings();
   return { source: "nga_msi", ok: true, fetchedAt: now, rawCount: rows.length, signals: parseNga(rows, now) };
 }
 

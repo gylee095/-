@@ -9,6 +9,7 @@ export type SourceId =
   | "adsb_lol"
   | "opensky"
   | "gdelt"
+  | "rss_breaking"
   | "rss_news";
 
 export interface SourceMeta {
@@ -122,18 +123,31 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     hosts: ["api.gdeltproject.org"],
     notes: "알림 트리거로는 쓰지 않음. 교차검증과 '뉴스보다 빨랐는가' 측정 기준선.",
   },
-  rss_news: {
-    id: "rss_news",
-    name: "언론 RSS (연합뉴스 속보·북한, NK News, BBC 아시아)",
+  rss_breaking: {
+    id: "rss_breaking",
+    name: "연합뉴스 속보 RSS (1분 주기)",
     kind: "media",
     access: "키 불필요",
     cost: "무료",
-    refresh: "수 분",
+    refresh: "1분",
+    latency: "합참·日방위성 발표 후 1~3분에 [속보] 게재 → 이 시스템 감지까지 최대 1분 추가",
+    realtime: "minutes",
+    terms: "언론사 저작권. 제목·링크만 저장, 본문 미저장",
+    hosts: ["www.yna.co.kr"],
+    notes: "미사일·포격처럼 군 레이더로만 처음 잡히는 사건의 가장 빠른 공개 경로. 공식발표를 인용한 [속보]는 단일 출처라도 즉시 알림.",
+  },
+  rss_news: {
+    id: "rss_news",
+    name: "언론 RSS (NK News, BBC 아시아 — 교차확인용)",
+    kind: "media",
+    access: "키 불필요",
+    cost: "무료",
+    refresh: "5분",
     latency: "보도 직후~수 분",
     realtime: "minutes",
     terms: "각 언론사 저작권. 제목·링크만 저장, 본문 미저장",
-    hosts: ["www.yna.co.kr", "www.nknews.org", "feeds.bbci.co.uk"],
-    notes: "속보 시각을 기록하여 리드타임(알림 시각 - 첫 보도 시각) 계산에 사용.",
+    hosts: ["www.nknews.org", "feeds.bbci.co.uk"],
+    notes: "연합뉴스 속보와 독립된 두 번째 언론사로 교차확인. 리드타임 측정에도 사용.",
   },
 };
 

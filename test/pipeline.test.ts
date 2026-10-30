@@ -272,18 +272,26 @@ describe("실제 사례 2026-10-29 북한 탄도미사일 일제 발사 (공개 
     }
   }
 
-  it("공식발표 인용 언론사 1곳 → 알림 없음, 2곳 → 교차확인·언론인용 알림", async () => {
+  it("공식발표 인용 [속보] 1건 → 즉시 알림, 다른 언론사가 붙어도 중복 알림 없음", async () => {
     const store = new MemoryStore();
     const { f, calls } = fakeFetch();
     const t1 = Date.UTC(2026, 9, 29, 3, 50);
     const r1 = await runCycle(env, store, { now: t1, fetchImpl: f, collect: async () => [await collectFrom(items().slice(0, 1), t1)] });
-    expect(r1.alerts).toHaveLength(0); // 연합뉴스 단독
+    expect(r1.alerts).toHaveLength(1); // 연합뉴스 [속보] 日방위성 인용 → 1분 내 감지 즉시 알림
+    expect(r1.alerts[0].title).toContain("[속보·공식발표 인용]");
+    expect((calls[0].init.headers as any).Priority).toBe("4");
 
     const t2 = Date.UTC(2026, 9, 29, 3, 55);
     const r2 = await runCycle(env, store, { now: t2, fetchImpl: f, collect: async () => [await collectFrom(items(), t2)] });
-    expect(r2.alerts).toHaveLength(1); // + NK News
-    expect(r2.alerts[0].title).toContain("[교차확인·언론인용]");
+    expect(r2.alerts).toHaveLength(0); // NK News 가 붙어 교차확인이 돼도 다시 울리지 않음
+    expect(r2.events.find((e) => e.sources.includes("nknews.org") && e.sources.includes("yna.co.kr"))?.status).toBe("CORROBORATED");
     expect(calls).toHaveLength(1);
+  });
+
+  it("[속보]가 아닌 단일 언론 인용 보도는 알리지 않음", async () => {
+    const t = Date.UTC(2026, 9, 29, 4, 20);
+    const rep = await runCycle(env, new MemoryStore(), { now: t, dryRun: true, collect: async () => [await collectFrom(items().slice(2, 3), t)] });
+    expect(rep.alerts).toHaveLength(0);
   });
 
   it("처음 감지했을 때 이미 6시간 넘은 사건은 알리지 않음 (재배포 시 과거 기사 폭주 방지)", async () => {

@@ -40,6 +40,8 @@ export interface Signal {
   retraction?: boolean;
   /** 언론 신호가 공식 발표(합참·국방부·日방위성 등)를 인용함 */
   citesOfficial?: boolean;
+  /** 속보(Breaking/Flash) 제목 */
+  breaking?: boolean;
   raw?: unknown;
 }
 
@@ -68,6 +70,8 @@ export interface CrisisEvent {
   retracted: boolean;
   /** 판정 근거: 1차 원천(공식·센서) / 공식발표를 인용한 복수 언론 / 언론만 */
   basis: "primary" | "official_quote" | "media";
+  /** 공식발표를 인용한 [속보]가 포함됨 (단일 출처 즉시 알림 대상) */
+  breaking: boolean;
   lat?: number;
   lon?: number;
 }

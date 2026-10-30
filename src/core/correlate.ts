@@ -127,6 +127,7 @@ export function buildEvent(group: string, sigs: Signal[]): CrisisEvent {
     drill,
     retracted,
     basis,
+    breaking: quoting.some((s) => s.breaking),
     lat: located?.lat,
     lon: located?.lon,
   };

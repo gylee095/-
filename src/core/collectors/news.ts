@@ -36,12 +36,11 @@ export function parseGdelt(arts: any[], now: number): Signal[] {
 }
 
 // Google News RSS 는 Cloudflare 서버 접속을 차단(503)하므로 사용하지 않는다
-export const DEFAULT_FEEDS = [
-  "https://www.yna.co.kr/rss/news.xml",
-  "https://www.yna.co.kr/rss/northkorea.xml",
-  "https://www.nknews.org/feed/",
-  "https://feeds.bbci.co.uk/news/world/asia/rss.xml",
-];
+/** 1분마다 확인하는 속보 피드 (연합뉴스: 합참·日방위성 발표를 가장 먼저 [속보]로 전하는 국내 매체) */
+export const BREAKING_FEEDS = ["https://www.yna.co.kr/rss/news.xml", "https://www.yna.co.kr/rss/northkorea.xml"];
+/** 5분마다 확인하는 교차확인용 피드 */
+export const SLOW_FEEDS = ["https://www.nknews.org/feed/", "https://feeds.bbci.co.uk/news/world/asia/rss.xml"];
+export const DEFAULT_FEEDS = [...BREAKING_FEEDS, ...SLOW_FEEDS];
 
 /** 기본 피드들의 기사 중 질의어가 하나라도 제목에 포함된 것 */
 export async function searchFeeds(query: string, sinceMs: number, feeds = DEFAULT_FEEDS) {
@@ -53,7 +52,7 @@ export async function searchFeeds(query: string, sinceMs: number, feeds = DEFAUL
   return { hits, errors };
 }
 
-export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now()): Promise<CollectResult> {
+export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source = "rss_news"): Promise<CollectResult> {
   const signals: Signal[] = [];
   let rawCount = 0;
   const errors: string[] = [];
@@ -61,12 +60,12 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now()): Promi
     try {
       const items = parseRss(await fetchText(f));
       rawCount += items.length;
-      for (const it of items) signals.push(...mediaSignal("rss_news", it.link, it.title, it.pubDate, now));
+      for (const it of items) signals.push(...mediaSignal(source, it.link, it.title, it.pubDate, now));
     } catch (e) {
       errors.push(String(e));
     }
   }
-  return { source: "rss_news", ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals };
+  return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals };
 }
 
 export function parseRss(xml: string): { title: string; link: string; pubDate?: number }[] {
@@ -100,6 +99,7 @@ function mediaSignal(source: string, url: string, title: string, published: numb
   const cls = classifyText(title);
   if (!cls || cls.category === "civil_alert_other") return [];
   const citesOfficial = OFFICIAL_QUOTE_RE.test(title);
+  const breaking = /\[속보\]|\[1보\]|BREAKING|FLASH/i.test(title);
   const outlet = domain ?? outletOf(url, source);
   return [
     {
@@ -116,6 +116,7 @@ function mediaSignal(source: string, url: string, title: string, published: numb
       // 공식발표 인용 보도만 사건 심각도에 반영한다 (그 외 언론은 교차검증·리드타임 측정용)
       severity: citesOfficial ? cls.severity : Math.min(cls.severity, 20),
       citesOfficial,
+      breaking,
       drill: cls.drill,
       retraction: cls.retraction,
     },

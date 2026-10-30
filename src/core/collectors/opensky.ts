@@ -90,13 +90,14 @@ export function airspaceAnomaly(
   baseline: number | undefined,
   now: number,
   opts = { ratio: 0.4, minBaseline: 25 },
+  source = "opensky",
 ): Signal | null {
   if (baseline === undefined || baseline < opts.minBaseline) return null;
   if (airborne >= baseline * opts.ratio) return null;
   const bucket = Math.floor(now / (30 * 60_000));
   return {
-    id: `opensky:airspace:${bucket}`,
-    source: "opensky",
+    id: `${source}:airspace:${bucket}`,
+    source,
     sourceKind: "sensor",
     category: "airspace_anomaly",
     title: `한반도 상공 항공기 급감: ${airborne}대 (평소 ${baseline.toFixed(0)}대)`,

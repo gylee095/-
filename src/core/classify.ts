@@ -43,7 +43,7 @@ const RULES: Rule[] = [
 
 /** 한반도 관련성: 영문 항행경보·외신은 지역명이 있어야만 통과 */
 const REGION_RE =
-  /KOREA|DPRK|PYONGYANG|YELLOW SEA|SEA OF JAPAN|EAST SEA|EAST CHINA SEA|JAPAN|PUNGGYE|SOHAE|TONGCHANG|북한|한반도|서해|동해|연평|백령|휴전선|군사분계선|NLL|경기|서울|인천|강원|합참|합동참모본부|국방부/i;
+  /KOREA|DPRK|PYONGYANG|YELLOW SEA|SEA OF JAPAN|EAST SEA|EAST CHINA SEA|JAPAN|PUNGGYE|SOHAE|TONGCHANG|북한|北|한반도|서해|동해|연평|백령|휴전선|군사분계선|NLL|경기|서울|인천|강원|합참|합동참모본부|국방부/i;
 
 const DRILL_RE = /훈련\s*(상황|입니다|임|중)|민방위\s*훈련|을지|모의|시험\s*발송|\bEXERCISE\b(?!.*LIVE FIRING)|\bDRILL\b|\bTEST MESSAGE\b/i;
 const RETRACTION_RE = /오발령|잘못\s*발송|해제|정정|취소|CANCEL|CORRECTION|DISREGARD/i;

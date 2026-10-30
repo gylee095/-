@@ -10,7 +10,8 @@ export async function searchGdelt(query: string, timespan = "3h", max = 75): Pro
   const url =
     `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}` +
     `&mode=artlist&format=json&timespan=${timespan}&maxrecords=${max}&sort=datedesc`;
-  const txt = await fetchText(url);
+  // GDELT 는 IP당 5초에 1회 제한, 응답이 느림
+  const txt = await fetchText(url, {}, 25000);
   // GDELT는 결과가 없거나 쿼리 오류면 JSON이 아닌 본문을 반환한다
   if (!txt.trim().startsWith("{")) {
     if (txt.trim()) throw new Error(`GDELT: ${txt.trim().slice(0, 200)}`);
@@ -34,10 +35,23 @@ export function parseGdelt(arts: any[], now: number): Signal[] {
   return arts.flatMap((a) => mediaSignal("gdelt", a.url, a.title, parseCompactUtc(a.seendate ?? ""), now, a.domain));
 }
 
+// Google News RSS 는 Cloudflare 서버 접속을 차단(503)하므로 사용하지 않는다
 export const DEFAULT_FEEDS = [
-  "https://news.google.com/rss/search?q=%EB%B6%81%ED%95%9C+%EB%AF%B8%EC%82%AC%EC%9D%BC+OR+%ED%8F%AC%EA%B2%A9+OR+%EA%B2%BD%EA%B3%84%EA%B2%BD%EB%B3%B4+when:1d&hl=ko&gl=KR&ceid=KR:ko",
+  "https://www.yna.co.kr/rss/news.xml",
   "https://www.yna.co.kr/rss/northkorea.xml",
+  "https://www.nknews.org/feed/",
+  "https://feeds.bbci.co.uk/news/world/asia/rss.xml",
 ];
+
+/** 기본 피드들의 기사 중 질의어가 하나라도 제목에 포함된 것 */
+export async function searchFeeds(query: string, sinceMs: number, feeds = DEFAULT_FEEDS) {
+  const terms = query.split(/\s+|,|OR/i).map((t) => t.trim().toLowerCase()).filter((t) => t.length >= 2);
+  const results = await Promise.allSettled(feeds.map((f) => fetchText(f).then((x) => parseRss(x).map((i) => ({ ...i, feed: new URL(f).hostname })))));
+  const items = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+  const errors = results.flatMap((r, i) => (r.status === "rejected" ? [`${new URL(feeds[i]).hostname}: ${String(r.reason).slice(0, 80)}`] : []));
+  const hits = items.filter((i) => (i.pubDate ?? Date.now()) >= sinceMs && terms.some((t) => i.title.toLowerCase().includes(t)));
+  return { hits, errors };
+}
 
 export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now()): Promise<CollectResult> {
   const signals: Signal[] = [];
@@ -69,10 +83,24 @@ export function parseRss(xml: string): { title: string; link: string; pubDate?: 
   return items;
 }
 
+// 공식 기관 발표를 인용한 제목 (예: "[속보] 合참 …", "日방위성 …", "…: JCS", "… ROK military")
+const OFFICIAL_QUOTE_RE =
+  /합참|합동참모본부|국방부|日\s*방위성|일본\s*방위성|방위성|대통령실|행안부|\bJCS\b|Joint Chiefs|Defense Ministry|Ministry of Defense|ROK military|South Korean military|:\s*(Seoul|Tokyo|JCS)\s*$/i;
+
+function outletOf(url: string, fallback: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return fallback;
+  }
+}
+
 function mediaSignal(source: string, url: string, title: string, published: number | undefined, now: number, domain?: string): Signal[] {
   if (!title || !isKoreaRelevant(title)) return [];
   const cls = classifyText(title);
   if (!cls || cls.category === "civil_alert_other") return [];
+  const citesOfficial = OFFICIAL_QUOTE_RE.test(title);
+  const outlet = domain ?? outletOf(url, source);
   return [
     {
       id: `${source}:${hash(url || title)}`,
@@ -80,13 +108,14 @@ function mediaSignal(source: string, url: string, title: string, published: numb
       sourceKind: "media",
       category: cls.category,
       title: title.slice(0, 120),
-      summary: domain ? `출처 도메인: ${domain}` : "언론 보도",
+      summary: `${outlet}${citesOfficial ? " · 공식발표 인용" : ""}`,
       url,
       eventTime: undefined,
       publishedTime: published,
       detectedTime: now,
-      // 언론은 단독으로 알림을 만들지 않으므로 심각도를 낮게 둔다 (사건 심각도는 다른 신호가 결정)
-      severity: Math.min(cls.severity, 20),
+      // 공식발표 인용 보도만 사건 심각도에 반영한다 (그 외 언론은 교차검증·리드타임 측정용)
+      severity: citesOfficial ? cls.severity : Math.min(cls.severity, 20),
+      citesOfficial,
       drill: cls.drill,
       retraction: cls.retraction,
     },

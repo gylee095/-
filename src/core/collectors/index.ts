@@ -4,6 +4,7 @@ import { collectEmsc, collectUsgs } from "./seismic.js";
 import { collectSafetyData } from "./safetydata.js";
 import { collectNga } from "./nga.js";
 import { collectOpenSky } from "./opensky.js";
+import { collectAdsb } from "./adsb.js";
 import { collectGdelt, collectRss } from "./news.js";
 
 export const COLLECTORS: Record<SourceId, (env: Env, now: number) => Promise<CollectResult>> = {
@@ -11,6 +12,7 @@ export const COLLECTORS: Record<SourceId, (env: Env, now: number) => Promise<Col
   usgs: (_e, now) => collectUsgs(now),
   emsc: (_e, now) => collectEmsc(now),
   nga_msi: (_e, now) => collectNga(now),
+  adsb_lol: (_e, now) => collectAdsb(now),
   opensky: (env, now) => collectOpenSky({ id: env.OPENSKY_CLIENT_ID, secret: env.OPENSKY_CLIENT_SECRET }, now),
   gdelt: (_e, now) => collectGdelt(now),
   rss_news: (_e, now) => collectRss(undefined, now),

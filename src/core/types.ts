@@ -38,6 +38,8 @@ export interface Signal {
   drill?: boolean;
   /** 오발령 정정·해제 메시지 */
   retraction?: boolean;
+  /** 언론 신호가 공식 발표(합참·국방부·日방위성 등)를 인용함 */
+  citesOfficial?: boolean;
   raw?: unknown;
 }
 
@@ -64,6 +66,8 @@ export interface CrisisEvent {
   alertedTime?: number;
   drill: boolean;
   retracted: boolean;
+  /** 판정 근거: 1차 원천(공식·센서) / 공식발표를 인용한 복수 언론 / 언론만 */
+  basis: "primary" | "official_quote" | "media";
   lat?: number;
   lon?: number;
 }

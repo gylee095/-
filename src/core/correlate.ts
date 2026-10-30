@@ -71,25 +71,41 @@ export function correlate(signals: Signal[]): CrisisEvent[] {
   return clusters.map((c) => buildEvent(c.group, c.signals));
 }
 
+/** 독립 출처 단위: 언론은 언론사(도메인)별, 그 외는 소스별 */
+export function providerOf(s: Signal): string {
+  if (s.sourceKind !== "media" || !s.url) return s.source;
+  try {
+    return new URL(s.url).hostname.replace(/^www\./, "");
+  } catch {
+    return s.source;
+  }
+}
+
 export function buildEvent(group: string, sigs: Signal[]): CrisisEvent {
   const primary = sigs.filter((s) => s.sourceKind !== "media");
   const media = sigs.filter((s) => s.sourceKind === "media");
+  const quoting = media.filter((s) => s.citesOfficial && !s.retraction);
+  const quotingOutlets = new Set(quoting.map(providerOf));
   const anchor = [...sigs].sort((a, b) => a.detectedTime - b.detectedTime || a.id.localeCompare(b.id))[0];
-  const providers = new Set(sigs.map((s) => s.source));
+  const providers = new Set(sigs.map(providerOf));
   const live = primary.filter((s) => !s.retraction);
   const retracted = primary.some((s) => s.retraction);
   const drill = primary.length > 0 && primary.every((s) => s.drill);
 
+  // 1차 원천이 없으면 '공식발표를 인용한 서로 다른 언론사 2곳 이상'일 때만 교차확인으로 본다
+  const basis: CrisisEvent["basis"] = primary.length ? "primary" : quotingOutlets.size ? "official_quote" : "media";
   let status: EventStatus = "UNVERIFIED";
   if (live.some((s) => s.sourceKind === "official" && !s.drill)) status = "CONFIRMED";
   else if (primary.length > 0 && providers.size >= 2) status = "CORROBORATED";
+  else if (basis === "official_quote" && quotingOutlets.size >= 2) status = "CORROBORATED";
 
-  const base = Math.max(0, ...(primary.length ? primary : sigs).map((s) => s.severity));
+  const scored = primary.length ? primary : quoting.length ? quoting : sigs;
+  const base = Math.max(0, ...scored.map((s) => s.severity));
   let severity = clamp(base + 5 * (providers.size - 1));
   if (retracted) severity = Math.min(severity, 30);
   if (drill) severity = Math.min(severity, 20);
 
-  const lead = [...(primary.length ? primary : sigs)].sort((a, b) => b.severity - a.severity)[0];
+  const lead = [...scored].sort((a, b) => b.severity - a.severity)[0];
   const located = sigs.find((s) => s.lat !== undefined);
   const min = (xs: (number | undefined)[]) => {
     const v = xs.filter((x): x is number => x !== undefined);
@@ -110,6 +126,7 @@ export function buildEvent(group: string, sigs: Signal[]): CrisisEvent {
     firstMediaTime: min(media.map((s) => s.publishedTime ?? s.detectedTime)),
     drill,
     retracted,
+    basis,
     lat: located?.lat,
     lon: located?.lon,
   };

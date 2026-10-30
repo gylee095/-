@@ -1,6 +1,12 @@
 // USGS / EMSC 지진 이벤트 → 핵실험 의심·북한 지역 얕은 지진 신호
 import type { CollectResult, Signal } from "../types.js";
-import { fetchJson, haversineKm } from "../util.js";
+import { fetchText, haversineKm } from "../util.js";
+
+/** FDSN 서비스는 결과가 없으면 HTTP 204 + 빈 본문을 반환한다 */
+async function fetchFdsn(url: string): Promise<any> {
+  const txt = await fetchText(url);
+  return txt.trim() ? JSON.parse(txt) : { features: [] };
+}
 
 export const NK_BOX = { minLat: 37.6, maxLat: 43.1, minLon: 124.1, maxLon: 130.8 };
 export const PUNGGYE_RI = { lat: 41.28, lon: 129.08 };
@@ -96,15 +102,15 @@ export function emscToQuakes(data: any): Quake[] {
 /** 에이전트 도구용: 두 지진 네트워크의 북한 영역 지진 전체(필터 전) */
 export async function fetchQuakes(now: number, lookbackH: number, minMag: number) {
   const [usgs, emsc] = await Promise.allSettled([
-    fetchJson<any>(usgsUrl(now, lookbackH, minMag)).then(usgsToQuakes),
-    fetchJson<any>(emscUrl(now, lookbackH, minMag)).then(emscToQuakes),
+    fetchFdsn(usgsUrl(now, lookbackH, minMag)).then(usgsToQuakes),
+    fetchFdsn(emscUrl(now, lookbackH, minMag)).then(emscToQuakes),
   ]);
   const pick = (r: PromiseSettledResult<Quake[]>) => (r.status === "fulfilled" ? { ok: true, quakes: r.value } : { ok: false, error: String(r.reason), quakes: [] as Quake[] });
   return { usgs: pick(usgs), emsc: pick(emsc) };
 }
 
 export async function collectUsgs(now = Date.now(), lookbackH = 6): Promise<CollectResult> {
-  const data = await fetchJson<any>(usgsUrl(now, lookbackH, 2.5));
+  const data = await fetchFdsn(usgsUrl(now, lookbackH, 2.5));
   return { source: "usgs", ok: true, fetchedAt: now, rawCount: data.features?.length ?? 0, signals: parseUsgs(data, now) };
 }
 
@@ -113,7 +119,7 @@ export function parseUsgs(data: any, now: number): Signal[] {
 }
 
 export async function collectEmsc(now = Date.now(), lookbackH = 6): Promise<CollectResult> {
-  const data = await fetchJson<any>(emscUrl(now, lookbackH, 2.5));
+  const data = await fetchFdsn(emscUrl(now, lookbackH, 2.5));
   return { source: "emsc", ok: true, fetchedAt: now, rawCount: data.features?.length ?? 0, signals: parseEmsc(data, now) };
 }
 

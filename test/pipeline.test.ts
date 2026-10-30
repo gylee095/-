@@ -190,7 +190,7 @@ describe("엔드투엔드 사이클: 탐지 → 알림 → 중복 억제 → 정
       id: `safetydata:${i}`, source: "safetydata", sourceKind: "official", category: "artillery",
       title: `포격 ${i}`, summary: "", lat: 37 + i, lon: 125 + i,
       // 사건들이 서로 클러스터링되지 않도록 시간 간격을 4시간씩 둔다
-      eventTime: now - i * 4 * 3600_000, detectedTime: now, severity: 80,
+      eventTime: now - i * 4 * 3600_000, detectedTime: now - i * 4 * 3600_000, severity: 80,
     }));
     const r = await runCycle(env, store, { now, fetchImpl: f, collect: async () => [result("safetydata", many)] });
     expect(r.alerts).toHaveLength(5);
@@ -237,5 +237,59 @@ describe("발송 실패 재시도 제한", () => {
       kinds.push(r.alerts.length);
     }
     expect(kinds).toEqual([1, 1, 1, 0, 0]);
+  });
+});
+
+describe("adsb.lol 항공기", () => {
+  it("군용기 플래그·비상 스쿼크 인식, 지상 항공기 제외", async () => {
+    const { normalize, emergencySignals } = await import("../src/core/collectors/adsb.js");
+    const ac = [
+      { hex: "71be01", flight: "KAL001 ", alt_baro: 35000, lat: 37, lon: 127, squawk: "7700", dbFlags: 0 },
+      { hex: "ae1234", flight: "RCH123", alt_baro: 28000, lat: 37.2, lon: 127.1, squawk: "1234", dbFlags: 1 },
+      { hex: "71be02", alt_baro: "ground", lat: 37.5, lon: 126.4, squawk: "7700" },
+    ].map(normalize);
+    expect(ac[1].military).toBe(true);
+    expect(ac[2].onGround).toBe(true);
+    const s = emergencySignals(ac, Date.now(), Date.now());
+    expect(s).toHaveLength(1);
+    expect(s[0].source).toBe("adsb_lol");
+  });
+});
+
+describe("실제 사례 2026-10-29 북한 탄도미사일 일제 발사 (공개 RSS 제목 기준 재현)", () => {
+  const items = () => parseRss(fx("real_20261029_feeds.xml"));
+  /** 지정한 기사들을 RSS 로 제공하는 가짜 fetch 아래에서 실제 RSS 수집기를 실행 */
+  async function collectFrom(subset: ReturnType<typeof parseRss>, now: number) {
+    const xml = `<rss><channel>${subset
+      .map((i) => `<item><title><![CDATA[${i.title}]]></title><link>${i.link}</link><pubDate>${new Date(i.pubDate!).toUTCString()}</pubDate></item>`)
+      .join("")}</channel></rss>`;
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => new Response(xml)) as typeof fetch;
+    try {
+      return await collectRss(["https://feed.test/rss"], now);
+    } finally {
+      globalThis.fetch = orig;
+    }
+  }
+
+  it("공식발표 인용 언론사 1곳 → 알림 없음, 2곳 → 교차확인·언론인용 알림", async () => {
+    const store = new MemoryStore();
+    const { f, calls } = fakeFetch();
+    const t1 = Date.UTC(2026, 9, 29, 3, 50);
+    const r1 = await runCycle(env, store, { now: t1, fetchImpl: f, collect: async () => [await collectFrom(items().slice(0, 1), t1)] });
+    expect(r1.alerts).toHaveLength(0); // 연합뉴스 단독
+
+    const t2 = Date.UTC(2026, 9, 29, 3, 55);
+    const r2 = await runCycle(env, store, { now: t2, fetchImpl: f, collect: async () => [await collectFrom(items(), t2)] });
+    expect(r2.alerts).toHaveLength(1); // + NK News
+    expect(r2.alerts[0].title).toContain("[교차확인·언론인용]");
+    expect(calls).toHaveLength(1);
+  });
+
+  it("처음 감지했을 때 이미 6시간 넘은 사건은 알리지 않음 (재배포 시 과거 기사 폭주 방지)", async () => {
+    const now = Date.UTC(2026, 9, 30, 14, 0); // 하루 뒤 첫 배포
+    const rep = await runCycle(env, new MemoryStore(), { now, dryRun: true, collect: async () => [await collectFrom(items(), now)] });
+    expect(rep.alerts).toHaveLength(0);
+    expect(rep.suppressed.some((s) => s.reason.includes("시간 지난 사건"))).toBe(true);
   });
 });

@@ -13,9 +13,8 @@ import { fmtKst, haversineKm, parseDtg, parseKst, parseCompactUtc } from "../cor
 import { fetchQuakes, quakeToSignal, PUNGGYE_RI, type Quake } from "../core/collectors/seismic.js";
 import { fetchSafetyMessages } from "../core/collectors/safetydata.js";
 import { fetchNgaWarnings } from "../core/collectors/nga.js";
-import { fetchStates, describeStates, KOREA_AIR_BOX, type BBox } from "../core/collectors/opensky.js";
-import { searchGdelt, googleNewsUrl, parseRss } from "../core/collectors/news.js";
-import { fetchText } from "../core/util.js";
+import { fetchAircraft, AIR_REGIONS } from "../core/collectors/adsb.js";
+import { searchGdelt, searchFeeds } from "../core/collectors/news.js";
 
 export interface ToolContext {
   env: Env;
@@ -24,15 +23,6 @@ export interface ToolContext {
 
 const out = (data: unknown) => ({ content: [{ type: "text" as const, text: typeof data === "string" ? data : JSON.stringify(data, null, 2) }] });
 const fail = (e: unknown) => ({ ...out({ ok: false, error: String((e as Error)?.message ?? e) }), isError: true });
-
-const REGIONS: Record<string, BBox> = {
-  korea: KOREA_AIR_BOX,
-  seoul_metro: { lamin: 36.9, lomin: 126.3, lamax: 38.0, lomax: 127.8 },
-  dmz: { lamin: 37.6, lomin: 125.9, lamax: 38.7, lomax: 128.7 },
-  yellow_sea_nll: { lamin: 37.2, lomin: 124.3, lamax: 38.2, lomax: 126.2 },
-  east_sea: { lamin: 36.0, lomin: 128.8, lamax: 41.0, lomax: 132.5 },
-  north_korea: { lamin: 37.7, lomin: 124.2, lamax: 43.0, lomax: 130.7 },
-};
 
 export function registerTools(server: McpServer, ctx: ToolContext) {
   const { env, store } = ctx;
@@ -169,31 +159,29 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
   server.registerTool(
     "check_airspace",
     {
-      title: "항공기 현황 (OpenSky ADS-B)",
+      title: "항공기 현황 (adsb.lol ADS-B)",
       description:
-        "지정 영역의 실시간 항공기 위치(ADS-B)를 조회해 대수, 국적 분포, 비상 스쿼크(7500/7600/7700)를 반환한다. " +
-        "공역 통제(항공기 급감), 비상 상황 확인에 쓴다. 한반도는 수신기가 적어 결측이 많으므로 단독 근거로 쓰지 말 것. " +
-        "region 프리셋: korea, seoul_metro, dmz, yellow_sea_nll, east_sea, north_korea",
+        "지정 영역의 실시간 항공기 위치(ADS-B)를 조회해 공중 대수, 군용기, 비상 스쿼크(7500/7600/7700)를 반환한다. " +
+        "공역 통제(평소 대비 급감), 군용기 활동, 비상 상황 확인에 쓴다. 한반도는 수신기 커버리지가 제한적이라 단독 근거로 쓰지 말 것. " +
+        "region: korea(반경 250해리), seoul_metro, dmz, yellow_sea_nll, east_sea, north_korea",
       inputSchema: {
         region: z.enum(["korea", "seoul_metro", "dmz", "yellow_sea_nll", "east_sea", "north_korea"]).default("korea"),
-        list_aircraft: z.boolean().default(false).describe("true면 항공기 목록(최대 60)도 반환"),
+        list_aircraft: z.boolean().default(false).describe("true면 공중 항공기 목록(최대 60)도 반환"),
       },
     },
     async ({ region, list_aircraft }) => {
       try {
-        const data = await fetchStates({ id: env.OPENSKY_CLIENT_ID, secret: env.OPENSKY_CLIENT_SECRET }, REGIONS[region]);
-        const ac = describeStates(data.states ?? []);
-        const airborne = ac.filter((a) => !a.onGround);
-        const byCountry: Record<string, number> = {};
-        for (const a of airborne) byCountry[a.country] = (byCountry[a.country] ?? 0) + 1;
-        const hourKey = `opensky:baseline:h${new Date(Date.now() + 9 * 3600_000).getUTCHours()}`;
+        const { now, aircraft } = await fetchAircraft(AIR_REGIONS[region]);
+        const airborne = aircraft.filter((a) => !a.onGround);
+        const hourKey = `adsb_lol:baseline:h${new Date(Date.now() + 9 * 3600_000).getUTCHours()}`;
         const baseline = region === "korea" ? await store.getKv(hourKey) : undefined;
         return out({
-          ok: true, region, dataTime: fmtKst((data.time ?? 0) * 1000), airborne: airborne.length, onGround: ac.length - airborne.length,
+          ok: true, region, dataTime: fmtKst(now), airborne: airborne.length, onGround: aircraft.length - airborne.length,
           baselineThisHour: baseline ? Math.round(Number(baseline)) : "기준선 없음(korea 영역만 누적)",
-          byCountry, emergencies: ac.filter((a) => ["7500", "7600", "7700"].includes(a.squawk)),
+          military: airborne.filter((a) => a.military),
+          emergencies: aircraft.filter((a) => ["7500", "7600", "7700"].includes(a.squawk ?? "") || a.emergency),
           aircraft: list_aircraft ? airborne.slice(0, 60) : undefined,
-          caveat: "OpenSky 한반도 커버리지 희박 — 결측 가능",
+          caveat: "ADS-B 공개 수신망 기준. 군용기 다수는 트랜스폰더를 끄므로 '보이지 않음'이 '없음'을 뜻하지 않는다.",
         });
       } catch (e) {
         return fail(e);
@@ -204,29 +192,32 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
   server.registerTool(
     "search_news",
     {
-      title: "뉴스 검색 (GDELT + Google News)",
+      title: "뉴스 검색 (연합뉴스·NK News·BBC + GDELT)",
       description:
-        "임의 질의로 최근 뉴스를 검색한다. 공식·센서 신호를 언론이 보도했는지, 언제 처음 보도했는지 확인할 때 쓴다. " +
-        "언론 보도는 알림 근거로 단독 사용하지 말 것. 지연: 보도 후 수 분(Google News)~15분(GDELT).",
+        "최근 뉴스에서 질의어가 제목에 포함된 기사를 찾는다. 공식·센서 신호를 언론이 보도했는지, 언제 처음 보도했는지 확인할 때 쓴다. " +
+        "질의어는 공백으로 구분하며 하나라도 포함되면 일치(예: '미사일 탄도 missile'). 언론 보도는 알림 근거로 단독 사용하지 말 것. " +
+        "include_gdelt=true면 전 세계 뉴스(GDELT)도 검색하지만 느리고 자주 제한된다.",
       inputSchema: {
-        query: z.string().min(2).describe("예: 북한 미사일, North Korea artillery Yeonpyeong"),
-        timespan: z.enum(["1h", "3h", "6h", "12h", "24h", "3d"]).default("6h"),
-        lang: z.enum(["ko", "en"]).default("ko"),
+        query: z.string().min(2),
+        hours: z.number().int().min(1).max(72).default(6),
+        include_gdelt: z.boolean().default(false),
       },
     },
-    async ({ query, timespan, lang }) => {
-      const [g, rss] = await Promise.allSettled([
-        searchGdelt(query, timespan === "3d" ? "72h" : timespan, 30),
-        fetchText(googleNewsUrl(`${query} when:${timespan}`, lang)).then(parseRss),
+    async ({ query, hours, include_gdelt }) => {
+      const since = Date.now() - hours * 3600_000;
+      const [feeds, g] = await Promise.all([
+        searchFeeds(query, since),
+        include_gdelt ? searchGdelt(query, `${hours}h`, 30).then((a) => ({ ok: true as const, a }), (e) => ({ ok: false as const, e: String(e) })) : undefined,
       ]);
       const items = [
-        ...(g.status === "fulfilled" ? g.value.map((a) => ({ via: "gdelt", title: a.title, url: a.url, domain: a.domain, published: parseCompactUtc(a.seendate ?? "") })) : []),
-        ...(rss.status === "fulfilled" ? rss.value.map((i) => ({ via: "google_news", title: i.title, url: i.link, domain: undefined, published: i.pubDate })) : []),
+        ...feeds.hits.map((i) => ({ via: i.feed, title: i.title, url: i.link, published: i.pubDate })),
+        ...(g?.ok ? g.a.map((a) => ({ via: "gdelt:" + a.domain, title: a.title, url: a.url, published: parseCompactUtc(a.seendate ?? "") })) : []),
       ].sort((a, b) => (b.published ?? 0) - (a.published ?? 0));
+      const times = items.map((i) => i.published).filter((x): x is number => x !== undefined);
       return out({
-        gdelt: g.status === "fulfilled" ? "ok" : String(g.reason),
-        googleNews: rss.status === "fulfilled" ? "ok" : String(rss.reason),
-        earliest: fmtKst(Math.min(...items.map((i) => i.published ?? Infinity).filter(Number.isFinite))),
+        feedErrors: feeds.errors,
+        gdelt: g ? (g.ok ? "ok" : g.e) : "미사용",
+        earliest: times.length ? fmtKst(Math.min(...times)) : "-",
         articles: items.slice(0, 40).map((i) => ({ ...i, published: fmtKst(i.published) })),
       });
     },
@@ -296,6 +287,6 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
       description: "각 소스의 성격(공식/센서/언론), 접근 권한, 비용, 갱신 주기, 지연 시간, 약관과 최근 수집 상태를 반환한다.",
       inputSchema: {},
     },
-    async () => out({ sources: listSources(), health: await store.getHealth(), configured: { safetydata: !!env.SAFETYDATA_API_KEY, opensky_oauth: !!env.OPENSKY_CLIENT_ID, push: !!(env.NTFY_TOPIC || env.PUSHOVER_TOKEN) } }),
+    async () => out({ sources: listSources(), health: await store.getHealth(), configured: { safetydata: !!env.SAFETYDATA_API_KEY, push: !!(env.NTFY_TOPIC || env.PUSHOVER_TOKEN) } }),
   );
 }

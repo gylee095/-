@@ -49,9 +49,9 @@ async function handleMcp(req: Request, env: Env): Promise<Response> {
 
 /** 크론 표현식별 소스 묶음 (wrangler.toml 의 crons 와 일치해야 함) */
 const CRON_GROUPS: Record<string, string[]> = {
-  "*/5 * * * *": ["safetydata", "usgs", "emsc", "opensky"],
-  "2-59/15 * * * *": ["nga_msi"],
-  "4-59/10 * * * *": ["gdelt", "rss_news"],
+  "*/5 * * * *": ["safetydata", "usgs", "emsc", "adsb_lol"],
+  "2-59/15 * * * *": ["nga_msi", "gdelt"],
+  "1-59/5 * * * *": ["rss_news"],
 };
 
 /** 사이클 실행 결과(또는 오류)를 대시보드가 볼 수 있게 기록 */

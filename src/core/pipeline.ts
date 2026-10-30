@@ -33,14 +33,14 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
   const now = opts.now ?? Date.now();
   const results = opts.collect ? await opts.collect() : await runCollectors(env, opts.only, now);
 
-  // OpenSky 항공기 수 → 시간대별 기준선 갱신 및 급감 감지
+  // 항공기 수 → 시간대별 기준선 갱신 및 급감 감지
   for (const r of results) {
     const airborne = r.meta?.airborne;
-    if (r.source !== "opensky" || airborne === undefined) continue;
-    const key = `opensky:baseline:h${new Date(now + 9 * 3600_000).getUTCHours()}`;
+    if (airborne === undefined) continue;
+    const key = `${r.source}:baseline:h${new Date(now + 9 * 3600_000).getUTCHours()}`;
     const prev = await store.getKv(key);
     const baseline = prev ? Number(prev) : undefined;
-    const anomaly = airspaceAnomaly(airborne, baseline, now);
+    const anomaly = airspaceAnomaly(airborne, baseline, now, undefined, r.source);
     if (anomaly) r.signals.push(anomaly);
     // 이상 상황에서는 기준선을 오염시키지 않는다
     else await store.setKv(key, String(updateBaseline(baseline, airborne)));

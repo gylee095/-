@@ -6,6 +6,7 @@ export type SourceId =
   | "usgs"
   | "emsc"
   | "nga_msi"
+  | "adsb_lol"
   | "opensky"
   | "gdelt"
   | "rss_news";
@@ -81,6 +82,19 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     notes:
       "북한·중국·한국의 로켓 발사, 사격훈련, GPS 교란 항행경보가 영문 텍스트로 게재됨. 일본 NAVAREA XI(해상보안청) 원문은 2단계에서 추가.",
   },
+  adsb_lol: {
+    id: "adsb_lol",
+    name: "adsb.lol ADS-B (항공기 위치, 군용기 표시)",
+    kind: "sensor",
+    access: "키 불필요",
+    cost: "무료",
+    refresh: "수 초",
+    latency: "수 초~수십 초. 한반도 수신기 커버리지 제한적 → 결측 가능",
+    realtime: "near-realtime",
+    terms: "ODbL (출처 표시, 동일조건 공유)",
+    hosts: ["api.adsb.lol"],
+    notes: "비상 스쿼크·항공기 수 급감(공역 통제 의심)·군용기 수를 감지. 단독으로는 항상 '미확인'. OpenSky가 클라우드 서버를 차단해 주 소스로 사용.",
+  },
   opensky: {
     id: "opensky",
     name: "OpenSky Network REST API (ADS-B)",
@@ -93,7 +107,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     terms: "비상업적 이용, 연구 목적 약관 (상업 이용 시 별도 계약)",
     hosts: ["opensky-network.org", "auth.opensky-network.org"],
     notes:
-      "비상 스쿼크와 한반도 상공 항공기 수 급감(공역 통제 의심)을 감지. 커버리지 문제로 단독으로는 항상 '미확인'.",
+      "Cloudflare 서버에서 접속 시 응답 없음(2026-10-30 확인) → 기본 비활성화(DISABLED_SOURCES). adsb.lol 대체.",
   },
   gdelt: {
     id: "gdelt",
@@ -110,7 +124,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
   },
   rss_news: {
     id: "rss_news",
-    name: "언론 RSS (Google News 검색 RSS, 연합뉴스 등)",
+    name: "언론 RSS (연합뉴스 속보·북한, NK News, BBC 아시아)",
     kind: "media",
     access: "키 불필요",
     cost: "무료",
@@ -118,7 +132,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     latency: "보도 직후~수 분",
     realtime: "minutes",
     terms: "각 언론사 저작권. 제목·링크만 저장, 본문 미저장",
-    hosts: ["news.google.com", "www.yna.co.kr"],
+    hosts: ["www.yna.co.kr", "www.nknews.org", "feeds.bbci.co.uk"],
     notes: "속보 시각을 기록하여 리드타임(알림 시각 - 첫 보도 시각) 계산에 사용.",
   },
 };

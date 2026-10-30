@@ -11,6 +11,8 @@ export const MAX_ALERTS_PER_HOUR = 5;
 const RESEND_SEVERITY_JUMP = 15;
 /** 발송 실패 시 다음 사이클에서 재시도하는 최대 횟수 */
 export const MAX_SEND_RETRIES = 3;
+/** 처음 감지했을 때 이미 이만큼 지난 사건은 '새 사건'으로 알리지 않는다 (재배포·장애 복구 시 과거 기사 폭주 방지) */
+export const STALE_MS = 6 * 3600_000;
 
 export type AlertKind = "new" | "upgrade" | "correction";
 
@@ -34,16 +36,17 @@ export function decideAlerts(events: CrisisEvent[], history: AlertRecord[], now 
 
   for (const e of [...events].sort((a, b) => b.severity - a.severity)) {
     const prev = lastByEvent.get(e.id);
-    const primarySources = e.sources.filter((s) => !["gdelt", "rss_news"].includes(s));
+    const origin = e.eventTime ?? e.firstPublishedTime ?? e.firstDetectedTime;
     let decision: AlertDecision | null = null;
     let reason = "";
 
     if (prev && e.retracted) {
       if (prev.title.startsWith("[정정]")) reason = "정정 알림 이미 발송";
       else decision = { event: e, kind: "correction", reason: "기존 알림 사건이 정정/해제됨" };
-    } else if (primarySources.length === 0) reason = "언론 보도만 존재 (1차 원천 없음)";
+    } else if (e.basis === "media") reason = "언론 보도만 존재 (1차 원천·공식발표 인용 없음)";
     else if (e.drill) reason = "훈련 발령";
     else if (e.retracted) reason = "오발령/해제 메시지";
+    else if (!prev && e.firstDetectedTime - origin > STALE_MS) reason = `최초 감지 시점에 이미 ${Math.round((e.firstDetectedTime - origin) / 3600_000)}시간 지난 사건`;
     else if (e.severity < THRESHOLDS[e.status]) reason = `심각도 ${e.severity} < ${e.status} 임계값 ${THRESHOLDS[e.status]}`;
     else if (!prev && (failures.get(e.id) ?? 0) >= MAX_SEND_RETRIES) reason = `발송 ${MAX_SEND_RETRIES}회 실패 — 푸시 설정 확인 필요`;
     else if (!prev) decision = { event: e, kind: "new", reason: "신규 중요 사건" };
@@ -72,12 +75,13 @@ export const STATUS_LABEL: Record<EventStatus, string> = {
 
 export function formatAlert(d: AlertDecision, dashboardUrl?: string): { title: string; body: string; priority: number } {
   const e = d.event;
-  const label = STATUS_LABEL[e.status];
+  const label = STATUS_LABEL[e.status] + (e.basis === "official_quote" ? "·언론인용" : "");
   const prefix = d.kind === "correction" ? "[정정]" : d.kind === "upgrade" ? `[갱신·${label}]` : `[${label}]`;
   const title = `${prefix} ${e.title}`.slice(0, 120);
   const body = [
     d.kind === "correction" ? "앞서 알린 사건이 정정·해제되었습니다." : `심각도 ${e.severity}/100 · 출처 ${e.sources.join(", ")}`,
     e.status === "UNVERIFIED" ? "⚠ 단일 출처 미확인 신호입니다. 공식 발표를 확인하세요." : "",
+    e.basis === "official_quote" ? "공식 발표를 인용한 복수 언론 보도 기준입니다 (원문 직접 확인 아님)." : "",
     dashboardUrl ? `${dashboardUrl}#${e.id}` : "",
   ]
     .filter(Boolean)
@@ -92,7 +96,7 @@ export function formatAlert(d: AlertDecision, dashboardUrl?: string): { title: s
  */
 export function posture(events: CrisisEvent[], now = Date.now()): { level: number; label: string; detail: string } {
   const recent = events.filter(
-    (e) => now - e.firstDetectedTime < 24 * 3600_000 && !e.drill && !e.retracted && e.status !== "UNVERIFIED" && e.severity >= 50,
+    (e) => now - (e.eventTime ?? e.firstPublishedTime ?? e.firstDetectedTime) < 24 * 3600_000 && !e.drill && !e.retracted && e.status !== "UNVERIFIED" && e.severity >= 50,
   );
   const groups = new Set(recent.map((e) => e.group));
   const airRaid = recent.some((e) => e.categories.includes("air_raid_alert") && e.status === "CONFIRMED" && e.severity >= 85);

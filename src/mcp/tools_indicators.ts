@@ -286,7 +286,8 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
       title: "서해 중국 선박 일별 추이 (위성 AIS, 약 5일 지연)",
       description:
         "Global Fishing Watch 위성 AIS 로 서해 한가운데(양국 항구 제외)의 국적별 선박 체류시간을 하루 단위로 반환한다(최근 최대 30일). " +
-        "'중국 어선이 사라졌는가'를 볼 때 쓴다. 중국만 줄면 주목, 한국 선박도 같이 줄면 태풍·풍랑 귀항일 가능성이 크다. 실시간이 아니다.",
+        "'중국 어선이 사라졌는가'를 볼 때 쓴다. chinaSpecificPct(직전 2주 대비와 다른 배 대비 중 작은 감소폭)가 크게 음수일 때만 주목한다. " +
+        "모든 배가 같이 줄면 태풍·풍랑·위성 처리 지연, 다른 배만 늘어도 상대 감소처럼 보인다. 실시간이 아니다.",
       inputSchema: { days: z.number().int().min(10).max(30).default(21) },
     },
     async ({ days }) => {
@@ -297,9 +298,11 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
         return out({
           region: { polygon: YELLOW_SEA_OFFSHORE, note: "서해 한가운데, 중국·한국 항구 제외" },
           unit: "선박·시간(그날 해역에 머문 선박들의 시간 합)",
-          summary: s && { recentDates: s.recentDates, changePct: +s.changePct.toFixed(1), recentCnHoursPerDay: Math.round(s.recentCnHours), priorCnHoursPerDay: Math.round(s.priorCnHours), recentShareCnPct: Math.round(s.recentShareCn * 100), priorShareCnPct: Math.round(s.priorShareCn * 100), latestDataDate: s.latestDate, droppedIncomplete: s.droppedIncomplete },
+          summary: s && { recentDates: s.recentDates, chinaSpecificPct: +s.chinaSpecificPct.toFixed(1), cnChangePct: +s.changePct.toFixed(1), otherChangePct: s.otherChangePct === undefined ? undefined : +s.otherChangePct.toFixed(1), relativeChangePct: s.relativeChangePct === undefined ? undefined : +s.relativeChangePct.toFixed(1), recentCnHoursPerDay: Math.round(s.recentCnHours), priorCnHoursPerDay: Math.round(s.priorCnHours), recentShareCnPct: Math.round(s.recentShareCn * 100), priorShareCnPct: Math.round(s.priorShareCn * 100), latestDataDate: s.latestDate, droppedIncomplete: s.droppedIncomplete },
           daily: s?.days.map((d) => ({ date: d.date, CHN: Math.round(d.CHN), KOR: Math.round(d.KOR), PRK: Math.round(d.PRK), other: Math.round(d.other), cnVessels: d.cnVessels })),
           chineseMoratorium: inChineseMoratorium(Date.now()),
+          caveat: "국적은 AIS 식별번호(MMSI) 앞자리로 정해진다 — 식별번호를 규정대로 쓰지 않는 중국 어선은 기타·불명으로 잡혀 중국 수치가 실제보다 작을 수 있다. 추세만 본다.",
+          attribution: "Powered by Global Fishing Watch (globalfishingwatch.org)",
         });
       } catch (e) {
         return fail(e);

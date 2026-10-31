@@ -52,10 +52,10 @@ export const INDICATORS: IndicatorDef[] = [
     latency: "수 초~수 분", caveats: "aisstream 수신소가 한국 연안 일부뿐이라 25초에 수 척 수준(2026-10-31 실측 7척). 해역 전체가 아니라 '수신되는 일부'의 변화만 본다. 수신기 장애로도 0이 된다.",
   },
   {
-    id: "sea.gfw_cn_change_pct", label: "서해 중국 선박 증감 (위성 AIS, 직전 2주 대비)", group: "sea", unit: "%", direction: "low", slots: 1, absolute: { elevated: 30, anomalous: 50 },
+    id: "sea.gfw_cn_change_pct", label: "서해 중국 선박 증감 (위성 AIS, 중국만의 변화)", group: "sea", unit: "%", direction: "low", slots: 1, absolute: { elevated: 30, anomalous: 50 },
     why: "'위기 직전 중국 어선이 먼저 빠진다'는 것은 OSINT 에서 자주 거론되는 가설이다(검증된 통계는 없다). 중국 당국이 자국 어선을 항구로 불러들이면 무언가를 미리 알았다는 간접 증거일 수 있다. 많은 것은 평소(가을 성어기), 갑자기 줄어드는 것이 신호다.",
-    measure: "Global Fishing Watch 위성 AIS 선박 존재 데이터에서 서해 한가운데(경도 122.9~125.6°, 위도 34~38.6°, 양국 항구 제외)의 중국 국적 선박 체류시간 — 최근 3일 평균을 직전 14일 평균과 비교 (토큰 필요)",
-    latency: "약 5일 (위성 데이터 처리 지연)", caveats: "태풍·강풍 때 어선이 일제히 귀항해 크게 줄어든다(기상 먼저 확인). 휴어기(5/1~8/16)에는 원래 적다. AIS 를 끈 배는 안 보인다. 실시간이 아니라 추세용.",
+    measure: "Global Fishing Watch 위성 AIS 선박 존재 데이터에서 서해 한가운데(경도 122.9~125.6°, 위도 34~38.6°, 양국 항구 제외)의 중국 국적 선박 체류시간 — 최근 3일 평균을 직전 14일 평균과 비교. 값은 '직전 2주 대비 변화'와 '다른 국적 선박 대비 변화' 중 감소폭이 작은 쪽(중국 배가 실제로 줄고 다른 배보다도 더 줄어야 음수가 커짐) (토큰 필요)",
+    latency: "약 5일 (위성 데이터 처리 지연)", caveats: "태풍·강풍 귀항이나 위성 처리 지연은 모든 배를 함께 줄이므로 값에서 대부분 지워진다. 그래도 한국 어선만 같이 줄었으면 기상을 먼저 의심. 휴어기(5/1~8/16)에는 원래 적다. AIS 를 끈 배, 식별번호를 규정대로 안 쓰는 배(기타·불명으로 잡힘)는 중국 수치에서 빠진다. 실시간이 아니라 추세용.",
   },
   {
     id: "seismic.nk_events_24h", label: "북한 지역 지진 (24시간)", group: "seismic", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },

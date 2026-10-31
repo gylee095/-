@@ -129,11 +129,15 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
     case "sea.gfw_cn_change_pct": {
       const m = (r!.meta ?? {}) as any;
       const span = m.recentDates?.length ? `${String(m.recentDates[0]).slice(5)}~${String(m.recentDates[m.recentDates.length - 1]).slice(5)}` : "최근 3일";
-      const nums = m.recentCnHoursPerDay !== undefined ? ` (하루 ${m.recentCnHoursPerDay}선박·시간, 직전 2주 ${m.priorCnHoursPerDay})` : "";
+      const pct = (x: number) => `${x > 0 ? "+" : ""}${Math.round(x)}%`;
+      const cn = typeof m.cnChangePct === "number" ? m.cnChangePct : v;
+      const other = typeof m.otherChangePct === "number" ? `, 다른 배 ${pct(m.otherChangePct)}` : "";
       const lag = ` · 위성 데이터라 약 ${m.delayDays ?? 5}일 지연`;
-      if (v <= -30) return `${span} 서해 한가운데 중국 선박 활동이 직전 2주보다 ${Math.abs(v).toFixed(0)}% 줄었음${nums}. 중국 어선 철수일 수 있지만, 태풍·강풍 귀항이 더 흔한 이유${ctx.moratorium ? ", 휴어기이기도 함" : ""}${lag}`;
-      if (v >= 30) return `${span} 서해 중국 선박 활동이 직전 2주보다 ${v.toFixed(0)}% 늘었음${nums} → 성어기 증가로 보이며 위기 신호 아님${lag}`;
-      return `${span} 서해 중국 선박 활동이 직전 2주와 비슷함(${v > 0 ? "+" : ""}${v.toFixed(0)}%)${nums} → 중국 어선 철수 징후 없음${lag}`;
+      const base = `${span} 서해 한가운데 중국 선박 ${pct(cn)}${other} (직전 2주 대비)`;
+      if (v <= -30) return `${base} → 중국 배만 ${Math.abs(v).toFixed(0)}% 빠짐. 중국 어선 철수일 수 있지만 중국 내 조업 규제·AIS 일제 차단도 같은 모양${ctx.moratorium ? ", 휴어기이기도 함" : ""}${lag}`;
+      if (cn <= -30) return `${base} → 모든 배가 함께 줄어 태풍·풍랑 귀항이나 위성 처리 지연 쪽. 중국만의 감소는 ${pct(v)}라 철수 징후 아님${lag}`;
+      if (cn >= 30) return `${base} → 성어기 증가로 보이며 위기 신호 아님${lag}`;
+      return `${base} → 중국만의 변화 ${pct(v)}, 중국 어선 철수 징후 없음${lag}`;
     }
     case "seismic.nk_events_24h":
       return v === 0 ? "북한 지역 지진 없음 → 핵실험 신호 없음 (핵실험은 규모 4~6 얕은 지진으로 10~30분 내 탐지됨)" : `북한 지역 지진 ${v}건 — 깊이·풍계리 거리로 인공 여부 판정 필요`;
@@ -346,7 +350,7 @@ export function interpret(input: InterpretInput): Interpretation {
         ? `중국 선박만이 아니라 한국 선박도 같이 줄었다(${Math.round((1 - krRecent / krPrior) * 100)}%). 양국 어선이 함께 빠지는 모양은 보통 태풍·풍랑 귀항이다.`
         : moratorium
           ? "휴어기라 중국 어선 감소는 정상이다."
-          : `한국 선박은 그대로인데 중국 선박만 줄었다. '중국 어선이 사라졌다'는 서해 긴장 때 반복된 관찰이며, 중국 당국의 귀항 지시면 사전 인지의 간접 증거일 수 있다. 다만 약 ${m.delayDays ?? 5}일 전 상황이다.`,
+          : `한국 선박은 그대로인데 중국 선박만 줄었다. '위기 직전 중국 어선이 먼저 빠진다'는 OSINT 가설(검증된 통계는 없음)에 들어맞는 모양이고, 중국 당국의 귀항 지시라면 사전 인지의 간접 증거일 수 있다. 다만 약 ${m.delayDays ?? 5}일 전 상황이다.`,
       counter: "중국 내 조업 규제·연료 가격·명절(국경절) 귀항, AIS 를 일제히 끈 경우도 같은 모양이다.",
       check: "check_chinese_fishing_fleet 로 일별 추이, search_news('서해 중국 어선 태풍 풍랑')",
       indicators: ["sea.gfw_cn_change_pct"],

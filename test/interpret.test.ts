@@ -99,6 +99,12 @@ describe("해석 엔진", () => {
     const storm = interpret({ now: NOW, threat, board: mk(true), patterns: [], briefs: [] }).hints.find((h) => h.title.includes("중국 선박"))!;
     expect(storm.kind).toBe("caveat");
     expect(storm.reasoning).toMatch(/태풍·풍랑 귀항/);
-    expect(meaningOf(mk(false).find((r) => r.id === "sea.gfw_cn_change_pct")!, { night: false, exercise: false, moratorium: false })).toMatch(/58% 줄었음.*약 6일 지연/);
+    expect(meaningOf(mk(false).find((r) => r.id === "sea.gfw_cn_change_pct")!, { night: false, exercise: false, moratorium: false })).toMatch(/중국 배만 58% 빠짐.*약 6일 지연/);
+  });
+  it("서해: 모든 배가 함께 줄면 뜻풀이가 기상·처리 지연 쪽으로 읽는다", () => {
+    const r = row("sea.gfw_cn_change_pct", { value: -2, meta: { cnChangePct: -50, otherChangePct: -49, recentDates: ["2026-10-25", "2026-10-26", "2026-10-27"], delayDays: 4 } });
+    const t = meaningOf(r, { night: false, exercise: false, moratorium: false });
+    expect(t).toMatch(/중국 선박 -50%, 다른 배 -49%/);
+    expect(t).toMatch(/모든 배가 함께 줄어.*철수 징후 아님/);
   });
 });

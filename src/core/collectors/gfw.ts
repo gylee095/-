@@ -1,6 +1,8 @@
 // Global Fishing Watch 4Wings — 위성 AIS 선박 존재(presence)를 서해 한가운데 상자에서 국적별·일별로 집계한다.
 // 공개 지상 수신소가 없는 서해 한가운데·북한 수역도 위성으로 보인다. 데이터는 약 5일 늦게 공개된다.
-// 판정: '최근 3일 평균 중국 선박 체류시간'을 '그 직전 14일 평균'과 비교 → 급감이면 중국 어선 이탈 힌트.
+// 판정: '최근 3일 평균 중국 선박 체류시간'을 '그 직전 14일 평균'과 비교하되, 다른 국적 선박의 변화와도 비교한다.
+//   값 = max(중국 변화율, 다른 배 대비 중국 변화율) — 중국 배가 실제로 줄었고(절대) 다른 배보다도 더 줄었을 때만 음수가 커진다.
+//   태풍·위성 처리 지연처럼 모든 배에 같이 작용하는 요인, 다른 배만 몰려든 날(2026-10-25 실측)을 둘 다 걸러 낸다.
 // 체류시간(선박·시간)은 격자를 더해도 중복이 없어 선박 수보다 안정적인 지표다.
 import type { CollectResult, Metric } from "../types.js";
 import { fetchText } from "../util.js";
@@ -85,6 +87,12 @@ export interface GfwSummary {
   changePct: number;
   recentShareCn: number;
   priorShareCn: number;
+  /** 중국 외 선박(한국·북한·기타 국적) 체류시간 변화율 */
+  otherChangePct?: number;
+  /** 다른 배 대비 중국 변화율 = (중국 비율 ÷ 다른 배 비율 − 1) */
+  relativeChangePct?: number;
+  /** 징후 값: max(changePct, relativeChangePct) — 두 감소폭 중 작은 쪽 */
+  chinaSpecificPct: number;
   latestDate?: string;
   /** 처리 미완료로 보고 뺀 날짜 */
   droppedIncomplete: string[];
@@ -132,12 +140,21 @@ export function summarizeGfw(rows: GfwRow[]): GfwSummary | undefined {
     const t = ds.reduce((a, d) => a + d.total, 0);
     return t ? ds.reduce((a, d) => a + d.CHN, 0) / t : 0;
   };
+  const changePct = priorCn > 0 ? ((recentCn - priorCn) / priorCn) * 100 : 0;
+  const recentOther = mean(recent.map((d) => d.total - d.CHN));
+  const priorOther = mean(prior.map((d) => d.total - d.CHN));
+  const otherOk = priorOther > 0 && recentOther > 0 && priorCn > 0;
+  const otherChangePct = otherOk ? ((recentOther - priorOther) / priorOther) * 100 : undefined;
+  const relativeChangePct = otherOk ? ((recentCn / priorCn) / (recentOther / priorOther) - 1) * 100 : undefined;
   return {
     days,
     recentDates: recent.map((d) => d.date),
     recentCnHours: recentCn,
     priorCnHours: priorCn,
-    changePct: priorCn > 0 ? ((recentCn - priorCn) / priorCn) * 100 : 0,
+    changePct,
+    otherChangePct,
+    relativeChangePct,
+    chinaSpecificPct: relativeChangePct === undefined ? changePct : Math.max(changePct, relativeChangePct),
     recentShareCn: share(recent),
     priorShareCn: share(prior),
     latestDate: days[days.length - 1]?.date,
@@ -150,8 +167,11 @@ export function gfwMetrics(s: GfwSummary, now: number): Metric[] {
   return [
     {
       indicator: "sea.gfw_cn_change_pct",
-      value: +s.changePct.toFixed(1),
+      value: +s.chinaSpecificPct.toFixed(1),
       meta: {
+        cnChangePct: +s.changePct.toFixed(1),
+        otherChangePct: s.otherChangePct === undefined ? undefined : +s.otherChangePct.toFixed(1),
+        relativeChangePct: s.relativeChangePct === undefined ? undefined : +s.relativeChangePct.toFixed(1),
         recentDates: s.recentDates,
         recentCnHoursPerDay: Math.round(s.recentCnHours),
         priorCnHoursPerDay: Math.round(s.priorCnHours),
@@ -162,7 +182,8 @@ export function gfwMetrics(s: GfwSummary, now: number): Metric[] {
         delayDays,
         droppedIncomplete: s.droppedIncomplete,
         series: s.days.slice(-21).map((d) => ({ date: d.date, CHN: Math.round(d.CHN), KOR: Math.round(d.KOR), other: Math.round(d.other + d.PRK) })),
-        note: `위성 AIS · 약 ${delayDays ?? 5}일 지연 · 서해 한가운데(항구 제외) 중국 선박 체류시간`,
+        note: `위성 AIS · 약 ${delayDays ?? 5}일 지연 · 서해 한가운데(항구 제외) 중국 선박 체류시간 · 값은 '직전 2주 대비'와 '다른 배 대비' 중 작은 감소폭`,
+        attribution: "Powered by Global Fishing Watch (globalfishingwatch.org)",
       },
     },
   ];

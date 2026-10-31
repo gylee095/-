@@ -4,6 +4,8 @@ import { gfwMetrics, gfwRequest, parseGfwReport, summarizeGfw, type GfwRow } fro
 import { evaluate, INDICATOR_BY_ID } from "../src/core/indicators.js";
 
 const json = JSON.parse(readFileSync(new URL("./fixtures/gfw_presence_cn_drop.json", import.meta.url), "utf8"));
+const live = JSON.parse(readFileSync(new URL("./fixtures/gfw_presence_live_20261031.json", import.meta.url), "utf8"));
+const DEF = INDICATOR_BY_ID["sea.gfw_cn_change_pct"];
 const NOW = Date.UTC(2026, 9, 31, 3);
 
 /** 일별 행을 만드는 도우미: cn(i), kr(i) */
@@ -43,22 +45,47 @@ describe("Global Fishing Watch 서해 중국 선박", () => {
     expect(gridded).toEqual([{ date: "2026-10-05", flag: "CHN", hours: 15, vessels: 3 }]);
   });
 
-  it("중국 선박만 55% 감소 → 지표 '이상'(감소폭 기준)", () => {
+  it("중국 선박만 55% 감소(다른 배 그대로) → 지표 '이상'", () => {
     const s = summarizeGfw(parseGfwReport(json))!;
     expect(s.changePct).toBeLessThan(-50);
     expect(s.recentDates).toEqual(["2026-10-23", "2026-10-24", "2026-10-25"]);
     const [m] = gfwMetrics(s, NOW);
     expect(m.indicator).toBe("sea.gfw_cn_change_pct");
-    const r = evaluate(INDICATOR_BY_ID["sea.gfw_cn_change_pct"], m.value, NOW, undefined, m.meta);
-    expect(r.state).toBe("anomalous");
+    expect(m.value).toBeLessThan(-50);
+    expect(evaluate(DEF, m.value, NOW, undefined, m.meta).state).toBe("anomalous");
     expect((m.meta as any).delayDays).toBe(6);
+    expect((m.meta as any).attribution).toMatch(/Powered by Global Fishing Watch/);
   });
 
   it("증가는 위기 신호가 아니다 (방향 인지형 임계값)", () => {
-    const s = summarizeGfw(rowsOf(21, (i) => (i >= 18 ? 4000 : 2400), () => 600))!;
-    expect(s.changePct).toBeGreaterThan(50);
-    const r = evaluate(INDICATOR_BY_ID["sea.gfw_cn_change_pct"], s.changePct, NOW, undefined);
-    expect(r.state).toBe("normal");
+    const [m] = gfwMetrics(summarizeGfw(rowsOf(21, (i) => (i >= 18 ? 4000 : 2400), () => 600))!, NOW);
+    expect((m.meta as any).cnChangePct).toBeGreaterThan(50);
+    expect(evaluate(DEF, m.value, NOW, undefined).state).toBe("normal");
+  });
+
+  it("태풍: 모든 배가 함께 50% 감소 → 중국만의 변화는 0 → 정상", () => {
+    const s = summarizeGfw(rowsOf(21, (i) => (i >= 18 ? 1200 : 2400), (i) => (i >= 18 ? 300 : 600)))!;
+    expect(s.changePct).toBeCloseTo(-50, 0);
+    expect(s.otherChangePct).toBeCloseTo(-50, 0);
+    expect(s.chinaSpecificPct).toBeCloseTo(0, 0);
+    expect(evaluate(DEF, gfwMetrics(s, NOW)[0].value, NOW, undefined).state).toBe("normal");
+  });
+
+  it("다른 배만 몰려든 날: 상대 비율은 떨어져도 중국 배가 줄지 않았으면 정상", () => {
+    const s = summarizeGfw(rowsOf(21, () => 2400, (i) => (i >= 18 ? 2400 : 600)))!;
+    expect(s.relativeChangePct!).toBeLessThan(-50);
+    expect(s.chinaSpecificPct).toBeCloseTo(0, 0);
+    expect(evaluate(DEF, gfwMetrics(s, NOW)[0].value, NOW, undefined).state).toBe("normal");
+  });
+
+  it("실측 2026-10-31: 중국 −28.5%·다른 배 −18.8% → 중국만의 변화 약 −12% → 정상", () => {
+    const s = summarizeGfw(parseGfwReport(live))!;
+    expect(s.recentDates).toEqual(["2026-10-25", "2026-10-26", "2026-10-27"]);
+    expect(s.changePct).toBeCloseTo(-28.5, 0);
+    expect(s.otherChangePct!).toBeCloseTo(-18.8, 0);
+    expect(s.chinaSpecificPct).toBeCloseTo(-11.9, 0);
+    expect(s.droppedIncomplete).toEqual([]);
+    expect(evaluate(DEF, gfwMetrics(s, Date.UTC(2026, 9, 31, 0, 30))[0].value, NOW, undefined).state).toBe("normal");
   });
 
   it("마지막 날 전 국적이 함께 급감 = 처리 미완료로 보고 제외", () => {

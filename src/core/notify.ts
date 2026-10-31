@@ -43,10 +43,21 @@ export async function postWithRetry(fetchImpl: typeof fetch, url: string, init: 
   return res;
 }
 
+/**
+ * 익명 ntfy.sh 는 Cloudflare 공유 IP 에서 계속 429 로 막힌다(2026-10-30·31 실측 — 10번 중 10번).
+ * 다른 채널(Bark·Telegram·Discord·Pushover)이 있으면 익명 ntfy 는 건너뛴다. 계정 토큰(NTFY_TOKEN)이 있으면 그대로 쓴다.
+ */
+export function useNtfy(env: PushEnv): boolean {
+  if (!env.NTFY_TOPIC) return false;
+  if (env.NTFY_TOKEN) return true;
+  const others = !!(env.BARK_KEY || (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) || env.DISCORD_WEBHOOK_URL || (env.PUSHOVER_TOKEN && env.PUSHOVER_USER));
+  return !others;
+}
+
 export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof fetch = fetch): Promise<PushResult[]> {
   const tasks: Promise<PushResult>[] = [];
 
-  if (env.NTFY_TOPIC) {
+  if (useNtfy(env)) {
     tasks.push(
       (async () => {
         try {
@@ -162,7 +173,7 @@ export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof
 /** 설정된 채널 목록 (대시보드 표시용) */
 export function pushChannels(env: PushEnv): string[] {
   const out: string[] = [];
-  if (env.NTFY_TOPIC) out.push(env.NTFY_TOKEN ? "ntfy(계정 토큰)" : "ntfy(익명)");
+  if (useNtfy(env)) out.push(env.NTFY_TOKEN ? "ntfy(계정 토큰)" : "ntfy(익명)");
   if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) out.push("telegram");
   if (env.DISCORD_WEBHOOK_URL) out.push("discord");
   if (env.BARK_KEY) out.push("bark");

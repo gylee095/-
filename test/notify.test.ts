@@ -23,9 +23,9 @@ describe("푸시 채널", () => {
     expect(calls[1].body.title).toBe(msg.title);
     expect(calls[1].body.topic).toBe("t");
   });
-  it("ntfy 가 계속 429 면 실패 사유에 안내를 붙이고, Telegram 이 성공하면 전체는 성공", async () => {
+  it("ntfy(계정 토큰)가 계속 429 면 실패 사유에 안내를 붙이고, Telegram 이 성공하면 전체는 성공", async () => {
     const { f, calls } = fake({ "ntfy.sh": [429], "api.telegram.org": [200] });
-    const r = await sendPush({ NTFY_TOPIC: "t", TELEGRAM_BOT_TOKEN: "b", TELEGRAM_CHAT_ID: "1" } as any, msg, f);
+    const r = await sendPush({ NTFY_TOPIC: "t", NTFY_TOKEN: "tk", TELEGRAM_BOT_TOKEN: "b", TELEGRAM_CHAT_ID: "1" } as any, msg, f);
     expect(r.find((x) => x.channel === "ntfy")!.error).toMatch(/429/);
     expect(r.find((x) => x.channel === "telegram")!.ok).toBe(true);
     expect(r.some((x) => x.ok)).toBe(true);
@@ -33,9 +33,18 @@ describe("푸시 채널", () => {
     expect(tg.body.chat_id).toBe("1");
     expect(tg.body.text).toContain("탄도미사일");
   });
-  it("채널 목록", () => {
-    expect(pushChannels({ NTFY_TOPIC: "t", DISCORD_WEBHOOK_URL: "https://d" } as any)).toEqual(["ntfy(익명)", "discord"]);
+  it("채널 목록: 다른 채널이 있으면 익명 ntfy 는 뺀다 (Cloudflare 에서 계속 429)", () => {
+    expect(pushChannels({ NTFY_TOPIC: "t", DISCORD_WEBHOOK_URL: "https://d" } as any)).toEqual(["discord"]);
+    expect(pushChannels({ NTFY_TOPIC: "t", BARK_KEY: "k" } as any)).toEqual(["bark"]);
+    expect(pushChannels({ NTFY_TOPIC: "t" } as any)).toEqual(["ntfy(익명)"]);
+    expect(pushChannels({ NTFY_TOPIC: "t", NTFY_TOKEN: "tk", BARK_KEY: "k" } as any)).toEqual(["ntfy(계정 토큰)", "bark"]);
     expect(pushChannels({})).toEqual([]);
+  });
+  it("Bark 가 있으면 익명 ntfy 로는 보내지 않는다", async () => {
+    const { f, calls } = fake({ "api.day.app": [200] });
+    const r = await sendPush({ NTFY_TOPIC: "t", BARK_KEY: "k" } as any, msg, f);
+    expect(r.map((x) => x.channel)).toEqual(["bark"]);
+    expect(calls.some((c) => c.url.includes("ntfy"))).toBe(false);
   });
 });
 

@@ -8,6 +8,7 @@ import { postWithRetry, pushChannels, sendPush } from "../core/notify.js";
 import { registerTools } from "../mcp/tools.js";
 import { D1Store } from "./d1store.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
+import { loadMonthUsage, maybeFireDeep } from "../core/deep.js";
 
 interface Env extends CoreEnv {
   DB: D1Database;
@@ -78,6 +79,15 @@ export default {
     await store.setKv(`cron_seen:${ctrl.cron}`, String(ctrl.scheduledTime));
     const report = await runAndRecord(env, store, ctrl.scheduledTime, `cron ${ctrl.cron}`, group);
     if (!report || "error" in report) return;
+    // 특이한 날이면 Claude Code 심층 분석을 깨운다 (5분 주기에서만, 토큰이 있을 때만)
+    if (ctrl.cron === "*/5 * * * *" && env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN) {
+      try {
+        const st = await buildState(store, report.at - 72 * 3600_000, env.DISABLED_SOURCES);
+        await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: env.DASHBOARD_URL });
+      } catch (e) {
+        await store.setKv("deep:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
+      }
+    }
     const d = new Date(report.at);
     if (d.getUTCHours() === 15 && d.getUTCMinutes() < 5) ctx.waitUntil(store.prune(report.at - 30 * 86400_000));
   },
@@ -103,7 +113,7 @@ export default {
 
     if (url.pathname === "/api/state" && req.method === "GET") {
       const hours = Math.min(Number(url.searchParams.get("hours") ?? 72), 720);
-      const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES);
+      const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES, { dailyMax: Number(env.DEEP_DAILY_MAX ?? 2), monthlyUsd: Number(env.DEEP_MONTHLY_BUDGET_USD ?? 30) });
       return json({
         ...st,
         setup: {
@@ -117,6 +127,26 @@ export default {
       const body = (await req.json().catch(() => ({}))) as { only?: string[]; dryRun?: boolean };
       if (body.only || body.dryRun) return json(await runCycle(env, store, { only: body.only, dryRun: body.dryRun }));
       return json(await runAndRecord(env, store, Date.now(), "manual"));
+    }
+    if (url.pathname === "/api/deep" && req.method === "GET") {
+      // 심층 분석 요청·보고서·이번 달 사용량
+      const notes = await store.getNotes(Date.now() - 30 * 86400_000);
+      return json({
+        requests: notes.filter((n) => n.kind === "deep_request").slice(0, 10),
+        reports: notes.filter((n) => n.kind === "deep_report").slice(0, 5),
+        usage: await loadMonthUsage(store, Date.now()),
+        state: JSON.parse((await store.getKv("deep:state")) ?? "{}"),
+        lastError: JSON.parse((await store.getKv("deep:last_error")) ?? "null"),
+        configured: !!(env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN),
+      });
+    }
+    if (url.pathname === "/api/deep/fire" && req.method === "POST") {
+      // 수동 실행·점검: dryRun=true 면 깨우지 않고 판단만, force=true 면 '이미 조사함'·하루 횟수 무시 (한 달 상한은 지킴),
+      // external=true 면 요청만 기록하고 깨우기는 호출한 쪽이 직접 한다 (예: Claude 세션의 fire_trigger 로 시험 실행)
+      const body = (await req.json().catch(() => ({}))) as { dryRun?: boolean; force?: boolean; external?: boolean };
+      const st = await buildState(store, Date.now() - 72 * 3600_000, env.DISABLED_SOURCES);
+      const r = await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: Date.now(), dashboardUrl: env.DASHBOARD_URL }, { dryRun: body.dryRun, force: body.force, external: body.external, manual: true });
+      return json({ decision: r.decision, request: r.request && { ...r.request, payload: r.request.payload } });
     }
     if (url.pathname === "/api/push-probe" && req.method === "POST") {
       // ntfy.sh 가 이 Worker 의 발신 IP 를 얼마나 막는지 측정한다. 아무도 구독하지 않는 임시 토픽으로 보낸다.

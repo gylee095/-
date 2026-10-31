@@ -45,6 +45,23 @@ Secret 등록 후 Actions 에서 **Deploy Worker** 재실행 → 대시보드 '�
 [safetydata.go.kr](https://www.safetydata.go.kr/disaster-data/view?dataSn=228) 가입 → 긴급재난문자 API 활용신청 → 승인 후 인증키를 `SAFETYDATA_API_KEY` Secret 으로 등록하고 워크플로 재실행.
 승인 후 커넥터의 `check_emergency_alerts`로 응답 필드명(SN, CRT_DT, MSG_CN …)이 맞는지 확인할 것.
 
+## 1.5 심층 분석 — '특이한 날'에만 Claude Code 를 자동으로 깨운다
+
+**흐름**: 서버(5분 주기)가 특이한 이유를 찾으면 → Claude Code 예약 작업 'KEW 심층 조사'를 API 트리거로 깨움 → 새 세션이 `.claude/commands/kew-deep.md` 지침대로 조사(웹 검색·원자료·과거 사례) → `record_deep_report` 로 보고서·확률·사용량 기록 → 대시보드 '클로드 심층 분석' 카드 + 아이폰 알림 1회.
+
+**특이한 이유**(`src/core/deep.ts`): 전쟁 위험 3단계 이상 / 어느 영역이든 '경계' 이상 / 위험도 4 이상 도발(ICBM·포격·핵실험·민방위 경보) / 보통 이상 징후 조합.
+
+**사용량 안전장치**
+- 같은 이유는 24시간에 한 번만 깨운다. 실행 사이 최소 3시간.
+- 하루 최대 `DEEP_DAILY_MAX`(기본 2)회, 한 달 `DEEP_MONTHLY_BUDGET_USD`(기본 30, API 요금 환산) 에 닿으면 자동 중지 — `wrangler.toml` [vars] 에서 바꾼다.
+- 세션 안에서도 도구 30회·웹 검색 6회·원자료 조회 5회 상한(지침).
+- 사용량은 실행마다 기록된다: 세션이 `get_session` 의 사용량(토큰·API 요금 환산)을 `record_deep_report`/`record_usage` 로 남기고, 서버는 세션별 누적값에서 증가분만 더한다 → 대시보드 'Claude 사용량'.
+- 금액은 API 요금으로 환산한 참고치다. 실제로는 Claude 구독 사용 한도에서 차감되고, 조직에 추가 사용 크레딧이 켜져 있을 때만 한도를 넘은 만큼 과금된다(claude.ai/settings/usage).
+
+**설정 (한 번)**: claude.ai/code/routines → 'KEW 심층 조사' → 편집 → Trigger 의 + → API → Fire URL 복사, Generate token 복사(한 번만 보임) → GitHub Secrets `CLAUDE_ROUTINE_URL`, `CLAUDE_ROUTINE_TOKEN` → Deploy Worker 재실행. 같은 편집 화면에서 저장소(gylee095/-)·환경·모델(비용을 아끼려면 Sonnet)을 확인한다.
+
+**점검**: `GET /api/deep`(요청·보고서·사용량), `POST /api/deep/fire {"dryRun":true}`(깨울지 판단만).
+
 ## 2. 수동 배포 (PC)
 ```bash
 npm ci && npx wrangler login

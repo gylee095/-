@@ -9,6 +9,7 @@ import { GROUP_LABEL, INDICATORS, STATE_LABEL } from "./indicators.js";
 import type { Pattern } from "./patterns.js";
 import { interpret } from "./interpret.js";
 import { assessWarRisk } from "./warrisk.js";
+import { loadMonthUsage } from "./deep.js";
 
 export interface BoardRow {
   id: string;
@@ -27,7 +28,7 @@ export interface BoardRow {
 }
 
 /** disabledSources: 꺼 둔 소스는 과거 오류 기록이 남아 있어도 상태 목록에서 뺀다 */
-export async function buildState(store: Store, since: number, disabledSources = "") {
+export async function buildState(store: Store, since: number, disabledSources = "", budget?: { dailyMax: number; monthlyUsd: number }) {
   const disabled = new Set(disabledSources.split(",").map((s) => s.trim()).filter(Boolean));
   const now = Date.now();
   // 전쟁 위험 모델은 최근 14일 사건(중대 사건·도발 빈도)을 본다 — 화면의 사건 목록은 요청한 기간만 보여 준다
@@ -78,6 +79,10 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const patterns: { at: number; patterns: Pattern[] } = patternsRaw ? JSON.parse(patternsRaw) : { at: 0, patterns: [] };
   const livePatterns = now - patterns.at < 6 * 3600_000 ? patterns.patterns : [];
   const assessment = notes.find((n) => n.kind === "assessment");
+  // 심층 분석: 최근 보고서(72시간 안)와 요청, 이번 달 사용량
+  const deepReport = notes.find((n) => n.kind === "deep_report" && now - n.at < 72 * 3600_000);
+  const deepRequest = notes.find((n) => n.kind === "deep_request");
+  const usage = await loadMonthUsage(store, now);
   const threat = currentThreat(enriched.map((e) => e.brief), now);
   // 규칙 기반 해설: 숫자 → 뜻 → 조합 힌트 (클로드 분석관은 이 위에서 추론한다)
   const interpretation = interpret({ now, threat, board, patterns: livePatterns, briefs: enriched.map((e) => e.brief) });
@@ -96,6 +101,9 @@ export async function buildState(store: Store, since: number, disabledSources = 
     patterns: livePatterns,
     patternsAt: patterns.at,
     assessment,
+    deepReport,
+    deepRequest: deepRequest && { at: deepRequest.at, text: deepRequest.text, ok: (deepRequest.data as any)?.fire?.ok, id: (deepRequest.data as any)?.id },
+    usage: { ...usage, budget },
     health: health.filter((h) => !disabled.has(h.source)),
     alerts: alerts.slice(-50).reverse(),
     notes,

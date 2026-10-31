@@ -153,4 +153,11 @@ export interface Env {
   /** 네이버 개발자센터 무료 키 — 데이터랩 검색어 트렌드(한국 사람들의 전쟁 불안) */
   NAVER_CLIENT_ID?: string;
   NAVER_CLIENT_SECRET?: string;
+  /** Claude Code 예약 작업 API 트리거 (심층 분석) — Fire URL 과 토큰 */
+  CLAUDE_ROUTINE_URL?: string;
+  CLAUDE_ROUTINE_TOKEN?: string;
+  /** 하루 최대 자동 심층 분석 수 (기본 2) */
+  DEEP_DAILY_MAX?: string;
+  /** 한 달 심층 분석 사용량 상한, API 요금 환산 달러 (기본 30) */
+  DEEP_MONTHLY_BUDGET_USD?: string;
 }

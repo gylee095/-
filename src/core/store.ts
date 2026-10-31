@@ -16,8 +16,8 @@ export interface AgentNote {
   author: string;
   text: string;
   eventIds?: string[];
-  /** assessment: 구조화된 분석(data 에 JSON) */
-  kind?: "note" | "assessment";
+  /** assessment: 구조화된 분석(data 에 JSON) · deep_request/deep_report: 심층 분석 요청·보고서 · usage: 사용량 기록 */
+  kind?: "note" | "assessment" | "deep_request" | "deep_report" | "usage";
   data?: unknown;
 }
 

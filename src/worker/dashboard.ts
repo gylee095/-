@@ -62,6 +62,9 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .dom{display:grid;grid-template-columns:7.5em 3.4em 1fr;gap:8px;align-items:start;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.dom:first-child{border-top:0}
 .dom .dl{font-weight:700}.dom .dv{font-size:12px;font-weight:800;border-radius:999px;text-align:center;padding:2px 0;color:#fff}.dom .v0{background:var(--l1)}.dom .v1{background:var(--l2)}.dom .v2{background:var(--l3)}.dom .v3{background:var(--l4)}
 .dom .dd{color:var(--mute);font-size:13px;min-width:0;overflow-wrap:anywhere}.wr ul{margin:6px 0 0 18px;padding:0;font-size:14px}.wr li{margin:3px 0}.wr .mk{font-size:13px;color:var(--mute);margin-top:10px}.wr .mk a{color:var(--link);text-decoration:none}
+.deep{border-left:5px solid var(--link)}.deep .dt{font-size:18px;font-weight:800;line-height:1.35}.deep p{font-size:15px;margin:8px 0}.deep .pr{font-size:15px;font-weight:700;margin:8px 0}
+.deep ul{margin:6px 0 0 18px;padding:0;font-size:14px}.deep li{margin:3px 0;overflow-wrap:anywhere}.deep a{color:var(--link);text-decoration:none}.deep .us,.use{font-size:13px;color:var(--mute);margin-top:10px}.deep{word-break:keep-all}
+.use table{width:100%;border-collapse:collapse;font-size:14px}.use td{padding:6px 4px;border-top:1px solid var(--line)}.use td:last-child{text-align:right}
 .pat{border-left:5px solid var(--l2)}.pat.high{border-left-color:var(--l4)}.pat.low{border-left-color:var(--old);opacity:.85}
 .pat .pn{font-size:17px;font-weight:800}.pat .ps{font-size:14px;margin:6px 0}.pat ul{margin:6px 0 0 18px;padding:0;font-size:13px;color:var(--mute)}
 .board{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -121,6 +124,23 @@ function warRisk(w){var names=["평온","긴장","위기","임박","교전"];
   if(w.market)h+='<div class="mk">예측시장 \''+esc(w.market.question)+'\' '+w.market.pct+'%'+(w.market.usualPct!=null?' (지난 한 달 평소 '+w.market.usualPct+'%)':'')+(w.market.daysLeft!=null?' · 만기 '+w.market.daysLeft+'일':'')+' — 수 % 대 가격은 실제보다 높게 매겨지는 경향이라 변화만 봅니다'+(w.market.url?' · <a href="'+esc(w.market.url)+'" target="_blank" rel="noopener">시장 보기</a>':'')+'</div>';
   h+='<div class="mk">확률은 근거를 밝힌 판단값입니다(통계 예측 아님). 국지 충돌 = 남북 교전·영토 직접 공격.</div></div>';
   return h}
+function money(x){return x==null?"—":"$"+Number(x).toFixed(2)}
+function ktok(n){n=Number(n||0);return n>=1e6?(n/1e6).toFixed(1)+"백만":n>=1e4?Math.round(n/1e4)+"만":String(n)}
+function usageLine(u){if(!u)return "";return "API 요금 환산 약 "+money(u.cost_usd)+" · 입력 "+ktok(u.input_tokens)+" · 출력 "+ktok(u.output_tokens)+" · 캐시 읽기 "+ktok(u.cache_read_tokens)+" 토큰"+(u.model?" · "+esc(u.model):"")}
+function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f).join("")+'</ul>':''};
+  var h='<div class="sec">클로드 심층 분석 · '+ago(n.at)+' <span style="font-weight:400">· 특이한 날에만 자동 실행</span></div><div class="card deep">';
+  h+='<div class="dt">'+esc(d.title)+'</div><p>'+esc(d.summary)+'</p>';
+  h+='<div class="pr">전쟁 위험 '+d.war_phase+'단계 · 30일 국지 충돌 '+d.p_clash_30d+'% · 전면전 '+d.p_war_30d+'%</div><p style="color:var(--mute);font-size:14px">'+esc(d.reasoning)+'</p>';
+  h+='<details open><summary>확인한 사실 · 지켜볼 것</summary>'+L(d.findings,function(f){return '<li>'+esc(f.fact)+(f.source?(/^https?:/.test(f.source)?' <a href="'+esc(f.source)+'" target="_blank" rel="noopener">출처</a>':' <span style="color:var(--mute)">('+esc(f.source)+')</span>'):'')+'</li>'})+'<b style="font-size:14px;display:block;margin-top:8px">지켜볼 것</b>'+L(d.watch,function(x){return '<li>'+esc(x)+'</li>'})+'</details>';
+  var more=L(d.timeline,function(t){return '<li><b>'+esc(t.date)+'</b> '+esc(t.event)+'</li>'});
+  more+=(d.hypotheses||[]).map(function(x){return '<div style="margin-top:8px;font-size:14px"><b>'+esc(x.hypothesis)+'</b><br><span style="color:var(--l1)">찬성</span> '+esc((x.for||[]).join(" / ")||"-")+'<br><span style="color:var(--l3)">반대</span> '+esc((x.against||[]).join(" / ")||"-")+'</div>'}).join("");
+  more+=L(d.analogs,function(a){return '<li><b>'+esc(a.case)+'</b> — 닮은 점: '+esc(a.similar)+' / 다른 점: '+esc(a.different)+'</li>'});
+  more+=L(d.open_questions,function(x){return '<li>❓ '+esc(x)+'</li>'});
+  if(more)h+='<details><summary>시간순 정리 · 가설 · 과거 사례 · 못 푼 질문</summary>'+more+'</details>';
+  if(d.usage)h+='<div class="us">이번 분석 사용량: '+usageLine(d.usage)+'</div>';
+  return h+'</div>'}
+function usagePanel(u){if(!u)return "";var b=u.budget;
+  return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석</td><td>'+u.deep.runs+'회 · '+money(u.deep.cost_usd)+'</td></tr><tr><td>정기 분석(아침·저녁)</td><td>'+u.scheduled.runs+'회 · '+money(u.scheduled.cost_usd)+'</td></tr><tr><td>합계</td><td><b>'+money(u.deep.cost_usd+u.scheduled.cost_usd)+'</b></td></tr></table><p style="margin:10px 0 0">금액은 API 요금으로 환산한 참고치입니다. 실제로는 Claude 구독의 사용 한도에서 차감되고, 조직에 추가 사용 크레딧이 켜져 있을 때만 한도를 넘은 만큼 과금됩니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회, 이번 달 '+money(b?b.monthlyUsd:30)+'에 닿으면 자동으로 멈춥니다.</p></details>'}
 function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+ago(st.lastCycle?st.lastCycle.at:st.now);
@@ -133,6 +153,8 @@ function render(){
   h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>';
   // 1a) 전쟁 위험 — 다섯 영역 → 국면 5단계 → 30일 확률 (자동, 5분마다)
   if(st.warRisk)h+=warRisk(st.warRisk);
+  // 1b) 클로드 심층 분석 — 특이한 날에만 (72시간 안 보고서)
+  if(st.deepReport&&st.deepReport.data)h+=deep(st.deepReport);
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다
   if(st.assessment&&st.assessment.data){var stale=Date.now()-st.assessment.at>14*3600000;
     h+='<div class="sec">클로드 분석관 판단 · '+ago(st.assessment.at)+(stale?' <span style="color:var(--l3)">(오래됨)</span>':'')+' · 다음 분석 08:09 / 20:09</div><div class="card as">'+assessment(st.assessment.data)+'</div>'}
@@ -168,6 +190,7 @@ function render(){
   if(main.length){h+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,8).map(row).join("")+'</div>'}
   if(ref.length)h+='<details class="card"><summary>참고 기사 '+ref.length+'건 (논평·분석, 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
   // 7) 시스템
+  h+=usagePanel(st.usage);
   h+='<details class="card"><summary>시스템 상태 · 데이터 출처</summary>'+health(st)+'</details>';
   var lastFail=(st.alerts||[]).find(function(a){return !a.ok});var lastOk=(st.alerts||[]).find(function(a){return a.ok});
   var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패 '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 재시도를 넣었지만 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).</p>':"";

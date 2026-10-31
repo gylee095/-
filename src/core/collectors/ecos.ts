@@ -15,6 +15,46 @@ export function ecosUrl(key: string, item: string, from: number, to: number, row
   return `${ECOS_API}/${encodeURIComponent(key)}/json/kr/1/${rows}/802Y001/D/${ymd(from)}/${ymd(to)}/${item}`;
 }
 
+/** ECOS 는 인증키를 주소 경로에 넣는다 — 오류 문구(주소 포함)가 저장·표시되기 전에 키를 가린다 */
+export function redactKey(msg: string, key: string | undefined): string {
+  if (!key) return msg;
+  return msg.split(key).join("***").split(encodeURIComponent(key)).join("***");
+}
+
+async function ecosGet(key: string, url: string, timeoutMs = 20000): Promise<any> {
+  try {
+    return await fetchJson<any>(url, {}, timeoutMs);
+  } catch (e) {
+    throw new Error(redactKey(String((e as Error)?.message ?? e), key));
+  }
+}
+
+/** 과거 검증용 허용 통계표: 802Y001 주식시장(일), 731Y001 주요국 통화의 대원화환율(일) */
+export const ECOS_HISTORY_STATS = ["802Y001", "731Y001"] as const;
+
+/** 긴 기간 일별 자료 — 1만 행씩 나눠 받는다 (ECOS 는 한 번에 받을 수 있는 행 수가 제한된다) */
+export async function ecosSeries(key: string, stat: string, item: string, from: string, to: string, maxRows = 20000): Promise<DayValue[]> {
+  const out: DayValue[] = [];
+  for (let start = 1; start <= maxRows; start += 10000) {
+    const end = start + 9999;
+    const json = await ecosGet(key, `${ECOS_API}/${encodeURIComponent(key)}/json/kr/${start}/${end}/${stat}/D/${from}/${to}/${item}`, 30000);
+    if (!json?.StatisticSearch && start > 1) break; // 마지막 쪽 다음은 '데이터 없음'
+    const rows = parseEcos(json);
+    out.push(...rows);
+    const total = Number(json?.StatisticSearch?.list_total_count ?? 0);
+    if (!rows.length || out.length >= total) break;
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** 통계표의 항목 목록 (코드·이름·자료 시작/끝) */
+export async function ecosItems(key: string, stat: string): Promise<{ code: string; name: string; cycle: string; start: string; end: string }[]> {
+  const json = await ecosGet(key, `${ECOS_API.replace("StatisticSearch", "StatisticItemList")}/${encodeURIComponent(key)}/json/kr/1/300/${stat}`);
+  const rows = json?.StatisticItemList?.row ?? [];
+  if (!rows.length && json?.RESULT?.MESSAGE) throw new Error(`ECOS: ${json.RESULT.CODE} ${json.RESULT.MESSAGE}`);
+  return (rows as any[]).map((r) => ({ code: String(r.ITEM_CODE), name: String(r.ITEM_NAME), cycle: String(r.CYCLE), start: String(r.START_TIME), end: String(r.END_TIME) }));
+}
+
 export interface DayValue {
   date: string;
   value: number;
@@ -87,8 +127,8 @@ export async function collectEcos(key: string | undefined, now = Date.now()): Pr
   if (!key) return { source: "ecos", ok: true, skipped: "ECOS_API_KEY 미설정 (한국은행 경제통계 무료 인증키)", signals: [], fetchedAt: now, rawCount: 0 };
   const from = now - 260 * 86400_000; // 약 180거래일
   const [kospiJson, kosdaqJson] = await Promise.all([
-    fetchJson<any>(ecosUrl(key, ECOS_ITEMS.kospi, from, now), {}, 20000),
-    fetchJson<any>(ecosUrl(key, ECOS_ITEMS.kosdaq, from, now), {}, 20000).catch(() => undefined),
+    ecosGet(key, ecosUrl(key, ECOS_ITEMS.kospi, from, now)),
+    ecosGet(key, ecosUrl(key, ECOS_ITEMS.kosdaq, from, now)).catch(() => undefined),
   ]);
   const kospiDays = parseEcos(kospiJson);
   const kospi = summarizeFlow(kospiDays);

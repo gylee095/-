@@ -148,6 +148,24 @@ export default {
       const r = await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: Date.now(), dashboardUrl: env.DASHBOARD_URL }, { dryRun: body.dryRun, force: body.force, external: body.external, manual: true });
       return json({ decision: r.decision, request: r.request && { ...r.request, payload: r.request.payload } });
     }
+    if (url.pathname === "/api/ecos-series" && req.method === "GET") {
+      // 과거 검증용: 한국은행 ECOS 일별 통계를 서버의 키로 받아 날짜·값만 돌려준다 (키는 응답·오류에 넣지 않는다).
+      // ?stat=802Y001&item=0030000&from=20030101&to=20261031 · ?stat=802Y001&list=1 이면 항목 목록
+      if (!env.ECOS_API_KEY) return json({ error: "ECOS_API_KEY 미설정" }, 400);
+      const { ECOS_HISTORY_STATS, ecosItems, ecosSeries, redactKey } = await import("../core/collectors/ecos.js");
+      const stat = url.searchParams.get("stat") ?? "802Y001";
+      const item = url.searchParams.get("item") ?? "0030000";
+      const from = url.searchParams.get("from") ?? "20030101";
+      const to = url.searchParams.get("to") ?? new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10).replace(/-/g, "");
+      if (!(ECOS_HISTORY_STATS as readonly string[]).includes(stat) || !/^[0-9A-Z]{4,10}$/.test(item) || !/^\d{8}$/.test(from) || !/^\d{8}$/.test(to)) return json({ error: "bad params" }, 400);
+      try {
+        if (url.searchParams.get("list")) return json({ stat, items: await ecosItems(env.ECOS_API_KEY, stat) });
+        const rows = await ecosSeries(env.ECOS_API_KEY, stat, item, from, to);
+        return json({ stat, item, from, to, count: rows.length, rows: rows.map((r) => [r.date, r.value]) });
+      } catch (e) {
+        return json({ error: redactKey(String((e as Error)?.message ?? e), env.ECOS_API_KEY) }, 502);
+      }
+    }
     if (url.pathname === "/api/push-probe" && req.method === "POST") {
       // ntfy.sh 가 이 Worker 의 발신 IP 를 얼마나 막는지 측정한다. 아무도 구독하지 않는 임시 토픽으로 보낸다.
       const topic = `kew-probe-${crypto.randomUUID().slice(0, 8)}`;

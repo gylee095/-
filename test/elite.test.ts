@@ -64,3 +64,46 @@ describe("한국 기업 제트기 출국 (대수만, 개인 식별 없음)", () 
     expect(small.value).toBeLessThanOrEqual(199);
   });
 });
+
+describe("ECOS 인증키는 오류 문구에 남지 않는다", () => {
+  it("주소 경로에 든 키를 가린다 (원문·URL 인코딩 모두)", async () => {
+    const { redactKey } = await import("../src/core/collectors/ecos.js");
+    const key = "ABC/DEF+123";
+    const msg = `HTTP 500 https://ecos.bok.or.kr/api/StatisticSearch/${encodeURIComponent(key)}/json/kr/1/400/802Y001: x ${key}`;
+    const r = redactKey(msg, key);
+    expect(r).not.toContain(key);
+    expect(r).not.toContain(encodeURIComponent(key));
+    expect(r).toContain("StatisticSearch/***/json");
+  });
+  it("수집 실패 오류에도 키가 없다", async () => {
+    const { collectEcos } = await import("../src/core/collectors/ecos.js");
+    const real = globalThis.fetch;
+    globalThis.fetch = (async () => new Response("server error", { status: 500 })) as unknown as typeof fetch;
+    try {
+      await expect(collectEcos("SECRETKEY123", NOW)).rejects.toThrow(/StatisticSearch\/\*\*\*\/json/);
+      await collectEcos("SECRETKEY123", NOW).catch((e) => expect(String(e.message)).not.toContain("SECRETKEY123"));
+    } finally {
+      globalThis.fetch = real;
+    }
+  });
+  it("긴 기간 자료는 1만 행씩 나눠 받아 합친다", async () => {
+    const { ecosSeries } = await import("../src/core/collectors/ecos.js");
+    const real = globalThis.fetch;
+    const seen: string[] = [];
+    const mk = (n0: number, n: number, total: number) => ({ StatisticSearch: { list_total_count: total, row: Array.from({ length: n }, (_, i) => ({ TIME: String(20030101 + n0 + i), DATA_VALUE: String(i) })) } });
+    globalThis.fetch = (async (u: string) => {
+      seen.push(u.replace(/StatisticSearch\/[^/]+\//, "StatisticSearch/K/"));
+      return new Response(JSON.stringify(u.includes("/1/10000/") ? mk(0, 10000, 10005) : mk(10000, 5, 10005)), { status: 200 });
+    }) as unknown as typeof fetch;
+    try {
+      const rows = await ecosSeries("K", "802Y001", "0030000", "20030101", "20261031");
+      expect(rows.length).toBe(10005);
+      expect(seen).toEqual([
+        "https://ecos.bok.or.kr/api/StatisticSearch/K/json/kr/1/10000/802Y001/D/20030101/20261031/0030000",
+        "https://ecos.bok.or.kr/api/StatisticSearch/K/json/kr/10001/20000/802Y001/D/20030101/20261031/0030000",
+      ]);
+    } finally {
+      globalThis.fetch = real;
+    }
+  });
+});

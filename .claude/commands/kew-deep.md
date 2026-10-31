@@ -11,6 +11,7 @@ description: 한반도 조기감지 — '특이한 날' 심층 조사 1회 (서�
 3. **사용량 상한**: 도구 호출은 모두 합쳐 30번, 웹 검색은 6번, 웹 페이지·원자료 직접 조회(WebFetch·curl)는 5번까지. 원인을 찾았으면 상한 전에 끝낸다.
 4. 코드 수정·커밋·푸시·배포는 하지 않는다. `send_iphone_alert` 도 쓰지 않는다. 보고서 알림 한 번이면 된다.
 5. 정부(각국 여행경보)나 돈(시장)의 확인 없이 3단계(위기) 이상으로 올리지 않는다. 북한의 말과 대중의 불안만으로는 2단계가 상한이다.
+6. 보고서는 대시보드에 그대로 보인다. 문장에 도구 이름·필드 이름(get_indicator_board, recentPct 등)을 쓰지 않는다. 출처가 우리 서버 지표면 source 에 '서버 지표'라고 쓴다.
 
 ## 도구
 - 우리 서버(MCP `korea-early-warning`): `get_deep_request`, `get_war_risk`, `get_situation(hours=72)`, `get_indicator_board`, `get_indicator_history`, `check_*`, `search_news`, `record_deep_report`.

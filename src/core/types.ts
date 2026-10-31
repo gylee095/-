@@ -153,6 +153,8 @@ export interface Env {
   /** 네이버 개발자센터 무료 키 — 데이터랩 검색어 트렌드(한국 사람들의 전쟁 불안) */
   NAVER_CLIENT_ID?: string;
   NAVER_CLIENT_SECRET?: string;
+  /** 한국은행 경제통계(ECOS) 무료 인증키 — 외국인 순매수 */
+  ECOS_API_KEY?: string;
   /** Claude Code 예약 작업 API 트리거 (심층 분석) — Fire URL 과 토큰 */
   CLAUDE_ROUTINE_URL?: string;
   CLAUDE_ROUTINE_TOKEN?: string;

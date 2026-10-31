@@ -36,6 +36,7 @@
 | Polymarket gamma 공개 API + CLOB 가격 이력 | ✅ '2027년 전 북한의 한국 침공' 4.35% (거래액 약 46만 달러), 10월 평소 2.83% | 전체 검색 응답은 600KB → 좁은 검색어 4개(각 수~수십 KB)로 나눔. 일별 가격 이력(약 9KB)으로 30일 대비 배율 |
 | Wikimedia 조회수 API | ✅ 10/17~20 한반도 문서들이 함께 2~3배(김정은 문서 64배) | 연락처가 든 User-Agent 필수. 빠른 연속 요청 시 일부 실패 |
 | 네이버 검색어 트렌드 (NAVER API HUB) | ✅ 10/30 '생존 준비' 평소의 89배, '전쟁' 25배 (10/26부터 급증) | 2026년 키 발급이 NAVER API HUB 로 옮겨 감 — 예전 openapi.naver.com 주소는 새 키로 401. naverapihub.apigw.ntruss.com/search-trend/v1/search + X-NCP-APIGW-API-KEY-ID/KEY 헤더 |
+| 한국은행 경제통계 ECOS (802Y001 주식시장(일)) | ✅ 견본 키로 형식 확인 — 외국인 코스피 순매수 10/29 +6,600억, 10/30 −1조6,256억 | 2003년부터 일별. 실사용은 무료 인증키 필요. CDS·외평채 가산금리 표는 ECOS 에 없음 |
 | Metaculus API | ❌ 403 | 제외 |
 | ntfy.sh (Worker 발신) | ❌ 10회 중 10회 429, 이후 522 | Cloudflare 공유 IP 제한. **Bark 로 대체(테스트 성공)** |
 | Bark (api.day.app) | ✅ 테스트 푸시 성공 | iOS 앱, 계정 불필요, 긴급 알림 지원 |

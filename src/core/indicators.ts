@@ -3,7 +3,7 @@
 // 각 징후를 시간대별 평소 값과 비교해 정상/상승/이상으로 판정하고, 여러 징후의 동시 이상을 patterns.ts 에서 조합한다.
 import type { IndicatorState, Reading } from "./types.js";
 
-export type IndicatorGroup = "air" | "sea" | "seismic" | "navwarn" | "official" | "rhetoric" | "media" | "social" | "market" | "internet" | "gnss" | "thermal" | "psych";
+export type IndicatorGroup = "air" | "sea" | "seismic" | "navwarn" | "official" | "rhetoric" | "media" | "social" | "market" | "internet" | "gnss" | "thermal" | "psych" | "elite";
 
 export interface IndicatorDef {
   id: string;
@@ -150,6 +150,17 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "Yahoo Finance KRW=X 현재가의 전일 종가 대비 변동률(절대값)", latency: "수 분", caveats: "금리·달러 강세 등 경제 요인이 대부분. 다른 징후와 겹칠 때만 의미 있다.",
   },
   {
+    id: "elite.foreign_net_kospi", label: "외국인 투자자 코스피 순매수 (5거래일, 평소 대비)", group: "elite", unit: "z", direction: "low", slots: 1, absolute: { elevated: 2, anomalous: 3 },
+    why: "글로벌 기관 투자자는 자체 정보망을 갖고 돈을 건다. 한반도 위험이 커지면 한국 주식을 평소보다 많이 팔 것이라는 가정이다. 2003년부터의 일별 자료가 있어 과거 위기 때 실제로 그랬는지 검증할 수 있다.",
+    measure: "한국은행 경제통계(802Y001)의 외국인 코스피 순매수 — 최근 5거래일 합계를 직전 120거래일의 5일 합계 분포와 비교한 z (−2 이하 상승, −3 이하 이상)", latency: "약 1일 (전 거래일까지)", caveats: "반도체 업황·미국 금리·환율 같은 세계 요인으로 파는 날이 훨씬 많다. 이웃 증시가 함께 빠졌는지, 북한 신호가 겹치는지와 같이 본다. 키 필요.",
+  },
+  {
+    id: "elite.kr_bizjets", label: "한국 기업 제트기 출국 (어제, 평소 대비)", group: "elite", unit: "%", direction: "high", slots: 1, absolute: { elevated: 250, anomalous: 400 },
+    why: "재벌·고위층은 정보를 먼저 듣는다. 2022년 2월 러시아 침공 열흘쯤 전 우크라이나 부유층·정치인들이 전세기·개인 제트기로 키이우를 떠났다는 현지 보도가 있었다.",
+    measure: "공개 항공기 위치 신호(ADS-B)에서 한국 등록(HL) 업무용 제트기가 한국 상공에서 낮은 고도로 상승 중인 것을 '출국'으로 세어, 어제 대수를 지난 4주 중앙값과 비교 (누가 탔는지는 알 수 없고 대수만 센다)", latency: "약 1일",
+    caveats: "출장·정비 비행이 대부분이다. 4대 미만 차이는 판단하지 않는다. 수신기가 닿지 않는 공항 근처 이륙은 놓칠 수 있다. 1주일은 쌓여야 평소를 안다.",
+  },
+  {
     id: "market.kr_equity_rel_pct", label: "한국 증시만의 움직임 (일본·대만 대비 %p)", group: "market", unit: "%p", direction: "low", slots: 1, absolute: { elevated: 2, anomalous: 4 },
     why: "전쟁 위험은 돈이 먼저 안다. 세계 증시 전체가 빠진 날이 아니라 '한국만' 빠진 날이 신호다. 이웃 증시와 비교해야 세계 증시 하락과 한반도 위험을 가를 수 있다.",
     measure: "코스피 일간 변동률 − 닛케이·대만 가권 평균 변동률. 음수 = 한국만 더 빠짐", latency: "장중 수 분 (휴장일엔 전 거래일 값)", caveats: "반도체 업황·환율·국내 정치(2024년 12월 비상계엄 직후에도 하락)로도 빠진다. 북한 뉴스와 시점을 대조한다.",
@@ -197,7 +208,7 @@ export const INDICATORS: IndicatorDef[] = [
 export const INDICATOR_BY_ID: Record<string, IndicatorDef> = Object.fromEntries(INDICATORS.map((d) => [d.id, d]));
 
 export const GROUP_LABEL: Record<IndicatorGroup, string> = {
-  air: "항공", sea: "해상", seismic: "지진", navwarn: "항행경보", official: "정부 공식", rhetoric: "북한 수사", media: "언론 템포", social: "SNS", market: "시장", internet: "인터넷", gnss: "GPS 교란", thermal: "위성 열점", psych: "사람들의 관심",
+  air: "항공", sea: "해상", seismic: "지진", navwarn: "항행경보", official: "정부 공식", rhetoric: "북한 수사", media: "언론 템포", social: "SNS", market: "시장", internet: "인터넷", gnss: "GPS 교란", thermal: "위성 열점", psych: "사람들의 관심", elite: "엘리트·큰손",
 };
 
 export interface Baseline {

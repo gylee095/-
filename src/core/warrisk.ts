@@ -10,7 +10,7 @@ import type { BoardRow } from "./state.js";
 import type { EventBrief } from "./brief.js";
 import type { Pattern } from "./patterns.js";
 
-export type DomainId = "gov" | "money" | "military" | "nkwords" | "public";
+export type DomainId = "gov" | "elite" | "money" | "military" | "nkwords" | "public";
 export type Level = 0 | 1 | 2 | 3;
 export type Phase = 1 | 2 | 3 | 4 | 5;
 
@@ -22,6 +22,11 @@ export const DOMAINS: { id: DomainId; label: string; indicators: string[]; why: 
     id: "gov", label: "정부의 행동",
     indicators: ["official.us_travel_level_kr", "official.uk_advice_security_flag", "official.ca_level_kr", "official.de_warning_kr", "official.jp_risk_level_kr", "official.jp_embassy_alert"],
     why: "정부는 비공개 정보를 갖고 있다. 자국민 경보·철수는 전쟁 위험을 행동으로 인정한 것이라 가장 무겁게 본다.",
+  },
+  {
+    id: "elite", label: "엘리트·큰손",
+    indicators: ["elite.foreign_net_kospi", "elite.kr_bizjets"],
+    why: "정보에 가장 빠른 쪽 — 글로벌 기관 자금과 재벌의 움직임. 대중보다 먼저, 정부 경보 전에 움직이면 무겁게 본다. 단 세계 증시·출장 같은 평범한 이유가 훨씬 흔하다.",
   },
   {
     id: "money", label: "돈의 움직임",
@@ -155,6 +160,8 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
       for (const p of pat) drivers.push(`패턴: ${p.name}`);
       score += bonus + pat.reduce((a, p) => a + (p.confidence === "high" ? 2 : 1), 0);
       level = score >= 6 ? 3 : score >= 3 ? 2 : score >= 1 ? 1 : 0;
+    } else if (d.id === "elite") {
+      level = score >= 3 ? 3 : score >= 2 ? 2 : score >= 1 ? 1 : 0;
     } else if (d.id === "money") {
       // 2026년 코스피는 반도체 때문에 하루 5~10%씩 움직인 날이 잦았다(7/28 −10.8%). 방산주가 시장보다 오르지 않고 예측시장 전쟁 가격도
       // 조용한 '한국만 하락'은 업종·세계 증시 요인일 가능성이 커서 1점까지만 준다.
@@ -185,11 +192,12 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   } else if (L.gov === 3 || (L.gov >= 2 && L.military >= 2)) {
     phase = 4;
     reasons.push(L.gov === 3 ? "정부가 철수·여행 자제급 조치를 냈다" : "여러 정부의 경보와 군사 움직임이 겹쳤다");
-  } else if (serious14.length || L.gov >= 2 || (L.military >= 2 && (L.money >= 2 || L.gov >= 1)) || high >= 3) {
+  } else if (serious14.length || L.gov >= 2 || (L.military >= 2 && (L.money >= 2 || L.gov >= 1)) || (L.elite >= 2 && (L.military >= 1 || L.nkwords >= 1)) || high >= 3) {
     phase = 3;
     if (serious14.length) reasons.push(`최근 14일 중대 사건: ${serious14[0].headline} (${serious14[0].danger.reason})`);
     if (L.gov >= 2) reasons.push("두 나라 이상 정부가 경보를 올렸다");
     if (L.military >= 2 && (L.money >= 2 || L.gov >= 1)) reasons.push("군사 움직임에 돈·정부가 반응했다");
+    if (L.elite >= 2 && (L.military >= 1 || L.nkwords >= 1)) reasons.push("엘리트·큰손이 크게 움직이는데 북한 쪽 움직임이 겹쳤다");
     if (high >= 3) reasons.push(`세 영역 이상이 동시에 경계 이상 (${domains.filter((d) => d.level >= 2).map((d) => d.label).join(", ")})`);
   } else if (prov7.length || elevated >= 2 || high >= 1) {
     phase = 2;
@@ -221,6 +229,15 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   else {
     // 정부는 조용한데 다른 영역이 움직였다 — 무엇이 움직였는지 이어서 말하고, 정보를 가진 쪽(정부)이 조용하다는 점으로 맺는다
     const parts: string[] = [];
+    if (L.elite >= 1) {
+      const fn = by["elite.foreign_net_kospi"];
+      const bj = by["elite.kr_bizjets"];
+      const detail = [
+        pts(fn) > 0 ? `외국인 5일 순매도 ${Math.abs(Math.round((((fn.reading!.meta as any)?.net5dEok ?? 0) / 10000) * 10) / 10)}조 원, 평소보다 큰 매도` : "",
+        pts(bj) > 0 ? `한국 기업 제트기 출국 평소의 ${(bj.reading!.value / 100).toFixed(1)}배` : "",
+      ].filter(Boolean).join(", ");
+      parts.push(`엘리트·큰손이 움직였다${detail ? `(${detail})` : ""}`);
+    }
     if (L.public >= 1) {
       const nv = by["psych.naver_war_search"];
       const wk = by["psych.wiki_korea_attention"];
@@ -243,14 +260,15 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
     if (L.nkwords >= 1) parts.push("북한의 말이 거칠어졌다");
     const calm = L.money === 0 || equityOnly ? "하지만 정부와 돈은 평소대로다" : "하지만 비공개 정보를 가진 정부들은 평소대로다";
     let close: string;
-    if (L.public >= 1 && (L.money === 0 || equityOnly) && L.military === 0) close = "언론·소문발 불안일 가능성이 크다. 무엇이 불을 붙였는지 확인한다.";
+    if (L.elite >= 1 && L.public === 0) close = "정보를 가진 쪽이 먼저 움직였을 수 있다. 세계 증시·출장 같은 평범한 이유를 먼저 확인하고, 정부 경보가 따라붙는지 지켜본다.";
+    else if (L.public >= 1 && (L.money === 0 || equityOnly) && L.military === 0 && L.elite === 0) close = "언론·소문발 불안일 가능성이 크다. 무엇이 불을 붙였는지 확인한다.";
     else if (L.public >= 1 && L.money >= 1 && !equityOnly) close = "대중과 일반 투자자가 같은 사건·담화에 반응한 모양이라, 정보를 가진 쪽이 먼저 움직인 신호는 아니다. 무엇이 불을 붙였는지(담화·소문·사건) 확인하고, 정부 경보가 따라붙는지 지켜본다.";
     else if (L.public >= 1) close = "도발·담화에 대중이 반응한 모양이라, 정보를 가진 쪽(정부)이 먼저 움직인 신호는 아니다. 무엇이 불을 붙였는지 확인하고, 정부 경보나 시장의 전쟁 가격이 따라붙는지 지켜본다.";
     else if (L.military >= 1) close = "무력시위·훈련 성격으로 보인다. 정부 경보나 시장 반응이 따라붙는지 지켜본다.";
     else if (L.nkwords >= 1) close = "말에 행동이 따르는지 지켜본다 — 명분 쌓기이거나 내부 결속용일 수 있다.";
     else close = "정부 경보나 시장의 전쟁 가격이 따라붙는지가 다음 관건이다.";
     firstMover = {
-      kind: L.public >= 2 || (L.money >= 1 && !equityOnly) ? "caveat" : L.public === 1 && L.military === 0 ? "reassuring" : "neutral",
+      kind: L.elite >= 1 && (L.military >= 1 || L.nkwords >= 1) ? "warning" : L.elite >= 1 || L.public >= 2 || (L.money >= 1 && !equityOnly) ? "caveat" : L.public === 1 && L.military === 0 ? "reassuring" : "neutral",
       text: `${parts.join(". ")}. ${calm} — ${close}`,
     };
   }

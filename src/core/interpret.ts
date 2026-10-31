@@ -97,6 +97,8 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
     if (id === "sea.gfw_cn_change_pct") return "측정 불가 — Global Fishing Watch 토큰이 없거나 응답 실패. '서해 중국 어선이 사라졌는가'를 지금 볼 수 없음";
     if (id.startsWith("thermal.")) return "측정 불가 — 위성 열점(FIRMS) 키가 없어 발사장·시험장의 열 활동은 볼 수 없음";
     if (id.startsWith("social.")) return "측정 불가 — SNS 공개 검색이 서버에서 차단됨. 사이렌·폭발음 목격담은 수집 안 됨";
+    if (id === "elite.foreign_net_kospi") return "측정 불가 — 한국은행 경제통계 키가 없거나 응답 실패. 외국인 투자자의 돈이 빠지는지 지금 볼 수 없음";
+    if (id === "elite.kr_bizjets") return "기록 쌓는 중 — 한국 기업 제트기 하루 출국 대수를 1주일 이상 모아야 평소와 비교할 수 있음";
     if (id === "psych.naver_war_search") return "측정 불가 — 네이버 데이터랩 키가 없어 한국 사람들의 '전쟁·대피소' 검색 불안을 볼 수 없음";
     if (id === "market.kr_equity_rel_pct" || id === "market.defense_rel_pct") return "측정 불가 — 증시 시세 응답 실패(야후 접속 제한). 환율만으로 돈의 움직임을 봄";
     if (id === "market.pm_war_prob") return "측정 불가 — 예측시장 응답 실패 또는 한반도 전쟁 시장을 찾지 못함";
@@ -167,6 +169,19 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
       const signed = m?.signedPct as number | undefined;
       const dir = signed === undefined ? "" : signed > 0 ? "원화 약세" : "원화 강세";
       return `원·달러 ${m?.price ? `${Math.round(m.price)}원, ` : ""}전일 대비 ${signed !== undefined ? (signed > 0 ? "+" : "") + signed : v}% (${dir})${isAbnormal(row) ? " → 큰 변동. 뉴스 없는 시간대면 시장이 먼저 반응했을 수 있음" : " → 평온"}`;
+    }
+    case "elite.foreign_net_kospi": {
+      const m = r!.meta as any;
+      const jo = (eok?: number) => (eok === undefined ? "?" : `${eok >= 0 ? "+" : "−"}${(Math.abs(eok) / 10000).toFixed(1)}조`);
+      const body = `외국인 코스피 순매수 최근 5거래일 ${jo(m?.net5dEok)} (하루 전 ${jo(m?.net1dEok)}, 평소 5일 ${jo(m?.usual5dEok)})`;
+      if (v <= -3) return `${body} → 지난 반년 중 손꼽히게 큰 매도(하위 ${m?.rankPct ?? "?"}%). 세계 증시·반도체 때문인지, 한반도 위험 때문인지 시점을 대조해야 함`;
+      if (v <= -2) return `${body} → 평소보다 뚜렷이 많이 팔고 있음. 이웃 증시도 빠졌는지 함께 봐야 함`;
+      return `${body} → 외국인 돈이 평소와 다르게 빠져나가는 모습은 아님`;
+    }
+    case "elite.kr_bizjets": {
+      const m = r!.meta as any;
+      if (isAbnormal(row)) return `어제 한국 기업 제트기 출국 ${m?.departures}대 — 평소(${m?.usual}대)의 ${(v / 100).toFixed(1)}배. 출장이 몰린 것일 수 있지만, 정보를 먼저 들은 쪽이 떠나는 모양일 수도 있음 (오늘 지금까지 ${m?.todaySoFar ?? 0}대)`;
+      return `어제 한국 기업 제트기 출국 ${m?.departures ?? "?"}대 (평소 ${m?.usual ?? "?"}대) → 평소 수준 (오늘 지금까지 ${m?.todaySoFar ?? 0}대)`;
     }
     case "market.kr_equity_rel_pct": {
       const m = r!.meta as any;

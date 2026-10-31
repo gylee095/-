@@ -35,6 +35,8 @@ export interface Aircraft {
   squawk?: string;
   emergency?: string;
   military: boolean;
+  /** 상승(+)·하강(-) 속도 ft/min */
+  vertRate?: number;
 }
 
 /**
@@ -80,8 +82,73 @@ export function normalize(a: any): Aircraft {
     emergency: a.emergency && a.emergency !== "none" ? a.emergency : undefined,
     // readsb dbFlags 1비트 = 군용기
     military: ((a.dbFlags ?? 0) & 1) === 1,
+    vertRate: typeof a.baro_rate === "number" ? a.baro_rate : typeof a.geom_rate === "number" ? a.geom_rate : undefined,
   };
 }
+
+// ── 엘리트·큰손: 한국 기업 업무용 제트기 출국 ──
+// 한국 등록(HL) 업무용 제트기는 대부분 대기업 소유다. 누가 탔는지는 알 수 없고 알려고 하지도 않는다 — 하루 출국 대수만 센다.
+// 기체 고유번호는 하루 안의 중복 제거용 해시로만 쓰고 이틀 뒤 지운다.
+export const BIZJET_TYPES = /^(GLF[2-6]|GA[5-8]C|G280|G150|GL5T|GL6T|GL7T|GL8T|GLEX|CL30|CL35|CL60|FA7X|FA8X|FA6X|F900|F2TH|FA50|E35L|E545|E550|E55P|C680|C68A|C700|C750|C56X|LJ45|LJ60|LJ75|H25B|PC24)$/i;
+/** 한국 영역 대략 (출국 상승 중인 기체만 센다) */
+const KOREA_BOX = { minLat: 33, maxLat: 38.7, minLon: 124.5, maxLon: 131 };
+
+export type JetPhase = "d" | "a" | "c";
+
+/** 한국 등록 업무용 제트기 중 공중에 있는 것 — 상승 중이고 낮으면 출국(d), 하강 중이고 낮으면 도착(a), 나머지는 순항(c) */
+export function koreanBizjets(ac: Aircraft[]): { hash: string; phase: JetPhase }[] {
+  return ac
+    .filter((a) => !a.onGround && /^HL/i.test(a.registration ?? "") && BIZJET_TYPES.test(a.type ?? ""))
+    .map((a) => {
+      const low = (a.altitudeFt ?? 99999) < 25000;
+      const inKorea = a.lat !== undefined && a.lon !== undefined && a.lat >= KOREA_BOX.minLat && a.lat <= KOREA_BOX.maxLat && a.lon >= KOREA_BOX.minLon && a.lon <= KOREA_BOX.maxLon;
+      const phase: JetPhase = low && inKorea && (a.vertRate ?? 0) > 300 ? "d" : low && inKorea && (a.vertRate ?? 0) < -300 ? "a" : "c";
+      return { hash: hashId(a.icao24), phase };
+    });
+}
+
+function hashId(s: string): string {
+  let h = 0x811c9dc5;
+  for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 0x01000193) >>> 0;
+  return h.toString(36);
+}
+
+export interface JetDay {
+  /** 해시 → 그날 처음 본 상태 */
+  first: Record<string, JetPhase>;
+}
+
+export interface JetHistory {
+  /** 한국 날짜 → 그날 출국(d) 대수 */
+  dep: Record<string, number>;
+}
+
+const kstDate = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
+
+/** 이번 표본을 오늘 기록에 더한다 (같은 기체는 그날 처음 본 상태로만 센다) */
+export function updateJetDay(day: JetDay, seen: { hash: string; phase: JetPhase }[]): JetDay {
+  const first = { ...day.first };
+  for (const s of seen) if (!(s.hash in first)) first[s.hash] = s.phase;
+  return { first };
+}
+
+export function jetMetric(hist: JetHistory, now: number): Metric | undefined {
+  const today = kstDate(now);
+  const yesterday = kstDate(now - 86400_000);
+  const past = Object.entries(hist.dep).filter(([d]) => d < yesterday).sort(([a], [b]) => a.localeCompare(b)).slice(-28);
+  if (past.length < 7 || hist.dep[yesterday] === undefined) return undefined; // 1주일은 쌓여야 평소를 안다
+  const sorted = past.map(([, n]) => n).sort((a, b) => a - b);
+  const usual = Math.max(1, sorted[Math.floor(sorted.length / 2)]);
+  const dep = hist.dep[yesterday];
+  let ratio = Math.round((dep / usual) * 100);
+  if (dep < 4) ratio = Math.min(ratio, 199); // 몇 대 차이로는 판단하지 않는다
+  return {
+    indicator: "elite.kr_bizjets",
+    value: ratio,
+    meta: { date: yesterday, departures: dep, usual, todaySoFar: hist.dep[today] ?? 0, days: past.length, note: "한국 등록 업무용 제트기 하루 출국 대수 ÷ 지난 4주 중앙값 (개인 식별 없음)" },
+  };
+}
+
 
 export function describeIsr(ac: Aircraft[]) {
   return ac
@@ -147,11 +214,29 @@ function countBy(xs: string[]): Record<string, number> {
   return o;
 }
 
-export async function collectAdsb(now = Date.now()): Promise<CollectResult> {
+/** 오늘 본 한국 기업 제트기를 KV 에 쌓고, 하루 출국 대수 이력으로 지표를 만든다 */
+export async function trackBizjets(kv: { getKv(k: string): Promise<string | undefined>; setKv(k: string, v: string): Promise<void> }, ac: Aircraft[], now: number): Promise<Metric | undefined> {
+  const today = kstDate(now);
+  const saved = JSON.parse((await kv.getKv("bizjet:today")) ?? "null") as { date: string; first: Record<string, JetPhase> } | null;
+  const day = updateJetDay({ first: saved && saved.date === today ? saved.first : {} }, koreanBizjets(ac));
+  await kv.setKv("bizjet:today", JSON.stringify({ date: today, first: day.first }));
+  const hist = JSON.parse((await kv.getKv("bizjet:hist")) ?? '{"dep":{}}') as JetHistory;
+  hist.dep[today] = Object.values(day.first).filter((p) => p === "d").length;
+  for (const d of Object.keys(hist.dep)) if (d < kstDate(now - 60 * 86400_000)) delete hist.dep[d];
+  await kv.setKv("bizjet:hist", JSON.stringify(hist));
+  return jetMetric(hist, now);
+}
+
+export async function collectAdsb(now = Date.now(), kv?: { getKv(k: string): Promise<string | undefined>; setKv(k: string, v: string): Promise<void> }): Promise<CollectResult> {
   const [korea, mil] = await Promise.allSettled([fetchAircraft(AIR_REGIONS.korea), fetchMilitaryNeAsia()]);
   if (korea.status === "rejected") throw korea.reason;
   const k = korea.value;
   const m = mil.status === "fulfilled" ? mil.value.aircraft : [];
+  const metrics = airMetrics(k.aircraft, m);
+  if (kv) {
+    const jet = await trackBizjets(kv, k.aircraft, now).catch(() => undefined);
+    if (jet) metrics.push(jet);
+  }
   return {
     source: "adsb_lol",
     ok: true,
@@ -159,6 +244,6 @@ export async function collectAdsb(now = Date.now()): Promise<CollectResult> {
     fetchedAt: now,
     rawCount: k.aircraft.length + m.length,
     signals: emergencySignals([...k.aircraft, ...m], k.now, now),
-    metrics: airMetrics(k.aircraft, m),
+    metrics,
   };
 }

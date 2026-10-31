@@ -19,6 +19,7 @@ import { collectAdvisories } from "./advisories.js";
 import { collectPolymarket } from "./polymarket.js";
 import { collectWiki } from "./wiki.js";
 import { collectNaver } from "./naver.js";
+import { collectEcos } from "./ecos.js";
 
 /** 수집기가 이전 상태를 기억해야 할 때 쓰는 최소 저장소 */
 export interface CollectorKv {
@@ -33,7 +34,7 @@ export const COLLECTORS: Record<SourceId, Collector> = {
   usgs: (_e, now) => collectUsgs(now),
   emsc: (_e, now) => collectEmsc(now),
   nga_msi: (_e, now) => collectNga(now),
-  adsb_lol: (_e, now) => collectAdsb(now),
+  adsb_lol: (_e, now, kv) => collectAdsb(now, kv),
   opensky: (env, now) => collectOpenSky({ id: env.OPENSKY_CLIENT_ID, secret: env.OPENSKY_CLIENT_SECRET }, now),
   gdelt: (_e, now) => collectGdelt(now),
   rss_breaking: (_e, now) => collectRss(BREAKING_FEEDS, now, "rss_breaking"),
@@ -56,6 +57,7 @@ export const COLLECTORS: Record<SourceId, Collector> = {
   polymarket: (_e, now) => collectPolymarket(now),
   wiki: (_e, now) => collectWiki(now),
   naver_datalab: (env, now) => collectNaver(env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET, now),
+  ecos: (env, now) => collectEcos(env.ECOS_API_KEY, now),
 };
 
 /** 모든 수집기를 병렬 실행. 한 소스 실패가 전체를 막지 않는다. */

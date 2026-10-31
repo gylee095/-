@@ -54,7 +54,7 @@ const CRON_GROUPS: Record<string, string[]> = {
   "*/5 * * * *": ["safetydata", "usgs", "emsc", "adsb_lol", "rss_news"],
   "3-59/15 * * * *": ["nga_msi", "bluesky", "markets"],
   "11 * * * *": ["travel", "korea_kr_mnd", "ioda", "aisstream", "firms", "advisories", "polymarket"],
-  "41 2 * * *": ["gpsjam", "gfw", "wiki", "naver_datalab"],
+  "41 2 * * *": ["gpsjam", "gfw", "wiki", "naver_datalab", "ecos"],
 };
 
 /** 사이클 실행 결과(또는 오류)를 대시보드가 볼 수 있게 기록 */

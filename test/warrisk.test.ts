@@ -141,3 +141,24 @@ describe("전쟁 위험 모델", () => {
     expect(w.blindSpots.join(" ")).toMatch(/사람들의 불안: .*네이버/);
   });
 });
+
+describe("전쟁 위험 모델: 엘리트·큰손", () => {
+  it("외국인 대량 순매도만 → 2단계, '정보를 가진 쪽이 먼저' 주의", () => {
+    const w = run(board({ "elite.foreign_net_kospi": { value: -3.4, state: "anomalous", meta: { net5dEok: -82000 } } }));
+    expect(w.domains.find((d) => d.id === "elite")!.level).toBe(2);
+    expect(w.phase).toBe(2);
+    expect(w.firstMover.kind).toBe("caveat");
+    expect(w.firstMover.text).toMatch(/엘리트·큰손이 움직였다\(외국인 5일 순매도 8.2조 원/);
+    expect(w.firstMover.text).toMatch(/정보를 가진 쪽이 먼저 움직였을 수 있다/);
+  });
+  it("외국인 대량 순매도 + 기업 제트기 출국 급증 + 북한 도발 → 3단계(위기), 위험 쪽", () => {
+    const w = run(board({
+      "elite.foreign_net_kospi": { value: -3.4, state: "anomalous", meta: { net5dEok: -82000 } },
+      "elite.kr_bizjets": { value: 420, state: "anomalous", meta: { departures: 13, usual: 3 } },
+    }), [brief(20, 3, "북한, 탄도미사일 발사 → 동해", "탄도미사일 발사")]);
+    expect(w.phase).toBe(3);
+    expect(w.phaseReasons.join(" ")).toMatch(/엘리트·큰손이 크게 움직이는데 북한 쪽 움직임이 겹쳤다/);
+    expect(w.firstMover.kind).toBe("warning");
+    expect(w.firstMover.text).toMatch(/한국 기업 제트기 출국 평소의 4.2배/);
+  });
+});

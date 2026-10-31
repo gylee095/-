@@ -23,7 +23,8 @@ export type SourceId =
   | "advisories"
   | "polymarket"
   | "wiki"
-  | "naver_datalab";
+  | "naver_datalab"
+  | "ecos";
 
 export interface SourceMeta {
   id: SourceId;
@@ -330,6 +331,19 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     terms: "네이버 오픈API 이용약관",
     hosts: ["naverapihub.apigw.ntruss.com", "openapi.naver.com"],
     notes: "한국 사람들의 불안: '전쟁', '대피소', '생존배낭' 검색량을 평소와 비교.",
+  },
+  ecos: {
+    id: "ecos",
+    name: "한국은행 경제통계 — 외국인 코스피·코스닥 순매수",
+    kind: "official",
+    access: "무료 인증키 (ecos.bok.or.kr/api)",
+    cost: "무료",
+    refresh: "하루 1회 (전 거래일까지)",
+    latency: "약 1일",
+    realtime: "delayed",
+    terms: "한국은행 Open API 이용약관 (출처 표시)",
+    hosts: ["ecos.bok.or.kr"],
+    notes: "엘리트·큰손의 돈: 글로벌 기관 자금이 평소보다 많이 빠져나가는지. 2003년부터 일별 자료가 있어 과거 위기와 비교할 수 있다.",
   },
 };
 

@@ -186,8 +186,8 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
       const m = r!.meta as any;
       const jo = (eok?: number) => (eok === undefined ? "?" : `${eok >= 0 ? "+" : "−"}${(Math.abs(eok) / 10000).toFixed(1)}조`);
       const body = `외국인 코스피 순매수 최근 5거래일 ${jo(m?.net5dEok)} (하루 전 ${jo(m?.net1dEok)}, 평소 5일 ${jo(m?.usual5dEok)})`;
-      if (v <= -3) return `${body} → 지난 반년 중 손꼽히게 큰 매도(하위 ${m?.rankPct ?? "?"}%). 세계 증시·반도체 때문인지, 한반도 위험 때문인지 시점을 대조해야 함`;
-      if (v <= -2) return `${body} → 평소보다 뚜렷이 많이 팔고 있음. 이웃 증시도 빠졌는지 함께 봐야 함`;
+      if (v <= -3) return `${body} → 지난 반년 중 손꼽히게 큰 매도(하위 ${m?.rankPct ?? "?"}%). 과거 23년간 이런 매도는 대부분 세계 증시·반도체 때문이었고 북한 사건을 미리 알려 주지는 못했음(우연 수준) — 북한 사건 뒤라면 시장의 반응으로 읽음`;
+      if (v <= -2) return `${body} → 평소보다 뚜렷이 많이 팔고 있음. 다만 이 정도 매도는 해마다 두세 번 있고 북한 사건의 예고였던 적은 우연 수준`;
       return `${body} → 외국인 돈이 평소와 다르게 빠져나가는 모습은 아님`;
     }
     case "elite.kr_bizjets": {

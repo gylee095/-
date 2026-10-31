@@ -1,0 +1,1475 @@
+{
+"_note": "한국은행 ECOS 802Y001 외국인 순매수(코스피, 억원) 실측 2016-12-01~2017-07-28 — 화성-14 2차 시험(7/28 밤 11시 41분) 직전 주의 대량 매도. 백테스트에서 '사건 직전 대량 매도' 2건 중 하나.",
+"StatisticSearch": {
+"list_total_count": 163,
+"row": [
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161201",
+"DATA_VALUE": "309"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161202",
+"DATA_VALUE": "-9"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161205",
+"DATA_VALUE": "-45"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161206",
+"DATA_VALUE": "1175"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161207",
+"DATA_VALUE": "783"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161208",
+"DATA_VALUE": "284"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161209",
+"DATA_VALUE": "571"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161212",
+"DATA_VALUE": "848"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161213",
+"DATA_VALUE": "1120"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161214",
+"DATA_VALUE": "1763"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161215",
+"DATA_VALUE": "-33"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161216",
+"DATA_VALUE": "677"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161219",
+"DATA_VALUE": "50"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161220",
+"DATA_VALUE": "606"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161221",
+"DATA_VALUE": "782"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161222",
+"DATA_VALUE": "-500"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161223",
+"DATA_VALUE": "-1005"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161226",
+"DATA_VALUE": "-312"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161227",
+"DATA_VALUE": "934"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161228",
+"DATA_VALUE": "1268"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20161229",
+"DATA_VALUE": "1286"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170102",
+"DATA_VALUE": "274"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170103",
+"DATA_VALUE": "1711"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170104",
+"DATA_VALUE": "2142"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170105",
+"DATA_VALUE": "841"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170106",
+"DATA_VALUE": "1713"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170109",
+"DATA_VALUE": "2544"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170110",
+"DATA_VALUE": "996"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170111",
+"DATA_VALUE": "4855"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170112",
+"DATA_VALUE": "314"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170113",
+"DATA_VALUE": "-1084"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170116",
+"DATA_VALUE": "-2394"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170117",
+"DATA_VALUE": "-84"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170118",
+"DATA_VALUE": "-193"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170119",
+"DATA_VALUE": "1460"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170120",
+"DATA_VALUE": "-465"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170123",
+"DATA_VALUE": "1167"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170124",
+"DATA_VALUE": "-131"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170125",
+"DATA_VALUE": "2091"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170126",
+"DATA_VALUE": "3649"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170131",
+"DATA_VALUE": "-3025"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170201",
+"DATA_VALUE": "-119"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170202",
+"DATA_VALUE": "705"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170203",
+"DATA_VALUE": "-1097"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170206",
+"DATA_VALUE": "29"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170207",
+"DATA_VALUE": "-1600"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170208",
+"DATA_VALUE": "-2426"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170209",
+"DATA_VALUE": "545"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170210",
+"DATA_VALUE": "-1053"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170213",
+"DATA_VALUE": "58"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170214",
+"DATA_VALUE": "-1276"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170215",
+"DATA_VALUE": "-287"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170216",
+"DATA_VALUE": "1656"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170217",
+"DATA_VALUE": "2903"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170220",
+"DATA_VALUE": "533"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170221",
+"DATA_VALUE": "1248"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170222",
+"DATA_VALUE": "4529"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170223",
+"DATA_VALUE": "356"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170224",
+"DATA_VALUE": "-49"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170227",
+"DATA_VALUE": "-2257"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170228",
+"DATA_VALUE": "679"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170302",
+"DATA_VALUE": "6820"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170303",
+"DATA_VALUE": "-319"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170306",
+"DATA_VALUE": "2295"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170307",
+"DATA_VALUE": "926"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170308",
+"DATA_VALUE": "1542"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170309",
+"DATA_VALUE": "4448"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170310",
+"DATA_VALUE": "1601"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170313",
+"DATA_VALUE": "4546"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170314",
+"DATA_VALUE": "4057"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170315",
+"DATA_VALUE": "1289"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170316",
+"DATA_VALUE": "2798"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170317",
+"DATA_VALUE": "2512"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170320",
+"DATA_VALUE": "-848"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170321",
+"DATA_VALUE": "3627"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170322",
+"DATA_VALUE": "-962"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170323",
+"DATA_VALUE": "526"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170324",
+"DATA_VALUE": "-891"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170327",
+"DATA_VALUE": "364"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170328",
+"DATA_VALUE": "207"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170329",
+"DATA_VALUE": "-618"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170330",
+"DATA_VALUE": "894"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170331",
+"DATA_VALUE": "257"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170403",
+"DATA_VALUE": "-220"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170404",
+"DATA_VALUE": "-1016"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170405",
+"DATA_VALUE": "-76"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170406",
+"DATA_VALUE": "-905"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170407",
+"DATA_VALUE": "-779"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170410",
+"DATA_VALUE": "-541"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170411",
+"DATA_VALUE": "-1266"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170412",
+"DATA_VALUE": "790"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170413",
+"DATA_VALUE": "-11"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170414",
+"DATA_VALUE": "-735"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170417",
+"DATA_VALUE": "-1117"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170418",
+"DATA_VALUE": "114"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170419",
+"DATA_VALUE": "2251"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170420",
+"DATA_VALUE": "763"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170421",
+"DATA_VALUE": "3322"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170424",
+"DATA_VALUE": "3381"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170425",
+"DATA_VALUE": "6516"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170426",
+"DATA_VALUE": "2984"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170427",
+"DATA_VALUE": "133"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170428",
+"DATA_VALUE": "-151"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170502",
+"DATA_VALUE": "1355"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170504",
+"DATA_VALUE": "3641"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170508",
+"DATA_VALUE": "5440"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170510",
+"DATA_VALUE": "1107"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170511",
+"DATA_VALUE": "1046"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170512",
+"DATA_VALUE": "-3066"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170515",
+"DATA_VALUE": "-959"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170516",
+"DATA_VALUE": "2341"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170517",
+"DATA_VALUE": "67"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170518",
+"DATA_VALUE": "269"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170519",
+"DATA_VALUE": "411"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170522",
+"DATA_VALUE": "2887"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170523",
+"DATA_VALUE": "-554"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170524",
+"DATA_VALUE": "773"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170525",
+"DATA_VALUE": "1170"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170526",
+"DATA_VALUE": "1231"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170529",
+"DATA_VALUE": "222"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170530",
+"DATA_VALUE": "-417"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170531",
+"DATA_VALUE": "-3619"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170601",
+"DATA_VALUE": "-136"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170602",
+"DATA_VALUE": "4480"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170605",
+"DATA_VALUE": "2740"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170607",
+"DATA_VALUE": "1146"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170608",
+"DATA_VALUE": "2818"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170609",
+"DATA_VALUE": "1547"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170612",
+"DATA_VALUE": "-1462"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170613",
+"DATA_VALUE": "-787"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170614",
+"DATA_VALUE": "222"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170615",
+"DATA_VALUE": "110"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170616",
+"DATA_VALUE": "-1633"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170619",
+"DATA_VALUE": "1272"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170620",
+"DATA_VALUE": "4872"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170621",
+"DATA_VALUE": "-1847"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170622",
+"DATA_VALUE": "1827"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170623",
+"DATA_VALUE": "1666"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170626",
+"DATA_VALUE": "431"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170627",
+"DATA_VALUE": "542"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170628",
+"DATA_VALUE": "-1811"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170629",
+"DATA_VALUE": "1000"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170630",
+"DATA_VALUE": "-410"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170703",
+"DATA_VALUE": "1054"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170704",
+"DATA_VALUE": "-1929"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170705",
+"DATA_VALUE": "-65"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170706",
+"DATA_VALUE": "2173"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170707",
+"DATA_VALUE": "2757"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170710",
+"DATA_VALUE": "-571"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170711",
+"DATA_VALUE": "1007"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170712",
+"DATA_VALUE": "3816"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170713",
+"DATA_VALUE": "3408"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170714",
+"DATA_VALUE": "2003"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170717",
+"DATA_VALUE": "-388"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170718",
+"DATA_VALUE": "-2161"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170719",
+"DATA_VALUE": "-1003"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170720",
+"DATA_VALUE": "606"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170721",
+"DATA_VALUE": "2901"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170724",
+"DATA_VALUE": "-1677"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170725",
+"DATA_VALUE": "-3431"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170726",
+"DATA_VALUE": "-3517"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170727",
+"DATA_VALUE": "-2082"
+},
+{
+"STAT_CODE": "802Y001",
+"STAT_NAME": "1.5.1.1. 주식시장(일)",
+"ITEM_CODE1": "0030000",
+"ITEM_NAME1": "외국인 순매수(유가증권시장) 1)",
+"UNIT_NAME": "억원",
+"TIME": "20170728",
+"DATA_VALUE": "-5600"
+}
+]
+}
+}

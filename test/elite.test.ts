@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { flowMetrics, parseEcos, summarizeFlow } from "../src/core/collectors/ecos.js";
 import { jetMetric, koreanBizjets, updateJetDay, type Aircraft } from "../src/core/collectors/adsb.js";
-import { evaluate, INDICATOR_BY_ID } from "../src/core/indicators.js";
+import { evaluate, INDICATOR_BY_ID, INDICATORS, GROUP_LABEL, STATE_LABEL } from "../src/core/indicators.js";
+import { assessWarRisk } from "../src/core/warrisk.js";
+import type { BoardRow } from "../src/core/state.js";
 
 const NOW = Date.UTC(2026, 9, 31, 3);
 const fx = JSON.parse(readFileSync(new URL("./fixtures/ecos_foreign_net_kospi.json", import.meta.url), "utf8"));
@@ -105,5 +107,34 @@ describe("ECOS 인증키는 오류 문구에 남지 않는다", () => {
     } finally {
       globalThis.fetch = real;
     }
+  });
+});
+
+describe("백테스트 실측 사례 (2003~2026 한국은행 자료, docs/INDICATORS.md 0.1)", () => {
+  const load = (f: string) => parseEcos(JSON.parse(readFileSync(new URL(`./fixtures/${f}.json`, import.meta.url), "utf8")));
+  const boardWith = (id: string, value: number, at: number): BoardRow[] =>
+    INDICATORS.map((d) => {
+      const state = d.id === id ? evaluate(INDICATOR_BY_ID[id], value, at, undefined).state : "normal";
+      const reading = { indicator: d.id, at, n: 20, value: d.id === id ? value : 0, state, meta: {} };
+      return { id: d.id, label: d.label, group: d.group, groupLabel: GROUP_LABEL[d.group], unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats, reading, stateLabel: STATE_LABEL[state], history: [] };
+    });
+  it("운영 함수가 백테스트 표와 같은 값을 낸다: 2017-07-28(화성-14 2차 시험 직전) 5일 −1조6,307억, z −3.74", () => {
+    const s = summarizeFlow(load("ecos_foreign_net_kospi_2017jul"))!;
+    expect(s.date).toBe("20170728");
+    expect(s.net5d).toBe(-16307);
+    expect(s.z).toBe(-3.74);
+  });
+  it("2020-03-19 코로나 폭락기 매도(z −3.18, '이상') + 같은 달 북한 단거리 미사일 → 엘리트 '주의', 2단계 — 위기로 오판하지 않는다", () => {
+    const s = summarizeFlow(load("ecos_foreign_net_kospi_2020q1"))!;
+    expect(s.z).toBeLessThan(-3);
+    const at = Date.UTC(2020, 2, 19, 7);
+    const w = assessWarRisk({
+      now: at,
+      board: boardWith("elite.foreign_net_kospi", s.z, at),
+      briefs: [{ headline: "북한, 단거리 탄도미사일 발사 → 동해", isProvocation: true, danger: { level: 3, label: "경계", reason: "탄도미사일 발사" }, at: at - 3 * 86400_000 }],
+      patterns: [],
+    });
+    expect(w.domains.find((d) => d.id === "elite")!.level).toBe(1);
+    expect(w.phase).toBe(2);
   });
 });

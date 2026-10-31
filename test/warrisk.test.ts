@@ -143,13 +143,29 @@ describe("전쟁 위험 모델", () => {
 });
 
 describe("전쟁 위험 모델: 엘리트·큰손", () => {
-  it("외국인 대량 순매도만 → 2단계, '정보를 가진 쪽이 먼저' 주의", () => {
+  it("외국인 대량 순매도만 → 엘리트 '주의'까지(백테스트: 미리 판 적 없음), 단계는 그대로", () => {
     const w = run(board({ "elite.foreign_net_kospi": { value: -3.4, state: "anomalous", meta: { net5dEok: -82000 } } }));
-    expect(w.domains.find((d) => d.id === "elite")!.level).toBe(2);
-    expect(w.phase).toBe(2);
+    const elite = w.domains.find((d) => d.id === "elite")!;
+    expect(elite.level).toBe(1);
+    expect(elite.drivers[0]).toMatch(/북한 사건의 예고가 못 돼 1점만/);
+    expect(w.phase).toBe(1);
     expect(w.firstMover.kind).toBe("caveat");
     expect(w.firstMover.text).toMatch(/엘리트·큰손이 움직였다\(외국인 5일 순매도 8.2조 원/);
-    expect(w.firstMover.text).toMatch(/정보를 가진 쪽이 먼저 움직였을 수 있다/);
+    expect(w.firstMover.text).toMatch(/북한 사건을 미리 알려 주지 못했다/);
+    expect(w.firstMover.text).not.toMatch(/정보를 가진 쪽이 먼저 움직였을 수 있다/);
+  });
+  it("외국인 대량 순매도 + 북한 미사일 → 2단계(긴장)까지. 매도 하나로 위기가 되지 않는다", () => {
+    const w = run(board({ "elite.foreign_net_kospi": { value: -3.2, state: "anomalous", meta: { net5dEok: -39779 } } }), [brief(30, 3, "북한, 단거리 탄도미사일 2발 발사 → 동해", "탄도미사일 발사")]);
+    expect(w.domains.find((d) => d.id === "elite")!.level).toBe(1);
+    expect(w.phase).toBe(2);
+    expect(w.firstMover.kind).not.toBe("warning");
+  });
+  it("기업 제트기 출국 급증 하나만으로도 '주의'까지", () => {
+    const w = run(board({ "elite.kr_bizjets": { value: 420, state: "anomalous", meta: { departures: 13, usual: 3 } } }), [brief(20, 3, "북한, 탄도미사일 발사 → 동해", "탄도미사일 발사")]);
+    const elite = w.domains.find((d) => d.id === "elite")!;
+    expect(elite.level).toBe(1);
+    expect(elite.drivers.join(" ")).toMatch(/혼자서는 '주의'까지/);
+    expect(w.phase).toBe(2);
   });
   it("외국인 대량 순매도 + 기업 제트기 출국 급증 + 북한 도발 → 3단계(위기), 위험 쪽", () => {
     const w = run(board({

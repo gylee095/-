@@ -102,14 +102,14 @@ describe("전쟁 위험 모델", () => {
   it("실측 10/31 전체: 사람들의 불안 급증 + 예측시장 상승 + 미사일, 정부는 조용 → 2단계, '대중과 일반 투자자가 반응' 으로 읽는다", () => {
     const w = run(board({
       "psych.naver_war_search": { value: 8862, state: "anomalous", meta: { worstGroup: "생존 준비" } },
-      "market.pm_war_prob": { value: 154, state: "elevated", meta: { pricePct: 4.35, usualPct: 2.83 } },
+      "market.pm_war_prob": { value: 154, state: "elevated", meta: { pricePct: 4.35, recentPct: 4.35, usualPct: 2.83 } },
       "market.kr_equity_rel_pct": { value: -2.23, state: "elevated", meta: { kospiPct: -4.69, peersPct: -2.46 } },
       "market.defense_rel_pct": { value: -0.07, state: "normal" },
     }), [brief(40, 3, "북한, 탄도미사일 약 10 발 발사 → 동해", "탄도미사일 발사")]);
     expect(w.phase).toBe(2);
     expect(w.firstMover.kind).toBe("caveat");
     expect(w.firstMover.text).toMatch(/사람들의 불안이 크게 커졌다\(네이버 '생존 준비' 검색 평소의 89배\)/);
-    expect(w.firstMover.text).toMatch(/예측시장 전쟁 가격이 한 달 평소의 1.5배로 올랐다\(2.83% → 4.35%\)/);
+    expect(w.firstMover.text).toMatch(/예측시장 전쟁 가격이 한 달 평소의 1.5배로 올랐다\(2.83% → 최근 4.35%\)/);
     expect(w.firstMover.text).toMatch(/비공개 정보를 가진 정부들은 평소대로다 — 대중과 일반 투자자가 같은 사건·담화에 반응/);
     expect(w.domains.find((d) => d.id === "public")!.drivers[0]).toMatch(/평소의 89배 \(이상\)/);
   });

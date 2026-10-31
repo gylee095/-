@@ -91,6 +91,8 @@ export function koQuestion(q: string): string {
 export interface PmHistory {
   /** 지난 30일(마지막 하루 제외) 일별 가격의 중앙값, % */
   usualPct: number;
+  /** 최근 3개 일별 가격의 가운데 값 — 큰 거래 한 건에 지표가 뒤집히지 않게 (2026-10-31: 1시간 만에 5.1% → 1.4%) */
+  recentPct: number;
   /** 최근 30일 일별 가격 (날짜 MM-DD, %) */
   series: { date: string; pct: number }[];
 }
@@ -102,8 +104,10 @@ export function parsePmHistory(json: any, now: number): PmHistory | undefined {
   if (win.length < 7) return undefined;
   const sorted = win.map((x) => x.p).sort((a, b) => a - b);
   const mid = sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
+  const last3 = pts.slice(-3).map((x) => x.p).sort((a, b) => a - b);
   return {
     usualPct: +(mid * 100).toFixed(2),
+    recentPct: +(last3[Math.floor((last3.length - 1) / 2)] * 100).toFixed(2),
     series: pts.filter((x) => x.t * 1000 >= now - 31 * 86400_000).map((x) => ({ date: new Date(x.t * 1000 + 9 * 3600_000).toISOString().slice(5, 10), pct: +(x.p * 100).toFixed(2) })),
   };
 }
@@ -112,14 +116,15 @@ export function pmMetrics(s: PmSummary, hist?: PmHistory): Metric[] {
   if (!s.war) return [];
   const pct = (x: number) => +(x * 100).toFixed(2);
   const price = pct(s.war.yes);
-  // 이력이 없으면 배율을 낼 수 없다 → 평소와 같다고(100) 두고 가격만 기록
-  const ratio = hist && hist.usualPct > 0 ? Math.round((price / hist.usualPct) * 100) : 100;
+  // 이력이 없으면 배율을 낼 수 없다 → 평소와 같다고(100) 두고 가격만 기록. 배율은 최근 3일 가운데 값 기준
+  const ratio = hist && hist.usualPct > 0 ? Math.round((hist.recentPct / hist.usualPct) * 100) : 100;
   return [
     {
       indicator: "market.pm_war_prob",
       value: ratio,
       meta: {
         pricePct: price,
+        recentPct: hist?.recentPct,
         usualPct: hist?.usualPct,
         series: hist?.series,
         noHistory: hist ? undefined : true,

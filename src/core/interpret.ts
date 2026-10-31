@@ -186,7 +186,7 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
       const left = m?.daysLeft !== undefined ? ` (만기까지 ${m.daysLeft}일)` : "";
       const price = m?.pricePct ?? v;
       if (m?.noHistory) return `예측시장 '${m?.question ?? "북한의 한국 침공"}' 가격 ${price}%${left} → 가격 이력을 못 받아 평소와 비교하지 못함`;
-      const usual = m?.usualPct !== undefined ? `, 지난 한 달 평소 ${m.usualPct}%` : "";
+      const usual = m?.usualPct !== undefined ? `, 최근 3일 가운데 값 ${m.recentPct ?? price}%, 지난 한 달 평소 ${m.usualPct}%` : "";
       if (isAbnormal(row)) return `예측시장 '${m?.question ?? "북한의 한국 침공"}' 가격 ${price}%${left}${usual} → 평소의 ${(v / 100).toFixed(1)}배로 오름. 만기가 가까울수록 원래 내려가야 할 가격이라 오름은 더 무겁다. 다만 거래가 얇으면 소수의 매수로도 튀고, 수 % 대 가격은 실제보다 높게 매겨지는 경향`;
       return `예측시장 '${m?.question ?? "북한의 한국 침공"}' 가격 ${price}%${left}${usual} → 평소 수준 (수 % 대 가격은 실제보다 높게 매겨지는 경향이라 변화만 본다)`;
     }

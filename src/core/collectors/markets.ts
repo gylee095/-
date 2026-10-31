@@ -43,17 +43,30 @@ export interface DailyMove {
   at?: number;
 }
 
-/** v7 spark 응답 → 종목별 마지막 두 종가로 일간 변동률 */
+/**
+ * v7 spark 응답 → 종목별 일간 변동률 (마지막 시세 vs 그 전 거래일 종가).
+ * 일봉 배열에 당일 봉이 늦게 들어오는 경우가 있어 '뒤에서 두 번째 종가'를 쓰면 이틀 치 변동이 된다
+ * (2026-10-31 실측: 같은 금요일 코스피가 −4.69% / −3.48% 로 엇갈림). 거래소 현지 날짜로 '마지막 시세 날짜보다 앞선 마지막 봉'을 찾는다.
+ */
 export function parseSpark(json: any): DailyMove[] {
   const out: DailyMove[] = [];
   for (const r of json?.spark?.result ?? []) {
     const resp = r?.response?.[0];
-    const closes: number[] = (resp?.indicators?.quote?.[0]?.close ?? []).filter((x: unknown) => typeof x === "number");
     const meta = resp?.meta ?? {};
-    const last = typeof meta.regularMarketPrice === "number" ? meta.regularMarketPrice : closes[closes.length - 1];
-    const prev = typeof meta.chartPreviousClose === "number" && closes.length < 2 ? meta.chartPreviousClose : closes.length >= 2 ? closes[closes.length - 2] : meta.previousClose;
+    const ts: number[] = resp?.timestamp ?? [];
+    const closes: (number | null)[] = resp?.indicators?.quote?.[0]?.close ?? [];
+    const valid = closes.map((c, i) => ({ c, t: ts[i] })).filter((x): x is { c: number; t: number } => typeof x.c === "number");
+    const last = typeof meta.regularMarketPrice === "number" ? meta.regularMarketPrice : valid[valid.length - 1]?.c;
+    let prev: number | undefined;
+    const lastT: number | undefined = meta.regularMarketTime ?? valid[valid.length - 1]?.t;
+    if (lastT !== undefined && valid.length && valid.every((x) => typeof x.t === "number")) {
+      const off = Number(meta.gmtoffset ?? 0);
+      const day = (t: number) => Math.floor((t + off) / 86400);
+      prev = [...valid].reverse().find((x) => day(x.t) < day(lastT))?.c;
+    } else if (valid.length >= 2) prev = valid[valid.length - 2].c; // 시각 정보가 없을 때만
+    if (prev === undefined) prev = meta.chartPreviousClose ?? meta.previousClose;
     if (typeof last !== "number" || typeof prev !== "number" || !prev) continue;
-    out.push({ symbol: r.symbol, changePct: ((last - prev) / prev) * 100, at: meta.regularMarketTime ? meta.regularMarketTime * 1000 : undefined });
+    out.push({ symbol: r.symbol, changePct: ((last - prev) / prev) * 100, at: lastT !== undefined ? lastT * 1000 : undefined });
   }
   return out;
 }

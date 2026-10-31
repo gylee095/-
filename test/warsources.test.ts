@@ -62,14 +62,18 @@ describe("예측시장 (실측 2026-10-31)", () => {
     expect(meta.diplomacy.length).toBeGreaterThan(0);
     expect(meta.url).toMatch(/^https:\/\/polymarket\.com\/event\//);
   });
-  it("가격 이력: 10월 한 달 평소 2.83% → 지금 4.35% = 평소의 1.54배 → '상승'", () => {
+  it("가격 이력: 10월 한 달 평소 2.83% → 최근 3일 가운데 값 4.05% = 평소의 1.43배 → 아직 '정상'(1.5배부터 상승)", () => {
     const s = summarizePm(parsePmSearch(JSON.parse(fx("polymarket_search_20261031.json"))), NOW);
     const hist = parsePmHistory(JSON.parse(fx("polymarket_history_665459_20261031.json")), NOW)!;
     expect(hist.usualPct).toBeCloseTo(2.83, 2);
     expect(hist.series.at(-1)).toEqual({ date: "10-30", pct: 5.1 });
+    expect(hist.recentPct).toBe(4.05); // 10/28 4.05 · 10/29 3.7 · 10/30 5.1 의 가운데 값
     const [m] = pmMetrics(s, hist);
-    expect(m.value).toBe(154);
-    expect(evaluate(INDICATOR_BY_ID["market.pm_war_prob"], m.value, NOW, undefined).state).toBe("elevated");
+    expect(m.value).toBe(143);
+    expect(evaluate(INDICATOR_BY_ID["market.pm_war_prob"], m.value, NOW, undefined).state).toBe("normal");
+    // 큰 거래 한 건(5.1% → 1.4%)이 와도 가운데 값이라 지표가 뒤집히지 않는다
+    const crash = parsePmHistory({ history: [...JSON.parse(fx("polymarket_history_665459_20261031.json")).history, { t: 1793412000, p: 0.014 }] }, Date.UTC(2026, 9, 31, 3))!;
+    expect(crash.recentPct).toBe(3.7);
   });
   it("전쟁 시장이 없으면 지표를 만들지 않는다", () => {
     expect(pmMetrics(summarizePm([{ id: "1", question: "Will Bitcoin kimchi premium hit 8%?", yes: 0.1, volume: 9999 }], NOW))).toEqual([]);
@@ -122,6 +126,19 @@ describe("네이버 검색 불안 (요청 형식 — 공식 문서 기준)", () 
     expect(m.value).toBe(500);
     expect((m.meta as any).worstGroup).toBe("대피");
     expect(evaluate(INDICATOR_BY_ID["psych.naver_war_search"], m.value, NOW, undefined).state).toBe("anomalous");
+  });
+});
+
+describe("증시: 전 거래일 종가 고르기 (일봉이 늦게 들어와도 이틀 치 변동이 되지 않게)", () => {
+  const day = (d: number, h = 6) => Date.UTC(2026, 9, d, h) / 1000; // 15:00 KST 무렵
+  const resp = (ts: number[], closes: number[], price: number, at: number) => ({ symbol: "^KS11", response: [{ meta: { regularMarketPrice: price, regularMarketTime: at, gmtoffset: 32400 }, timestamp: ts, indicators: { quote: [{ close: closes }] } }] });
+  it("당일 봉이 있으면 그 전날 종가와 비교", () => {
+    const [m] = parseSpark({ spark: { result: [resp([day(28), day(29), day(30)], [100, 104, 100.4], 100.4, day(30))] } });
+    expect(m.changePct).toBeCloseTo(-3.46, 1);
+  });
+  it("당일 봉이 아직 없어도 마지막 시세 날짜보다 앞선 마지막 봉(전날)과 비교", () => {
+    const [m] = parseSpark({ spark: { result: [resp([day(28), day(29)], [100, 104], 100.4, day(30))] } });
+    expect(m.changePct).toBeCloseTo(-3.46, 1); // 뒤에서 두 번째(28일)와 비교했다면 +0.4% 로 틀렸을 것
   });
 });
 

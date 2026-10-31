@@ -236,7 +236,7 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
         parts.push(`한국 증시가 이웃 증시보다 더 빠졌지만${m.kospiPct !== undefined ? `(코스피 ${m.kospiPct}%, 일본·대만 ${m.peersPct}%)` : ""} 방산주도 같이 빠졌고 환율·예측시장 전쟁 가격은 그대로다 — 돈이 전쟁 위험을 가격에 넣는 모습은 아니다(세계 증시·업종 요인 쪽)`);
       } else if (pts(by["market.pm_war_prob"]) > 0) {
         const m = (by["market.pm_war_prob"].reading!.meta ?? {}) as any;
-        parts.push(`예측시장 전쟁 가격이 한 달 평소의 ${(by["market.pm_war_prob"].reading!.value / 100).toFixed(1)}배로 올랐다${m.usualPct !== undefined ? `(${m.usualPct}% → ${m.pricePct}%)` : ""}`);
+        parts.push(`예측시장 전쟁 가격이 한 달 평소의 ${(by["market.pm_war_prob"].reading!.value / 100).toFixed(1)}배로 올랐다${m.usualPct !== undefined ? `(${m.usualPct}% → 최근 ${m.recentPct ?? m.pricePct}%)` : ""}`);
       } else parts.push("돈도 움직였다");
     }
     if (L.military >= 1) parts.push("군사 움직임(도발)이 있었다");

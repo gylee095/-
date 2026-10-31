@@ -94,7 +94,7 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
   const id = row.id;
   if (isUnavailable(row)) {
     if (id === "sea.ys_vessels_total") return "측정 불가 — AIS 수신 실패 또는 키 없음";
-    if (id.startsWith("sea.")) return "측정 불가 — 공개 AIS 수신소가 중국 연안·서해에 없어 '중국 어선이 사라졌는가'는 지금 볼 수 없음 (위성 AIS 인 Global Fishing Watch 로만 가능, 3~5일 지연)";
+    if (id === "sea.gfw_cn_change_pct") return "측정 불가 — Global Fishing Watch 토큰이 없거나 응답 실패. '서해 중국 어선이 사라졌는가'를 지금 볼 수 없음";
     if (id.startsWith("thermal.")) return "측정 불가 — 위성 열점(FIRMS) 키가 없어 발사장·시험장의 열 활동은 볼 수 없음";
     if (id.startsWith("social.")) return "측정 불가 — SNS 공개 검색이 서버에서 차단됨. 사이렌·폭발음 목격담은 수집 안 됨";
     return "측정 불가 — 최근 30시간 내 관측 없음(소스 오류 또는 미설정)";
@@ -126,11 +126,15 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
     case "sea.ys_vessels_total":
       if (isAbnormal(row) && p !== undefined && p < 100) return `한반도 해역에서 수신된 선박 ${v}척 — 평소의 ${p}%. 수신기 장애일 가능성이 가장 크고, 그다음이 기상 악화·해역 통제`;
       return `한반도 해역에서 수신된 선박 ${v}척${vs}${learn} → 평소 수준 (수신소가 한국 연안 일부뿐이라 참고용)`;
-    case "sea.ys_china_vessels":
-      if (isAbnormal(row) && p !== undefined && p < 100) return `중국 선박 ${v}척 — 평소의 ${p}%. '중국 어선이 사라졌다'는 위기 때 반복된 관찰${ctx.moratorium ? ". 단 지금은 휴어기(5/1~8/16)라 정상일 수 있음" : ""}`;
-      return `서해 중국 선박 ${v}척${vs}${learn} → 중국 어선 철수 징후 없음`;
-    case "sea.nk_flag_vessels":
-      return v === 0 ? "AIS 를 켠 북한 선박 없음 (평소에도 거의 없음)" : `북한 국적 선박 ${v}척 송출 중 — 드문 일, 위치·종류 확인 가치`;
+    case "sea.gfw_cn_change_pct": {
+      const m = (r!.meta ?? {}) as any;
+      const span = m.recentDates?.length ? `${String(m.recentDates[0]).slice(5)}~${String(m.recentDates[m.recentDates.length - 1]).slice(5)}` : "최근 3일";
+      const nums = m.recentCnHoursPerDay !== undefined ? ` (하루 ${m.recentCnHoursPerDay}선박·시간, 직전 2주 ${m.priorCnHoursPerDay})` : "";
+      const lag = ` · 위성 데이터라 약 ${m.delayDays ?? 5}일 지연`;
+      if (v <= -30) return `${span} 서해 한가운데 중국 선박 활동이 직전 2주보다 ${Math.abs(v).toFixed(0)}% 줄었음${nums}. 중국 어선 철수일 수 있지만, 태풍·강풍 귀항이 더 흔한 이유${ctx.moratorium ? ", 휴어기이기도 함" : ""}${lag}`;
+      if (v >= 30) return `${span} 서해 중국 선박 활동이 직전 2주보다 ${v.toFixed(0)}% 늘었음${nums} → 성어기 증가로 보이며 위기 신호 아님${lag}`;
+      return `${span} 서해 중국 선박 활동이 직전 2주와 비슷함(${v > 0 ? "+" : ""}${v.toFixed(0)}%)${nums} → 중국 어선 철수 징후 없음${lag}`;
+    }
     case "seismic.nk_events_24h":
       return v === 0 ? "북한 지역 지진 없음 → 핵실험 신호 없음 (핵실험은 규모 4~6 얕은 지진으로 10~30분 내 탐지됨)" : `북한 지역 지진 ${v}건 — 깊이·풍계리 거리로 인공 여부 판정 필요`;
     case "navwarn.korea_active":
@@ -326,15 +330,26 @@ export function interpret(input: InterpretInput): Interpretation {
       indicators: ["internet.kp_outage_alerts_24h", "gnss.bad_ratio_north"],
     });
   }
-  // 11) 서해 어선 이탈
-  if (isAbnormal(by["sea.ys_china_vessels"]) && (pctOfBaseline(by["sea.ys_china_vessels"]) ?? 100) < 100) {
+  // 11) 서해 중국 어선 이탈 (위성 AIS, 약 5일 지연)
+  if (isAbnormal(by["sea.gfw_cn_change_pct"])) {
+    const m = (by["sea.gfw_cn_change_pct"].reading!.meta ?? {}) as any;
+    const cnDrop = Math.abs(val("sea.gfw_cn_change_pct") ?? 0);
+    // 한국 선박도 같이 줄었으면 기상 귀항 가능성이 크다
+    const series = (m.series ?? []) as { date: string; CHN: number; KOR: number }[];
+    const krRecent = series.slice(-3).reduce((a, d) => a + d.KOR, 0) / Math.max(1, Math.min(3, series.length));
+    const krPrior = series.slice(-17, -3).reduce((a, d) => a + d.KOR, 0) / Math.max(1, series.slice(-17, -3).length);
+    const krAlsoDown = krPrior > 0 && krRecent < krPrior * 0.7;
     hints.push({
-      kind: moratorium ? "caveat" : "warning",
-      title: `서해 중국 선박이 평소의 ${pctOfBaseline(by["sea.ys_china_vessels"])}%`,
-      reasoning: moratorium ? "휴어기라 중국 어선 감소는 정상이다." : "'중국 어선이 모두 사라졌다'는 현장 보고는 서해 긴장 때 반복됐다. 중국 당국이 어선을 철수시키면 사전 인지의 간접 증거일 수 있다.",
-      counter: "태풍·기상, AIS 꺼짐, 수신 범위 문제일 수 있다.",
-      check: "check_yellow_sea_vessels, check_navigational_warnings(keyword=GUNNERY)",
-      indicators: ["sea.ys_china_vessels"],
+      kind: moratorium || krAlsoDown ? "caveat" : "warning",
+      title: `서해 중국 선박 활동 ${cnDrop.toFixed(0)}% 감소 (위성, ${m.recentDates?.[0]?.slice(5) ?? ""}~)`,
+      reasoning: krAlsoDown
+        ? `중국 선박만이 아니라 한국 선박도 같이 줄었다(${Math.round((1 - krRecent / krPrior) * 100)}%). 양국 어선이 함께 빠지는 모양은 보통 태풍·풍랑 귀항이다.`
+        : moratorium
+          ? "휴어기라 중국 어선 감소는 정상이다."
+          : `한국 선박은 그대로인데 중국 선박만 줄었다. '중국 어선이 사라졌다'는 서해 긴장 때 반복된 관찰이며, 중국 당국의 귀항 지시면 사전 인지의 간접 증거일 수 있다. 다만 약 ${m.delayDays ?? 5}일 전 상황이다.`,
+      counter: "중국 내 조업 규제·연료 가격·명절(국경절) 귀항, AIS 를 일제히 끈 경우도 같은 모양이다.",
+      check: "check_chinese_fishing_fleet 로 일별 추이, search_news('서해 중국 어선 태풍 풍랑')",
+      indicators: ["sea.gfw_cn_change_pct"],
     });
   }
   // 12) 패턴 엔진 결과를 힌트로 편입
@@ -350,7 +365,7 @@ export function interpret(input: InterpretInput): Interpretation {
   }
   // 13) 사각지대
   const blind: string[] = [];
-  if (unavailable.some((u) => u.id === "sea.ys_china_vessels")) blind.push("서해 중국 어선(공개 AIS 수신소 없음) — '중국 어선 철수' 같은 해상 힌트를 못 봄");
+  if (unavailable.some((u) => u.id === "sea.gfw_cn_change_pct")) blind.push("서해 중국 어선(위성 AIS 토큰 없음·실패) — '중국 어선 철수' 같은 해상 힌트를 못 봄");
   if (unavailable.some((u) => u.id.startsWith("thermal."))) blind.push("위성 열점(FIRMS 키 없음) — 발사장 엔진 시험 열을 못 봄");
   if (unavailable.some((u) => u.id.startsWith("social."))) blind.push("SNS 목격담(차단) — 사이렌·폭발음 현장 보고를 못 봄");
   if (blind.length) {

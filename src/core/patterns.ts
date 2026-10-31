@@ -125,8 +125,9 @@ export function detectPatterns(r: R, events: CrisisEvent[], now = Date.now()): P
     const mora = inChineseMoratorium(now);
     const p = base("west_sea_clash", "서해(NLL) 충돌 위험 징후",
       ["중국 휴어기(5/1~8/16)·태풍·기상 악화로 어선이 줄 수 있다", "AIS 를 끈 어선은 보이지 않는다(수신 범위 문제)", "사격훈련 항행경보는 한국군 정례 훈련일 수 있다"],
-      ["check_yellow_sea_vessels 로 국적별 선박 수와 기준선 비교", "check_navigational_warnings(keyword=GUNNERY) 로 사격 구역·당국 확인", "search_news('서해 NLL 연평 백령') 로 현장 보도 확인"]);
-    add(p, r, "sea.ys_china_vessels", now, { any: (x) => (x.state === "anomalous" && isLow(x) ? (mora ? 15 : 40) : x.state === "elevated" && isLow(x) ? (mora ? 8 : 20) : 0) }, mora ? "휴어기라 감점" : undefined);
+      ["check_chinese_fishing_fleet 로 일별 추이(언제부터 줄었는지, 한국 선박도 같이 줄었는지 = 기상) 확인", "check_navigational_warnings(keyword=GUNNERY) 로 사격 구역·당국 확인", "search_news('서해 NLL 연평 백령 태풍 풍랑') 로 현장·기상 보도 확인"]);
+    // 위성 AIS 중국 선박 체류시간 급감 (약 5일 지연 — 진행 중인 철수의 '추세' 신호)
+    add(p, r, "sea.gfw_cn_change_pct", now, { anomalous: mora ? 15 : 40, elevated: mora ? 8 : 20 }, mora ? "휴어기라 감점" : "약 5일 지연 데이터");
     add(p, r, "sea.ys_vessels_total", now, { any: (x) => (x.state === "anomalous" && isLow(x) ? 15 : 0) });
     add(p, r, "navwarn.korea_active", now, { anomalous: 15, elevated: 10 });
     add(p, r, "official.mnd_provocation_24h", now, { any: (x) => (x.value >= 1 ? 20 : 0) });

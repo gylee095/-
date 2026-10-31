@@ -18,7 +18,8 @@ export type SourceId =
   | "bluesky"
   | "gpsjam"
   | "aisstream"
-  | "firms";
+  | "firms"
+  | "gfw";
 
 export interface SourceMeta {
   id: SourceId;
@@ -260,6 +261,19 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     terms: "NASA 공개 데이터, 출처 표시",
     hosts: ["firms.modaps.eosdis.nasa.gov"],
     notes: "북한 영역 열점과 발사장·시험장 12km 이내 열점. 농업 소각·산불이 대부분.",
+  },
+  gfw: {
+    id: "gfw",
+    name: "Global Fishing Watch 위성 AIS (서해 중국 선박)",
+    kind: "sensor",
+    access: "무료 토큰 (비상업, globalfishingwatch.org/our-apis/tokens)",
+    cost: "무료",
+    refresh: "하루 1회",
+    latency: "약 5일 (위성 데이터 처리 지연)",
+    realtime: "delayed",
+    terms: "비상업 이용, 출처 표시 (Global Fishing Watch)",
+    hosts: ["gateway.api.globalfishingwatch.org"],
+    notes: "지상 수신소가 없는 서해 한가운데·NLL 인근도 위성으로 보인다. 중국 선박 체류시간을 직전 2주와 비교해 '중국 어선 이탈'을 추세로 본다.",
   },
 };
 

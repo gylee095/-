@@ -133,7 +133,7 @@ describe("수집기 파서: 실데이터 픽스처", () => {
     ingest(sample, { MetaData: { MMSI: 440999999 }, Message: { ShipStaticData: { UserID: 440999999, Type: 30 } } });
     const m = vesselMetrics(sample);
     expect(m.find((x) => x.indicator === "sea.ys_vessels_total")!.value).toBe(2);
-    expect(m.find((x) => x.indicator === "sea.ys_china_vessels")!.value).toBe(1);
+    expect(m.find((x) => x.indicator === "sea.ys_china_vessels")!.value).toBe(1); // 표본 도우미는 국적별 값을 그대로 낸다(수집기는 총수만 사용)
   });
   it("IODA·Bluesky 응답 파싱", () => {
     const alerts = parseIodaAlerts({ data: [{ time: 1793300000, datasource: "bgp", level: "critical" }, { time: 1793301000, datasource: "ping-slash24", level: "critical" }] });
@@ -183,7 +183,7 @@ describe("패턴 탐지", () => {
     const june = Date.UTC(2026, 5, 15, 3);
     expect(inChineseMoratorium(june)).toBe(true);
     expect(inChineseMoratorium(NOW)).toBe(false);
-    const mk = (now: number) => detectPatterns({ "sea.ys_china_vessels": { ...rd("sea.ys_china_vessels", 2, "anomalous", 40), at: now } }, [], now).find((x) => x.id === "west_sea_clash");
+    const mk = (now: number) => detectPatterns({ "sea.gfw_cn_change_pct": { ...rd("sea.gfw_cn_change_pct", -60, "anomalous"), at: now } }, [], now).find((x) => x.id === "west_sea_clash");
     expect(mk(NOW)!.score).toBeGreaterThan(mk(june)?.score ?? 0);
   });
   it("미 여행경보 3단계는 단독으로도 medium 이상 점수", () => {

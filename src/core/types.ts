@@ -148,4 +148,6 @@ export interface Env {
   AISSTREAM_API_KEY?: string;
   /** NASA FIRMS 무료 MAP_KEY — 위성 열 이상(화재·연소) 관측 */
   FIRMS_MAP_KEY?: string;
+  /** Global Fishing Watch 무료 토큰 — 위성 AIS 서해 중국 선박 추세 */
+  GFW_API_TOKEN?: string;
 }

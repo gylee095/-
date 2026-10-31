@@ -17,6 +17,7 @@ const KEYS: (keyof Env)[] = [
   "BARK_SERVER",
   "AISSTREAM_API_KEY",
   "FIRMS_MAP_KEY",
+  "GFW_API_TOKEN",
   "DASHBOARD_URL",
   "DISABLED_SOURCES",
 ];

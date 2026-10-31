@@ -12,7 +12,8 @@ import { parseUsAdvisory, parseUkAdvice, US_TRAVEL_RSS, UK_TRAVEL_ATOM } from ".
 import { fetchKpOutages } from "../core/collectors/ioda.js";
 import { searchPosts, ALARM_QUERIES } from "../core/collectors/bluesky.js";
 import { fetchNkHotspots, NK_SITES } from "../core/collectors/firms.js";
-import { sampleAis, vesselMetrics, YELLOW_SEA_BOX } from "../core/collectors/ais.js";
+import { sampleAis, vesselMetrics, KOREA_WATERS_BOX } from "../core/collectors/ais.js";
+import { fetchGfwPresence, summarizeGfw, YELLOW_SEA_OFFSHORE } from "../core/collectors/gfw.js";
 import { parseRss, BREAKING_FEEDS } from "../core/collectors/news.js";
 import { parseMndList, MND_LIST_URL } from "../core/collectors/koreakr.js";
 
@@ -280,18 +281,44 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
   );
 
   server.registerTool(
+    "check_chinese_fishing_fleet",
+    {
+      title: "서해 중국 선박 일별 추이 (위성 AIS, 약 5일 지연)",
+      description:
+        "Global Fishing Watch 위성 AIS 로 서해 한가운데(양국 항구 제외)의 국적별 선박 체류시간을 하루 단위로 반환한다(최근 최대 30일). " +
+        "'중국 어선이 사라졌는가'를 볼 때 쓴다. 중국만 줄면 주목, 한국 선박도 같이 줄면 태풍·풍랑 귀항일 가능성이 크다. 실시간이 아니다.",
+      inputSchema: { days: z.number().int().min(10).max(30).default(21) },
+    },
+    async ({ days }) => {
+      if (!env.GFW_API_TOKEN) return out({ ok: false, error: "GFW_API_TOKEN 미설정 — https://globalfishingwatch.org/our-apis/tokens 에서 무료 발급 후 GitHub Secrets 에 등록" });
+      try {
+        const rows = await fetchGfwPresence(env.GFW_API_TOKEN, Date.now(), days);
+        const s = summarizeGfw(rows);
+        return out({
+          region: { polygon: YELLOW_SEA_OFFSHORE, note: "서해 한가운데, 중국·한국 항구 제외" },
+          unit: "선박·시간(그날 해역에 머문 선박들의 시간 합)",
+          summary: s && { recentDates: s.recentDates, changePct: +s.changePct.toFixed(1), recentCnHoursPerDay: Math.round(s.recentCnHours), priorCnHoursPerDay: Math.round(s.priorCnHours), recentShareCnPct: Math.round(s.recentShareCn * 100), priorShareCnPct: Math.round(s.priorShareCn * 100), latestDataDate: s.latestDate, droppedIncomplete: s.droppedIncomplete },
+          daily: s?.days.map((d) => ({ date: d.date, CHN: Math.round(d.CHN), KOR: Math.round(d.KOR), PRK: Math.round(d.PRK), other: Math.round(d.other), cnVessels: d.cnVessels })),
+          chineseMoratorium: inChineseMoratorium(Date.now()),
+        });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
     "check_yellow_sea_vessels",
     {
-      title: "서해 선박 현황 (AIS)",
-      description: "서해(위도 34~39.5°, 경도 122~126.5°) AIS 선박을 25초간 표본 수집해 국적별(중국·한국·북한·기타) 수를 반환한다. AISSTREAM_API_KEY 필요. 중국 휴어기(5/1~8/16) 여부도 함께 준다.",
+      title: "한반도 해역 선박 표본 (aisstream, 참고용)",
+      description: "aisstream.io 로 한반도 전 해역 AIS 를 25초간 표본 수집한다. 공개 수신소가 한국 연안 일부뿐이라 수 척 수준이며 중국 선박은 거의 안 잡힌다 — 중국 어선은 check_chinese_fishing_fleet 를 쓸 것.",
       inputSchema: {},
     },
     async () => {
-      if (!env.AISSTREAM_API_KEY) return out({ ok: false, error: "AISSTREAM_API_KEY 미설정 — https://aisstream.io 무료 가입 후 GitHub Secrets 에 등록" });
+      if (!env.AISSTREAM_API_KEY) return out({ ok: false, error: "AISSTREAM_API_KEY 미설정" });
       try {
-        const sample = await sampleAis(env.AISSTREAM_API_KEY, YELLOW_SEA_BOX);
-        const readings = await latestReadings();
-        return out({ metrics: vesselMetrics(sample), baseline: describeReading(readings["sea.ys_china_vessels"], "sea.ys_china_vessels"), chineseMoratorium: inChineseMoratorium(Date.now()) });
+        const sample = await sampleAis(env.AISSTREAM_API_KEY, KOREA_WATERS_BOX);
+        return out({ metrics: vesselMetrics(sample), diag: sample.diag, caveat: "공개 수신소 범위가 좁아 참고용" });
       } catch (e) {
         return fail(e);
       }

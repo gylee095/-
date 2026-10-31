@@ -28,13 +28,14 @@ description: 한반도 위기 조기감지 — 징후·경보(I&W) 분석 1회 �
 3. **패턴이 있으면** 그 패턴의 `checks` 를 그대로 수행해 확인/반증한다. 예:
    - 발사 준비 → `check_navigational_warnings(keyword=ROCKET)` 로 발신 당국·기간, `check_military_aircraft` 로 정찰기 기종·등록번호, `check_state_media` 로 명분 담화.
    - 공역 통제 의심 → `check_airspace_detail(region=korea)` 로 실제 대수·군용기 비중, `search_news('결항 우회 기상')`.
-   - 서해 충돌 → `check_yellow_sea_vessels`, `check_navigational_warnings(keyword=GUNNERY)`, `search_news('NLL 연평 백령')`.
+   - 서해 충돌 → `check_chinese_fishing_fleet`(위성 AIS, 약 5일 지연 — 한국 선박도 같이 줄었으면 기상), `check_navigational_warnings(keyword=GUNNERY)`, `search_news('NLL 연평 백령 풍랑')`.
    - 서방 경계 격상 → `check_travel_advisories` 원문, `search_news('주한미군 FPCON 대사관')`.
 4. **패턴이 없어도 '유레카' 점검**을 한다 — 자동 규칙이 모르는 조합을 사람처럼 찾는다:
    - 정찰기 목록에 평소 없던 기종(RC-135S, WC-135, E-6)이 있는가? (`check_military_aircraft`)
    - 북한 담화 톤이 '경고'에서 '구체적 시한·대상'으로 바뀌었는가? (`check_state_media`)
    - 항행경보에 한반도 주변 새 구역이 생겼는가? 발신 당국이 DPRK 인가? (`check_navigational_warnings`)
    - 국방부 보도자료에 평소 없던 '긴급·대응·경계태세' 문구가 있는가? (`check_mnd_press`)
+   - 서해 중국 선박이 한국 선박과 따로 줄었는가? 줄었다면 며칠부터인가? (`check_chinese_fishing_fleet` — 약 5일 늦은 데이터라 '지금'이 아니라 '그때부터'를 본다)
    - 여러 지표가 **같은 시각**에 꺾였는가? (`get_indicator_history` 두세 개 대조)
    - 시장·SNS·속보 템포가 **뉴스 없이** 움직이는가?
 5. 중요한 새 조합을 자동 알림이 놓쳤다고 판단될 때만 `send_iphone_alert`:

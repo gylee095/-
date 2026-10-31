@@ -52,15 +52,10 @@ export const INDICATORS: IndicatorDef[] = [
     latency: "수 초~수 분", caveats: "aisstream 수신소가 한국 연안 일부뿐이라 25초에 수 척 수준(2026-10-31 실측 7척). 해역 전체가 아니라 '수신되는 일부'의 변화만 본다. 수신기 장애로도 0이 된다.",
   },
   {
-    id: "sea.ys_china_vessels", label: "서해 중국 선박 수 (AIS)", group: "sea", unit: "척", direction: "low", slots: 24,
-    why: "'중국 어선이 모두 사라졌다'는 현장 보고는 위기 때 반복된 관찰이다. 중국 당국이 자국 어선을 철수시키면 사전 인지의 간접 증거일 수 있다.",
-    measure: "현재 측정 불가 — aisstream 수신소가 중국 연안·서해에 없음(2026-10-31 실측 0척). Global Fishing Watch 위성 AIS(3~5일 지연)로 대체 가능",
-    latency: "—", caveats: "휴어기(5/1~8/16)·태풍·조업 패턴에 따라 평소에도 큰 폭으로 변한다. 단독으로는 결론 내지 말 것.",
-  },
-  {
-    id: "sea.nk_flag_vessels", label: "북한 국적 선박 수 (AIS)", group: "sea", unit: "척", direction: "both", slots: 4, absolute: { elevated: 3, anomalous: 8 },
-    why: "북한 선박의 AIS 송출은 드물다. 평소와 다른 움직임(일제 귀항·집결)은 참고 징후다.",
-    measure: "현재 측정 불가 — aisstream 수신 범위 밖", latency: "—", caveats: "북한 선박 대부분은 AIS를 끄고 다닌다.",
+    id: "sea.gfw_cn_change_pct", label: "서해 중국 선박 증감 (위성 AIS, 직전 2주 대비)", group: "sea", unit: "%", direction: "low", slots: 1, absolute: { elevated: 30, anomalous: 50 },
+    why: "'위기 직전 중국 어선이 먼저 빠진다'는 것은 OSINT 에서 자주 거론되는 가설이다(검증된 통계는 없다). 중국 당국이 자국 어선을 항구로 불러들이면 무언가를 미리 알았다는 간접 증거일 수 있다. 많은 것은 평소(가을 성어기), 갑자기 줄어드는 것이 신호다.",
+    measure: "Global Fishing Watch 위성 AIS 선박 존재 데이터에서 서해 한가운데(경도 122.9~125.6°, 위도 34~38.6°, 양국 항구 제외)의 중국 국적 선박 체류시간 — 최근 3일 평균을 직전 14일 평균과 비교 (토큰 필요)",
+    latency: "약 5일 (위성 데이터 처리 지연)", caveats: "태풍·강풍 때 어선이 일제히 귀항해 크게 줄어든다(기상 먼저 확인). 휴어기(5/1~8/16)에는 원래 적다. AIS 를 끈 배는 안 보인다. 실시간이 아니라 추세용.",
   },
   {
     id: "seismic.nk_events_24h", label: "북한 지역 지진 (24시간)", group: "seismic", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
@@ -192,7 +187,8 @@ export function evaluate(def: IndicatorDef, value: number, at: number, baseline:
     reading.z = (value - baseline.mean) / sd;
   }
   if (def.absolute) {
-    const v = Math.abs(value);
+    // 절대 임계값은 '나쁜 방향' 크기로 본다: low 면 감소폭(음수의 크기), high 면 값 그대로, both 면 절대값
+    const v = def.direction === "low" ? -value : def.direction === "high" ? value : Math.abs(value);
     if (v >= def.absolute.anomalous) reading.state = "anomalous";
     else if (v >= def.absolute.elevated) reading.state = "elevated";
     else reading.state = "normal";

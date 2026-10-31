@@ -26,7 +26,7 @@ const quietBoard = (): BoardRow[] => [
   row("seismic.nk_events_24h", { value: 0 }),
   row("market.usdkrw_change_pct", { value: 0.3, meta: { signedPct: -0.3, price: 1334 } }),
   row("internet.kp_outage_alerts_24h", { value: 0 }),
-  row("sea.ys_china_vessels"),
+  row("sea.gfw_cn_change_pct"),
   row("thermal.launch_site_hotspots"),
 ];
 const threat = { level: 1, label: "평시", summary: "없음", lastProvocation: null };
@@ -86,8 +86,19 @@ describe("해석 엔진", () => {
     expect(it_.hints.find((h) => h.title.includes("서방 정부"))!.reasoning).toMatch(/피자 지수/);
   });
   it("측정 불가·학습 중 뜻풀이", () => {
-    expect(meaningOf(row("sea.ys_china_vessels"), { night: false, exercise: false, moratorium: false })).toMatch(/수신소가 중국 연안·서해에 없어/);
+    expect(meaningOf(row("sea.gfw_cn_change_pct"), { night: false, exercise: false, moratorium: false })).toMatch(/Global Fishing Watch 토큰/);
     expect(meaningOf(row("thermal.launch_site_hotspots"), { night: false, exercise: false, moratorium: false })).toMatch(/키가 없어/);
     expect(meaningOf(row("air.civil_airborne", { value: 20, baseline: 21, n: 3, state: "learning" }), { night: true, exercise: false, moratorium: false })).toMatch(/학습 중 3\/10/);
+  });
+  it("서해 중국 선박: 중국만 감소 → 위험 쪽 힌트, 한국도 같이 감소 → 기상 귀항 해석", () => {
+    const series = (cnDrop: boolean, krDrop: boolean) => Array.from({ length: 21 }, (_, i) => ({ date: `2026-10-${String(5 + i).padStart(2, "0")}`, CHN: i >= 18 && cnDrop ? 1000 : 2400, KOR: i >= 18 && krDrop ? 250 : 600, other: 80 }));
+    const mk = (krDrop: boolean) => quietBoard().map((r) => (r.id === "sea.gfw_cn_change_pct" ? row("sea.gfw_cn_change_pct", { value: -58, state: "anomalous", meta: { recentDates: ["2026-10-23", "2026-10-24", "2026-10-25"], delayDays: 6, recentCnHoursPerDay: 1000, priorCnHoursPerDay: 2400, series: series(true, krDrop) } }) : r));
+    const china = interpret({ now: NOW, threat, board: mk(false), patterns: [], briefs: [] }).hints.find((h) => h.title.includes("중국 선박"))!;
+    expect(china.kind).toBe("warning");
+    expect(china.reasoning).toMatch(/한국 선박은 그대로인데 중국 선박만/);
+    const storm = interpret({ now: NOW, threat, board: mk(true), patterns: [], briefs: [] }).hints.find((h) => h.title.includes("중국 선박"))!;
+    expect(storm.kind).toBe("caveat");
+    expect(storm.reasoning).toMatch(/태풍·풍랑 귀항/);
+    expect(meaningOf(mk(false).find((r) => r.id === "sea.gfw_cn_change_pct")!, { night: false, exercise: false, moratorium: false })).toMatch(/58% 줄었음.*약 6일 지연/);
   });
 });

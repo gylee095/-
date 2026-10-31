@@ -114,6 +114,12 @@ describe("전쟁 위험 모델", () => {
     expect(w.domains.find((d) => d.id === "public")!.drivers[0]).toMatch(/평소의 89배 \(이상\)/);
   });
 
+  it("실측 10/31 고친 뒤: 돈은 조용 → '도발·담화에 대중이 반응' 으로 맺는다", () => {
+    const w = run(board({ "psych.naver_war_search": { value: 8862, state: "anomalous", meta: { worstGroup: "생존 준비" } } }), [brief(40, 3, "북한, 탄도미사일 약 10 발 발사 → 동해", "탄도미사일 발사")]);
+    expect(w.firstMover.text).toMatch(/하지만 정부와 돈은 평소대로다 — 도발·담화에 대중이 반응한 모양/);
+    expect(w.firstMover.text).not.toMatch(/일반 투자자/);
+  });
+
   it("ICBM + 시장 반응 → 3단계(위기)", () => {
     const w = run(board({ "market.kr_equity_rel_pct": { value: -4.5, state: "anomalous" }, "market.pm_war_prob": { value: 320, state: "anomalous", meta: { pricePct: 9, usualPct: 2.8, question: "2027년 전 북한의 한국 침공", daysLeft: 61, diplomacy: [{ question: "Will Trump meet with Kim Jong Un in 2026?", pct: 15 }] } } }), [brief(5, 4, "북한, ICBM 발사 → 동해", "장거리·일본 상공/EEZ 관련 발사")]);
     expect(w.phase).toBe(3);

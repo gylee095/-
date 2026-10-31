@@ -244,7 +244,8 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
     const calm = L.money === 0 || equityOnly ? "하지만 정부와 돈은 평소대로다" : "하지만 비공개 정보를 가진 정부들은 평소대로다";
     let close: string;
     if (L.public >= 1 && (L.money === 0 || equityOnly) && L.military === 0) close = "언론·소문발 불안일 가능성이 크다. 무엇이 불을 붙였는지 확인한다.";
-    else if (L.public >= 1) close = "대중과 일반 투자자가 같은 사건·담화에 반응한 모양이라, 정보를 가진 쪽이 먼저 움직인 신호는 아니다. 무엇이 불을 붙였는지(담화·소문·사건) 확인하고, 정부 경보가 따라붙는지 지켜본다.";
+    else if (L.public >= 1 && L.money >= 1 && !equityOnly) close = "대중과 일반 투자자가 같은 사건·담화에 반응한 모양이라, 정보를 가진 쪽이 먼저 움직인 신호는 아니다. 무엇이 불을 붙였는지(담화·소문·사건) 확인하고, 정부 경보가 따라붙는지 지켜본다.";
+    else if (L.public >= 1) close = "도발·담화에 대중이 반응한 모양이라, 정보를 가진 쪽(정부)이 먼저 움직인 신호는 아니다. 무엇이 불을 붙였는지 확인하고, 정부 경보나 시장의 전쟁 가격이 따라붙는지 지켜본다.";
     else if (L.military >= 1) close = "무력시위·훈련 성격으로 보인다. 정부 경보나 시장 반응이 따라붙는지 지켜본다.";
     else if (L.nkwords >= 1) close = "말에 행동이 따르는지 지켜본다 — 명분 쌓기이거나 내부 결속용일 수 있다.";
     else close = "정부 경보나 시장의 전쟁 가격이 따라붙는지가 다음 관건이다.";

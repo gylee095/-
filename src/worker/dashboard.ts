@@ -118,7 +118,7 @@ function warRisk(w){var names=["평온","긴장","위기","임박","교전"];
   h+='<b style="font-size:14px;display:block;margin-top:8px">억제·완화 요인</b><ul>'+w.restraints.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
   if(w.blindSpots.length)h+='<b style="font-size:14px;display:block;margin-top:8px">못 보는 곳</b><ul>'+w.blindSpots.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
   h+='<b style="font-size:14px;display:block;margin-top:8px">영역별로 왜 보나</b><ul>'+w.domains.map(function(d){return '<li><b>'+esc(d.label)+'</b> — '+esc(d.why)+'</li>'}).join("")+'</ul></details>';
-  if(w.market)h+='<div class="mk">예측시장 \''+esc(w.market.question)+'\' '+w.market.pct+'%'+(w.market.daysLeft!=null?' (만기 '+w.market.daysLeft+'일)':'')+' — 수 % 대 가격은 실제보다 높게 매겨지는 경향이라 변화만 봅니다'+(w.market.url?' · <a href="'+esc(w.market.url)+'" target="_blank" rel="noopener">시장 보기</a>':'')+'</div>';
+  if(w.market)h+='<div class="mk">예측시장 \''+esc(w.market.question)+'\' '+w.market.pct+'%'+(w.market.usualPct!=null?' (지난 한 달 평소 '+w.market.usualPct+'%)':'')+(w.market.daysLeft!=null?' · 만기 '+w.market.daysLeft+'일':'')+' — 수 % 대 가격은 실제보다 높게 매겨지는 경향이라 변화만 봅니다'+(w.market.url?' · <a href="'+esc(w.market.url)+'" target="_blank" rel="noopener">시장 보기</a>':'')+'</div>';
   h+='<div class="mk">확률은 근거를 밝힌 판단값입니다(통계 예측 아님). 국지 충돌 = 남북 교전·영토 직접 공격.</div></div>';
   return h}
 function render(){
@@ -178,7 +178,7 @@ function render(){
 }
 function fact(k,v){return '<div class="fact'+(v?"":" na")+'"><div class="fk">'+k+'</div><div class="fv">'+(v?esc(v):"보도 없음")+'</div></div>'}
 function sgn(x){return (x>0?"+":"")+Math.round(x)+"%"}
-function fmtVal(r){var v=r.reading.value;if(r.id==="sea.gfw_cn_change_pct")return sgn(v);if(r.unit==="%")return v.toFixed(2)+"%";return (Number.isInteger(v)?v:v.toFixed(1))+(r.unit||"")}
+function fmtVal(r){var v=r.reading.value;if(r.id==="sea.gfw_cn_change_pct")return sgn(v);if(r.id.indexOf("psych.")===0||r.id==="market.pm_war_prob")return "평소의 "+(v>=1000?Math.round(v/100):(v/100).toFixed(1))+"배";if(r.unit==="%")return v.toFixed(2)+"%";return (Number.isInteger(v)?v:v.toFixed(1))+(r.unit||"")}
 function spark(hist){if(!hist||hist.length<2)return "";var vs=hist.map(function(p){return p.avg});var mn=Math.min.apply(null,vs),mx=Math.max.apply(null,vs);var W=100,H=26;
   var pts=hist.map(function(p,i){var x=i/(hist.length-1)*W;var y=mx===mn?H/2:H-2-((p.avg-mn)/(mx-mn))*(H-4);return x.toFixed(1)+","+y.toFixed(1)}).join(" ");
   return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><polyline fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.5" points="'+pts+'"/></svg>'}

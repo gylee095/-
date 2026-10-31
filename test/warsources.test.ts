@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { advisoryMetrics, parseCanada, parseGermany, parseJapan, summarizeJpMails } from "../src/core/collectors/advisories.js";
-import { parsePmSearch, pmMetrics, summarizePm } from "../src/core/collectors/polymarket.js";
+import { parsePmHistory, parsePmSearch, pmMetrics, summarizePm } from "../src/core/collectors/polymarket.js";
 import { articleRatio, parseWikiSeries, summarizeWiki, wikiMetrics } from "../src/core/collectors/wiki.js";
 import { naverMetrics, naverRatios, naverRequest } from "../src/core/collectors/naver.js";
 import { equityMetrics, parseSpark } from "../src/core/collectors/markets.js";
@@ -47,17 +47,29 @@ describe("예측시장 (실측 2026-10-31)", () => {
   it("한반도 침공 시장을 고르고, 대화·체제 시장은 맥락으로 붙인다", () => {
     const s = summarizePm(parsePmSearch(JSON.parse(fx("polymarket_search_20261031.json"))), NOW);
     expect(s.war?.question).toBe("Will North Korea invade South Korea before 2027?");
+    expect(s.war?.yesToken).toMatch(/^1458561818/);
     const [m] = pmMetrics(s);
     expect((m.meta as any).question).toBe("2027년 전 북한의 한국 침공");
     expect((m.meta as any).diplomacy.map((d: any) => d.question)).toEqual(["연말까지 트럼프 방북", "2026년 트럼프 방북", "연말까지 남북 직접 대화", "2026년 말까지 남북 외교 접촉(직·간접)"]);
     expect(m.indicator).toBe("market.pm_war_prob");
-    expect(m.value).toBeCloseTo(4.35, 2);
+    expect(m.value).toBe(100); // 가격 이력 없이는 평소와 같다고 본다
     const meta = m.meta as any;
+    expect(meta.pricePct).toBeCloseTo(4.35, 2);
+    expect(meta.noHistory).toBe(true);
     expect(meta.daysLeft).toBe(62);
     expect(meta.regimeChangePct).toBeCloseTo(3.65, 2);
     expect(meta.testsThisMonthPct).toBeCloseTo(85, 0);
     expect(meta.diplomacy.length).toBeGreaterThan(0);
     expect(meta.url).toMatch(/^https:\/\/polymarket\.com\/event\//);
+  });
+  it("가격 이력: 10월 한 달 평소 2.83% → 지금 4.35% = 평소의 1.54배 → '상승'", () => {
+    const s = summarizePm(parsePmSearch(JSON.parse(fx("polymarket_search_20261031.json"))), NOW);
+    const hist = parsePmHistory(JSON.parse(fx("polymarket_history_665459_20261031.json")), NOW)!;
+    expect(hist.usualPct).toBeCloseTo(2.83, 2);
+    expect(hist.series.at(-1)).toEqual({ date: "10-30", pct: 5.1 });
+    const [m] = pmMetrics(s, hist);
+    expect(m.value).toBe(154);
+    expect(evaluate(INDICATOR_BY_ID["market.pm_war_prob"], m.value, NOW, undefined).state).toBe("elevated");
   });
   it("전쟁 시장이 없으면 지표를 만들지 않는다", () => {
     expect(pmMetrics(summarizePm([{ id: "1", question: "Will Bitcoin kimchi premium hit 8%?", yes: 0.1, volume: 9999 }], NOW))).toEqual([]);

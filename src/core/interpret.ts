@@ -184,9 +184,11 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
     case "market.pm_war_prob": {
       const m = r!.meta as any;
       const left = m?.daysLeft !== undefined ? ` (만기까지 ${m.daysLeft}일)` : "";
-      const chg = base !== undefined && !isLearning(row) ? ` · 평소 ${base.toFixed(1)}%` : "";
-      if (isAbnormal(row)) return `예측시장 '북한의 한국 침공' 가격 ${v}%${left}${chg} → 평소보다 뚜렷이 오름. 누군가 새 정보를 가격에 넣는 중일 수 있음 (거래가 얇으면 소수의 매수로도 튐)`;
-      return `예측시장 '북한의 한국 침공' 가격 ${v}%${left}${chg}${learn} → 큰 변화 없음. 수 % 대 가격은 실제보다 높게 매겨지는 경향이라 변화만 본다`;
+      const price = m?.pricePct ?? v;
+      if (m?.noHistory) return `예측시장 '${m?.question ?? "북한의 한국 침공"}' 가격 ${price}%${left} → 가격 이력을 못 받아 평소와 비교하지 못함`;
+      const usual = m?.usualPct !== undefined ? `, 지난 한 달 평소 ${m.usualPct}%` : "";
+      if (isAbnormal(row)) return `예측시장 '${m?.question ?? "북한의 한국 침공"}' 가격 ${price}%${left}${usual} → 평소의 ${(v / 100).toFixed(1)}배로 오름. 만기가 가까울수록 원래 내려가야 할 가격이라 오름은 더 무겁다. 다만 거래가 얇으면 소수의 매수로도 튀고, 수 % 대 가격은 실제보다 높게 매겨지는 경향`;
+      return `예측시장 '${m?.question ?? "북한의 한국 침공"}' 가격 ${price}%${left}${usual} → 평소 수준 (수 % 대 가격은 실제보다 높게 매겨지는 경향이라 변화만 본다)`;
     }
     case "official.ca_level_kr":
       return v === 0 ? "캐나다: 한국 '평소 수준의 주의' 유지" : `캐나다 한국 여행경보 ${v}단계 — ${v >= 3 ? "모든 여행 자제" : v === 2 ? "불필요한 여행 자제" : "높은 주의"}. 사유 확인 필요`;

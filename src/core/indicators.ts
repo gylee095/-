@@ -160,9 +160,9 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "한화에어로스페이스·LIG넥스원·현대로템 평균 일간 변동률 − 코스피", latency: "장중 수 분", caveats: "수출 계약·실적 발표로 더 자주 오른다. 북한 관련 뉴스와 같이 움직일 때만 의미가 있다.",
   },
   {
-    id: "market.pm_war_prob", label: "예측시장: 북한의 한국 침공 가격", group: "market", unit: "%", direction: "high", slots: 1, sdFloor: 1.5,
-    why: "돈을 건 사람들이 매기는 전쟁 가능성. 가격이 갑자기 오르면 누군가 새 정보를 가격에 넣고 있다는 뜻이다.",
-    measure: "Polymarket 한반도 침공·전쟁 시장 중 거래가 가장 많은 것의 '예' 가격 (만기 2주 이상)", latency: "실시간", caveats: "수 % 대 가격은 실제보다 높게 매겨지는 경향(롱샷 편향·자금 묶임 비용). 거래가 얇으면 소수가 가격을 흔든다. 절대값보다 변화를 본다.",
+    id: "market.pm_war_prob", label: "예측시장: 북한의 한국 침공 가격 (지난 30일 대비)", group: "market", unit: "%", direction: "high", slots: 1, absolute: { elevated: 150, anomalous: 250 },
+    why: "돈을 건 사람들이 매기는 전쟁 가능성. 가격이 한 달 평소보다 크게 오르면 사람들이 새 정보·사건을 가격에 넣고 있다는 뜻이다(2026-10: 2.4% → 5.1%). 만기가 가까울수록 원래 떨어져야 하는 가격이라 오름은 더 무겁다.",
+    measure: "Polymarket 한반도 침공·전쟁 시장 중 거래가 가장 많은 것(만기 2주 이상)의 '예' 가격 ÷ 시장 일별 가격 이력의 지난 30일 중앙값 (100 = 평소)", latency: "실시간", caveats: "수 % 대 가격은 실제보다 높게 매겨지는 경향(롱샷 편향·자금 묶임 비용). 거래가 얇으면 소수가 가격을 흔든다. 절대값보다 변화를 본다.",
   },
   {
     id: "internet.kp_outage_alerts_24h", label: "북한 인터넷 장애 경보 (24h)", group: "internet", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 3 },

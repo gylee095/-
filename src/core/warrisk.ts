@@ -91,7 +91,7 @@ export interface WarRisk {
   tripwires: string[];
   /** 억제·완화 요인 (대화 가능성 등) */
   restraints: string[];
-  market?: { pct: number; question: string; daysLeft?: number; url?: string };
+  market?: { pct: number; usualPct?: number; question: string; daysLeft?: number; url?: string };
   blindSpots: string[];
   headline: string;
 }
@@ -112,6 +112,8 @@ export { fmtPct as fmtRiskPct };
 
 function driverText(r: BoardRow): string {
   const v = r.reading!.value;
+  const st = r.reading!.state === "anomalous" ? "이상" : "상승";
+  if (r.id.startsWith("psych.") || r.id === "market.pm_war_prob") return `${r.label.replace(/\s*\((?:[^()]*평소 대비|지난 30일 대비)\)/, "")} 평소의 ${(v / 100).toFixed(v >= 1000 ? 0 : 1)}배 (${st})`;
   const unit = r.unit === "%" || r.unit === "%p" ? r.unit : r.unit ? ` ${r.unit}` : "";
   return `${r.label} ${Number.isInteger(v) ? v : v.toFixed(1)}${unit} (${r.reading!.state === "anomalous" ? "이상" : "상승"})`;
 }
@@ -210,21 +212,47 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   // 한국 증시만 빠졌어도 방산주가 함께 빠지고 환율·예측시장이 조용하면, 돈이 '전쟁'을 가격에 넣은 것이 아니다(업종·세계 증시 요인)
   const equityOnly = pts(by["market.kr_equity_rel_pct"]) > 0 && (val(by["market.defense_rel_pct"]) ?? 0) < 1 && pts(by["market.pm_war_prob"]) === 0 && pts(by["market.usdkrw_change_pct"]) === 0 && pts(by["market.defense_rel_pct"]) === 0;
   let firstMover: WarRisk["firstMover"];
-  if (L.gov === 0 && L.money >= 1 && equityOnly) {
-    const m = (by["market.kr_equity_rel_pct"].reading?.meta ?? {}) as any;
-    firstMover = {
-      kind: "neutral",
-      text: `한국 증시가 이웃 증시보다 더 빠졌지만${m.kospiPct !== undefined ? `(코스피 ${m.kospiPct}%, 일본·대만 ${m.peersPct}%)` : ""} 방산주도 같이 빠졌고 환율·예측시장 전쟁 가격은 그대로다 — 돈이 전쟁 위험을 가격에 넣는 모습은 아니다(세계 증시·업종 요인 쪽).${L.military >= 1 ? " 군사 움직임에도 정부는 평소대로다." : ""}`,
-    };
-  } else if (L.gov >= 1 && L.money >= 1) firstMover = { kind: "warning", text: "정부와 돈이 함께 움직였다 — 비공개 정보를 가진 쪽과 돈을 건 쪽이 동시에 반응한, 가장 무거운 조합이다." };
+  if (L.gov >= 1 && L.money >= 1) firstMover = { kind: "warning", text: "정부와 돈이 함께 움직였다 — 비공개 정보를 가진 쪽과 돈을 건 쪽이 동시에 반응한, 가장 무거운 조합이다." };
   else if (L.gov >= 1 && L.public === 0) firstMover = { kind: "warning", text: "정부가 먼저 움직였고 대중은 아직 조용하다 — 정보를 가진 쪽이 먼저 반응한 모양이라 가장 무게를 둘 신호다. 경보 사유가 치안·재난인지 먼저 확인한다." };
   else if (L.gov >= 1) firstMover = { kind: "caveat", text: "정부 경보가 올랐다 — 사유(안보·치안·재난)를 확인해야 한다." };
-  else if (L.money >= 1 && L.military === 0 && L.nkwords === 0 && L.public === 0) firstMover = { kind: "caveat", text: "돈만 움직였다 — 북한 쪽 신호가 없으니 세계 증시·환율·국내 정치 같은 다른 이유를 먼저 의심한다. 뉴스 없이 계속 빠지면 시장이 먼저 안 것일 수 있다." };
-  else if (L.public >= 1 && L.gov === 0 && L.money === 0) firstMover = { kind: "reassuring", text: "사람들의 관심·불안만 커졌고 정부와 돈은 평소대로다 — 언론발 불안일 가능성이 크다." };
-  else if (L.military >= 1 && L.gov === 0 && L.money === 0) firstMover = { kind: "neutral", text: "군사 움직임은 있지만 정부와 돈은 평소대로다 — 무력시위·훈련 성격으로 보인다. 정부 경보나 시장 반응이 따라붙는지 지켜본다." };
-  else if (L.nkwords >= 1 && L.military === 0) firstMover = { kind: "neutral", text: "북한의 말은 거칠지만 행동이 따르지 않는다 — 명분 쌓기이거나 내부 결속용일 수 있다." };
   else if (elevated === 0) firstMover = { kind: "reassuring", text: "정부·돈·군사·북한의 말·사람들 모두 평소대로다." };
-  else firstMover = { kind: "neutral", text: `${domains.filter((d) => d.level >= 1).map((d) => d.label).join("·")}에서 평소와 다른 움직임이 있다.` };
+  else if (L.money >= 1 && L.military === 0 && L.nkwords === 0 && L.public === 0 && !equityOnly)
+    firstMover = { kind: "caveat", text: "돈만 움직였다 — 북한 쪽 신호가 없으니 세계 증시·환율·국내 정치 같은 다른 이유를 먼저 의심한다. 뉴스 없이 계속 빠지면 시장이 먼저 안 것일 수 있다." };
+  else {
+    // 정부는 조용한데 다른 영역이 움직였다 — 무엇이 움직였는지 이어서 말하고, 정보를 가진 쪽(정부)이 조용하다는 점으로 맺는다
+    const parts: string[] = [];
+    if (L.public >= 1) {
+      const nv = by["psych.naver_war_search"];
+      const wk = by["psych.wiki_korea_attention"];
+      const detail = [
+        pts(nv) > 0 ? `네이버 '${(nv.reading!.meta as any)?.worstGroup ?? "전쟁"}' 검색 평소의 ${Math.round(nv.reading!.value / 100)}배` : "",
+        pts(wk) > 0 ? `위키백과 한반도 문서 평소의 ${(wk.reading!.value / 100).toFixed(1)}배` : "",
+      ].filter(Boolean).join(", ");
+      parts.push(`사람들의 불안이 ${L.public >= 2 ? "크게 " : ""}커졌다${detail ? `(${detail})` : ""}`);
+    }
+    if (L.money >= 1) {
+      if (equityOnly) {
+        const m = (by["market.kr_equity_rel_pct"].reading?.meta ?? {}) as any;
+        parts.push(`한국 증시가 이웃 증시보다 더 빠졌지만${m.kospiPct !== undefined ? `(코스피 ${m.kospiPct}%, 일본·대만 ${m.peersPct}%)` : ""} 방산주도 같이 빠졌고 환율·예측시장 전쟁 가격은 그대로다 — 돈이 전쟁 위험을 가격에 넣는 모습은 아니다(세계 증시·업종 요인 쪽)`);
+      } else if (pts(by["market.pm_war_prob"]) > 0) {
+        const m = (by["market.pm_war_prob"].reading!.meta ?? {}) as any;
+        parts.push(`예측시장 전쟁 가격이 한 달 평소의 ${(by["market.pm_war_prob"].reading!.value / 100).toFixed(1)}배로 올랐다${m.usualPct !== undefined ? `(${m.usualPct}% → ${m.pricePct}%)` : ""}`);
+      } else parts.push("돈도 움직였다");
+    }
+    if (L.military >= 1) parts.push("군사 움직임(도발)이 있었다");
+    if (L.nkwords >= 1) parts.push("북한의 말이 거칠어졌다");
+    const calm = L.money === 0 || equityOnly ? "하지만 정부와 돈은 평소대로다" : "하지만 비공개 정보를 가진 정부들은 평소대로다";
+    let close: string;
+    if (L.public >= 1 && (L.money === 0 || equityOnly) && L.military === 0) close = "언론·소문발 불안일 가능성이 크다. 무엇이 불을 붙였는지 확인한다.";
+    else if (L.public >= 1) close = "대중과 일반 투자자가 같은 사건·담화에 반응한 모양이라, 정보를 가진 쪽이 먼저 움직인 신호는 아니다. 무엇이 불을 붙였는지(담화·소문·사건) 확인하고, 정부 경보가 따라붙는지 지켜본다.";
+    else if (L.military >= 1) close = "무력시위·훈련 성격으로 보인다. 정부 경보나 시장 반응이 따라붙는지 지켜본다.";
+    else if (L.nkwords >= 1) close = "말에 행동이 따르는지 지켜본다 — 명분 쌓기이거나 내부 결속용일 수 있다.";
+    else close = "정부 경보나 시장의 전쟁 가격이 따라붙는지가 다음 관건이다.";
+    firstMover = {
+      kind: L.public >= 2 || (L.money >= 1 && !equityOnly) ? "caveat" : L.public === 1 && L.military === 0 ? "reassuring" : "neutral",
+      text: `${parts.join(". ")}. ${calm} — ${close}`,
+    };
+  }
 
   // ── 다음 단계로 올릴 신호 ──
   const tripwires: string[] = [];
@@ -243,7 +271,7 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   let market: WarRisk["market"];
   if (measured(pm)) {
     const m = (pm.reading!.meta ?? {}) as any;
-    market = { pct: pm.reading!.value, question: m.question ?? "", daysLeft: m.daysLeft, url: m.url };
+    market = { pct: m.pricePct ?? pm.reading!.value, usualPct: m.usualPct, question: m.question ?? "", daysLeft: m.daysLeft, url: m.url };
     for (const d of (m.diplomacy ?? []) as { question: string; pct: number }[]) restraints.push(`예측시장이 보는 대화 가능성: ${d.question.replace(/\?$/, "")} ${d.pct}%`);
   }
   if (!restraints.length) restraints.push("대화·외교 일정 정보 없음 (예측시장 미수집)");

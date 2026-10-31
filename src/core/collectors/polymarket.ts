@@ -1,9 +1,12 @@
 // 예측시장(Polymarket) — 돈을 건 사람들이 매기는 '한반도 전쟁' 가격. 키 불필요 공개 API.
 // 낮은 확률(수 %)은 실제보다 높게 매겨지는 경향(롱샷 편향·자금 묶임 비용)이 있어, 절대값보다 '변화'를 본다.
+// 변화는 우리 기준선이 아니라 시장의 일별 가격 이력(CLOB prices-history)으로 '지난 30일 중앙값 대비 배율'을 잰다 —
+// 그래야 수집을 시작하기 전의 상승(2026-10: 2.4% → 5.1%)도 보인다.
 import type { CollectResult, Metric } from "../types.js";
 import { fetchJson } from "../util.js";
 
 export const PM_SEARCH = "https://gamma-api.polymarket.com/public-search";
+export const PM_HISTORY = "https://clob.polymarket.com/prices-history";
 // 검색어가 넓으면 응답이 수백 KB 가 된다(예: "trump kim jong un" 529KB) — Worker CPU 를 아끼려고 좁은 검색어만 쓴다 (합계 약 100KB)
 export const PM_QUERIES = ["north korea invade", "north korea war", "north korea diplomatic meeting", "north korea talks"];
 
@@ -14,6 +17,8 @@ export interface PmMarket {
   volume: number;
   endDate?: string;
   slug?: string;
+  /** '예' 쪽 CLOB 토큰 (가격 이력 조회용) */
+  yesToken?: string;
 }
 
 const KOREA_RE = /korea|kim jong un|pyongyang/i;
@@ -34,7 +39,13 @@ export function parsePmSearch(json: any): PmMarket[] {
         continue;
       }
       if (!Number.isFinite(prices[0])) continue;
-      out.push({ id: String(m.id), question: m.question, yes: prices[0], volume: Number(m.volume ?? 0), endDate: m.endDate, slug: ev.slug ?? m.slug });
+      let yesToken: string | undefined;
+      try {
+        yesToken = (typeof m.clobTokenIds === "string" ? JSON.parse(m.clobTokenIds) : m.clobTokenIds)?.[0];
+      } catch {
+        yesToken = undefined;
+      }
+      out.push({ id: String(m.id), question: m.question, yes: prices[0], volume: Number(m.volume ?? 0), endDate: m.endDate, slug: ev.slug ?? m.slug, yesToken });
     }
   }
   return out;
@@ -77,14 +88,41 @@ export function koQuestion(q: string): string {
   return q;
 }
 
-export function pmMetrics(s: PmSummary): Metric[] {
+export interface PmHistory {
+  /** 지난 30일(마지막 하루 제외) 일별 가격의 중앙값, % */
+  usualPct: number;
+  /** 최근 30일 일별 가격 (날짜 MM-DD, %) */
+  series: { date: string; pct: number }[];
+}
+
+/** prices-history 응답 → 지난 30일 중앙값과 일별 가격 */
+export function parsePmHistory(json: any, now: number): PmHistory | undefined {
+  const pts = ((json?.history ?? []) as { t: number; p: number }[]).filter((x) => typeof x?.t === "number" && typeof x?.p === "number").sort((a, b) => a.t - b.t);
+  const win = pts.filter((x) => x.t * 1000 >= now - 31 * 86400_000 && x.t * 1000 < now - 86400_000);
+  if (win.length < 7) return undefined;
+  const sorted = win.map((x) => x.p).sort((a, b) => a - b);
+  const mid = sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
+  return {
+    usualPct: +(mid * 100).toFixed(2),
+    series: pts.filter((x) => x.t * 1000 >= now - 31 * 86400_000).map((x) => ({ date: new Date(x.t * 1000 + 9 * 3600_000).toISOString().slice(5, 10), pct: +(x.p * 100).toFixed(2) })),
+  };
+}
+
+export function pmMetrics(s: PmSummary, hist?: PmHistory): Metric[] {
   if (!s.war) return [];
   const pct = (x: number) => +(x * 100).toFixed(2);
+  const price = pct(s.war.yes);
+  // 이력이 없으면 배율을 낼 수 없다 → 평소와 같다고(100) 두고 가격만 기록
+  const ratio = hist && hist.usualPct > 0 ? Math.round((price / hist.usualPct) * 100) : 100;
   return [
     {
       indicator: "market.pm_war_prob",
-      value: pct(s.war.yes),
+      value: ratio,
       meta: {
+        pricePct: price,
+        usualPct: hist?.usualPct,
+        series: hist?.series,
+        noHistory: hist ? undefined : true,
         question: koQuestion(s.war.question),
         questionEn: s.war.question,
         endDate: s.war.endDate,
@@ -106,7 +144,15 @@ export async function collectPolymarket(now = Date.now()): Promise<CollectResult
   );
   const markets = results.flatMap((r) => (r.status === "fulfilled" ? parsePmSearch(r.value) : []));
   const s = summarizePm(markets, now);
-  const metrics = pmMetrics(s);
+  let hist: PmHistory | undefined;
+  if (s.war?.yesToken) {
+    try {
+      hist = parsePmHistory(await fetchJson<any>(`${PM_HISTORY}?market=${s.war.yesToken}&interval=max&fidelity=1440`, {}, 20000), now);
+    } catch {
+      hist = undefined; // 이력 실패는 가격만 기록 (배율 100)
+    }
+  }
+  const metrics = pmMetrics(s, hist);
   const failed = results.filter((r) => r.status === "rejected").length;
   return {
     source: "polymarket",

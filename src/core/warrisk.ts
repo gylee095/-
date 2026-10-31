@@ -199,8 +199,16 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   const usual = { clash: +(BANDS[1].clash[0] + (BANDS[1].clash[1] - BANDS[1].clash[0]) * 0.4).toFixed(2), war: +(BANDS[1].war[0] + (BANDS[1].war[1] - BANDS[1].war[0]) * 0.4).toFixed(2) };
 
   // ── 누가 먼저 움직였나 ──
+  // 한국 증시만 빠졌어도 방산주가 함께 빠지고 환율·예측시장이 조용하면, 돈이 '전쟁'을 가격에 넣은 것이 아니다(업종·세계 증시 요인)
+  const equityOnly = pts(by["market.kr_equity_rel_pct"]) > 0 && (val(by["market.defense_rel_pct"]) ?? 0) < 1 && pts(by["market.pm_war_prob"]) === 0 && pts(by["market.usdkrw_change_pct"]) === 0 && pts(by["market.defense_rel_pct"]) === 0;
   let firstMover: WarRisk["firstMover"];
-  if (L.gov >= 1 && L.money >= 1) firstMover = { kind: "warning", text: "정부와 돈이 함께 움직였다 — 비공개 정보를 가진 쪽과 돈을 건 쪽이 동시에 반응한, 가장 무거운 조합이다." };
+  if (L.gov === 0 && L.money >= 1 && equityOnly) {
+    const m = (by["market.kr_equity_rel_pct"].reading?.meta ?? {}) as any;
+    firstMover = {
+      kind: "neutral",
+      text: `한국 증시가 이웃 증시보다 더 빠졌지만${m.kospiPct !== undefined ? `(코스피 ${m.kospiPct}%, 일본·대만 ${m.peersPct}%)` : ""} 방산주도 같이 빠졌고 환율·예측시장 전쟁 가격은 그대로다 — 돈이 전쟁 위험을 가격에 넣는 모습은 아니다(세계 증시·업종 요인 쪽).${L.military >= 1 ? " 군사 움직임에도 정부는 평소대로다." : ""}`,
+    };
+  } else if (L.gov >= 1 && L.money >= 1) firstMover = { kind: "warning", text: "정부와 돈이 함께 움직였다 — 비공개 정보를 가진 쪽과 돈을 건 쪽이 동시에 반응한, 가장 무거운 조합이다." };
   else if (L.gov >= 1 && L.public === 0) firstMover = { kind: "warning", text: "정부가 먼저 움직였고 대중은 아직 조용하다 — 정보를 가진 쪽이 먼저 반응한 모양이라 가장 무게를 둘 신호다. 경보 사유가 치안·재난인지 먼저 확인한다." };
   else if (L.gov >= 1) firstMover = { kind: "caveat", text: "정부 경보가 올랐다 — 사유(안보·치안·재난)를 확인해야 한다." };
   else if (L.money >= 2 && L.military === 0 && L.nkwords === 0) firstMover = { kind: "caveat", text: "돈만 움직였다 — 북한 쪽 신호가 없으니 세계 증시·환율·국내 정치 같은 다른 이유를 먼저 의심한다. 뉴스 없이 계속 빠지면 시장이 먼저 안 것일 수 있다." };

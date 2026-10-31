@@ -78,6 +78,16 @@ describe("전쟁 위험 모델", () => {
     expect(w.firstMover.text).toMatch(/돈만 움직였다/);
   });
 
+  it("실측 10/30: 코스피만 더 빠졌어도 방산주가 같이 빠지면 '전쟁 가격 아님'으로 읽는다", () => {
+    const w = run(board({
+      "market.kr_equity_rel_pct": { value: -2.23, state: "elevated", meta: { kospiPct: -4.69, peersPct: -2.46 } },
+      "market.defense_rel_pct": { value: -0.07, state: "normal" },
+    }), [brief(40, 3, "북한, 탄도미사일 약 10 발 발사 → 동해", "탄도미사일 발사")]);
+    expect(w.phase).toBe(2);
+    expect(w.firstMover.text).toMatch(/방산주도 같이 빠졌고.*전쟁 위험을 가격에 넣는 모습은 아니다/);
+    expect(w.firstMover.text).toMatch(/코스피 -4.69%, 일본·대만 -2.46%/);
+  });
+
   it("ICBM + 시장 반응 → 3단계(위기)", () => {
     const w = run(board({ "market.kr_equity_rel_pct": { value: -4.5, state: "anomalous" }, "market.pm_war_prob": { value: 9, state: "elevated", meta: { question: "Will North Korea invade South Korea before 2027?", daysLeft: 61, diplomacy: [{ question: "Will Trump meet with Kim Jong Un in 2026?", pct: 15 }] } } }), [brief(5, 4, "북한, ICBM 발사 → 동해", "장거리·일본 상공/EEZ 관련 발사")]);
     expect(w.phase).toBe(3);

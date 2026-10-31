@@ -97,6 +97,9 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
     if (id === "sea.gfw_cn_change_pct") return "측정 불가 — Global Fishing Watch 토큰이 없거나 응답 실패. '서해 중국 어선이 사라졌는가'를 지금 볼 수 없음";
     if (id.startsWith("thermal.")) return "측정 불가 — 위성 열점(FIRMS) 키가 없어 발사장·시험장의 열 활동은 볼 수 없음";
     if (id.startsWith("social.")) return "측정 불가 — SNS 공개 검색이 서버에서 차단됨. 사이렌·폭발음 목격담은 수집 안 됨";
+    if (id === "psych.naver_war_search") return "측정 불가 — 네이버 데이터랩 키가 없어 한국 사람들의 '전쟁·대피소' 검색 불안을 볼 수 없음";
+    if (id === "market.kr_equity_rel_pct" || id === "market.defense_rel_pct") return "측정 불가 — 증시 시세 응답 실패(야후 접속 제한). 환율만으로 돈의 움직임을 봄";
+    if (id === "market.pm_war_prob") return "측정 불가 — 예측시장 응답 실패 또는 한반도 전쟁 시장을 찾지 못함";
     return "측정 불가 — 최근 30시간 내 관측 없음(소스 오류 또는 미설정)";
   }
   const v = r!.value;
@@ -164,6 +167,55 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
       const signed = m?.signedPct as number | undefined;
       const dir = signed === undefined ? "" : signed > 0 ? "원화 약세" : "원화 강세";
       return `원·달러 ${m?.price ? `${Math.round(m.price)}원, ` : ""}전일 대비 ${signed !== undefined ? (signed > 0 ? "+" : "") + signed : v}% (${dir})${isAbnormal(row) ? " → 큰 변동. 뉴스 없는 시간대면 시장이 먼저 반응했을 수 있음" : " → 평온"}`;
+    }
+    case "market.kr_equity_rel_pct": {
+      const m = r!.meta as any;
+      const sg = (x?: number) => (x === undefined ? "?" : `${x > 0 ? "+" : ""}${x}%`);
+      const body = `코스피 ${sg(m?.kospiPct)}, 일본·대만 평균 ${sg(m?.peersPct)}${m?.ewyPct !== undefined ? `, 미국 상장 한국 ETF ${sg(m.ewyPct)}` : ""}`;
+      if (v <= -4) return `${body} → 한국만 ${Math.abs(v).toFixed(1)}%p 더 빠짐. 이웃 증시와 따로 빠진 큰 하락 — 북한 뉴스와 시점이 겹치는지, 국내 정치·업종 요인인지 확인`;
+      if (v <= -2) return `${body} → 한국만 ${Math.abs(v).toFixed(1)}%p 더 빠짐. 한국 고유 요인이 있음 (북한·정치·반도체 중 무엇인지 확인)`;
+      return `${body} → 한국만의 이상 하락 없음`;
+    }
+    case "market.defense_rel_pct": {
+      const m = r!.meta as any;
+      if (v >= 4) return `방산주가 코스피보다 ${v.toFixed(1)}%p 더 오름 → 투자자가 충돌 가능성을 가격에 넣는 모양. 단 수출 계약 뉴스가 더 흔한 이유`;
+      return `방산주 코스피 대비 ${v > 0 ? "+" : ""}${v.toFixed(1)}%p${m?.kospiPct !== undefined ? ` (코스피 ${m.kospiPct > 0 ? "+" : ""}${m.kospiPct}%)` : ""} → 충돌을 가격에 넣는 움직임 없음`;
+    }
+    case "market.pm_war_prob": {
+      const m = r!.meta as any;
+      const left = m?.daysLeft !== undefined ? ` (만기까지 ${m.daysLeft}일)` : "";
+      const chg = base !== undefined && !isLearning(row) ? ` · 평소 ${base.toFixed(1)}%` : "";
+      if (isAbnormal(row)) return `예측시장 '북한의 한국 침공' 가격 ${v}%${left}${chg} → 평소보다 뚜렷이 오름. 누군가 새 정보를 가격에 넣는 중일 수 있음 (거래가 얇으면 소수의 매수로도 튐)`;
+      return `예측시장 '북한의 한국 침공' 가격 ${v}%${left}${chg}${learn} → 큰 변화 없음. 수 % 대 가격은 실제보다 높게 매겨지는 경향이라 변화만 본다`;
+    }
+    case "official.ca_level_kr":
+      return v === 0 ? "캐나다: 한국 '평소 수준의 주의' 유지" : `캐나다 한국 여행경보 ${v}단계 — ${v >= 3 ? "모든 여행 자제" : v === 2 ? "불필요한 여행 자제" : "높은 주의"}. 사유 확인 필요`;
+    case "official.de_warning_kr":
+      return v === 0 ? "독일: 한국에 여행 경고 없음" : `독일 외무부 한국 ${v === 2 ? "전면" : "부분"} 경고 — 독일은 경고를 아껴 쓰므로 이례적. 사유(안보·재난) 확인`;
+    case "official.jp_risk_level_kr":
+      return v === 0 ? "일본 외무성: 한국에 위험 레벨 없음" : `일본 외무성 한국 위험 레벨 ${v} — ${v >= 3 ? "도항 중지·대피 권고급" : "주의 환기"}. 일본은 한반도 유사시 자국민 대피 계획을 갖고 있음`;
+    case "official.jp_embassy_alert": {
+      const m = r!.meta as any;
+      const launches = m?.launchDays7d ? ` (최근 7일 미사일 발사 안내 ${m.launchDays7d}일)` : "";
+      if (v >= 2) return `주한 일본 공관이 출국·대피를 권고하는 메일을 보냄: ${(m?.titles ?? [])[0] ?? ""} → 정부가 상황 자체를 위험하게 본다는 강한 신호`;
+      if (v === 1) return `주한 일본 공관이 한반도 정세 주의 메일을 보냄: ${(m?.titles ?? [])[0] ?? ""}${launches}`;
+      return `주한 일본 공관 메일은 발사 안내뿐, 정세 경고 없음${launches}`;
+    }
+    case "media.war_talk_24h": {
+      const t = ((r!.meta as any)?.titles ?? []) as string[];
+      return v === 0 ? "한반도 '전쟁' 언급 보도 없음" : `한반도 '전쟁' 언급 보도 ${v}건${vs}${learn}${t[0] ? ` — 예: ${t[0]}` : ""}${isAbnormal(row) ? " → 평소보다 많음. 북한 담화 인용인지, 정부·전문가 판단인지 구분" : ""}`;
+    }
+    case "psych.wiki_korea_attention": {
+      const m = r!.meta as any;
+      const top = m?.top ? ` · 가장 많이 는 문서 ${m.top.article} ${m.top.ratio}배` : "";
+      const ww = m?.ww3Ratio !== undefined ? ` · '제3차 세계대전' 문서 ${m.ww3Ratio}배` : "";
+      if (v >= 160) return `한반도 관련 위키백과 문서들이 평소의 ${(v / 100).toFixed(1)}배로 함께 늘었음${top}${ww} → 세계가 한반도를 주목 중. 무엇 때문인지(사건·인물 뉴스·영화) 확인`;
+      return `한반도 관련 위키백과 조회수 평소의 ${(v / 100).toFixed(1)}배${top}${ww} → 세계의 관심은 평소 수준${m?.top?.ratio >= 5 ? " (한 문서만 튄 것은 인물 뉴스일 가능성)" : ""}`;
+    }
+    case "psych.naver_war_search": {
+      const m = r!.meta as any;
+      if (v >= 200) return `네이버 '${m?.worstGroup ?? "전쟁"}' 검색이 평소의 ${(v / 100).toFixed(1)}배 → 한국 사람들의 불안이 커짐. 정부·돈이 조용하면 언론발 불안일 가능성`;
+      return `네이버 전쟁·대피 관련 검색 평소의 ${(v / 100).toFixed(1)}배 → 사람들의 불안은 평소 수준`;
     }
     case "internet.kp_outage_alerts_24h":
       return v === 0 ? "북한 인터넷 외부망 정상 → 내부 이상 징후 없음" : `북한 인터넷 장애 경보 ${v}건(24h) — 사이버 공격·내부 통제·정전 가능성. 평소에도 불안정하긴 함`;

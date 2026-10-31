@@ -69,6 +69,27 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
   );
 
   server.registerTool(
+    "get_war_risk",
+    {
+      title: "전쟁 위험 모델 (5개 영역 → 국면 5단계 → 30일 확률)",
+      description:
+        "정부의 행동·돈의 움직임·군사 동향·북한의 말·사람들의 불안을 영역별로 판정하고, 국면(1 평온 · 2 긴장 · 3 위기 · 4 임박 · 5 교전)과 " +
+        "앞으로 30일 국지 충돌·전면전 확률 범위(판단값), '누가 먼저 움직였나', 다음 단계로 올릴 신호, 억제 요인, 사각지대를 반환한다. " +
+        "분석관은 이 결과를 출발점으로 삼되 반증을 시도하고, 규칙이 모르는 맥락으로 확률을 조정한 뒤 이유를 record_assessment 에 남긴다.",
+      inputSchema: {},
+    },
+    async () => {
+      try {
+        const { buildState } = await import("../core/state.js");
+        const st = await buildState(store, Date.now() - 14 * 24 * 3600_000, env.DISABLED_SOURCES);
+        return out({ now: fmtKst(st.now), ...st.warRisk, at: undefined });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
     "get_indicator_board",
     {
       title: "징후판 (모든 징후의 현재 상태)",
@@ -151,15 +172,30 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
   server.registerTool(
     "check_travel_advisories",
     {
-      title: "미·영 정부 한국 여행경보 원문",
-      description: "미 국무부 South Korea 여행경보 단계·제목·날짜와 영국 FCDO 최신 갱신 요약을 반환한다. 단계 변경이나 안보 문구는 '서방 정부가 위험을 인정했다'는 강한 신호다.",
+      title: "각국 정부 한국 여행경보 원문 (미·영·캐나다·독일·일본)",
+      description: "미 국무부 단계·제목, 영국 FCDO 최신 갱신 요약, 캐나다 단계·문구, 독일 경고 플래그, 일본 외무성 위험 레벨과 주한 일본 공관 최근 영사 메일 제목을 반환한다. " +
+        "여러 나라가 함께 올리는 경보나 '정세·출국' 문구는 정부가 위험을 행동으로 인정했다는 가장 강한 공개 신호다. 사유가 치안·재난인지 반드시 문구로 확인한다.",
       inputSchema: {},
     },
     async () => {
-      const [us, uk] = await Promise.allSettled([fetchText(US_TRAVEL_RSS, {}, 25000).then(parseUsAdvisory), fetchText(UK_TRAVEL_ATOM).then(parseUkAdvice)]);
+      const { CA_URL, DE_URL, JP_URL, parseCanada, parseGermany, parseJapan, summarizeJpMails } = await import("../core/collectors/advisories.js");
+      const { fetchHead, fetchJson } = await import("../core/util.js");
+      const [us, uk, ca, de, jp] = await Promise.allSettled([
+        fetchText(US_TRAVEL_RSS, {}, 25000).then(parseUsAdvisory),
+        fetchText(UK_TRAVEL_ATOM).then(parseUkAdvice),
+        fetchJson<any>(CA_URL, {}, 20000).then(parseCanada),
+        fetchJson<any>(DE_URL, {}, 20000).then(parseGermany),
+        fetchHead(JP_URL, 96 * 1024, {}, 20000).then(parseJapan),
+      ]);
+      const err = (r: PromiseRejectedResult) => ({ error: String(r.reason).slice(0, 200) });
       return out({
-        us: us.status === "fulfilled" ? us.value && { ...us.value, pubDate: fmtKst(us.value.pubDate) } : { error: String(us.reason) },
-        uk: uk.status === "fulfilled" ? { ...uk.value, updated: fmtKst(uk.value.updated) } : { error: String(uk.reason) },
+        us: us.status === "fulfilled" ? us.value && { ...us.value, pubDate: fmtKst(us.value.pubDate) } : err(us),
+        uk: uk.status === "fulfilled" ? { ...uk.value, updated: fmtKst(uk.value.updated) } : err(uk),
+        canada: ca.status === "fulfilled" ? ca.value : err(ca),
+        germany: de.status === "fulfilled" ? de.value && { ...de.value, lastModified: fmtKst(de.value.lastModified) } : err(de),
+        japan: jp.status === "fulfilled"
+          ? { riskLevel: jp.value.riskLevel, summary7d: summarizeJpMails(jp.value.mails, Date.now()), recentMails: jp.value.mails.slice(0, 10).map((m) => ({ at: fmtKst(m.at), title: m.title })) }
+          : err(jp),
         note: "주한미대사관 경보(kr.usembassy.gov)·주한미군 FPCON 은 자동 접근이 차단돼 수집하지 않는다. 필요하면 search_news 로 보도를 찾는다.",
       });
     },
@@ -168,14 +204,22 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
   server.registerTool(
     "check_markets",
     {
-      title: "원·달러 환율",
-      description: "원·달러 현재가, 전일 종가 대비 변동률, 당일 고·저를 반환한다. 뉴스 없는 시간대의 급변은 시장이 먼저 반응했다는 신호일 수 있다.",
+      title: "돈의 움직임 — 환율·한국 증시·방산주·예측시장",
+      description: "원·달러 변동, 코스피와 일본·대만 증시 비교('한국만' 빠졌나), 방산 3종의 코스피 대비 움직임, 미국 상장 한국 ETF, 예측시장의 한반도 침공·대화 가격을 반환한다. " +
+        "뉴스 없는 시간대의 급변은 시장이 먼저 반응했다는 신호일 수 있지만, 세계 증시·국내 정치·업종 뉴스가 더 흔한 이유다.",
       inputSchema: {},
     },
     async () => {
       try {
-        const fx = await fetchUsdKrw();
-        return out({ ...fx, changePct: +fx.changePct.toFixed(2), at: fmtKst(fx.at), caveat: "금리·달러 요인이 대부분. 다른 징후와 함께 볼 것." });
+        const { fetchEquities, equityMetrics } = await import("../core/collectors/markets.js");
+        const { collectPolymarket } = await import("../core/collectors/polymarket.js");
+        const [fx, eq, pm] = await Promise.allSettled([fetchUsdKrw(), fetchEquities(), collectPolymarket()]);
+        return out({
+          usdkrw: fx.status === "fulfilled" ? { ...fx.value, changePct: +fx.value.changePct.toFixed(2), at: fmtKst(fx.value.at) } : { error: String(fx.reason).slice(0, 200) },
+          equities: eq.status === "fulfilled" ? { moves: eq.value.map((m) => ({ symbol: m.symbol, changePct: +m.changePct.toFixed(2) })), metrics: equityMetrics(eq.value) } : { error: String(eq.reason).slice(0, 200) },
+          predictionMarket: pm.status === "fulfilled" ? pm.value.metrics?.[0] ?? { error: pm.value.error } : { error: String(pm.reason).slice(0, 200) },
+          caveat: "환율은 금리·달러 요인이 대부분, 증시는 세계 증시·반도체·국내 정치 요인이 더 흔하다. 예측시장 수 % 대 가격은 과대평가 경향. 다른 영역과 함께 볼 것.",
+        });
       } catch (e) {
         return fail(e);
       }
@@ -352,7 +396,8 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
       title: "구조화된 분석 기록 (대시보드 '클로드 분석')",
       description:
         "경쟁가설분석(ACH) 형식으로 판단을 기록한다. 대시보드에 그대로 표시되므로 사실과 해석을 구분하고, 각 가설에 찬성·반대 근거와 다음 확인 사항을 적는다. " +
-        "overall_level: 1 평시, 2 주의, 3 경계, 4 심각, 5 위급. 단일 징후로 3 이상을 주지 말 것.",
+        "overall_level: 1 평시, 2 주의, 3 경계, 4 심각, 5 위급. 단일 징후로 3 이상을 주지 말 것. " +
+        "war_phase·p_clash_30d·p_war_30d 는 get_war_risk 의 자동 판정을 출발점으로 한 분석관 자신의 판단이며, 다르게 본다면 war_reasoning 에 이유를 쓴다.",
       inputSchema: {
         overall_level: z.number().int().min(1).max(5),
         overall: z.string().max(300).describe("한 줄 종합 판단"),
@@ -365,11 +410,18 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
         })).max(5),
         anomalies: z.array(z.string().max(200)).max(8).describe("이번에 새로 눈에 띈 이상·조합"),
         gaps: z.array(z.string().max(200)).max(6).describe("감시 공백·측정 불가 소스"),
+        war_phase: z.number().int().min(1).max(5).optional().describe("전쟁 위험 국면 1 평온 · 2 긴장 · 3 위기 · 4 임박 · 5 교전"),
+        p_clash_30d: z.number().min(0).max(100).optional().describe("앞으로 30일 국지 충돌(교전·영토 직접 공격) 확률 %"),
+        p_war_30d: z.number().min(0).max(100).optional().describe("앞으로 30일 전면전 확률 %"),
+        war_reasoning: z.string().max(400).optional().describe("확률 판단의 핵심 근거 — 자동 모델과 다르면 왜 다른지. 일반인이 이해하는 말로"),
+        tripwires: z.array(z.string().max(150)).max(4).optional().describe("이 판단을 바꿀 신호 (올리는 것·내리는 것)"),
       },
     },
     async (a) => {
       const text = [
         `[종합] ${a.overall_level}단계 — ${a.overall}`,
+        a.war_phase ? `[전쟁 위험] ${a.war_phase}단계 · 30일 국지 충돌 ${a.p_clash_30d ?? "?"}% · 전면전 ${a.p_war_30d ?? "?"}%${a.war_reasoning ? ` — ${a.war_reasoning}` : ""}` : "",
+        a.tripwires?.length ? `[지켜볼 신호] ${a.tripwires.join(" / ")}` : "",
         ...a.hypotheses.map((h) => `[가설·${h.likelihood}] ${h.hypothesis}\n  찬성: ${h.evidence_for.join(" / ") || "-"}\n  반대: ${h.evidence_against.join(" / ") || "-"}\n  확인: ${h.next_checks.join(" / ") || "-"}`),
         a.anomalies.length ? `[이상] ${a.anomalies.join(" / ")}` : "",
         a.gaps.length ? `[감시 공백] ${a.gaps.join(" / ")}` : "",

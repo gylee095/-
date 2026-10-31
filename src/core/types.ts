@@ -150,4 +150,7 @@ export interface Env {
   FIRMS_MAP_KEY?: string;
   /** Global Fishing Watch 무료 토큰 — 위성 AIS 서해 중국 선박 추세 */
   GFW_API_TOKEN?: string;
+  /** 네이버 개발자센터 무료 키 — 데이터랩 검색어 트렌드(한국 사람들의 전쟁 불안) */
+  NAVER_CLIENT_ID?: string;
+  NAVER_CLIENT_SECRET?: string;
 }

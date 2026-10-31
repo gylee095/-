@@ -15,6 +15,10 @@ import { collectGpsjam } from "./gpsjam.js";
 import { collectAis } from "./ais.js";
 import { collectFirms } from "./firms.js";
 import { collectGfw } from "./gfw.js";
+import { collectAdvisories } from "./advisories.js";
+import { collectPolymarket } from "./polymarket.js";
+import { collectWiki } from "./wiki.js";
+import { collectNaver } from "./naver.js";
 
 /** 수집기가 이전 상태를 기억해야 할 때 쓰는 최소 저장소 */
 export interface CollectorKv {
@@ -48,6 +52,10 @@ export const COLLECTORS: Record<SourceId, Collector> = {
   aisstream: (env, now) => collectAis(env.AISSTREAM_API_KEY, now),
   firms: (env, now) => collectFirms(env.FIRMS_MAP_KEY, now),
   gfw: (env, now) => collectGfw(env.GFW_API_TOKEN, now),
+  advisories: (_e, now) => collectAdvisories(now),
+  polymarket: (_e, now) => collectPolymarket(now),
+  wiki: (_e, now) => collectWiki(now),
+  naver_datalab: (env, now) => collectNaver(env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET, now),
 };
 
 /** 모든 수집기를 병렬 실행. 한 소스 실패가 전체를 막지 않는다. */

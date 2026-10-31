@@ -56,6 +56,11 @@ export async function searchFeeds(query: string, sinceMs: number, feeds = DEFAUL
 const NK_STATEMENT_RE = /담화|성명|대변인|경고|위협|비난|규탄|맹비난|反발|반발/;
 const NK_HOSTILE_RE = /핵\s?(무력|공격|타격|전쟁|보복|사용)|선제|초토화|보복|섬멸|파멸|궤멸|불바다|전면전|전쟁\s?(불사|준비|상태)|적대국|주적|응징|격멸|전술핵|핵탄두/;
 const NK_RE = /북한|北|김정은|김여정|평양|조선중앙|노동신문|North Korea|DPRK|Kim Jong/i;
+// 한반도 전쟁을 입에 올리는 보도 (역사 기념·다른 나라 전쟁·무역전쟁은 뺀다)
+export const WAR_TALK_RE = /전쟁|전면전|확전|선전포고|전시\s?상태|준전시|동원령|대피령|교전|무력\s?충돌/;
+const KOREA_CTX_RE = /북한|北|남북|한반도|김정은|김여정|평양|NLL|DMZ|휴전선|접경/;
+const NOT_WAR_TALK_RE = /6[·.]25|한국\s?전쟁\s?(기념|참전|유해|\d+주년)|참전|전쟁기념|정전\s?협정|우크라|러시아|이스라엘|이란|가자|중동|무역\s?전쟁|관세|게임|영화|드라마|웹툰/;
+export const isWarTalk = (t: string) => WAR_TALK_RE.test(t) && KOREA_CTX_RE.test(t) && !NOT_WAR_TALK_RE.test(t);
 
 /** 최근 기사 제목들에서 언론 템포·북한 수사 지표를 계산한다 */
 export function newsMetrics(items: { title: string; pubDate?: number }[], now: number, source: string): Metric[] {
@@ -68,6 +73,8 @@ export function newsMetrics(items: { title: string; pubDate?: number }[], now: n
     const hostile = day.filter((i) => NK_HOSTILE_RE.test(i.title));
     metrics.push({ indicator: "rhetoric.nk_statements_24h", value: statements.length, meta: { titles: statements.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
     metrics.push({ indicator: "rhetoric.nk_hostile_24h", value: hostile.length, meta: { titles: hostile.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
+    const warTalk = items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 24 * 3600_000 && isWarTalk(i.title));
+    metrics.push({ indicator: "media.war_talk_24h", value: warTalk.length, meta: { titles: warTalk.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
   }
   return metrics;
 }

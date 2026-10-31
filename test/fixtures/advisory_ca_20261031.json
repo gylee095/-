@@ -1,0 +1,70 @@
+{
+ "metadata": {
+  "generated": {
+   "timestamp": 1793386872,
+   "date": "2026-10-30 15:01:12"
+  }
+ },
+ "data": {
+  "KR": {
+   "country-id": 153000,
+   "country-iso": "KR",
+   "country-eng": "South Korea",
+   "country-fra": "Corée du sud",
+   "advisory-state": 0,
+   "date-published": {
+    "timestamp": 1792068795,
+    "date": "2026-10-15 08:53:15",
+    "asp": "2026-10-15T08:53:15.1134694-04:00"
+   },
+   "has-advisory-warning": 0,
+   "has-regional-advisory": 0,
+   "has-content": 1,
+   "recent-updates-type": "Regular text update",
+   "eng": {
+    "name": "South Korea",
+    "url-slug": "south-korea",
+    "friendly-date": "October 15, 2026 08:53 EDT",
+    "advisory-text": "Exercise normal security precautions",
+    "recent-updates": "Natural disasters and climate section – added information on El Niño"
+   },
+   "fra": {
+    "name": "Corée du Sud",
+    "url-slug": "coree-sud",
+    "friendly-date": "15 octobre 2026 08:53 HAE",
+    "advisory-text": "Prendre des mesures de sécurité normales",
+    "recent-updates": "Section Catastrophes naturelles et climat – ajout d’information sur El Niño"
+   }
+  },
+  "KP": {
+   "country-id": 152000,
+   "country-iso": "KP",
+   "country-eng": "North Korea",
+   "country-fra": "Corée du nord",
+   "advisory-state": 3,
+   "date-published": {
+    "timestamp": 1792058217,
+    "date": "2026-10-15 05:56:57",
+    "asp": "2026-10-15T05:56:57.2046847-04:00"
+   },
+   "has-advisory-warning": 1,
+   "has-regional-advisory": 0,
+   "has-content": 1,
+   "recent-updates-type": "Regular text update",
+   "eng": {
+    "name": "North Korea",
+    "url-slug": "north-korea",
+    "friendly-date": "October 15, 2026 05:56 EDT",
+    "advisory-text": "Avoid all travel",
+    "recent-updates": "Natural disasters and climate section – added information on El Niño"
+   },
+   "fra": {
+    "name": "Corée du Nord",
+    "url-slug": "coree-nord",
+    "friendly-date": "15 octobre 2026 05:56 HAE",
+    "advisory-text": "Éviter tout voyage",
+    "recent-updates": "Section Catastrophes naturelles et climat – ajout d’information sur El Niño"
+   }
+  }
+ }
+}

@@ -1,0 +1,1876 @@
+{
+ "events": [
+  {
+   "id": "73185",
+   "slug": "kim-jong-un-out-as-supreme-leader-of-north-korea-before-2027",
+   "title": "Kim Jong Un out as Supreme Leader of North Korea by December 31, 2026?",
+   "markets": [
+    {
+     "id": "665464",
+     "question": "Kim Jong Un out as Supreme Leader of North Korea by December 31, 2026?",
+     "outcomePrices": "[\"0.0365\", \"0.9635\"]",
+     "volume": "773909.0649430001",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "kim-jong-un-out-as-supreme-leader-of-north-korea-before-2027"
+    }
+   ]
+  },
+  {
+   "id": "1280263",
+   "slug": "number-of-north-korea-missile-tests-in-november-2026",
+   "title": "Number of North Korea Missile Tests in November 2026?",
+   "markets": [
+    {
+     "id": "6403109",
+     "question": "Will there be fewer than 1 North Korea test in November 2026?",
+     "outcomePrices": "[\"0.15\", \"0.85\"]",
+     "volume": "505.619098",
+     "endDate": "2026-12-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-there-be-fewer-than-1-north-korea-test-in-november-2026"
+    },
+    {
+     "id": "6403110",
+     "question": "Will there be exactly 1 North Korea test in November 2026?",
+     "outcomePrices": "[\"0.24\", \"0.76\"]",
+     "volume": "50.019999999999996",
+     "endDate": "2026-12-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-there-be-exactly-1-north-korea-test-in-november-2026"
+    },
+    {
+     "id": "6403111",
+     "question": "Will there be exactly 2 North Korea tests in November 2026?",
+     "outcomePrices": "[\"0.345\", \"0.655\"]",
+     "volume": "481.978022",
+     "endDate": "2026-12-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-there-be-exactly-2-north-korea-tests-in-november-2026"
+    },
+    {
+     "id": "6403112",
+     "question": "Will there be exactly 3 North Korea tests in November 2026?",
+     "outcomePrices": "[\"0.325\", \"0.675\"]",
+     "volume": "76.898261",
+     "endDate": "2026-12-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-there-be-exactly-3-north-korea-tests-in-november-2026"
+    },
+    {
+     "id": "6403113",
+     "question": "Will there be 4 or more North Korea tests in November 2026?",
+     "outcomePrices": "[\"0.225\", \"0.775\"]",
+     "volume": "159.94",
+     "endDate": "2026-12-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-there-be-4-or-more-north-korea-tests-in-november-2026"
+    }
+   ]
+  },
+  {
+   "id": "872330",
+   "slug": "north-korea-x-south-korea-diplomatic-meeting-byptptpt-direct-or-indirect",
+   "title": "North Korea x South Korea diplomatic meeting by...? (direct or indirect)",
+   "markets": [
+    {
+     "id": "3708728",
+     "question": "North Korea x South Korea diplomatic meeting by August 31, 2026?",
+     "outcomePrices": "[\"0\", \"1\"]",
+     "volume": "1076.0508149999998",
+     "endDate": "2026-09-01T03:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "north-korea-x-south-korea-diplomatic-meeting-by-august-31"
+    },
+    {
+     "id": "3708729",
+     "question": "North Korea x South Korea diplomatic meeting by December 31, 2026?",
+     "outcomePrices": "[\"0.445\", \"0.555\"]",
+     "volume": "5284.497577",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "north-korea-x-south-korea-diplomatic-meeting-by-december-31"
+    }
+   ]
+  },
+  {
+   "id": "73183",
+   "slug": "will-north-korea-invade-south-korea-before-2027",
+   "title": "Will North Korea invade South Korea before 2027?",
+   "markets": [
+    {
+     "id": "665459",
+     "question": "Will North Korea invade South Korea before 2027?",
+     "outcomePrices": "[\"0.0435\", \"0.9565\"]",
+     "volume": "458002.448816",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-north-korea-invade-south-korea-before-2027"
+    }
+   ]
+  },
+  {
+   "id": "431801",
+   "slug": "will-trump-visit-north-korea-by-june-30",
+   "title": "Will Trump visit North Korea by...?",
+   "markets": [
+    {
+     "id": "2117443",
+     "question": "Will Trump visit North Korea by June 30?",
+     "outcomePrices": "[\"0\", \"1\"]",
+     "volume": "31243.907997000013",
+     "endDate": "2026-07-01T03:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-trump-visit-north-korea-by-june-30"
+    },
+    {
+     "id": "2749488",
+     "question": "Will Trump visit North Korea by December 31?",
+     "outcomePrices": "[\"0.0745\", \"0.9255\"]",
+     "volume": "136199.17892",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-trump-visit-north-korea-by-december-31"
+    }
+   ]
+  },
+  {
+   "id": "73212",
+   "slug": "will-north-and-south-korea-engage-in-direct-talks-by-2027",
+   "title": "Will North and South Korea engage in direct talks by...?",
+   "markets": [
+    {
+     "id": "2749491",
+     "question": "Will North and South Korea engage in direct talks by December 31?",
+     "outcomePrices": "[\"0.12\", \"0.88\"]",
+     "volume": "39091.846472",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-north-and-south-korea-engage-in-direct-talks-by-december-31"
+    },
+    {
+     "id": "665501",
+     "question": "Will North and South Korea engage in direct talks by June 30?",
+     "outcomePrices": "[\"0\", \"1\"]",
+     "volume": "83751.80514200003",
+     "endDate": "2026-07-01T03:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-north-and-south-korea-engage-in-direct-talks-by-2027"
+    }
+   ]
+  },
+  {
+   "id": "872388",
+   "slug": "us-x-north-korea-diplomatic-meeting-by",
+   "title": "US x North Korea diplomatic meeting by...?",
+   "markets": [
+    {
+     "id": "3708988",
+     "question": "US x North Korea diplomatic meeting by August 31, 2026?",
+     "outcomePrices": "[\"0\", \"1\"]",
+     "volume": "955.2571409999998",
+     "endDate": "2026-09-01T03:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "us-x-north-korea-diplomatic-meeting-by-august-31"
+    },
+    {
+     "id": "3708990",
+     "question": "US x North Korea diplomatic meeting by December 31, 2026?",
+     "outcomePrices": "[\"0.21\", \"0.79\"]",
+     "volume": "4769.129826",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "us-x-north-korea-diplomatic-meeting-by-december-31"
+    }
+   ]
+  },
+  {
+   "id": "872408",
+   "slug": "kim-jong-un-visits-the-us-in-2026",
+   "title": "Kim Jong Un visits the US in 2026?",
+   "markets": [
+    {
+     "id": "3709010",
+     "question": "Kim Jong Un visits the US in 2026?",
+     "outcomePrices": "[\"0.031\", \"0.969\"]",
+     "volume": "364.98110500000007",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "kim-jong-un-visits-the-us-in-2026"
+    }
+   ]
+  },
+  {
+   "id": "548796",
+   "slug": "which-countries-will-recognize-israel-by-december-31",
+   "title": "Which countries will recognize Israel by December 31?",
+   "markets": [
+    {
+     "id": "2412359",
+     "question": "Will North Korea recognize Israel by December 31?",
+     "outcomePrices": "[\"0.0335\", \"0.9665\"]",
+     "volume": "24899.677711999997",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-north-korea-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412360",
+     "question": "Will Cuba recognize Israel by December 31?",
+     "outcomePrices": "[\"0.0335\", \"0.9665\"]",
+     "volume": "16561.497648999997",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-cuba-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412361",
+     "question": "Will Saudi Arabia recognize Israel by December 31?",
+     "outcomePrices": "[\"0.039\", \"0.961\"]",
+     "volume": "89696.44589900001",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-saudi-arabia-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412362",
+     "question": "Will Lebanon recognize Israel by December 31?",
+     "outcomePrices": "[\"0.08\", \"0.92\"]",
+     "volume": "129143.53968599999",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-lebanon-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412363",
+     "question": "Will Afghanistan recognize Israel by December 31?",
+     "outcomePrices": "[\"0.0225\", \"0.9775\"]",
+     "volume": "45400.48632799999",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-afghanistan-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412364",
+     "question": "Will Iraq recognize Israel by December 31?",
+     "outcomePrices": "[\"0.048\", \"0.952\"]",
+     "volume": "17891.863536",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-iraq-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412365",
+     "question": "Will Pakistan recognize Israel by December 31?",
+     "outcomePrices": "[\"0.056\", \"0.944\"]",
+     "volume": "28084.110137000003",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-pakistan-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412366",
+     "question": "Will Syria recognize Israel by December 31?",
+     "outcomePrices": "[\"0.037\", \"0.963\"]",
+     "volume": "22962.333131",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-syria-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412367",
+     "question": "Will Venezuela recognize Israel by December 31?",
+     "outcomePrices": "[\"0.14\", \"0.86\"]",
+     "volume": "396044.53385699994",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-venezuela-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412368",
+     "question": "Will Tunisia recognize Israel by December 31?",
+     "outcomePrices": "[\"0.055\", \"0.945\"]",
+     "volume": "24291.326789000002",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-tunisia-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412369",
+     "question": "Will Kuwait recognize Israel by December 31?",
+     "outcomePrices": "[\"0.03\", \"0.97\"]",
+     "volume": "31984.867647000003",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-kuwait-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412370",
+     "question": "Will Qatar recognize Israel by December 31?",
+     "outcomePrices": "[\"0.0265\", \"0.9735\"]",
+     "volume": "51914.178178999995",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-qatar-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412371",
+     "question": "Will Indonesia recognize Israel by December 31?",
+     "outcomePrices": "[\"0.0455\", \"0.9545\"]",
+     "volume": "30748.960044000003",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-indonesia-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412372",
+     "question": "Will Malaysia recognize Israel by December 31?",
+     "outcomePrices": "[\"0.0255\", \"0.9745\"]",
+     "volume": "15525.223331",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-malaysia-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412373",
+     "question": "Will Bangladesh recognize Israel by December 31?",
+     "outcomePrices": "[\"0.011\", \"0.989\"]",
+     "volume": "18069.058803",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-bangladesh-recognize-israel-by-december-31"
+    },
+    {
+     "id": "2412374",
+     "question": "Will Iran recognize Israel by December 31?",
+     "outcomePrices": "[\"0.0335\", \"0.9665\"]",
+     "volume": "21206.124872999997",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-iran-recognize-israel-by-december-31"
+    }
+   ]
+  },
+  {
+   "id": "73079",
+   "slug": "which-countries-will-donald-trump-visit-in-2026",
+   "title": "Which countries will Donald Trump visit in 2026?",
+   "markets": [
+    {
+     "id": "2002699",
+     "question": "Will Donald Trump visit Pakistan in 2026?",
+     "outcomePrices": "[\"0.045\", \"0.955\"]",
+     "volume": "8488.639879",
+     "endDate": "2027-01-02T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-pakistan-in-2026"
+    },
+    {
+     "id": "2002700",
+     "question": "Will Donald Trump visit Lebanon in 2026?",
+     "outcomePrices": "[\"0.012\", \"0.988\"]",
+     "volume": "32942.446275",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-lebanon-in-2026"
+    },
+    {
+     "id": "2685076",
+     "question": "Will Donald Trump visit Venezuela in 2026?",
+     "outcomePrices": "[\"0.09\", \"0.91\"]",
+     "volume": "244.80541599999998",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-venezuela-in-2026-20260625195412667"
+    },
+    {
+     "id": "2817849",
+     "question": "Will Donald Trump visit Portugal in 2026?",
+     "outcomePrices": "[\"0.1165\", \"0.8835\"]",
+     "volume": "151.24303300000003",
+     "endDate": "2027-01-02T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-portugal-in-2026"
+    },
+    {
+     "id": "665259",
+     "question": "Will Donald Trump visit the United Kingdom in 2026?",
+     "outcomePrices": "[\"1\", \"0\"]",
+     "volume": "35215.672708",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-donald-trump-visit-the-united-kingdom-in-2026"
+    },
+    {
+     "id": "665260",
+     "question": "Will Donald Trump visit Israel in 2026?",
+     "outcomePrices": "[\"0.07\", \"0.93\"]",
+     "volume": "33163.75424",
+     "endDate": "2027-01-02T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-israel-in-2026"
+    },
+    {
+     "id": "665261",
+     "question": "Will Donald Trump visit Canada in 2026?",
+     "outcomePrices": "[\"0.046\", \"0.954\"]",
+     "volume": "4893.27473",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-canada-in-2026"
+    },
+    {
+     "id": "665262",
+     "question": "Will Donald Trump visit Mexico in 2026?",
+     "outcomePrices": "[\"0.1\", \"0.9\"]",
+     "volume": "6599.549097000001",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-mexico-in-2026"
+    },
+    {
+     "id": "665263",
+     "question": "Will Donald Trump visit Saudi Arabia in 2026?",
+     "outcomePrices": "[\"0.17\", \"0.83\"]",
+     "volume": "1559.775948",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-saudi-arabia-in-2026"
+    },
+    {
+     "id": "665264",
+     "question": "Will Donald Trump visit Japan in 2026?",
+     "outcomePrices": "[\"0.125\", \"0.875\"]",
+     "volume": "26403.237148999997",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-japan-in-2026"
+    },
+    {
+     "id": "665265",
+     "question": "Will Donald Trump visit Germany in 2026?",
+     "outcomePrices": "[\"0.18\", \"0.82\"]",
+     "volume": "21821.724178000004",
+     "endDate": "2027-01-02T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-germany-in-2026"
+    },
+    {
+     "id": "665266",
+     "question": "Will Donald Trump visit South Korea in 2026?",
+     "outcomePrices": "[\"0.155\", \"0.845\"]",
+     "volume": "17459.672016000008",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-south-korea-in-2026"
+    },
+    {
+     "id": "665267",
+     "question": "Will Donald Trump visit France in 2026?",
+     "outcomePrices": "[\"1\", \"0\"]",
+     "volume": "46509.21566400001",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-donald-trump-visit-france-in-2026"
+    },
+    {
+     "id": "665268",
+     "question": "Will Donald Trump visit Russia in 2026?",
+     "outcomePrices": "[\"0.0595\", \"0.9405\"]",
+     "volume": "13542.169152000002",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-russia-in-2026"
+    },
+    {
+     "id": "665269",
+     "question": "Will Donald Trump visit Ukraine in 2026?",
+     "outcomePrices": "[\"0.0575\", \"0.9425\"]",
+     "volume": "8026.616709999999",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-ukraine-in-2026"
+    },
+    {
+     "id": "665270",
+     "question": "Will Donald Trump visit Taiwan in 2026?",
+     "outcomePrices": "[\"0.034\", \"0.966\"]",
+     "volume": "87779.38542499999",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-taiwan-in-2026"
+    },
+    {
+     "id": "665271",
+     "question": "Will Donald Trump visit China in 2026?",
+     "outcomePrices": "[\"1\", \"0\"]",
+     "volume": "121695.89176999999",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-donald-trump-visit-china-in-2026"
+    },
+    {
+     "id": "665272",
+     "question": "Will Donald Trump visit Italy in 2026?",
+     "outcomePrices": "[\"0.085\", \"0.915\"]",
+     "volume": "31214.27916099999",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-italy-in-2026"
+    },
+    {
+     "id": "665273",
+     "question": "Will Donald Trump visit Oman in 2026?",
+     "outcomePrices": "[\"0.0665\", \"0.9335\"]",
+     "volume": "3551.1962330000006",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-oman-in-2026"
+    },
+    {
+     "id": "665274",
+     "question": "Will Donald Trump visit India in 2026?",
+     "outcomePrices": "[\"0.075\", \"0.925\"]",
+     "volume": "15855.072399",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-india-in-2026"
+    },
+    {
+     "id": "665275",
+     "question": "Will Donald Trump visit Belarus in 2026?",
+     "outcomePrices": "[\"0.298\", \"0.702\"]",
+     "volume": "4874.287980999999",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-belarus-in-2026"
+    },
+    {
+     "id": "665276",
+     "question": "Will Donald Trump visit Turkey in 2026?",
+     "outcomePrices": "[\"1\", \"0\"]",
+     "volume": "52281.37528200003",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-donald-trump-visit-turkey-in-2026"
+    },
+    {
+     "id": "788934",
+     "question": "Will Donald Trump visit Switzerland in 2026?",
+     "outcomePrices": "[\"1\", \"0\"]",
+     "volume": "54300.114158",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-donald-trump-visit-switzerland-in-2026"
+    },
+    {
+     "id": "897227",
+     "question": "Will Donald Trump visit Syria in 2026?",
+     "outcomePrices": "[\"0.075\", \"0.925\"]",
+     "volume": "1540.8080180000002",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-syria-in-2026"
+    },
+    {
+     "id": "1175411",
+     "question": "Will Donald Trump visit North Korea in 2026?",
+     "outcomePrices": "[\"0.055\", \"0.945\"]",
+     "volume": "47156.17086800001",
+     "endDate": "2027-01-02T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-donald-trump-visit-north-korea-in-2026"
+    },
+    {
+     "id": "1646000",
+     "question": "Will Donald Trump visit Ireland in 2026?",
+     "outcomePrices": "[\"1\", \"0\"]",
+     "volume": "12150.885162000002",
+     "endDate": "2026-12-31T23:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-donald-trump-visit-ireland-in-2026"
+    }
+   ]
+  },
+  {
+   "id": "1185922",
+   "slug": "who-will-the-openai-spy-be-accused-of-working-for-in-2026",
+   "title": "Who will the OpenAI spy be accused of working for in 2026?",
+   "markets": [
+    {
+     "id": "5676701",
+     "question": "Will the OpenAI spy be accused of working for Russia by December 31?",
+     "outcomePrices": "[\"0.0395\", \"0.9605\"]",
+     "volume": "27160.456111",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-russia-by-december-31-20261014120000000"
+    },
+    {
+     "id": "5676702",
+     "question": "Will the OpenAI spy be accused of working for China by December 31?",
+     "outcomePrices": "[\"0.043\", \"0.957\"]",
+     "volume": "19694.211803000002",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-china-by-december-31-20261014120000000"
+    },
+    {
+     "id": "5676703",
+     "question": "Will the OpenAI spy be accused of working for Saudi Arabia by December 31?",
+     "outcomePrices": "[\"0.255\", \"0.745\"]",
+     "volume": "50171.483695",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-saudi-arabia-by-december-31-20261014120000000"
+    },
+    {
+     "id": "5676704",
+     "question": "Will the OpenAI spy be accused of working for Iran by December 31?",
+     "outcomePrices": "[\"0.03\", \"0.97\"]",
+     "volume": "9110.460493",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-iran-by-december-31-20261014120000004"
+    },
+    {
+     "id": "5676705",
+     "question": "Will the OpenAI spy be accused of working for Israel by December 31?",
+     "outcomePrices": "[\"0.0505\", \"0.9495\"]",
+     "volume": "1668.730131",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-israel-by-december-31-20261014120000004"
+    },
+    {
+     "id": "5676706",
+     "question": "Will the OpenAI spy be accused of working for North Korea by December 31?",
+     "outcomePrices": "[\"0.0245\", \"0.9755\"]",
+     "volume": "1918.683854",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-north-korea-by-december-31-20261014120000004"
+    },
+    {
+     "id": "5676707",
+     "question": "Will the OpenAI spy be accused of working for Google by December 31?",
+     "outcomePrices": "[\"0.03\", \"0.97\"]",
+     "volume": "15135.758265999999",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-google-by-december-31-20261014120000010"
+    },
+    {
+     "id": "5676708",
+     "question": "Will the OpenAI spy be accused of working for Meta by December 31?",
+     "outcomePrices": "[\"0.0435\", \"0.9565\"]",
+     "volume": "16737.328535999997",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-meta-by-december-31-20261014120000010"
+    },
+    {
+     "id": "5676709",
+     "question": "Will the OpenAI spy be accused of working for Anthropic by December 31?",
+     "outcomePrices": "[\"0.0385\", \"0.9615\"]",
+     "volume": "14635.599220000002",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-anthropic-by-december-31-20261014120000010"
+    },
+    {
+     "id": "5676710",
+     "question": "Will the OpenAI spy be accused of working for SpaceXAI / Elon Musk by December 31?",
+     "outcomePrices": "[\"0.0295\", \"0.9705\"]",
+     "volume": "9321.33805",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-the-openai-spy-be-accused-of-working-for-spacexai-elon-musk-by-december-31-20261014120000010"
+    }
+   ]
+  },
+  {
+   "id": "994360",
+   "slug": "afc-asian-cup-2027-winner",
+   "title": "AFC Asian Cup 2027 Winner",
+   "markets": [
+    {
+     "id": "4411153",
+     "question": "Will Saudi Arabia win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.05\", \"0.95\"]",
+     "volume": "187",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-saudi-arabia-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411154",
+     "question": "Will Kuwait win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.002\", \"0.998\"]",
+     "volume": "223",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-kuwait-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411155",
+     "question": "Will Oman win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.011\", \"0.989\"]",
+     "volume": "263",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-oman-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411156",
+     "question": "Will Palestine win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.011\", \"0.989\"]",
+     "volume": "176",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-palestine-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411157",
+     "question": "Will Uzbekistan win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0135\", \"0.9865\"]",
+     "volume": "321.22",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-uzbekistan-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411158",
+     "question": "Will Bahrain win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0225\", \"0.9775\"]",
+     "volume": "438.84394699999996",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-bahrain-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411159",
+     "question": "Will North Korea win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0225\", \"0.9775\"]",
+     "volume": "320.3357",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-north-korea-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411160",
+     "question": "Will Jordan win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.05\", \"0.95\"]",
+     "volume": "103",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-jordan-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411161",
+     "question": "Will Iran win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.061\", \"0.939\"]",
+     "volume": "365.98",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-iran-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411162",
+     "question": "Will Syria win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0205\", \"0.9795\"]",
+     "volume": "52",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-syria-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411163",
+     "question": "Will Kyrgyzstan win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.011\", \"0.989\"]",
+     "volume": "173",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-kyrgyzstan-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411164",
+     "question": "Will China win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0145\", \"0.9855\"]",
+     "volume": "57.1875",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-china-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411165",
+     "question": "Will Australia win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.135\", \"0.865\"]",
+     "volume": "385",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-australia-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411166",
+     "question": "Will Tajikistan win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.014\", \"0.986\"]",
+     "volume": "77",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-tajikistan-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411167",
+     "question": "Will Iraq win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0185\", \"0.9815\"]",
+     "volume": "187",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-iraq-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411168",
+     "question": "Will Singapore win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.002\", \"0.998\"]",
+     "volume": "143",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-singapore-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411169",
+     "question": "Will South Korea win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.15\", \"0.85\"]",
+     "volume": "1607.8790640000002",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-south-korea-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411170",
+     "question": "Will United Arab Emirates win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.028\", \"0.972\"]",
+     "volume": "98",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-united-arab-emirates-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411171",
+     "question": "Will Vietnam win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.017\", \"0.983\"]",
+     "volume": "139",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-vietnam-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411172",
+     "question": "Will Yemen win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.011\", \"0.989\"]",
+     "volume": "168",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-yemen-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411173",
+     "question": "Will Japan win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.305\", \"0.695\"]",
+     "volume": "2239.5760840000003",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-japan-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411174",
+     "question": "Will Qatar win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.002\", \"0.998\"]",
+     "volume": "215",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-qatar-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411175",
+     "question": "Will Thailand win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0225\", \"0.9775\"]",
+     "volume": "250",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-thailand-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411176",
+     "question": "Will Indonesia win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0155\", \"0.9845\"]",
+     "volume": "53",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-indonesia-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411177",
+     "question": "Will Team A win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-a-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411178",
+     "question": "Will Team B win the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-b-win-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411179",
+     "question": "Other",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "afc-asian-cup-2027-winner-other"
+    }
+   ]
+  },
+  {
+   "id": "703477",
+   "slug": "which-countries-will-clavicular-visit-in-2026-20260714153003043",
+   "title": "Which countries will Clavicular visit in 2026?",
+   "markets": [
+    {
+     "id": "2923757",
+     "question": "Will Clavicular visit Thailand in 2026?",
+     "outcomePrices": "[\"0.181\", \"0.819\"]",
+     "volume": "2550.3599889999996",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-thailand-in-2026-20260714153003044"
+    },
+    {
+     "id": "2923758",
+     "question": "Will Clavicular visit the Philippines in 2026?",
+     "outcomePrices": "[\"0.155\", \"0.845\"]",
+     "volume": "3375.261428",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-the-philippines-in-2026-20260714153003045"
+    },
+    {
+     "id": "2923759",
+     "question": "Will Clavicular visit Colombia in 2026?",
+     "outcomePrices": "[\"0.315\", \"0.685\"]",
+     "volume": "314",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-colombia-in-2026-20260714153003046"
+    },
+    {
+     "id": "2923760",
+     "question": "Will Clavicular visit Brazil in 2026?",
+     "outcomePrices": "[\"0.204\", \"0.796\"]",
+     "volume": "4034.8624150000005",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-brazil-in-2026-20260714153003047"
+    },
+    {
+     "id": "2923761",
+     "question": "Will Clavicular visit North Korea in 2026?",
+     "outcomePrices": "[\"0.0295\", \"0.9705\"]",
+     "volume": "3716.8320459999995",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-north-korea-in-2026-20260714153003048"
+    },
+    {
+     "id": "2923762",
+     "question": "Will Clavicular visit the United Kingdom in 2026?",
+     "outcomePrices": "[\"0.105\", \"0.895\"]",
+     "volume": "5711.341775999999",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-the-united-kingdom-in-2026-20260714153003049"
+    },
+    {
+     "id": "2923763",
+     "question": "Will Clavicular visit Japan in 2026?",
+     "outcomePrices": "[\"0.28\", \"0.72\"]",
+     "volume": "9061.593151000003",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-japan-in-2026-20260714153003050"
+    },
+    {
+     "id": "2923764",
+     "question": "Will Clavicular visit Germany in 2026?",
+     "outcomePrices": "[\"0.05\", \"0.95\"]",
+     "volume": "2232.900489",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-germany-in-2026-20260714153003051"
+    },
+    {
+     "id": "2923765",
+     "question": "Will Clavicular visit South Korea in 2026?",
+     "outcomePrices": "[\"0.1685\", \"0.8315\"]",
+     "volume": "4193.858885000001",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-south-korea-in-2026-20260714153003052"
+    },
+    {
+     "id": "2923766",
+     "question": "Will Clavicular visit China in 2026?",
+     "outcomePrices": "[\"0.052\", \"0.948\"]",
+     "volume": "1353.33",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-china-in-2026-20260714153003053"
+    },
+    {
+     "id": "2936622",
+     "question": "Will Clavicular visit Russia in 2026?",
+     "outcomePrices": "[\"0.13\", \"0.87\"]",
+     "volume": "260",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-russia-in-2026-20260715175454199"
+    },
+    {
+     "id": "2936623",
+     "question": "Will Clavicular visit Iran in 2026?",
+     "outcomePrices": "[\"0.032\", \"0.968\"]",
+     "volume": "217",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-clavicular-visit-iran-in-2026-20260715175521716"
+    }
+   ]
+  },
+  {
+   "id": "994362",
+   "slug": "afc-asian-cup-2027-group-b-winner",
+   "title": "AFC Asian Cup 2027: Group B Winner",
+   "markets": [
+    {
+     "id": "4411187",
+     "question": "Will Uzbekistan win Group B at the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.485\", \"0.515\"]",
+     "volume": "3819.813876",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-uzbekistan-win-group-b-at-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411188",
+     "question": "Will Bahrain win Group B at the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0305\", \"0.9695\"]",
+     "volume": "422.444691",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-bahrain-win-group-b-at-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411189",
+     "question": "Will North Korea win Group B at the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.0355\", \"0.9645\"]",
+     "volume": "555.0899989999999",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-north-korea-win-group-b-at-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411190",
+     "question": "Will Jordan win Group B at the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.475\", \"0.525\"]",
+     "volume": "1832.9399999999998",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-jordan-win-group-b-at-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411191",
+     "question": "Will Team A win Group B at the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-a-win-group-b-at-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411192",
+     "question": "Will Team B win Group B at the 2027 AFC Asian Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-b-win-group-b-at-the-2027-afc-asian-cup"
+    },
+    {
+     "id": "4411193",
+     "question": "Other",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-02-06T04:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "afc-asian-cup-2027-group-b-winner-other"
+    }
+   ]
+  },
+  {
+   "id": "994384",
+   "slug": "fifa-womens-world-cup-2027-winner",
+   "title": "FIFA Women's World Cup 2027 Winner",
+   "markets": [
+    {
+     "id": "4411431",
+     "question": "Will United States win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.26\", \"0.74\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-united-states-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411433",
+     "question": "Will Spain win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.2\", \"0.8\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-spain-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411435",
+     "question": "Will England win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.25\", \"0.75\"]",
+     "volume": "38",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-england-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411437",
+     "question": "Will Germany win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.185\", \"0.815\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-germany-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411440",
+     "question": "Will France win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.32\", \"0.68\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-france-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411442",
+     "question": "Will Japan win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.16\", \"0.84\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-japan-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411444",
+     "question": "Will Brazil win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.165\", \"0.835\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-brazil-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411446",
+     "question": "Will Sweden win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.31\", \"0.69\"]",
+     "volume": "1.136358",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-sweden-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411448",
+     "question": "Will Netherlands win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.0805\", \"0.9195\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-netherlands-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411450",
+     "question": "Will Canada win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.0325\", \"0.9675\"]",
+     "volume": "142.5",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-canada-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411452",
+     "question": "Will Australia win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.46\", \"0.54\"]",
+     "volume": "45",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-australia-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411454",
+     "question": "Will Norway win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.0505\", \"0.9495\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-norway-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411456",
+     "question": "Will Denmark win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.0505\", \"0.9495\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-denmark-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411457",
+     "question": "Will Italy win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.29\", \"0.71\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-italy-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411459",
+     "question": "Will Colombia win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.295\", \"0.705\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-colombia-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411461",
+     "question": "Will Nigeria win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.0455\", \"0.9545\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-nigeria-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411463",
+     "question": "Will North Korea win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.45\", \"0.55\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-north-korea-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411464",
+     "question": "Will China win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.29\", \"0.71\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-china-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411466",
+     "question": "Will Argentina win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.0455\", \"0.9545\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-argentina-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411469",
+     "question": "Will Portugal win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.285\", \"0.715\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-portugal-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411471",
+     "question": "Will Switzerland win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.046\", \"0.954\"]",
+     "volume": "15",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-switzerland-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411473",
+     "question": "Will South Korea win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.375\", \"0.625\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-south-korea-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411475",
+     "question": "Will Mexico win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.475\", \"0.525\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-mexico-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411476",
+     "question": "Will Republic of Ireland win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.29\", \"0.71\"]",
+     "volume": null,
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-republic-of-ireland-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411477",
+     "question": "Will Team A win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-a-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411478",
+     "question": "Will Team B win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-b-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411479",
+     "question": "Will Team C win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-c-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411480",
+     "question": "Will Team D win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-d-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411481",
+     "question": "Will Team E win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-e-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411482",
+     "question": "Will Team F win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-f-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411483",
+     "question": "Will Team G win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-g-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411484",
+     "question": "Will Team H win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-h-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411485",
+     "question": "Will Team I win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-i-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411486",
+     "question": "Will Team J win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-j-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411487",
+     "question": "Will Team K win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-k-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411489",
+     "question": "Will Team L win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-l-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411491",
+     "question": "Will Team M win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-m-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411493",
+     "question": "Will Team N win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-n-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411495",
+     "question": "Will Team O win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-o-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411496",
+     "question": "Will Team P win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-p-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411497",
+     "question": "Will Team Q win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-q-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411498",
+     "question": "Will Team R win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-r-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411499",
+     "question": "Will Team S win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-s-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411500",
+     "question": "Will Team T win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-t-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411501",
+     "question": "Will Team U win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-u-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411502",
+     "question": "Will Team V win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-v-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411503",
+     "question": "Will Team W win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-w-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411504",
+     "question": "Will Team X win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-x-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411505",
+     "question": "Will Team Y win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-y-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411506",
+     "question": "Will Team Z win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-z-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411507",
+     "question": "Will Team AA win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-aa-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411508",
+     "question": "Will Team AB win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-ab-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411509",
+     "question": "Will Team AC win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-ac-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411510",
+     "question": "Will Team AD win the 2027 FIFA Women's World Cup?",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-team-ad-win-the-2027-fifa-womens-world-cup"
+    },
+    {
+     "id": "4411511",
+     "question": "Other",
+     "outcomePrices": "[\"0.5\", \"0.5\"]",
+     "volume": "0",
+     "endDate": "2027-07-26T03:59:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "fifa-womens-world-cup-2027-winner-other"
+    }
+   ]
+  },
+  {
+   "id": "131447",
+   "slug": "lol-worlds-2026-winning-region-226",
+   "title": "Worlds 2026 Winning Region",
+   "markets": [
+    {
+     "id": "1059066",
+     "question": "Will a team from LCK (South Korea) win LoL Worlds 2026?",
+     "outcomePrices": "[\"0.815\", \"0.185\"]",
+     "volume": "491423.267407",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-a-team-from-lck-south-korea-win-lol-worlds-2026-115"
+    },
+    {
+     "id": "1059067",
+     "question": "Will a team from LPL (China) win LoL Worlds 2026?",
+     "outcomePrices": "[\"0.16\", \"0.84\"]",
+     "volume": "230454.91159399998",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-a-team-from-lpl-china-win-lol-worlds-2026-779"
+    },
+    {
+     "id": "1059068",
+     "question": "Will a team from LEC (Europe / EMEA) win LoL Worlds 2026?",
+     "outcomePrices": "[\"0.019\", \"0.981\"]",
+     "volume": "152652.880625",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-a-team-from-lec-europe-emea-win-lol-worlds-2026-944"
+    },
+    {
+     "id": "1059069",
+     "question": "Will a team from LCP (Asia-Pacific) win LoL Worlds 2026?",
+     "outcomePrices": "[\"0\", \"1\"]",
+     "volume": "239534.13515100008",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": true,
+     "active": true,
+     "slug": "will-a-team-from-lcp-asia-pacific-win-lol-worlds-2026"
+    },
+    {
+     "id": "1059070",
+     "question": "Will a team from LCS (North America) win LoL Worlds 2026?",
+     "outcomePrices": "[\"0.013\", \"0.987\"]",
+     "volume": "147101.68232499997",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-a-team-from-lcs-north-america-win-lol-worlds-2026"
+    },
+    {
+     "id": "1059071",
+     "question": "Will a team from CBLOL (Brazil) win LoL Worlds 2026?",
+     "outcomePrices": "[\"0.0015\", \"0.9985\"]",
+     "volume": "146818.05236200002",
+     "endDate": "2027-01-01T04:59:00Z",
+     "closed": false,
+     "active": true,
+     "slug": "will-a-team-from-cblol-brazil-win-lol-worlds-2026"
+    },
+    {
+     "id": "1059072",
+     "question": "Will a team from another region win LoL Worlds 2026?",
+     "outcomePrices": null,
+     "volume": "0",
+     "endDate": "2026-12-31T00:00:00Z",
+     "closed": false,
+     "active": false,
+     "slug": "will-a-team-from-another-region-win-lol-worlds-2026"
+    }
+   ]
+  }
+ ]
+}

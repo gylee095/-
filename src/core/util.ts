@@ -23,6 +23,37 @@ export async function fetchText(
   }
 }
 
+/** 큰 문서의 앞부분만 읽는다 (최신 항목이 앞에 오는 피드에서 CPU·메모리 절약). maxBytes 를 넘으면 연결을 끊는다. */
+export async function fetchHead(url: string, maxBytes: number, init: RequestInit = {}, timeoutMs = 15000): Promise<string> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...init, headers: { "User-Agent": USER_AGENT, ...(init.headers as Record<string, string>) }, signal: ctrl.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${url.split("?")[0]}`);
+    if (!res.body) return (await res.text()).slice(0, maxBytes);
+    const reader = res.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    while (total < maxBytes) {
+      const { done, value } = await reader.read();
+      if (done || !value) break;
+      chunks.push(value);
+      total += value.length;
+    }
+    await reader.cancel().catch(() => {});
+    const buf = new Uint8Array(total);
+    let off = 0;
+    for (const c of chunks) {
+      buf.set(c, off);
+      off += c.length;
+    }
+    // 잘린 멀티바이트 문자는 대체 문자로 남는다 — 마지막 항목만 영향을 받는다
+    return new TextDecoder().decode(buf.subarray(0, Math.min(total, maxBytes)));
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 export async function fetchJson<T = any>(url: string, init: RequestInit = {}, timeoutMs = 15000): Promise<T> {
   return JSON.parse(await fetchText(url, init, timeoutMs)) as T;
 }

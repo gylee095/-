@@ -1,0 +1,29 @@
+{
+ "response": {
+  "216104": {
+   "lastModified": 1791883100,
+   "effective": 1701734400,
+   "title": "Demokratische Volksrepublik Korea (Nordkorea): Reise- und Sicherheitshinweise",
+   "countryCode": "KP",
+   "iso3CountryCode": "PRK",
+   "countryName": "Demokratische Volksrepublik Korea (Nordkorea)",
+   "warning": false,
+   "partialWarning": false,
+   "situationWarning": false,
+   "situationPartWarning": false
+  },
+  "216132": {
+   "lastModified": 1791886104,
+   "effective": 1783431900,
+   "title": "Republik Korea (Südkorea): Reise- und Sicherheitshinweise",
+   "countryCode": "KR",
+   "iso3CountryCode": "KOR",
+   "countryName": "Republik Korea (Südkorea)",
+   "warning": false,
+   "partialWarning": false,
+   "situationWarning": false,
+   "situationPartWarning": false
+  },
+  "lastModified": 1787576330
+ }
+}

@@ -19,7 +19,11 @@ export type SourceId =
   | "gpsjam"
   | "aisstream"
   | "firms"
-  | "gfw";
+  | "gfw"
+  | "advisories"
+  | "polymarket"
+  | "wiki"
+  | "naver_datalab";
 
 export interface SourceMeta {
   id: SourceId;
@@ -274,6 +278,58 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     terms: "비상업 이용, 출처 표시 (Global Fishing Watch)",
     hosts: ["gateway.api.globalfishingwatch.org"],
     notes: "지상 수신소가 없는 서해 한가운데·NLL 인근도 위성으로 보인다. 중국 선박 체류시간을 직전 2주와 비교해 '중국 어선 이탈'을 추세로 본다.",
+  },
+  advisories: {
+    id: "advisories",
+    name: "캐나다·독일·일본 정부 여행경보 (한국)",
+    kind: "official",
+    access: "키 불필요 (각국 정부 오픈데이터)",
+    cost: "무료",
+    refresh: "1시간",
+    latency: "정부 발령 후 수 분~수 시간",
+    realtime: "minutes",
+    terms: "각국 정부 공공데이터 (출처 표시)",
+    hosts: ["data.international.gc.ca", "www.auswaertiges-amt.de", "www.ezairyu.mofa.go.jp"],
+    notes: "비공개 정보를 가진 정부가 자국민에게 내는 경보. 여러 나라가 함께 올리면 전쟁 위험의 가장 강한 공개 신호. 일본은 주한 공관 영사 메일(미사일 발사 1보가 속보 3분 뒤)도 본다.",
+  },
+  polymarket: {
+    id: "polymarket",
+    name: "예측시장 Polymarket (한반도 전쟁·대화 가격)",
+    kind: "media",
+    access: "키 불필요 공개 API (gamma-api)",
+    cost: "무료",
+    refresh: "1시간",
+    latency: "실시간 가격",
+    realtime: "near-realtime",
+    terms: "공개 API, 읽기 전용",
+    hosts: ["gamma-api.polymarket.com"],
+    notes: "돈을 건 사람들이 매기는 '북한의 한국 침공' 가격. 수 % 대 가격은 실제보다 높게 매겨지는 경향이 있어 변화를 본다.",
+  },
+  wiki: {
+    id: "wiki",
+    name: "위키백과 조회수 (한반도 관련 문서)",
+    kind: "media",
+    access: "키 불필요 (Wikimedia REST API, 연락처 있는 User-Agent 필수)",
+    cost: "무료",
+    refresh: "하루 1회",
+    latency: "약 1일",
+    realtime: "delayed",
+    terms: "Wikimedia API 이용 정책",
+    hosts: ["wikimedia.org"],
+    notes: "세계(영어·일본어·한국어) 사람들의 한반도 관심. 여러 문서가 함께 늘 때만 의미를 둔다.",
+  },
+  naver_datalab: {
+    id: "naver_datalab",
+    name: "네이버 데이터랩 검색어 트렌드",
+    kind: "media",
+    access: "무료 키 (네이버 개발자센터 애플리케이션 등록)",
+    cost: "무료 (하루 1,000회)",
+    refresh: "하루 1회",
+    latency: "약 1일",
+    realtime: "delayed",
+    terms: "네이버 오픈API 이용약관",
+    hosts: ["openapi.naver.com"],
+    notes: "한국 사람들의 불안: '전쟁', '대피소', '생존배낭' 검색량을 평소와 비교.",
   },
 };
 

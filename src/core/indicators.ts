@@ -3,7 +3,7 @@
 // 각 징후를 시간대별 평소 값과 비교해 정상/상승/이상으로 판정하고, 여러 징후의 동시 이상을 patterns.ts 에서 조합한다.
 import type { IndicatorState, Reading } from "./types.js";
 
-export type IndicatorGroup = "air" | "sea" | "seismic" | "navwarn" | "official" | "rhetoric" | "media" | "social" | "market" | "internet" | "gnss" | "thermal";
+export type IndicatorGroup = "air" | "sea" | "seismic" | "navwarn" | "official" | "rhetoric" | "media" | "social" | "market" | "internet" | "gnss" | "thermal" | "psych";
 
 export interface IndicatorDef {
   id: string;
@@ -24,6 +24,8 @@ export interface IndicatorDef {
   absolute?: { elevated: number; anomalous: number };
   /** 기준선을 신뢰하기까지 필요한 표본 수 */
   minN?: number;
+  /** z 계산의 표준편차 바닥값 (잡음이 큰 지표가 작은 흔들림에 '이상'이 되지 않게) */
+  sdFloor?: number;
 }
 
 export const INDICATORS: IndicatorDef[] = [
@@ -83,6 +85,26 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "gov.uk South Korea 여행권고 Atom 의 최신 갱신 요약에 북한·군사·긴장·출국 관련 문구 포함 여부", latency: "발표 즉시~1시간", caveats: "입국 절차 등 일상 갱신이 대부분이다.",
   },
   {
+    id: "official.ca_level_kr", label: "캐나다 정부 한국 여행경보 단계", group: "official", unit: "단계", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "미국과 별개로 판단하는 서방 정부. 0(평소 주의)에서 올리는 것은 정부가 비공개 정보로 위험을 인정했다는 뜻이다.",
+    measure: "캐나다 외교부 오픈데이터 advisory-state (0 평소 주의 · 1 높은 주의 · 2 불필요한 여행 자제 · 3 모든 여행 자제)", latency: "발령 후 1시간 안", caveats: "치안·재난 사유로도 오른다. 갱신 문구를 확인한다.",
+  },
+  {
+    id: "official.de_warning_kr", label: "독일 외무부 한국 경고", group: "official", unit: "", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "독일은 여행 '경고'(Reisewarnung)를 매우 아껴 쓴다. 한국에 경고가 붙는 것 자체가 이례적이다.",
+    measure: "독일 외무부 오픈데이터 — 0 없음 · 1 부분·상황 부분 경고 · 2 전면·상황 경고", latency: "발령 후 1시간 안", caveats: "재난(지진·태풍) 경고일 수도 있다.",
+  },
+  {
+    id: "official.jp_risk_level_kr", label: "일본 외무성 한국 위험 레벨", group: "official", unit: "단계", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "한국에 자국민이 가장 많이 머무는 나라 중 하나. 한반도 유사시 대피 계획을 가진 일본 정부가 레벨을 매기면 강한 신호다.",
+    measure: "외무성 해외안전정보 오픈데이터 — 한국 내 지역에 걸린 가장 높은 위험 레벨 (0 없음 ~ 4 대피 권고)", latency: "발령 후 1시간 안", caveats: "평시에는 0. 감염증 레벨은 따로다.",
+  },
+  {
+    id: "official.jp_embassy_alert", label: "주한 일본 공관 영사 메일 (정세 경고)", group: "official", unit: "단계", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "주한 일본대사관은 북한 미사일 발사 몇 분 뒤 자국민에게 메일을 보낸다(2026-10-29: 연합뉴스 속보 3분 뒤). 발사 보고가 아니라 '정세 주의'나 '출국 권고'가 나오면 정부가 상황 자체를 위험하게 본다는 뜻이다.",
+    measure: "최근 7일 영사 메일 제목 — 0 발사 보고뿐/없음 · 1 한반도 정세 주의 환기 · 2 출국·대피 권고", latency: "수 분", caveats: "태풍·지진 안내도 같은 메일로 나간다(북한·정세 문구가 있을 때만 센다).",
+  },
+  {
     id: "official.mnd_provocation_24h", label: "국방부 보도자료: 북한 도발 관련 (24h)", group: "official", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
     why: "정부 공식 발표는 가장 신뢰도 높은 확인이다. 다만 합참 기자단 문자보다 수 시간 늦다.",
     measure: "정책브리핑(korea.kr) 국방부 보도자료 제목 중 미사일·포격·경보 관련 건수", latency: "수 시간", caveats: "훈련·방산 보도자료가 대부분. 분류기로 거른다.",
@@ -103,6 +125,21 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "연합뉴스 [속보]·[1보] 중 북한·군사 관련 건수(최근 60분)", latency: "1분", caveats: "정치 뉴스에도 속보가 몰린다. 내용 분류와 함께 본다.",
   },
   {
+    id: "media.war_talk_24h", label: "한반도 '전쟁' 언급 보도 (24h)", group: "media", unit: "건", direction: "high", slots: 1,
+    why: "언론이 한반도 상황을 '전쟁·교전·확전'으로 부르기 시작하면 국면이 바뀐 것이다. 다만 언론은 공포를 키우기도 한다.",
+    measure: "연합뉴스 제목 중 전쟁·전면전·확전·교전·동원령·대피령 + 북한·남북·한반도 문맥 (6·25 기념·다른 나라 전쟁·무역전쟁 제외)", latency: "수 분", caveats: "북한 담화를 인용한 제목('전쟁 불사')도 잡힌다. 정부·돈의 움직임과 함께 볼 때만 의미가 있다.",
+  },
+  {
+    id: "psych.wiki_korea_attention", label: "세계의 한반도 관심 (위키백과 조회수, 평소 대비)", group: "psych", unit: "%", direction: "high", slots: 1, absolute: { elevated: 160, anomalous: 250 },
+    why: "사람들이 '한국전쟁·DMZ·조선인민군'을 찾아보기 시작하면 위기를 체감한다는 뜻이다. 대중은 보통 정부·돈보다 늦게 움직인다.",
+    measure: "영어·일본어·한국어 위키백과 한반도 문서 9개의 어제 조회수 ÷ 직전 28일 중앙값 — 그 배율들의 중앙값 (여러 문서가 함께 늘어야 커진다)", latency: "약 1일", caveats: "인물 뉴스(김정은 동정)·영화·기념일에도 는다. 한 문서만 튀면 무시한다.",
+  },
+  {
+    id: "psych.naver_war_search", label: "한국 사람들의 전쟁 불안 (네이버 검색, 평소 대비)", group: "psych", unit: "%", direction: "high", slots: 1, absolute: { elevated: 200, anomalous: 400 },
+    why: "2023-05-31 서울 경계경보 오발령 때 '대피소' 검색이 순식간에 몰렸다. 한국 사람들의 불안은 검색량에 가장 먼저, 가장 크게 드러난다.",
+    measure: "네이버 데이터랩 '전쟁 불안·대피·생존 준비' 검색어 묶음의 어제 검색량 ÷ 직전 28일 중앙값 중 가장 큰 값", latency: "약 1일", caveats: "언론발 공포·영화·게임에도 움직인다. 정부·돈이 조용한데 이것만 오르면 '언론발 불안'으로 읽는다. 키 필요.",
+  },
+  {
     id: "social.alarm_posts_1h", label: "SNS 경보·사이렌 언급 (1h)", group: "social", unit: "건", direction: "high", slots: 24,
     why: "사이렌·전투기 소음·폭발음 목격담은 현장에서 올라오는 가장 빠른 군중 신호다(2023-05-31 서울 경계경보 때 수 분 내 급증).",
     measure: "Bluesky 공개 검색에서 '공습경보·사이렌·포격·전투기' 등 키워드 게시물 수(최근 60분)", latency: "수 분", caveats: "X·네이버 카페 등 주요 한국 SNS 는 API 가 없어 표본이 작다. 가짜 뉴스·훈련 때도 오른다.",
@@ -111,6 +148,21 @@ export const INDICATORS: IndicatorDef[] = [
     id: "market.usdkrw_change_pct", label: "원·달러 환율 변동 (전일 대비 %)", group: "market", unit: "%", direction: "high", slots: 1, absolute: { elevated: 1.5, anomalous: 3 },
     why: "지정학 위험은 원화 약세로 즉시 반영된다. 뉴스 없는 시간대의 급변은 시장이 무언가를 먼저 알았다는 신호일 수 있다.",
     measure: "Yahoo Finance KRW=X 현재가의 전일 종가 대비 변동률(절대값)", latency: "수 분", caveats: "금리·달러 강세 등 경제 요인이 대부분. 다른 징후와 겹칠 때만 의미 있다.",
+  },
+  {
+    id: "market.kr_equity_rel_pct", label: "한국 증시만의 움직임 (일본·대만 대비 %p)", group: "market", unit: "%p", direction: "low", slots: 1, absolute: { elevated: 2, anomalous: 4 },
+    why: "전쟁 위험은 돈이 먼저 안다. 세계 증시 전체가 빠진 날이 아니라 '한국만' 빠진 날이 신호다. 이웃 증시와 비교해야 세계 증시 하락과 한반도 위험을 가를 수 있다.",
+    measure: "코스피 일간 변동률 − 닛케이·대만 가권 평균 변동률. 음수 = 한국만 더 빠짐", latency: "장중 수 분 (휴장일엔 전 거래일 값)", caveats: "반도체 업황·환율·국내 정치(2024년 12월 비상계엄 직후에도 하락)로도 빠진다. 북한 뉴스와 시점을 대조한다.",
+  },
+  {
+    id: "market.defense_rel_pct", label: "방산주만의 움직임 (코스피 대비 %p)", group: "market", unit: "%p", direction: "high", slots: 1, absolute: { elevated: 4, anomalous: 8 },
+    why: "투자자가 무력 충돌 가능성을 가격에 넣으면 방산주가 시장보다 먼저 오른다.",
+    measure: "한화에어로스페이스·LIG넥스원·현대로템 평균 일간 변동률 − 코스피", latency: "장중 수 분", caveats: "수출 계약·실적 발표로 더 자주 오른다. 북한 관련 뉴스와 같이 움직일 때만 의미가 있다.",
+  },
+  {
+    id: "market.pm_war_prob", label: "예측시장: 북한의 한국 침공 가격", group: "market", unit: "%", direction: "high", slots: 1, sdFloor: 1.5,
+    why: "돈을 건 사람들이 매기는 전쟁 가능성. 가격이 갑자기 오르면 누군가 새 정보를 가격에 넣고 있다는 뜻이다.",
+    measure: "Polymarket 한반도 침공·전쟁 시장 중 거래가 가장 많은 것의 '예' 가격 (만기 2주 이상)", latency: "실시간", caveats: "수 % 대 가격은 실제보다 높게 매겨지는 경향(롱샷 편향·자금 묶임 비용). 거래가 얇으면 소수가 가격을 흔든다. 절대값보다 변화를 본다.",
   },
   {
     id: "internet.kp_outage_alerts_24h", label: "북한 인터넷 장애 경보 (24h)", group: "internet", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 3 },
@@ -145,7 +197,7 @@ export const INDICATORS: IndicatorDef[] = [
 export const INDICATOR_BY_ID: Record<string, IndicatorDef> = Object.fromEntries(INDICATORS.map((d) => [d.id, d]));
 
 export const GROUP_LABEL: Record<IndicatorGroup, string> = {
-  air: "항공", sea: "해상", seismic: "지진", navwarn: "항행경보", official: "정부 공식", rhetoric: "북한 수사", media: "언론 템포", social: "SNS", market: "시장", internet: "인터넷", gnss: "GPS 교란", thermal: "위성 열점",
+  air: "항공", sea: "해상", seismic: "지진", navwarn: "항행경보", official: "정부 공식", rhetoric: "북한 수사", media: "언론 템포", social: "SNS", market: "시장", internet: "인터넷", gnss: "GPS 교란", thermal: "위성 열점", psych: "사람들의 관심",
 };
 
 export interface Baseline {
@@ -181,7 +233,7 @@ export function evaluate(def: IndicatorDef, value: number, at: number, baseline:
   const reading: Reading = { indicator: def.id, value, at, n: baseline?.n ?? 0, state: "learning", meta };
   if (baseline) {
     // 분산이 0에 가까울 때 z 가 폭발하지 않도록 바닥값을 둔다
-    const sd = Math.max(Math.sqrt(baseline.var), Math.abs(baseline.mean) * 0.15, def.unit === "%" ? 0.2 : 1);
+    const sd = Math.max(Math.sqrt(baseline.var), Math.abs(baseline.mean) * 0.15, def.sdFloor ?? (def.unit === "%" ? 0.2 : 1));
     reading.baseline = baseline.mean;
     reading.sd = sd;
     reading.z = (value - baseline.mean) / sd;

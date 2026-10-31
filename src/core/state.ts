@@ -8,6 +8,7 @@ import type { Reading, Signal } from "./types.js";
 import { GROUP_LABEL, INDICATORS, STATE_LABEL } from "./indicators.js";
 import type { Pattern } from "./patterns.js";
 import { interpret } from "./interpret.js";
+import { assessWarRisk } from "./warrisk.js";
 
 export interface BoardRow {
   id: string;
@@ -29,9 +30,11 @@ export interface BoardRow {
 export async function buildState(store: Store, since: number, disabledSources = "") {
   const disabled = new Set(disabledSources.split(",").map((s) => s.trim()).filter(Boolean));
   const now = Date.now();
+  // 전쟁 위험 모델은 최근 14일 사건(중대 사건·도발 빈도)을 본다 — 화면의 사건 목록은 요청한 기간만 보여 준다
+  const modelSince = Math.min(since, now - 14 * 24 * 3600_000);
   const [events, signals, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourly] = await Promise.all([
-    store.getEvents(since),
-    store.getSignals(since),
+    store.getEvents(modelSince),
+    store.getSignals(modelSince),
     store.getHealth(),
     store.getAlerts(since),
     store.getNotes(since),
@@ -78,14 +81,17 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const threat = currentThreat(enriched.map((e) => e.brief), now);
   // 규칙 기반 해설: 숫자 → 뜻 → 조합 힌트 (클로드 분석관은 이 위에서 추론한다)
   const interpretation = interpret({ now, threat, board, patterns: livePatterns, briefs: enriched.map((e) => e.brief) });
+  // 전쟁 위험: 다섯 영역 → 국면 5단계 → 30일 확률 범위
+  const warRisk = assessWarRisk({ now, board, briefs: enriched.map((e) => e.brief), patterns: livePatterns });
 
   return {
     now,
     threat,
+    warRisk,
     interpretation,
-    posture: posture(events, now),
+    posture: posture(events.filter((e) => e.firstDetectedTime >= since), now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,
-    events: enriched,
+    events: enriched.filter((e) => e.brief.at >= since || e.firstDetectedTime >= since),
     board,
     patterns: livePatterns,
     patternsAt: patterns.at,
@@ -93,7 +99,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     health: health.filter((h) => !disabled.has(h.source)),
     alerts: alerts.slice(-50).reverse(),
     notes,
-    metrics: latencyMetrics(events),
+    metrics: latencyMetrics(events.filter((e) => e.firstDetectedTime >= since)),
     sources: listSources().filter((s) => !disabled.has(s.id)),
   };
 }

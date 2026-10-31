@@ -48,6 +48,8 @@ describe("예측시장 (실측 2026-10-31)", () => {
     const s = summarizePm(parsePmSearch(JSON.parse(fx("polymarket_search_20261031.json"))), NOW);
     expect(s.war?.question).toBe("Will North Korea invade South Korea before 2027?");
     const [m] = pmMetrics(s);
+    expect((m.meta as any).question).toBe("2027년 전 북한의 한국 침공");
+    expect((m.meta as any).diplomacy.map((d: any) => d.question)).toEqual(["연말까지 트럼프 방북", "2026년 트럼프 방북", "연말까지 남북 직접 대화", "2026년 말까지 남북 외교 접촉(직·간접)"]);
     expect(m.indicator).toBe("market.pm_war_prob");
     expect(m.value).toBeCloseTo(4.35, 2);
     const meta = m.meta as any;

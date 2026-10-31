@@ -72,8 +72,9 @@ describe("전쟁 위험 모델", () => {
 
   it("돈만 움직이면 다른 이유(세계 증시·국내 정치)를 먼저 의심한다", () => {
     const w = run(board({ "market.kr_equity_rel_pct": { value: -4.5, state: "anomalous" }, "market.usdkrw_change_pct": { value: 2, state: "elevated" } }));
-    expect(w.domains.find((d) => d.id === "money")!.level).toBe(2);
-    expect(w.phase).toBe(2);
+    // 방산주가 오르지 않고 예측시장도 조용 → 증시 하락은 1점만, 환율 1점 → 주의
+    expect(w.domains.find((d) => d.id === "money")!.level).toBe(1);
+    expect(w.phase).toBe(1);
     expect(w.firstMover.kind).toBe("caveat");
     expect(w.firstMover.text).toMatch(/돈만 움직였다/);
   });
@@ -88,12 +89,22 @@ describe("전쟁 위험 모델", () => {
     expect(w.firstMover.text).toMatch(/코스피 -4.69%, 일본·대만 -2.46%/);
   });
 
+  it("반도체 급락장: 한국만 −5%p 빠져도 방산주가 안 오르면 '돈' 영역은 주의까지만 — ICBM 이 겹쳐도 위기로 올리지 않는다", () => {
+    const w = run(board({
+      "market.kr_equity_rel_pct": { value: -5, state: "anomalous", meta: { kospiPct: -8, peersPct: -3 } },
+      "market.defense_rel_pct": { value: -1, state: "normal" },
+    }), [brief(5, 4, "북한, ICBM 발사 → 동해", "장거리·일본 상공/EEZ 관련 발사")]);
+    expect(w.domains.find((d) => d.id === "money")!.level).toBe(1);
+    expect(w.domains.find((d) => d.id === "money")!.drivers[0]).toMatch(/방산주 동반 약세라 1점만/);
+    expect(w.phase).toBe(2);
+  });
+
   it("ICBM + 시장 반응 → 3단계(위기)", () => {
     const w = run(board({ "market.kr_equity_rel_pct": { value: -4.5, state: "anomalous" }, "market.pm_war_prob": { value: 9, state: "elevated", meta: { question: "Will North Korea invade South Korea before 2027?", daysLeft: 61, diplomacy: [{ question: "Will Trump meet with Kim Jong Un in 2026?", pct: 15 }] } } }), [brief(5, 4, "북한, ICBM 발사 → 동해", "장거리·일본 상공/EEZ 관련 발사")]);
     expect(w.phase).toBe(3);
     expect(w.phaseReasons.join(" ")).toMatch(/돈·정부가 반응/);
     expect(w.market?.pct).toBe(9);
-    expect(w.restraints[0]).toMatch(/Trump meet with Kim Jong Un in 2026 15%/);
+    expect(w.restraints[0]).toMatch(/대화 가능성: Will Trump meet with Kim Jong Un in 2026 15%/);
   });
 
   it("영토 포격 + 교전 보도 → 5단계(교전)", () => {

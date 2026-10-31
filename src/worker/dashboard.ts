@@ -53,7 +53,7 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .hint{border-top:1px solid var(--line);padding:10px 0}.hint .ht{font-weight:700;font-size:15px}.hint .hr{font-size:14px;margin-top:3px}.hint .hc{font-size:13px;color:var(--mute);margin-top:3px}
 .hint.warning .ht{color:var(--l3)}.hint.reassuring .ht{color:var(--l1)}.hint.gap .ht{color:var(--mute)}
 .ctx{font-size:12px;color:var(--mute);margin-top:8px}
-.wr .wrh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.wr .wrh b{font-size:28px;font-weight:800;letter-spacing:-.5px}.wr .wrh span{font-size:14px;color:var(--mute)}
+.wr{word-break:keep-all}.wr .wrh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.wr .wrh b{font-size:28px;font-weight:800;letter-spacing:-.5px}.wr .wrh span{font-size:14px;color:var(--mute)}
 .ladder{display:flex;gap:3px;margin:10px 0 4px}.ladder div{flex:1;text-align:center;font-size:12px;color:var(--mute);padding-top:6px;border-top:6px solid var(--chip);border-radius:2px}
 .ladder div.on{color:var(--fg);font-weight:800}.ladder .p1.on{border-color:var(--l1)}.ladder .p2.on{border-color:var(--l2)}.ladder .p3.on{border-color:var(--l3)}.ladder .p4.on{border-color:var(--l4)}.ladder .p5.on{border-color:var(--l5)}
 .probs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.probs>div{background:var(--chip);border-radius:12px;padding:10px 12px}

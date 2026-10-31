@@ -62,6 +62,21 @@ export function summarizePm(markets: PmMarket[], now: number): PmSummary {
   };
 }
 
+/** 자주 쓰는 시장 질문을 한국어로 (모르는 형식은 원문 유지) */
+export function koQuestion(q: string): string {
+  const year = (s: string) => (/December 31, (\d{4})/.exec(s)?.[1] ? `${/December 31, (\d{4})/.exec(s)![1]}년 말까지` : /December 31/.test(s) ? "연말까지" : "");
+  let m: RegExpExecArray | null;
+  if ((m = /invade South Korea before (\d{4})/i.exec(q))) return `${m[1]}년 전 북한의 한국 침공`;
+  if (/North and South Korea engage in direct talks/i.test(q)) return `${year(q)} 남북 직접 대화`.trim();
+  if (/North Korea x South Korea diplomatic meeting/i.test(q)) return `${year(q)} 남북 외교 접촉(직·간접)`.trim();
+  if (/US x North Korea diplomatic meeting/i.test(q)) return `${year(q)} 북미 외교 접촉`.trim();
+  if ((m = /Trump meet with Kim Jong Un in (\d{4})/i.exec(q))) return `${m[1]}년 트럼프·김정은 회동`;
+  if ((m = /Trump visit North Korea in (\d{4})/i.exec(q))) return `${m[1]}년 트럼프 방북`;
+  if (/Trump visit North Korea by December 31/i.test(q)) return `${year(q)} 트럼프 방북`.trim();
+  if ((m = /Kim Jong Un out as Supreme Leader.*?(\d{4})/i.exec(q))) return `${m[1]}년 안 김정은 실각`;
+  return q;
+}
+
 export function pmMetrics(s: PmSummary): Metric[] {
   if (!s.war) return [];
   const pct = (x: number) => +(x * 100).toFixed(2);
@@ -70,12 +85,13 @@ export function pmMetrics(s: PmSummary): Metric[] {
       indicator: "market.pm_war_prob",
       value: pct(s.war.yes),
       meta: {
-        question: s.war.question,
+        question: koQuestion(s.war.question),
+        questionEn: s.war.question,
         endDate: s.war.endDate,
         daysLeft: s.war.daysLeft !== undefined ? Math.round(s.war.daysLeft) : undefined,
         volumeUsd: Math.round(s.war.volume),
         url: s.war.slug ? `https://polymarket.com/event/${s.war.slug}` : undefined,
-        diplomacy: s.diplomacy.map((m) => ({ question: m.question, pct: pct(m.yes), volumeUsd: Math.round(m.volume) })),
+        diplomacy: s.diplomacy.map((m) => ({ question: koQuestion(m.question), pct: pct(m.yes), volumeUsd: Math.round(m.volume) })),
         regimeChangePct: s.regime ? pct(s.regime.yes) : undefined,
         testsThisMonthPct: s.testsNone ? pct(1 - s.testsNone.yes) : undefined,
         note: "예측시장 가격 — 수 % 대 가격은 실제 확률보다 높게 매겨지는 경향. 절대값보다 변화를 본다",

@@ -74,6 +74,8 @@ export interface CrisisEvent {
   breaking: boolean;
   lat?: number;
   lon?: number;
+  /** 사건을 이룬 신호들의 사본 — 화면·전쟁 모델이 신호 표를 다시 읽지 않게 사건과 함께 저장한다 */
+  evidence?: Signal[];
 }
 
 export interface AlertRecord {
@@ -109,6 +111,8 @@ export interface Reading {
   n: number;
   state: IndicatorState;
   meta?: Record<string, unknown>;
+  /** 시계열 표(metrics)에 마지막으로 기록한 시각 — 1분 주기 지표를 5분에 한 번만 기록해 저장소 쓰기를 줄인다 */
+  writtenAt?: number;
 }
 
 export interface CollectResult {

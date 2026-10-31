@@ -9,6 +9,7 @@ import { decideAlerts, formatAlert, posture, type AlertDecision } from "./policy
 import { sendPush } from "./notify.js";
 import { INDICATOR_BY_ID, evaluate, slotKey, updateBaseline, type Baseline } from "./indicators.js";
 import { detectPatterns, type Pattern } from "./patterns.js";
+import { hash } from "./util.js";
 
 export const LOOKBACK_MS = 72 * 3600_000;
 /** 같은 패턴은 이 간격 안에서 한 번만 알린다 (신뢰도가 올라가면 다시 알림) */
@@ -21,6 +22,8 @@ export interface CycleOptions {
   /** 테스트용: 수집 단계를 대체 */
   collect?: () => Promise<CollectResult[]>;
   fetchImpl?: typeof fetch;
+  /** 1분 주기 속보 감시: 새 신호가 없으면 상관분석·알림 판단·패턴을 건너뛴다 (5분 주기가 매번 전체를 돈다) */
+  quietSkip?: boolean;
 }
 
 export interface CycleReport {
@@ -33,6 +36,8 @@ export interface CycleReport {
   posture: ReturnType<typeof posture>;
   readings: Reading[];
   patterns: Pattern[];
+  /** 건너뛴 단계와 이유 (예: 새 신호 없음) */
+  skipped?: string;
 }
 
 type BaselineMap = Record<string, Baseline & { updatedAt?: number }>;
@@ -48,19 +53,56 @@ function alphaFor(slots: 24 | 4 | 1): number {
 }
 
 /** 관측값을 기준선과 비교하고 기준선을 갱신한다. 이상치는 기준선에 반영하지 않는다(오염 방지). */
+/** 시계열 표에 같은 지표를 다시 기록하는 최소 간격 (상태가 바뀌면 바로 기록) */
+export const METRIC_WRITE_INTERVAL_MS = 5 * 60_000 - 20_000;
+
+/** 지표별 시간별 합계 — 대시보드 스파크라인용. 시계열 표를 매번 훑지 않도록 KV 한 줄에 모아 둔다. { 지표: { 시(epoch/3600000): [합, 개수] } } */
+export type HourlyAgg = Record<string, Record<string, [number, number]>>;
+
+export function addHourly(agg: HourlyAgg, readings: Reading[], now: number, keepHours = 26): HourlyAgg {
+  for (const r of readings) {
+    const hour = String(Math.floor(r.at / 3600_000));
+    const byHour = (agg[r.indicator] ??= {});
+    const cur = byHour[hour] ?? [0, 0];
+    byHour[hour] = [+(cur[0] + r.value).toFixed(4), cur[1] + 1];
+  }
+  const oldest = Math.floor(now / 3600_000) - keepHours;
+  for (const ind of Object.keys(agg)) {
+    for (const h of Object.keys(agg[ind])) if (Number(h) < oldest) delete agg[ind][h];
+    if (!Object.keys(agg[ind]).length) delete agg[ind];
+  }
+  return agg;
+}
+
+export function hourlySeries(agg: HourlyAgg, indicator: string, since: number): { hour: number; avg: number }[] {
+  const from = Math.floor(since / 3600_000);
+  return Object.entries(agg[indicator] ?? {})
+    .map(([h, [sum, n]]) => ({ hour: Number(h), avg: +(sum / n).toFixed(2) }))
+    .filter((x) => x.hour >= from)
+    .sort((a, b) => a.hour - b.hour);
+}
+
 export async function processMetrics(store: Store, metrics: Metric[], now: number): Promise<Reading[]> {
   if (!metrics.length) return [];
   const raw = await store.getKv("baselines");
   const baselines: BaselineMap = raw ? JSON.parse(raw) : {};
   const readingsRaw = await store.getKv("readings");
   const latest: Record<string, Reading> = readingsRaw ? JSON.parse(readingsRaw) : {};
+  const hourlyRaw = await store.getKv("hourly");
+  const hourly: HourlyAgg = hourlyRaw ? JSON.parse(hourlyRaw) : {};
   const readings: Reading[] = [];
+  const toWrite: Reading[] = [];
   for (const m of metrics) {
     const def = INDICATOR_BY_ID[m.indicator];
     if (!def) continue;
     const key = `${def.id}|${slotKey(def, now)}`;
     const prev = baselines[key];
     const reading = evaluate(def, m.value, now, prev, m.meta);
+    // 1분 주기 지표는 5분에 한 번만 시계열 표에 남긴다 (상태가 바뀐 순간은 바로) — D1 무료 쓰기 한도 절약
+    const last = latest[def.id];
+    const write = !last?.writtenAt || now - last.writtenAt >= METRIC_WRITE_INTERVAL_MS || last.state !== reading.state;
+    reading.writtenAt = write ? now : last!.writtenAt;
+    if (write) toWrite.push(reading);
     readings.push(reading);
     latest[def.id] = reading;
     const due = !prev?.updatedAt || now - prev.updatedAt >= updateIntervalMs(def.slots);
@@ -69,8 +111,15 @@ export async function processMetrics(store: Store, metrics: Metric[], now: numbe
   }
   await store.setKv("baselines", JSON.stringify(baselines));
   await store.setKv("readings", JSON.stringify(latest));
-  await store.putMetrics(readings);
+  await store.setKv("hourly", JSON.stringify(addHourly(hourly, readings, now)));
+  await store.putMetrics(toWrite);
   return readings;
+}
+
+/** 사건 저장 여부 판단용 지문 — 바뀐 사건만 다시 쓴다 */
+export function eventFingerprint(e: CrisisEvent): string {
+  const { evidence: _ev, ...rest } = e;
+  return hash(JSON.stringify(rest) + "|" + (e.evidence ?? []).length);
 }
 
 /** 민항기 급감 → 공역 이상 신호 (사건 목록에도 올린다) */
@@ -106,8 +155,17 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
   const newSignals = await store.putSignals(incoming);
   await store.putHealth(results.map(healthOf));
 
+  const sources = results.map((r) => ({ source: r.source, ok: r.ok, raw: r.rawCount, signals: r.signals.length, error: r.error, skipped: r.skipped }));
+  if (opts.quietSkip && newSignals === 0) {
+    // 새 신호가 없으면 사건·알림이 바뀔 것이 없다. 시간이 지나 풀리는 것(재시도·시간당 한도)은 5분 주기가 처리한다.
+    return { at: now, sources, newSignals, events: [], alerts: [], suppressed: [], posture: posture([], now), readings, patterns: [], skipped: "새 신호 없음 — 상관분석 생략" };
+  }
+
   const signals = await store.getSignals(now - LOOKBACK_MS);
   const events = correlate(signals);
+  // 사건마다 근거 신호 사본을 붙여 둔다 — 대시보드·전쟁 모델이 신호 표를 다시 읽지 않도록
+  const sigById = new Map(signals.map((s) => [s.id, s]));
+  for (const e of events) e.evidence = e.signalIds.map((id) => sigById.get(id)).filter((x): x is Signal => !!x).slice(-60);
   const history = await store.getAlerts(now - 7 * 86400_000);
   const { send, suppressed } = decideAlerts(events, history, now);
 
@@ -130,7 +188,17 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
     }
     alerts.push({ eventId: d.event.id, kind: d.kind, title: msg.title, sent: ok && !opts.dryRun, reason: error ?? d.reason });
   }
-  await store.putEvents(events);
+  // 바뀐 사건만 쓴다 (매 사이클 72시간 치 사건 전체를 다시 쓰면 D1 무료 쓰기 한도를 넘는다)
+  const fpRaw = await store.getKv("events:fp");
+  const fpPrev: Record<string, string> = fpRaw ? JSON.parse(fpRaw) : {};
+  const fpNow: Record<string, string> = {};
+  const changed: CrisisEvent[] = [];
+  for (const e of events) {
+    fpNow[e.id] = eventFingerprint(e);
+    if (fpPrev[e.id] !== fpNow[e.id]) changed.push(e);
+  }
+  await store.putEvents(changed);
+  if (changed.length || Object.keys(fpPrev).length !== events.length) await store.setKv("events:fp", JSON.stringify(fpNow));
 
   // 패턴 탐지 (최신 관측값 전체 기준)
   const latestRaw = await store.getKv("readings");
@@ -167,7 +235,7 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
 
   return {
     at: now,
-    sources: results.map((r) => ({ source: r.source, ok: r.ok, raw: r.rawCount, signals: r.signals.length, error: r.error, skipped: r.skipped })),
+    sources,
     newSignals,
     events,
     alerts,

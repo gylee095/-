@@ -1,6 +1,6 @@
 // 대시보드·에이전트가 공유하는 상태 스냅샷
 import type { Store } from "./store.js";
-import { latencyMetrics } from "./pipeline.js";
+import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { listSources } from "./sources.js";
 import { briefEvent, currentThreat } from "./brief.js";
@@ -35,24 +35,34 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const now = Date.now();
   // 전쟁 위험 모델은 최근 14일 사건(중대 사건·도발 빈도)을 본다 — 화면의 사건 목록은 요청한 기간만 보여 준다
   const modelSince = Math.min(since, now - 14 * 24 * 3600_000);
-  const [events, signals, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourly] = await Promise.all([
+  // 저장소(D1) 무료 한도: 신호 표 전체·시계열 표 전체를 훑지 않는다. 사건은 근거 신호 사본(evidence)을 함께 갖고 있고,
+  // 스파크라인은 KV 'hourly' 한 줄에서 읽는다.
+  const [events, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourlyRaw, d1Raw] = await Promise.all([
     store.getEvents(modelSince),
-    store.getSignals(modelSince),
     store.getHealth(),
     store.getAlerts(since),
     store.getNotes(since),
     store.getKv("last_cycle"),
     store.getKv("readings"),
     store.getKv("patterns"),
-    store.getMetricHourly(now - 24 * 3600_000),
+    store.getKv("hourly"),
+    store.getKv(`d1:${new Date(now).toISOString().slice(0, 10)}`),
   ]);
-  const byId = new Map(signals.map((s) => [s.id, s]));
+  // 근거 사본이 없는 옛 사건(이 변경 전에 저장된 것)만 신호를 ID로 찾아 채우고, 한 번 다시 저장한다
+  const missing = events.filter((e) => !e.evidence);
+  if (missing.length) {
+    const found = await store.getSignalsByIds(missing.flatMap((e) => e.signalIds));
+    const byId = new Map(found.map((x) => [x.id, x]));
+    for (const e of missing) e.evidence = e.signalIds.map((id) => byId.get(id)).filter((x): x is Signal => !!x).slice(-60);
+    await store.putEvents(missing).catch(() => {});
+  }
   const enriched = events
-    .map((e) => {
-      const sigs = e.signalIds.map((id) => byId.get(id)).filter((x): x is Signal => !!x);
+    .map(({ evidence, ...e }) => {
+      const sigs = evidence ?? [];
       return { ...e, signals: sigs, brief: briefEvent(e, sigs) };
     })
     .sort((a, b) => b.brief.at - a.brief.at);
+  const hourly: HourlyAgg = hourlyRaw ? JSON.parse(hourlyRaw) : {};
   // 같은 도발을 뒤늦게 다룬 언론 단독 묶음은 앞선(근거가 더 강한) 사건의 후속 보도로 합친다
   for (const later of [...enriched]) {
     if (later.basis !== "media" || !later.brief.isProvocation) continue;
@@ -75,7 +85,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
       id: d.id, label: d.label, group: d.group, groupLabel: GROUP_LABEL[d.group], unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats, coverage: d.coverage,
       reading: r,
       stateLabel: !r || stale ? STATE_LABEL.unavailable : STATE_LABEL[r.state],
-      history: hourly.filter((h) => h.indicator === d.id).map((h) => ({ hour: h.hour, avg: +h.avg.toFixed(2) })),
+      history: hourlySeries(hourly, d.id, now - 24 * 3600_000),
     };
   });
   const patterns: { at: number; patterns: Pattern[] } = patternsRaw ? JSON.parse(patternsRaw) : { at: 0, patterns: [] };
@@ -106,6 +116,8 @@ export async function buildState(store: Store, since: number, disabledSources = 
     deepReport,
     deepRequest: deepRequest && { at: deepRequest.at, text: deepRequest.text, ok: (deepRequest.data as any)?.fire?.ok, id: (deepRequest.data as any)?.id },
     usage: { ...usage, budget },
+    /** 오늘(UTC) 저장소 사용량 — 무료 한도: 읽기 500만 행, 쓰기 10만 행 (한국 시간 오전 9시 초기화) */
+    storage: d1Raw ? { ...(JSON.parse(d1Raw) as { read: number; written: number; calls: number }), limitRead: 5_000_000, limitWritten: 100_000 } : null,
     health: health.filter((h) => !disabled.has(h.source)),
     alerts: alerts.slice(-50).reverse(),
     notes,

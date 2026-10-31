@@ -51,7 +51,8 @@ jobs:
             id=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).find(x=>x.name==="kew").uuid))')
           fi
           sed -i "s/REPLACE_WITH_D1_ID/$id/" wrangler.toml
-          npx wrangler d1 migrations apply kew --remote
+          # 저장소 하루 한도를 넘은 날에도 코드는 배포되게 한다 (코드는 새 인덱스 없이도 맞게 동작한다). 다음 배포 때 다시 적용된다.
+          npx wrangler d1 migrations apply kew --remote || echo "::warning::D1 마이그레이션 실패 (하루 한도 초과일 수 있음) — 코드는 배포하고 다음 배포 때 다시 적용"
 
       - name: Deploy
         run: npx wrangler deploy

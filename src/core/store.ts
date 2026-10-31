@@ -28,6 +28,8 @@ export interface MetricPoint {
 
 export interface Store {
   getSignals(sinceMs: number): Promise<Signal[]>;
+  /** 지정한 신호만 (사건 근거 보충용) */
+  getSignalsByIds(ids: string[]): Promise<Signal[]>;
   putSignals(signals: Signal[]): Promise<number>; // 새로 추가된 개수
   putEvents(events: CrisisEvent[]): Promise<void>;
   getEvents(sinceMs: number): Promise<CrisisEvent[]>;
@@ -69,6 +71,9 @@ export class MemoryStore implements Store {
   protected async save(): Promise<void> {}
   async getSignals(since: number) {
     return Object.values(this.s.signals).filter((x) => x.detectedTime >= since || (x.eventTime ?? 0) >= since);
+  }
+  async getSignalsByIds(ids: string[]) {
+    return ids.map((id) => this.s.signals[id]).filter((x): x is Signal => !!x);
   }
   async putSignals(signals: Signal[]) {
     let n = 0;

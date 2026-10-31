@@ -92,7 +92,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 4px;bord
 <script>
 var $=function(s){return document.querySelector(s)};
 var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
-var ST=null, map=null;
+var ST=null, map=null, LAST=0;
 function ago(ms){var d=Math.max(0,Date.now()-ms),m=Math.floor(d/60000);if(m<1)return "방금";if(m<60)return m+"분 전";var h=Math.floor(m/60);if(h<3)return h+"시간 "+(m%60)+"분 전";if(h<24)return h+"시간 전";var dd=Math.floor(h/24);return dd<2?dd+"일 "+(h%24)+"시간 전":dd+"일 전"}
 function fresh(ms){var h=(Date.now()-ms)/3600000;return h<1?"f":h<24?"w":"o"}
 function kst(ms){if(!ms)return "—";var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()+" "+String(d.getUTCHours()).padStart(2,"0")+":"+String(d.getUTCMinutes()).padStart(2,"0")}
@@ -104,8 +104,19 @@ function basisText(e){if(e.basis==="official_quote")return e.status==="CORROBORA
 async function load(){
   var st=window.__KEW_STATE__;
   if(!st){var t=tok();if(!t){$("#login").style.display="block";return}
-    try{var r=await fetch("/api/state?hours=168",{headers:{authorization:"Bearer "+t}});if(r.status===401){$("#login").style.display="block";return}st=await r.json()}catch(e){return}}
-  $("#login").style.display="none";ST=st;render()}
+    var r,body=null;
+    try{r=await fetch("/api/state?hours=168",{headers:{authorization:"Bearer "+t}})}catch(e){showErr("서버에 연결하지 못했습니다. 인터넷 연결을 확인하세요.",false);return}
+    if(r.status===401){$("#login").style.display="block";return}
+    try{body=await r.json()}catch(e){}
+    if(!r.ok||!body||body.error){showErr(body&&body.message?body.message:"서버 오류 ("+r.status+") — 잠시 뒤 다시 열어 보세요.",!!body&&body.error==="storage_limit");return}
+    st=body}
+  LAST=Date.now();$("#login").style.display="none";ST=st;render()}
+// 불러오기 실패: 이미 화면이 있으면 그대로 두고 위에 알리고, 처음이면 이유를 크게 보여 준다 (빈 화면 금지)
+function showErr(msg,limit){$("#login").style.display="none";
+  var box='<div class="card" id="err" style="border-left:4px solid #d33"><b>'+(limit?"서버 저장소 하루 한도 초과":"불러오기 실패")+'</b><div style="font-size:14px;margin-top:6px">'+esc(msg)+'</div>'+
+    (limit?'<div style="font-size:13px;margin-top:6px;opacity:.8">무료 요금제(Cloudflare D1)의 하루 읽기 한도는 500만 행입니다.'+(ST?' 아래 내용은 마지막으로 받은 화면입니다.':'')+'</div>':'')+'</div>';
+  var old=$("#err");if(old)old.remove();
+  if(ST){$("#upd").textContent="갱신 실패";$("#app").insertAdjacentHTML("afterbegin",box)}else{$("#upd").textContent="";$("#app").innerHTML=box}}
 function pickTop(evs){var p=evs.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});return p[0]||null}
 function pct(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<1?x.toFixed(1)+"%":Math.round(x)+"%"}
 function warRisk(w){var names=["평온","긴장","위기","임박","교전"];
@@ -244,7 +255,10 @@ function row(e){var b=e.brief;return '<div class="row" onclick="this.querySelect
 function sources(e,open){var s=e.signals.slice().sort(function(a,b){return (b.publishedTime||b.detectedTime)-(a.publishedTime||a.detectedTime)});
   var inner=s.map(function(x){return '<div class="src"><small>'+ago(x.publishedTime||x.detectedTime)+' · '+esc(x.summary||x.source)+'</small><br>'+(x.url?'<a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a>':esc(x.title))+'</div>'}).join("");
   return open?inner:'<details><summary>근거 기사·데이터 '+s.length+'건 보기</summary>'+inner+'</details>'}
-function health(st){return '<p style="font-size:13px">마지막 수집 '+(st.lastCycle?ago(st.lastCycle.at):"없음")+' <button class="btn" id="runbtn" onclick="runNow()">지금 수집</button></p><table>'+st.sources.map(function(s){var h=st.health.find(function(x){return x.source===s.id});
+function storage(st){var u=st.storage;if(!u)return "";var m=function(n){return n>=10000?Math.round(n/10000)+"만":String(n)};
+  var pr=Math.round(u.read/u.limitRead*100),pw=Math.round(u.written/u.limitWritten*100);
+  return '<p style="font-size:13px">서버 저장소 오늘 사용 (무료 한도, 오전 9시 초기화): 읽기 '+m(u.read)+'/500만 행 ('+pr+'%) · 쓰기 '+m(u.written)+'/10만 행 ('+pw+'%)'+(Math.max(pr,pw)>=70?' <b class="bad">한도 주의</b>':'')+'</p>'}
+function health(st){return storage(st)+'<p style="font-size:13px">마지막 수집 '+(st.lastCycle?ago(st.lastCycle.at):"없음")+' <button class="btn" id="runbtn" onclick="runNow()">지금 수집</button></p><table>'+st.sources.map(function(s){var h=st.health.find(function(x){return x.source===s.id});
   var stt=!h?'<span>대기</span>':h.skipped?'<span>꺼짐 <small>'+esc(h.skipped).slice(0,40)+'</small></span>':h.ok?'<span class="ok">정상</span>'+(h.error?' <small class="bad">'+esc(h.error).slice(0,50)+'</small>':''):'<span class="bad">오류</span> <small>'+esc(h.error||"").slice(0,60)+'</small>';
   return '<tr><td>'+esc(s.name)+'<br><small>'+esc(s.latency)+'</small></td><td>'+stt+'<br><small>'+(h?ago(h.fetchedAt):"")+'</small></td></tr>'}).join("")+'</table>'}
 function drawMap(b){var el=$("#map");if(!el||!window.L)return;if(map){map.remove();map=null}
@@ -261,5 +275,7 @@ function drawMap(b){var el=$("#map");if(!el||!window.L)return;if(map){map.remove
 async function runNow(){var b=$("#runbtn");b.disabled=true;b.textContent="수집 중…";try{await fetch("/api/run",{method:"POST",headers:{authorization:"Bearer "+tok()}})}catch(e){}load()}
 async function testPush(){var r=await fetch("/api/test-push",{method:"POST",headers:{authorization:"Bearer "+tok()}});var j=await r.json();alert(j.some&&j.some(function(x){return x.ok})?"보냈습니다. 휴대폰을 확인하세요.":JSON.stringify(j))}
 function copy(t){navigator.clipboard.writeText(t).then(function(){alert("복사됨")},function(){prompt("복사하세요",t)})}
-load();setInterval(function(){if(!window.__KEW_STATE__)load()},60000);
+// 5분마다 갱신 (서버도 5분 주기로 판단한다). 화면이 꺼져 있으면 건너뛰고, 다시 볼 때 2분 넘게 지났으면 바로 갱신 — 저장소 읽기 절약
+load();setInterval(function(){if(!window.__KEW_STATE__&&!document.hidden)load()},300000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&!window.__KEW_STATE__&&Date.now()-LAST>120000)load()});
 </script></body></html>`;

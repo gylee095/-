@@ -21,20 +21,39 @@ description: 한반도 조기감지 — '특이한 날' 심층 조사 1회 (서�
   - 예측시장 가격 이력: `get_indicator_board` 의 market.pm_war_prob meta.series
   - 네이버 검색어 묶음별 최근 14일: psych.naver_war_search meta.groups[].recent
   - 위키 문서별 배율: psych.wiki_korea_attention meta.articles
-- 자기 사용량: `mcp__claude-code-remote__get_session`(세션 ID 생략) → `external_metadata.usage`, `ccr.id`.
+- 자기 사용량: 예약 작업으로 뜬 세션에는 `get_session` 이 없다(2026-10-31 실측). 대신 자기 대화 기록을 합산한다:
+  ```bash
+  python3 - <<'EOF'
+  import json, glob, os
+  f = max(glob.glob(os.path.expanduser('~/.claude/projects/*/*.jsonl')), key=os.path.getmtime)
+  u = {'input_tokens': 0, 'output_tokens': 0, 'cache_read_tokens': 0, 'cache_write_tokens': 0}; seen = set()
+  for line in open(f):
+      try: e = json.loads(line)
+      except Exception: continue
+      m = e.get('message') if isinstance(e.get('message'), dict) else {}
+      if e.get('type') != 'assistant' or 'usage' not in m or m.get('id') in seen: continue
+      seen.add(m.get('id')); x = m['usage']   # 같은 응답이 여러 줄로 저장되므로 응답 ID 로 한 번만 센다
+      u['input_tokens'] += x.get('input_tokens', 0); u['output_tokens'] += x.get('output_tokens', 0)
+      u['cache_read_tokens'] += x.get('cache_read_input_tokens', 0); u['cache_write_tokens'] += x.get('cache_creation_input_tokens', 0)
+  print(json.dumps(u))
+  EOF
+  ```
 
 ## 절차
 1. `get_deep_request` → 깨운 이유. `get_war_risk` → 자동 판정(단계, 30일 확률, 영역별 수준, 누가 먼저 움직였나). 필요하면 `get_situation`.
 2. 이유마다 **원자료를 펼쳐 본다.** 언제부터 움직였는지, 하루짜리 튐인지 며칠째인지 확인한다.
-3. **원인을 찾는다.** 움직이기 시작한 날짜 전후의 뉴스를 웹 검색한다. 예: 담화, 사건, 훈련, 소문, 기상, 국내 정치, 세계 증시.
+3. **원인을 찾는다.** 지표가 움직이기 시작한 날(예: 검색 급증 시작일)의 **3~7일 전**에 무슨 일이 있었는지가 핵심이다. 결과(미사일 발사 보도)가 아니라 **불을 붙인 것**을 찾는다.
+   - 먼저 `get_indicator_board` 의 북한 담화 제목(rhetoric meta.titles)과 `search_news(hours=72)` 를 본다.
+   - 웹 검색은 갈래를 나눠 한다: ① 북한 담화(김정은·김여정·국방성·외무성·총참모부 + 그 주 날짜) ② 접경 사건(총격·지뢰·확성기·전단·오물풍선·경고사격) ③ 한국·미국 정부 발표 ④ 소문(사망설·전쟁설) ⑤ 기상·국내 정치·세계 증시. 검색어 예: '김여정 담화 10월', '북한 확성기 10월 2026', 'North Korea statement Kim Yo Jong October 2026'.
+   - **원인을 못 찾았으면 검색어를 바꿔 6번까지 다 쓴다.** 3번만 쓰고 '원인 미확인'으로 끝내지 않는다.
 4. **시간순으로 정리한다.** 담화·사건·지표의 시작 시점을 한 줄로 놓고, 정부·돈·군사·북한의 말·사람들 중 누가 먼저 움직였는지 날짜로 보인다.
 5. **가설 2~3개**를 세운다. 무해한 설명도 반드시 하나 넣는다. 각 가설에 찬성·반대 근거를 달고, 가설을 무너뜨리는 쪽 증거를 먼저 찾는다.
 6. **과거 사례와 비교한다.** 예: 2010 천안함·연평도 포격, 2013 '전시상태' 선포, 2015년 8월 지뢰 → 확성기 → 포격전, 2017 '화염과 분노', 2020 연락사무소 폭파, 2022년 11월 하루 20여 발과 울릉도 공습경보, 2024 오물풍선. 닮은 점과 **다른 점**을 함께 쓴다.
-7. **자료가 의심스러우면** 믿지 말고 적는다. 예: 같은 값이 두 번 다르게 나옴, 거래 한 건에 가격이 뒤집힘, 갑자기 0이 됨.
+7. **자료가 의심스러우면** 믿지 말고 적는다. 예: 같은 값이 두 번 다르게 나옴, 거래 한 건에 가격이 뒤집힘, 갑자기 0이 됨. 예측시장은 순간 가격(pricePct)이 아니라 **최근 3일 가운데 값(recentPct)과 평소(usualPct)** 로 판단한다 — 2026-10-31 오전에는 매도 한 건으로 1시간 만에 5.1% → 1.4%가 됐다.
 8. **확률을 정한다**: 단계(1~5), 30일 국지 충돌 %, 30일 전면전 %. 자동 판정과 같으면 같다고, 다르면 무엇 때문에 몇 배 다르게 보는지 쓴다. 기저율을 잊지 않는다: 국지 충돌은 1999~2020년 8번(약 3년에 1번), 전면전은 1953년 이후 0번.
 9. **지켜볼 것**을 날짜와 함께 적는다. 예: "김여정 확성기 시한 10/31 — 실제 가동 여부".
-10. 끝내기 직전 `get_session` 으로 사용량과 세션 ID 를 읽는다.
-11. `record_deep_report` 로 기록한다. title, summary, findings(출처 URL), timeline, hypotheses, analogs, war_phase, p_clash_30d, p_war_30d, reasoning, watch, open_questions, wished_data, usage, session_id, notify=true 를 채운다.
+10. 끝내기 직전 위 '자기 기록 합산' 스크립트로 사용량(토큰)을 구한다. `get_session` 이 보이면 그쪽 값을 써도 된다.
+11. `record_deep_report` 로 기록한다. title, summary, findings(출처 URL), timeline, hypotheses, analogs, war_phase, p_clash_30d, p_war_30d, reasoning, watch, open_questions, wished_data, usage(model 포함), session_id(= get_deep_request 의 요청 번호), notify=true 를 채운다.
 
 ## 최종 응답 (3줄)
 ① 무엇이 이상했고 원인은 무엇인가 ② 전쟁 위험 단계와 30일 확률 ③ 이번 사용량(출력·입력 토큰 수)

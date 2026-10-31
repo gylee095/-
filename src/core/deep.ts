@@ -136,7 +136,7 @@ export async function loadMonthUsage(store: Store, now: number): Promise<MonthUs
  * get_session 의 사용량은 세션이 생긴 뒤 누적값이다 — 같은 세션을 계속 쓰는 정기 분석관이 매번 누적값을 넣으면 이중으로 센다.
  * 그래서 sessionId 가 있으면 지난번 기록한 누적값을 빼고 '이번에 늘어난 만큼'만 더한다.
  */
-export async function addUsage(store: Store, kind: "deep" | "scheduled", raw: Usage, now: number, sessionId?: string): Promise<MonthUsage> {
+export async function addUsage(store: Store, kind: "deep" | "scheduled", raw: Usage, now: number, sessionId?: string, countRun = true): Promise<MonthUsage> {
   let u = raw;
   if (sessionId) {
     const key = `usage:session:${sessionId}`;
@@ -149,7 +149,7 @@ export async function addUsage(store: Store, kind: "deep" | "scheduled", raw: Us
   }
   const m = await loadMonthUsage(store, now);
   const t = m[kind];
-  t.runs += 1;
+  if (countRun) t.runs += 1;
   t.input_tokens += u.input_tokens ?? 0;
   t.output_tokens += u.output_tokens ?? 0;
   t.cache_read_tokens += u.cache_read_tokens ?? 0;

@@ -103,4 +103,10 @@ describe("사용량: 세션 누적값에서 이번 증가분만 더한다", () =
     expect((await loadMonthUsage(store, NOW)).deep).toMatchObject({ runs: 2, cost_usd: 4, output_tokens: 30000 });
     expect((await loadMonthUsage(store, Date.UTC(2026, 10, 1, 3))).deep.runs).toBe(0); // 11월 (한국 날짜)
   });
+  it("나중에 채우기(backfill): 이미 센 실행의 토큰만 더하고 횟수는 그대로", async () => {
+    const store = new MemoryStore();
+    await addUsage(store, "deep", { model: "claude-sonnet-5-5" }, NOW, "deep-20261031-1200"); // 보고서 기록 때 토큰 없이 1회
+    const m = await addUsage(store, "deep", { input_tokens: 43989, output_tokens: 9149, cache_read_tokens: 707685, cache_write_tokens: 41341 }, NOW, "session_01FNKpUCNTCZbMeLkeJ2u9nG", false);
+    expect(m.deep).toMatchObject({ runs: 1, output_tokens: 9149, cache_read_tokens: 707685 });
+  });
 });

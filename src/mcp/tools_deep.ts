@@ -20,7 +20,7 @@ const usageSchema = z
     cache_write_tokens: z.number().int().min(0).optional(),
     cost_usd: z.number().min(0).optional().describe("API 요금 환산치 (get_session 의 external_metadata.usage.cost_usd)"),
   })
-  .describe("이 세션의 사용량 — mcp__claude-code-remote__get_session(세션 ID 생략)의 external_metadata.usage 를 그대로 옮긴다");
+  .describe("이 세션의 사용량 — get_session 의 external_metadata.usage, 또는 지침의 '자기 기록 합산' 스크립트 결과");
 
 export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Store }) {
   const { env, store } = ctx;
@@ -120,12 +120,17 @@ export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Sto
       description:
         "Claude 세션 1회 실행의 사용량을 이번 달 합계에 더한다. 정기 분석(kind=scheduled)은 끝나기 직전 get_session(자기 자신)의 usage 와 세션 ID 를 넣는다. " +
         "get_session 의 사용량은 세션 누적값이라 서버가 지난번 기록과의 차이만 더한다. 금액은 API 요금 환산 참고치이며 실제로는 구독 사용 한도에서 차감된다.",
-      inputSchema: { kind: z.enum(["scheduled", "deep"]), usage: usageSchema, session_id: z.string().max(80).describe("get_session 결과의 ccr.id (session_...) — 누적값에서 이번 증가분만 더하는 데 쓴다") },
+      inputSchema: {
+        kind: z.enum(["scheduled", "deep"]),
+        usage: usageSchema,
+        session_id: z.string().max(80).describe("세션을 구분하는 ID (get_session 의 ccr.id 또는 심층 분석 요청 번호) — 누적값에서 이번 증가분만 더하는 데 쓴다"),
+        backfill: z.boolean().default(false).describe("true 면 이미 횟수가 기록된 실행의 토큰만 나중에 채운다 (실행 횟수는 늘리지 않음)"),
+      },
     },
-    async ({ kind, usage, session_id }) => {
+    async ({ kind, usage, session_id, backfill }) => {
       try {
         const now = Date.now();
-        const month = await addUsage(store, kind, usage, now, session_id);
+        const month = await addUsage(store, kind, usage, now, session_id, !backfill);
         await store.addNote({ at: now, author: "claude-agent", kind: "usage", text: `${kind} 사용량: API 환산 $${(usage.cost_usd ?? 0).toFixed(2)}`, data: { kind, usage, session_id } });
         return out({ ok: true, monthUsage: month });
       } catch (e) {

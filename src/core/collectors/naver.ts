@@ -50,6 +50,12 @@ export interface NaverGroupRatio {
   date: string;
   /** 마지막 날 ÷ 직전 28일 중앙값 */
   ratio: number;
+  /** 직전 28일 중앙값 (응답 전체 최댓값 = 100 기준 상대값) */
+  usual: number;
+  /** 최근 14일 상대값 — 하루짜리 튐인지 며칠째인지 보려고 */
+  recent: { date: string; v: number }[];
+  /** 응답에 들어 있던 날 수 (검색이 0인 날은 빠질 수 있다) */
+  days: number;
 }
 
 export function naverRatios(json: any): NaverGroupRatio[] {
@@ -60,7 +66,7 @@ export function naverRatios(json: any): NaverGroupRatio[] {
     const last = data[data.length - 1];
     const usual = median(data.slice(-29, -1).map((d) => Number(d.ratio)));
     if (!(usual > 0)) continue;
-    out.push({ group: r.title, date: last.period, ratio: Number(last.ratio) / usual });
+    out.push({ group: r.title, date: last.period, ratio: Number(last.ratio) / usual, usual: +usual.toFixed(3), recent: data.slice(-14).map((d) => ({ date: d.period.slice(5), v: +Number(d.ratio).toFixed(2) })), days: data.length });
   }
   return out;
 }
@@ -73,7 +79,7 @@ export function naverMetrics(ratios: NaverGroupRatio[]): Metric[] {
     {
       indicator: "psych.naver_war_search",
       value: Math.round(worst.ratio * 100),
-      meta: { dataDate: worst.date, worstGroup: worst.group, groups: ratios.map((r) => ({ group: r.group, ratio: +r.ratio.toFixed(2) })), note: "네이버 검색량 — 평소(직전 28일 중앙값) 대비 배율, 불안 검색어 묶음 중 가장 큰 값" },
+      meta: { dataDate: worst.date, worstGroup: worst.group, groups: ratios.map((r) => ({ group: r.group, ratio: +r.ratio.toFixed(2), usual: r.usual, days: r.days, recent: r.recent })), note: "네이버 검색량 — 평소(직전 28일 중앙값) 대비 배율, 불안 검색어 묶음 중 가장 큰 값" },
     },
   ];
 }

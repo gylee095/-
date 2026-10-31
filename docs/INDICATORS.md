@@ -167,6 +167,6 @@
 | Global Fishing Watch (서해 중국 어선, 위성 AIS) | https://globalfishingwatch.org/our-apis/tokens 가입 → 토큰 생성(비상업·개인 연구, 무료). 약 5일 지연 | `GFW_API_TOKEN` |
 | NASA FIRMS (위성 열점) | https://firms.modaps.eosdis.nasa.gov/api/map_key/ 이메일 입력 → 즉시 발급 — ✅ 등록됨 | `FIRMS_MAP_KEY` |
 | 행안부 재난문자 | safetydata.go.kr 본인인증 가입 | `SAFETYDATA_API_KEY` |
-| 네이버 데이터랩 (한국 사람들의 전쟁 불안) | https://developers.naver.com 로그인 → Application → 애플리케이션 등록 → 사용 API '데이터랩(검색어트렌드)' (무료, 하루 1,000회) | `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` |
+| 네이버 데이터랩 (한국 사람들의 전쟁 불안) | NAVER API HUB(네이버 클라우드) 이용 신청 → 애플리케이션 등록(이름에 공백 불가) → 사용 API '검색어 트렌드' → 인증 정보 (월 3만 건 무료) — ✅ 등록됨 | `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` |
 
 등록 후 Actions 의 Deploy Worker 를 다시 실행하면 자동 반영된다.

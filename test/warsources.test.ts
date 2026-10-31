@@ -87,11 +87,15 @@ describe("위키백과 관심 (실측 9/22~10/20)", () => {
   });
 });
 
-describe("네이버 검색 불안 (형식 예시 — 키 등록 후 실측 필요)", () => {
-  it("요청: 어제까지 36일, 일 단위, 4개 묶음, 키는 헤더로", () => {
+describe("네이버 검색 불안 (요청 형식 — 공식 문서 기준)", () => {
+  it("요청: NAVER API HUB 주소·헤더(공식 문서 2026-09), 어제까지 36일, 일 단위, 4개 묶음", () => {
     const { url, init } = naverRequest("id", "sec", NOW);
-    expect(url).toBe("https://openapi.naver.com/v1/datalab/search");
-    expect((init.headers as any)["X-Naver-Client-Id"]).toBe("id");
+    expect(url).toBe("https://naverapihub.apigw.ntruss.com/search-trend/v1/search");
+    expect((init.headers as any)["X-NCP-APIGW-API-KEY-ID"]).toBe("id");
+    expect((init.headers as any)["X-NCP-APIGW-API-KEY"]).toBe("sec");
+    const classic = naverRequest("id", "sec", NOW, "classic");
+    expect(classic.url).toBe("https://openapi.naver.com/v1/datalab/search");
+    expect((classic.init.headers as any)["X-Naver-Client-Id"]).toBe("id");
     const body = JSON.parse(init.body as string);
     expect(body).toMatchObject({ timeUnit: "date", endDate: "2026-10-30" });
     expect(body.keywordGroups.length).toBe(4);

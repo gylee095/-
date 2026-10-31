@@ -1,8 +1,11 @@
 // 사람들의 불안 — 네이버 데이터랩 검색어 트렌드(공식 API, 무료 키, 하루 단위·전일까지).
+// 2026년부터 키 발급이 NAVER API HUB(네이버 클라우드)로 옮겨 갔다: 주소·인증 헤더 이름만 다르고 요청·응답 형식은 같다.
+// 예전 개발자센터(openapi.naver.com) 키도 쓸 수 있도록, API HUB 가 인증을 거부하면 예전 주소로 한 번 더 시도한다.
 // 한국 사람들이 '전쟁', '대피소', '생존배낭'을 평소보다 얼마나 더 찾는가. 언론발 공포에도 움직이므로 정부·돈의 움직임과 대조해서 읽는다.
 import type { CollectResult, Metric } from "../types.js";
 import { fetchText } from "../util.js";
 
+export const NAVER_HUB_TREND = "https://naverapihub.apigw.ntruss.com/search-trend/v1/search";
 export const NAVER_DATALAB = "https://openapi.naver.com/v1/datalab/search";
 
 export const NAVER_GROUPS: { groupName: string; keywords: string[] }[] = [
@@ -14,12 +17,27 @@ export const NAVER_GROUPS: { groupName: string; keywords: string[] }[] = [
 
 const kstDate = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
 
-export function naverRequest(id: string, secret: string, now: number): { url: string; init: RequestInit } {
+export function naverRequest(id: string, secret: string, now: number, api: "hub" | "classic" = "hub"): { url: string; init: RequestInit } {
   const body = { startDate: kstDate(now - 36 * 86400_000), endDate: kstDate(now - 86400_000), timeUnit: "date", keywordGroups: NAVER_GROUPS };
-  return {
-    url: NAVER_DATALAB,
-    init: { method: "POST", headers: { "X-Naver-Client-Id": id, "X-Naver-Client-Secret": secret, "content-type": "application/json" }, body: JSON.stringify(body) },
-  };
+  const headers: Record<string, string> =
+    api === "hub" ? { "X-NCP-APIGW-API-KEY-ID": id, "X-NCP-APIGW-API-KEY": secret, "content-type": "application/json" } : { "X-Naver-Client-Id": id, "X-Naver-Client-Secret": secret, "content-type": "application/json" };
+  return { url: api === "hub" ? NAVER_HUB_TREND : NAVER_DATALAB, init: { method: "POST", headers, body: JSON.stringify(body) } };
+}
+
+/** API HUB 로 먼저, 인증 거부(401·403)면 예전 개발자센터 주소로 */
+export async function fetchNaverTrend(id: string, secret: string, now: number): Promise<any> {
+  const hub = naverRequest(id, secret, now, "hub");
+  try {
+    return JSON.parse(await fetchText(hub.url, hub.init, 20000));
+  } catch (e) {
+    if (!/HTTP (401|403)/.test(String((e as Error).message))) throw e;
+    const classic = naverRequest(id, secret, now, "classic");
+    try {
+      return JSON.parse(await fetchText(classic.url, classic.init, 20000));
+    } catch (e2) {
+      throw new Error(`API HUB: ${String((e as Error).message).slice(0, 160)} / 개발자센터: ${String((e2 as Error).message).slice(0, 160)}`);
+    }
+  }
 }
 
 const median = (xs: number[]) => {
@@ -62,8 +80,7 @@ export function naverMetrics(ratios: NaverGroupRatio[]): Metric[] {
 
 export async function collectNaver(id: string | undefined, secret: string | undefined, now = Date.now()): Promise<CollectResult> {
   if (!id || !secret) return { source: "naver_datalab", ok: true, skipped: "NAVER_CLIENT_ID/NAVER_CLIENT_SECRET 미설정 (네이버 개발자센터 무료 키)", signals: [], fetchedAt: now, rawCount: 0 };
-  const { url, init } = naverRequest(id, secret, now);
-  const ratios = naverRatios(JSON.parse(await fetchText(url, init, 20000)));
+  const ratios = naverRatios(await fetchNaverTrend(id, secret, now));
   const metrics = naverMetrics(ratios);
   return { source: "naver_datalab", ok: metrics.length > 0, error: metrics.length ? undefined : "검색량 데이터 부족", fetchedAt: now, rawCount: ratios.length, signals: [], metrics };
 }

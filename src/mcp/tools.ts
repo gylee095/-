@@ -34,14 +34,25 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
       title: "현재 상황판",
       description:
         "시스템이 지금까지 감지·교차검증한 사건 목록(공식확인/교차확인/미확인, 심각도, 발생·공개·감지·알림·첫보도 시각, 출처), " +
-        "종합 관측 수준, 소스 상태, 최근 알림과 분석 노트를 반환한다. 상황 파악을 시작할 때 가장 먼저 호출한다.",
+        "종합 관측 수준, 소스 상태, 최근 알림과 분석 노트, 그리고 전쟁 위험 자동 판정(국면·30일 확률·영역별 수준·누가 먼저 움직였나)을 반환한다. 상황 파악을 시작할 때 가장 먼저 호출한다.",
       inputSchema: { hours: z.number().int().min(1).max(720).default(24).describe("조회 기간(시간)") },
     },
     async ({ hours }) => {
       try {
         const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES);
+        const w = st.warRisk;
         return out({
           now: fmtKst(st.now),
+          // 핵심 질문: 전쟁으로 번질 위험이 평소보다 얼마나 높은가 — 분석관의 판단 출발점 (지침 파일이 옛것이어도 여기서 전달된다)
+          warRisk: {
+            headline: w.headline, phase: w.phase, phaseLabel: w.phaseLabel, reasons: w.phaseReasons,
+            clash30dPct: w.clash30d, war30dPct: w.war30d, usualPct: w.usual,
+            domains: w.domains.map((d) => ({ domain: d.label, level: d.levelLabel, drivers: d.drivers, measured: `${d.measured}/${d.total}` })),
+            firstMover: w.firstMover.text, tripwires: w.tripwires, restraints: w.restraints, blindSpots: w.blindSpots,
+          },
+          analystDuty:
+            "record_assessment 에 war_phase(1~5)·p_clash_30d·p_war_30d(숫자 %)·war_reasoning(일반인 말로, 자동 판정과 같거나 다른 이유)·tripwires 를 반드시 채운다. " +
+            "정부나 돈의 반응 없이 3단계 이상 금지. 움직인 영역은 원인(정부 경보 사유·세계 증시·인물 뉴스 등)을 확인한다. 자세한 근거는 get_war_risk.",
           threat: st.threat,
           interpretation: { headline: st.interpretation.headline, narrative: st.interpretation.narrative, hints: st.interpretation.hints.map((h) => ({ kind: h.kind, title: h.title, reasoning: h.reasoning, counter: h.counter, check: h.check })), context: st.interpretation.context },
           posture: st.posture,

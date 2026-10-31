@@ -9,6 +9,7 @@
 import type { BoardRow } from "./state.js";
 import type { EventBrief } from "./brief.js";
 import type { Pattern } from "./patterns.js";
+import { INDICATOR_BY_ID } from "./indicators.js";
 
 export type DomainId = "gov" | "elite" | "money" | "military" | "nkwords" | "public";
 export type Level = 0 | 1 | 2 | 3;
@@ -35,7 +36,7 @@ export const DOMAINS: { id: DomainId; label: string; indicators: string[]; why: 
   },
   {
     id: "military", label: "군사 동향",
-    indicators: ["air.mil_airborne", "air.isr_airborne", "air.civil_airborne", "navwarn.launch_notice_active", "navwarn.korea_active", "seismic.nk_events_24h", "thermal.launch_site_hotspots", "gnss.bad_ratio_korea", "gnss.bad_ratio_westsea", "gnss.bad_ratio_north", "sea.gfw_cn_change_pct", "official.mnd_provocation_24h"],
+    indicators: ["border.incidents_72h", "air.mil_airborne", "air.isr_airborne", "air.civil_airborne", "navwarn.launch_notice_active", "navwarn.korea_active", "seismic.nk_events_24h", "thermal.launch_site_hotspots", "gnss.bad_ratio_korea", "gnss.bad_ratio_westsea", "gnss.bad_ratio_north", "sea.gfw_cn_change_pct", "official.mnd_provocation_24h"],
     why: "실제 도발·전개·교란. 북한은 해마다 수십 번 쏘므로 도발 한 번은 '긴장'이지 '위기'가 아니다.",
   },
   {
@@ -296,10 +297,13 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   if (!restraints.length) restraints.push("대화·외교 일정 정보 없음 (예측시장 미수집)");
 
   // ── 사각지대 ──
+  // 측정은 되지만 범위가 좁아 0이 '없음'을 뜻하지 않는 지표도 알린다
+  const narrow = board.filter((r) => measured(r) && r.reading!.value === 0 && INDICATOR_BY_ID[r.id]?.coverage).map((r) => `${r.label} 0 — ${INDICATOR_BY_ID[r.id].coverage}`);
   const blindSpots = domains.filter((d) => d.measured < d.total).map((d) => {
     const miss = DOMAINS.find((x) => x.id === d.id)!.indicators.filter((id) => !measured(by[id])).map((id) => by[id]?.label ?? id);
     return `${d.label}: ${miss.slice(0, 3).join(", ")}${miss.length > 3 ? ` 외 ${miss.length - 3}개` : ""} 측정 불가`;
   });
+  blindSpots.push(...narrow);
 
   const tone = phase === 1 ? "평소 수준" : phase === 2 ? "평소보다 약간 높음" : phase === 3 ? "높음" : phase === 4 ? "매우 높음" : "교전 중";
   const headline = `전쟁 위험 ${phase}단계(${PHASE_LABEL[phase]}) — 앞으로 30일 국지 충돌 약 ${fmtPct(clash30d.point)}, 전면전 ${fmtPct(war30d.point)} (${tone})`;

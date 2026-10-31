@@ -21,6 +21,8 @@ export interface BoardRow {
   why: string;
   latency: string;
   caveats: string;
+  /** 수집 범위가 좁아 0이 '없음'을 뜻하지 않는 이유 */
+  coverage?: string;
   reading?: Reading;
   stateLabel: string;
   /** 최근 24시간 시간별 평균 (스파크라인) */
@@ -70,7 +72,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     // 30시간 넘게 갱신이 없으면 측정 불가로 본다 (일간 지표 포함)
     const stale = r && now - r.at > 30 * 3600_000;
     return {
-      id: d.id, label: d.label, group: d.group, groupLabel: GROUP_LABEL[d.group], unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats,
+      id: d.id, label: d.label, group: d.group, groupLabel: GROUP_LABEL[d.group], unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats, coverage: d.coverage,
       reading: r,
       stateLabel: !r || stale ? STATE_LABEL.unavailable : STATE_LABEL[r.state],
       history: hourly.filter((h) => h.indicator === d.id).map((h) => ({ hour: h.hour, avg: +h.avg.toFixed(2) })),

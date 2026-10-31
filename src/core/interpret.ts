@@ -5,6 +5,7 @@ import type { BoardRow } from "./state.js";
 import type { Pattern } from "./patterns.js";
 import type { EventBrief } from "./brief.js";
 import { inChineseMoratorium, inExerciseSeason } from "./patterns.js";
+import { INDICATOR_BY_ID } from "./indicators.js";
 
 export interface Hint {
   /** warning: 위험 쪽 힌트 · reassuring: 안심 쪽 힌트 · caveat: 해석 주의 · gap: 사각지대 */
@@ -88,8 +89,14 @@ function isLearning(row: BoardRow | undefined): boolean {
   return !!row?.reading && row.reading.state === "learning" && row.stateLabel !== "측정 불가";
 }
 
-/** 징후 하나의 숫자를 뜻으로 풀어 쓴다 */
+/** 징후 하나의 숫자를 뜻으로 풀어 쓴다 — 범위가 좁은 지표가 0이면 '없음'이 아니라는 점을 덧붙인다 */
 export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolean; moratorium: boolean }): string {
+  const text = meaningCore(row, ctx);
+  const cov = INDICATOR_BY_ID[row.id]?.coverage;
+  return cov && row.reading && row.stateLabel !== "측정 불가" && row.reading.value === 0 ? `${text} ⚠ 범위 제한: ${cov}` : text;
+}
+
+function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; moratorium: boolean }): string {
   const r = row.reading;
   const id = row.id;
   if (isUnavailable(row)) {
@@ -169,6 +176,11 @@ export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolea
       const signed = m?.signedPct as number | undefined;
       const dir = signed === undefined ? "" : signed > 0 ? "원화 약세" : "원화 강세";
       return `원·달러 ${m?.price ? `${Math.round(m.price)}원, ` : ""}전일 대비 ${signed !== undefined ? (signed > 0 ? "+" : "") + signed : v}% (${dir})${isAbnormal(row) ? " → 큰 변동. 뉴스 없는 시간대면 시장이 먼저 반응했을 수 있음" : " → 평온"}`;
+    }
+    case "border.incidents_72h": {
+      const t = ((r!.meta as any)?.titles ?? []) as string[];
+      if (v === 0) return "최근 72시간 확성기·경고사격·군사분계선 침범 같은 접경 사건 보도 없음";
+      return `최근 72시간 접경 사건 보도 ${v}건${t[0] ? ` — 예: ${t[0]}` : ""}${isAbnormal(row) ? " → 평소보다 잦음. 2015년 8월처럼 접경 공방이 포격으로 번진 사례가 있어 국지 충돌 쪽 위험을 올려 본다" : ""}`;
     }
     case "elite.foreign_net_kospi": {
       const m = r!.meta as any;

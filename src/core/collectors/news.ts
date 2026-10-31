@@ -61,6 +61,13 @@ export const WAR_TALK_RE = /전쟁|전면전|확전|선전포고|전시\s?상태
 const KOREA_CTX_RE = /북한|北|남북|한반도|김정은|김여정|평양|NLL|DMZ|휴전선|접경/;
 const NOT_WAR_TALK_RE = /6[·.]25|한국\s?전쟁\s?(기념|참전|유해|\d+주년)|참전|전쟁기념|정전\s?협정|우크라|러시아|이스라엘|이란|가자|중동|무역\s?전쟁|관세|게임|영화|드라마|웹툰/;
 export const isWarTalk = (t: string) => WAR_TALK_RE.test(t) && KOREA_CTX_RE.test(t) && !NOT_WAR_TALK_RE.test(t);
+// 접경 사건: 확성기·경고사격·군사분계선 침범·지뢰·풍선·전단·감시초소(GP) 총격 (2026-10-29 '접경지 주민들 아침부터 北확성기 소리'를 놓친 뒤 추가)
+export const BORDER_RE = /확성기|경고\s?사격|경고\s?방송|군사분계선|MDL|지뢰|오물\s?풍선|쓰레기\s?풍선|대북\s?전단|전단\s?살포|GP\s?(총격|사격)|총격|월선|침범|포탄\s?(낙하|발견)/;
+const BORDER_CTX_RE = /북한|北|남북|접경|비무장지대|DMZ|휴전선|NLL|군사분계선|MDL|대북|대남/;
+const NOT_BORDER_RE = /6[·.]25|유해|관광|축제|생태|평화누리|둘레길|다큐|영화|전시회|마라톤|영공\s?침범.*(중국|러시아)|사이버/;
+export const isBorderIncident = (t: string) => BORDER_RE.test(t) && BORDER_CTX_RE.test(t) && !NOT_BORDER_RE.test(t);
+/** (종합)·(2보) 같은 꼬리표를 떼고 앞부분으로 같은 기사를 한 번만 센다 */
+const storyKey = (t: string) => t.replace(/\((종합|\d보)[^)]*\)|\[[^\]]*\]/g, "").replace(/\s+/g, "").slice(0, 18);
 
 /** 최근 기사 제목들에서 언론 템포·북한 수사 지표를 계산한다 */
 export function newsMetrics(items: { title: string; pubDate?: number }[], now: number, source: string): Metric[] {
@@ -75,6 +82,10 @@ export function newsMetrics(items: { title: string; pubDate?: number }[], now: n
     metrics.push({ indicator: "rhetoric.nk_hostile_24h", value: hostile.length, meta: { titles: hostile.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
     const warTalk = items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 24 * 3600_000 && isWarTalk(i.title));
     metrics.push({ indicator: "media.war_talk_24h", value: warTalk.length, meta: { titles: warTalk.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
+    const border = new Map<string, { title: string; pubDate?: number }>();
+    for (const i of items) if (i.pubDate !== undefined && now - i.pubDate < 72 * 3600_000 && isBorderIncident(i.title) && !border.has(storyKey(i.title))) border.set(storyKey(i.title), i);
+    const b = [...border.values()].sort((x, y) => (y.pubDate ?? 0) - (x.pubDate ?? 0));
+    metrics.push({ indicator: "border.incidents_72h", value: b.length, meta: { titles: b.slice(0, 6).map((i) => i.title.slice(0, 80)) } });
   }
   return metrics;
 }

@@ -11,9 +11,13 @@ export async function fetchNgaWarnings(): Promise<any[]> {
 /** 지표용 '한반도 주변' 판정은 신호용(isKoreaRelevant)보다 좁다 — 일본 열도 일반 경보는 제외 */
 const KOREA_WATERS_RE = /KOREA|DPRK|YELLOW SEA|SEA OF JAPAN|EAST SEA|TSUSHIMA|KOREA STRAIT|PYONGYANG/i;
 
-/** 한반도 관련 유효 경보 수와 발사 예고 경보 수 */
-export function navwarnMetrics(rows: any[]): Metric[] {
-  const korea = rows.filter((r) => KOREA_WATERS_RE.test(String(r.text ?? "")));
+/** 한반도 관련 유효 경보 수와 발사 예고 경보 수 — 180일 넘은 경보는 뺀다(취소되지 않은 채 '유효'로 남은 2021~2024년 경보가 있다) */
+export function navwarnMetrics(rows: any[], now = Date.now()): Metric[] {
+  const fresh = rows.filter((r) => {
+    const t = parseDtg(String(r.issueDate ?? ""));
+    return t === undefined || now - t < 180 * 86400_000;
+  });
+  const korea = fresh.filter((r) => KOREA_WATERS_RE.test(String(r.text ?? "")));
   const launch = korea.filter((r) => /ROCKET|MISSILE|SATELLITE LAUNCH|SPACE DEBRIS/i.test(String(r.text ?? "").replace(/CANCEL THIS MSG[^\n]*/gi, "")));
   return [
     { indicator: "navwarn.korea_active", value: korea.length, meta: { refs: korea.slice(0, 8).map((r) => `${r.navArea}-${r.msgNumber}/${r.msgYear}`) } },
@@ -23,7 +27,7 @@ export function navwarnMetrics(rows: any[]): Metric[] {
 
 export async function collectNga(now = Date.now()): Promise<CollectResult> {
   const rows = await fetchNgaWarnings();
-  return { source: "nga_msi", ok: true, fetchedAt: now, rawCount: rows.length, signals: parseNga(rows, now), metrics: navwarnMetrics(rows) };
+  return { source: "nga_msi", ok: true, fetchedAt: now, rawCount: rows.length, signals: parseNga(rows, now), metrics: navwarnMetrics(rows, now) };
 }
 
 /** 경보문에서 첫 번째 좌표("38-12.00N 124-30.00E")를 추출 */

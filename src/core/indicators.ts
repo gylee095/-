@@ -3,7 +3,7 @@
 // 각 징후를 시간대별 평소 값과 비교해 정상/상승/이상으로 판정하고, 여러 징후의 동시 이상을 patterns.ts 에서 조합한다.
 import type { IndicatorState, Reading } from "./types.js";
 
-export type IndicatorGroup = "air" | "sea" | "seismic" | "navwarn" | "official" | "rhetoric" | "media" | "social" | "market" | "internet" | "gnss" | "thermal" | "psych" | "elite";
+export type IndicatorGroup = "air" | "sea" | "seismic" | "navwarn" | "official" | "rhetoric" | "media" | "social" | "market" | "internet" | "gnss" | "thermal" | "psych" | "elite" | "border";
 
 export interface IndicatorDef {
   id: string;
@@ -26,6 +26,8 @@ export interface IndicatorDef {
   minN?: number;
   /** z 계산의 표준편차 바닥값 (잡음이 큰 지표가 작은 흔들림에 '이상'이 되지 않게) */
   sdFloor?: number;
+  /** 수집 범위가 좁아 0이 '없음'을 뜻하지 않는 경우 그 이유 (화면에 '범위 제한' 표시) */
+  coverage?: string;
 }
 
 export const INDICATORS: IndicatorDef[] = [
@@ -43,12 +45,14 @@ export const INDICATORS: IndicatorDef[] = [
   },
   {
     id: "air.isr_airborne", label: "정찰·감시·급유기 수", group: "air", unit: "대", direction: "high", slots: 4, absolute: { elevated: 3, anomalous: 5 },
+    coverage: "공개 신호(ADS-B)에 보이는 기체만 센다 — 정찰기는 흔히 신호를 끄고 비행한다",
     why: "RC-135S 코브라볼(미사일 추적), RC-135V/W, E-8, P-8, U-2, RQ-4 의 한반도 주변 집중 비행은 미사일 발사 임박 징후로 반복 보도됐다. WC-135(방사능 탐지)는 핵실험 전후에 전개된다.",
     measure: "군용기 중 기종 코드가 정찰·조기경보·해상초계·급유기인 것의 수와 목록",
     latency: "수 초~수십 초", caveats: "기종 코드만으로 RC-135와 WC-135, KC-135를 완전히 구분하지 못한다(목록의 등록번호·콜사인 확인 필요).",
   },
   {
     id: "sea.ys_vessels_total", label: "한반도 해역 선박 수 (AIS 수신분)", group: "sea", unit: "척", direction: "low", slots: 24,
+    coverage: "공개 AIS 수신소가 한국 연안 일부뿐이라 몇 척만 잡힌다",
     why: "선박이 일제히 사라지는 해역은 사격·봉쇄·기상 악화 중 하나다. 서해 NLL 일대 어선 이탈은 충돌 전 징후로 거론된다.",
     measure: "aisstream.io 로 한반도 전 해역(위도 33~43°, 경도 123~132°) 위치 보고를 25초간 수집해 고유 MMSI 수 계산 (키 필요)",
     latency: "수 초~수 분", caveats: "aisstream 수신소가 한국 연안 일부뿐이라 25초에 수 척 수준(2026-10-31 실측 7척). 해역 전체가 아니라 '수신되는 일부'의 변화만 본다. 수신기 장애로도 0이 된다.",
@@ -66,11 +70,13 @@ export const INDICATORS: IndicatorDef[] = [
   },
   {
     id: "navwarn.korea_active", label: "한반도 주변 항행경보 수", group: "navwarn", unit: "건", direction: "high", slots: 1,
+    coverage: "미국 NGA 재배포분만 — 한국·일본 당국의 최신 경보 전부가 아니다",
     why: "로켓 발사·사격훈련·GPS 교란 항행경보는 사건 '이전'에 공개되는 몇 안 되는 선행 신호다.",
     measure: "NGA 항행경보 중 한반도·서해·동해 관련 유효 경보 수", latency: "선행(수일 전)~수 시간", caveats: "한국·일본 해양당국 경보 원문은 아직 수집하지 않는다(미국 NGA 재배포분만).",
   },
   {
     id: "navwarn.launch_notice_active", label: "발사 예고 항행경보", group: "navwarn", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 1 },
+    coverage: "미국 NGA 재배포분만 받는다 — 북한이 낙하 구역을 통보하는 일본 해상보안청(NAVAREA XI) 최신 경보는 지금 받지 못한다(2026-10-31 점검: NGA 안의 일본 경보가 2024년이 마지막)",
     why: "북한은 위성·로켓 발사 전 일본 해상보안청에 낙하 예상 구역을 통보해 왔다(2023년 5·8·11월 등).",
     measure: "유효 항행경보 중 ROCKET/MISSILE/SATELLITE 발사 구역 설정", latency: "사건 수일 전", caveats: "중국·러시아 발사 예고도 같은 해역에 뜬다. 발신 당국(authority)을 확인한다.",
   },
@@ -108,6 +114,12 @@ export const INDICATORS: IndicatorDef[] = [
     id: "official.mnd_provocation_24h", label: "국방부 보도자료: 북한 도발 관련 (24h)", group: "official", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
     why: "정부 공식 발표는 가장 신뢰도 높은 확인이다. 다만 합참 기자단 문자보다 수 시간 늦다.",
     measure: "정책브리핑(korea.kr) 국방부 보도자료 제목 중 미사일·포격·경보 관련 건수", latency: "수 시간", caveats: "훈련·방산 보도자료가 대부분. 분류기로 거른다.",
+  },
+  {
+    id: "border.incidents_72h", label: "접경 사건 보도 (72h)", group: "border", unit: "건", direction: "high", slots: 1, absolute: { elevated: 2, anomalous: 4 },
+    why: "국지 충돌은 접경에서 시작된다 — 2015년 8월 지뢰 폭발 → 확성기 재개 → 북한의 확성기 포격 → 포격전, 2014년 10월 대북전단 고사총 사격. 확성기·경고사격·군사분계선 침범이 잦아지면 우발 충돌 위험이 오른다.",
+    measure: "연합뉴스 제목 중 확성기·경고사격·군사분계선 침범·지뢰·오물풍선·전단·GP 총격 보도 (북한·접경 문맥, 같은 기사의 종합·후속보는 한 번만)", latency: "수 분",
+    caveats: "보도 건수라 언론의 관심에 흔들린다. 관광·축제·6·25 유해발굴 기사는 뺀다. 군이 '미확인'이라고 한 보도도 센다(제목을 확인할 것).",
   },
   {
     id: "rhetoric.nk_statements_24h", label: "북한 담화·성명 보도 (24h)", group: "rhetoric", unit: "건", direction: "high", slots: 1,
@@ -191,6 +203,7 @@ export const INDICATORS: IndicatorDef[] = [
   },
   {
     id: "gnss.bad_ratio_north", label: "GPS 교란 비율 · 북한 상공 (전일)", group: "gnss", unit: "%", direction: "high", slots: 1, absolute: { elevated: 2, anomalous: 5 },
+    coverage: "북한 상공은 지나는 비행기가 적어 표본이 적다(2026-10-30: 706건, 한반도 전체 2만7천 건)",
     why: "북한 상공을 지나는 항공기가 교란을 겪으면 북한 내부에서 전자전 장비가 가동 중이라는 뜻이다.", measure: "GPSJam 북한 셀 집계", latency: "약 1일", caveats: "북한 상공 통과 항공기가 매우 적다.",
   },
   {
@@ -208,7 +221,7 @@ export const INDICATORS: IndicatorDef[] = [
 export const INDICATOR_BY_ID: Record<string, IndicatorDef> = Object.fromEntries(INDICATORS.map((d) => [d.id, d]));
 
 export const GROUP_LABEL: Record<IndicatorGroup, string> = {
-  air: "항공", sea: "해상", seismic: "지진", navwarn: "항행경보", official: "정부 공식", rhetoric: "북한 수사", media: "언론 템포", social: "SNS", market: "시장", internet: "인터넷", gnss: "GPS 교란", thermal: "위성 열점", psych: "사람들의 관심", elite: "엘리트·큰손",
+  air: "항공", sea: "해상", seismic: "지진", navwarn: "항행경보", official: "정부 공식", rhetoric: "북한 수사", media: "언론 템포", social: "SNS", market: "시장", internet: "인터넷", gnss: "GPS 교란", thermal: "위성 열점", psych: "사람들의 관심", elite: "엘리트·큰손", border: "접경 사건",
 };
 
 export interface Baseline {

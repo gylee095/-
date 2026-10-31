@@ -52,7 +52,8 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
           },
           analystDuty:
             "record_assessment 에 war_phase(1~5)·p_clash_30d·p_war_30d(숫자 %)·war_reasoning(일반인 말로, 자동 판정과 같거나 다른 이유)·tripwires 를 반드시 채운다. " +
-            "정부나 돈의 반응 없이 3단계 이상 금지. 움직인 영역은 원인(정부 경보 사유·세계 증시·인물 뉴스 등)을 확인한다. 자세한 근거는 get_war_risk.",
+            "정부나 돈의 반응 없이 3단계 이상 금지. 움직인 영역은 원인(정부 경보 사유·세계 증시·인물 뉴스 등)을 확인한다. 자세한 근거는 get_war_risk. " +
+            "도구 목록에 get_war_risk 나 war_* 칸이 안 보이면(세션이 옛 목록을 쓰는 경우) overall 첫 문장에 '전쟁 위험 N단계, 30일 국지 충돌 약 X%, 전면전 Y%'를 적는다.",
           threat: st.threat,
           interpretation: { headline: st.interpretation.headline, narrative: st.interpretation.narrative, hints: st.interpretation.hints.map((h) => ({ kind: h.kind, title: h.title, reasoning: h.reasoning, counter: h.counter, check: h.check })), context: st.interpretation.context },
           posture: st.posture,

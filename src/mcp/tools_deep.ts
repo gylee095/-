@@ -49,7 +49,7 @@ export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Sto
           })(),
           warRisk: { headline: st.warRisk.headline, firstMover: st.warRisk.firstMover.text, domains: st.warRisk.domains.map((x) => ({ domain: x.label, level: x.levelLabel, drivers: x.drivers })), tripwires: st.warRisk.tripwires },
           monthUsage: usage,
-          budget: { dailyMax: Number(env.DEEP_DAILY_MAX ?? 2), monthlyUsd: Number(env.DEEP_MONTHLY_BUDGET_USD ?? 30) },
+          budget: { dailyMax: Number(env.DEEP_DAILY_MAX ?? 2), monthlyMax: Number(env.DEEP_MONTHLY_MAX_RUNS ?? 30) },
         });
       } catch (e) {
         return fail(e);

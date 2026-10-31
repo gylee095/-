@@ -158,6 +158,6 @@ export interface Env {
   CLAUDE_ROUTINE_TOKEN?: string;
   /** 하루 최대 자동 심층 분석 수 (기본 2) */
   DEEP_DAILY_MAX?: string;
-  /** 한 달 심층 분석 사용량 상한, API 요금 환산 달러 (기본 30) */
-  DEEP_MONTHLY_BUDGET_USD?: string;
+  /** 한 달 최대 심층 분석 수 (기본 30) */
+  DEEP_MONTHLY_MAX_RUNS?: string;
 }

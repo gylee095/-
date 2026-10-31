@@ -141,7 +141,7 @@ function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f)
   if(d.usage)h+='<div class="us">이번 분석 사용량: '+usageLine(d.usage)+'</div>';
   return h+'</div>'}
 function usagePanel(u){if(!u)return "";var b=u.budget;
-  return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석 '+u.deep.runs+'회</td><td>'+tok(u.deep)+'</td></tr><tr><td>정기 분석(아침·저녁) '+u.scheduled.runs+'회</td><td>'+tok(u.scheduled)+'</td></tr></table><p style="margin:10px 0 0">토큰 수입니다. Claude 구독의 사용 한도에서 차감되며, 조직에 추가 사용 크레딧이 켜져 있지 않으면 따로 결제되지 않습니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회이고, 한 달 상한에 닿으면 자동으로 멈춥니다.</p></details>'}
+  return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석 '+u.deep.runs+'회</td><td>'+tok(u.deep)+'</td></tr><tr><td>정기 분석(아침·저녁) '+u.scheduled.runs+'회</td><td>'+tok(u.scheduled)+'</td></tr></table><p style="margin:10px 0 0">토큰 수입니다. Claude 구독의 사용 한도에서 차감되며, 조직에 추가 사용 크레딧이 켜져 있지 않으면 따로 결제되지 않습니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회, 한 달 최대 '+(b?b.monthlyMax:30)+'회이고, 다 쓰면 자동으로 멈춥니다.</p></details>'}
 function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+ago(st.lastCycle?st.lastCycle.at:st.now);

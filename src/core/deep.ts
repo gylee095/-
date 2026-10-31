@@ -18,8 +18,8 @@ export interface DeepEnv {
   CLAUDE_ROUTINE_TOKEN?: string;
   /** 하루(한국 날짜) 최대 자동 실행 수 — 기본 2 */
   DEEP_DAILY_MAX?: string;
-  /** 한 달 심층 분석 사용량 상한(API 요금 환산 달러) — 기본 30 */
-  DEEP_MONTHLY_BUDGET_USD?: string;
+  /** 한 달 최대 심층 분석 수 (수동 실행 포함) — 기본 30 */
+  DEEP_MONTHLY_MAX_RUNS?: string;
 }
 
 export interface DeepReason {
@@ -103,17 +103,18 @@ export interface DeepState {
   daily: Record<string, number>;
 }
 
-export function decideDeep(reasons: DeepReason[], st: DeepState, monthCostUsd: number, env: DeepEnv, now: number, opts: { force?: boolean; external?: boolean } = {}): DeepDecision {
+export function decideDeep(reasons: DeepReason[], st: DeepState, monthRuns: number, env: DeepEnv, now: number, opts: { force?: boolean; external?: boolean } = {}): DeepDecision {
   const fresh = reasons.filter((r) => !(st.handled[r.key] && now - st.handled[r.key] < DAY));
   if (!opts.force && !fresh.length) return { fire: false, fresh, reasons, skipped: reasons.length ? "이미 24시간 안에 조사한 이유뿐" : "특이 사항 없음" };
   if (!opts.external && (!env.CLAUDE_ROUTINE_URL || !env.CLAUDE_ROUTINE_TOKEN)) return { fire: false, fresh, reasons, skipped: "CLAUDE_ROUTINE_URL/TOKEN 미설정" };
   const dailyMax = Number(env.DEEP_DAILY_MAX ?? 2);
-  const budget = Number(env.DEEP_MONTHLY_BUDGET_USD ?? 30);
+  const monthMax = Number(env.DEEP_MONTHLY_MAX_RUNS ?? 30);
   if (!opts.force) {
     if ((st.daily[kstDay(now)] ?? 0) >= dailyMax) return { fire: false, fresh, reasons, skipped: `오늘 자동 실행 ${dailyMax}회 다 씀` };
     if (st.lastFiredAt && now - st.lastFiredAt < 3 * H) return { fire: false, fresh, reasons, skipped: "직전 실행 후 3시간 안" };
   }
-  if (monthCostUsd >= budget) return { fire: false, fresh, reasons, skipped: "이번 달 심층 분석 사용량 상한 도달" };
+  // 사용량은 토큰으로 기록한다(세션이 금액을 보고하지 않는다) → 상한은 한 달 실행 횟수로 건다
+  if (monthRuns >= monthMax) return { fire: false, fresh, reasons, skipped: `이번 달 심층 분석 ${monthMax}회 다 씀` };
   return { fire: true, fresh, reasons };
 }
 
@@ -206,7 +207,7 @@ export async function maybeFireDeep(
   const reasons = deepReasons(warRisk, briefs, patterns, now);
   const st = await loadDeepState(store);
   const usage = await loadMonthUsage(store, now);
-  const decision = decideDeep(reasons, st, usage.deep.cost_usd, env, now, opts);
+  const decision = decideDeep(reasons, st, usage.deep.runs, env, now, opts);
   if (!decision.fire || opts.dryRun) return { decision };
   const id = `deep-${kstDay(now).replace(/-/g, "")}-${new Date(now + 9 * H).toISOString().slice(11, 16).replace(":", "")}`;
   const why = decision.fresh.length ? decision.fresh : decision.reasons.length ? decision.reasons : [{ key: "manual", text: "수동 요청 — 지금 상황 전반 점검" }];

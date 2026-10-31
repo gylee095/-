@@ -28,7 +28,7 @@ export interface BoardRow {
 }
 
 /** disabledSources: 꺼 둔 소스는 과거 오류 기록이 남아 있어도 상태 목록에서 뺀다 */
-export async function buildState(store: Store, since: number, disabledSources = "", budget?: { dailyMax: number; monthlyUsd: number }) {
+export async function buildState(store: Store, since: number, disabledSources = "", budget?: { dailyMax: number; monthlyMax: number }) {
   const disabled = new Set(disabledSources.split(",").map((s) => s.trim()).filter(Boolean));
   const now = Date.now();
   // 전쟁 위험 모델은 최근 14일 사건(중대 사건·도발 빈도)을 본다 — 화면의 사건 목록은 요청한 기간만 보여 준다

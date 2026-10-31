@@ -44,11 +44,11 @@ describe("심층 분석: 특이한 날 판단", () => {
     expect(decideDeep(r, { handled: { "domain:public:2": NOW - 25 * H }, daily: {} }, 0, ENV, NOW).fire).toBe(true);
     expect(decideDeep(r, { handled: {}, daily: { "2026-10-31": 2 } }, 0, ENV, NOW).skipped).toMatch(/오늘 자동 실행 2회/);
     expect(decideDeep(r, { handled: {}, daily: {}, lastFiredAt: NOW - H }, 0, ENV, NOW).skipped).toMatch(/3시간/);
-    expect(decideDeep(r, st0(), 30.5, ENV, NOW).skipped).toMatch(/상한 도달/);
+    expect(decideDeep(r, st0(), 30, ENV, NOW).skipped).toMatch(/이번 달 심층 분석 30회 다 씀/);
     expect(decideDeep(r, st0(), 0, {}, NOW).skipped).toMatch(/미설정/);
     // 수동(force)은 '이미 조사함'·하루 횟수는 무시하지만 한 달 상한은 지킨다
     expect(decideDeep(r, { handled: { "domain:public:2": NOW - H }, daily: { "2026-10-31": 9 } }, 0, ENV, NOW, { force: true }).fire).toBe(true);
-    expect(decideDeep(r, st0(), 31, ENV, NOW, { force: true }).fire).toBe(false);
+    expect(decideDeep(r, st0(), 30, ENV, NOW, { force: true }).fire).toBe(false);
   });
 });
 

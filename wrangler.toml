@@ -23,7 +23,7 @@ NTFY_SERVER = "https://ntfy.sh"
 DISABLED_SOURCES = "opensky,gdelt,bluesky"   # Cloudflare 서버에서 opensky 무응답, gdelt 429, bluesky 403 (2026-10-30 실측)
 # 심층 분석(Claude Code 예약 작업 API 트리거) 사용량 안전장치 — 바꾸려면 이 값만 고쳐 다시 배포
 DEEP_DAILY_MAX = "2"                 # 하루(한국 날짜) 최대 자동 실행 수
-DEEP_MONTHLY_BUDGET_USD = "30"       # 한 달 심층 분석 사용량 상한 (API 요금 환산 달러, 구독 한도에서 차감되는 양의 참고치)
+DEEP_MONTHLY_MAX_RUNS = "30"         # 한 달 최대 심층 분석 수 (수동 실행 포함) — 1회 출력 약 3천~9천 토큰(2026-10-31 실측)
 
 # 비밀값은 여기 적지 않는다. GitHub Actions(.github/workflows/deploy.yml)가 GitHub Secrets 에서
 # `wrangler secret put` 으로 등록한다: KEW_SECRET(필수), SAFETYDATA_API_KEY, NTFY_TOPIC, NTFY_TOKEN,

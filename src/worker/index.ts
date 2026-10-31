@@ -113,7 +113,7 @@ export default {
 
     if (url.pathname === "/api/state" && req.method === "GET") {
       const hours = Math.min(Number(url.searchParams.get("hours") ?? 72), 720);
-      const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES, { dailyMax: Number(env.DEEP_DAILY_MAX ?? 2), monthlyUsd: Number(env.DEEP_MONTHLY_BUDGET_USD ?? 30) });
+      const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES, { dailyMax: Number(env.DEEP_DAILY_MAX ?? 2), monthlyMax: Number(env.DEEP_MONTHLY_MAX_RUNS ?? 30) });
       return json({
         ...st,
         setup: {

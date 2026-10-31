@@ -113,7 +113,7 @@ export function decideDeep(reasons: DeepReason[], st: DeepState, monthCostUsd: n
     if ((st.daily[kstDay(now)] ?? 0) >= dailyMax) return { fire: false, fresh, reasons, skipped: `오늘 자동 실행 ${dailyMax}회 다 씀` };
     if (st.lastFiredAt && now - st.lastFiredAt < 3 * H) return { fire: false, fresh, reasons, skipped: "직전 실행 후 3시간 안" };
   }
-  if (monthCostUsd >= budget) return { fire: false, fresh, reasons, skipped: `이번 달 심층 분석 사용량 상한 도달 (API 환산 $${monthCostUsd.toFixed(2)} / $${budget})` };
+  if (monthCostUsd >= budget) return { fire: false, fresh, reasons, skipped: "이번 달 심층 분석 사용량 상한 도달" };
   return { fire: true, fresh, reasons };
 }
 

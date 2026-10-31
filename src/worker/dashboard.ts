@@ -126,7 +126,8 @@ function warRisk(w){var names=["평온","긴장","위기","임박","교전"];
   return h}
 function money(x){return x==null?"—":"$"+Number(x).toFixed(2)}
 function ktok(n){n=Number(n||0);return n>=1e6?(n/1e6).toFixed(1)+"백만":n>=1e4?Math.round(n/1e4)+"만":String(n)}
-function usageLine(u){if(!u)return "";return "API 요금 환산 약 "+money(u.cost_usd)+" · 입력 "+ktok(u.input_tokens)+" · 출력 "+ktok(u.output_tokens)+" · 캐시 읽기 "+ktok(u.cache_read_tokens)+" 토큰"+(u.model?" · "+esc(u.model):"")}
+function usageLine(u){if(!u)return "";return "입력 "+ktok(u.input_tokens)+" · 출력 "+ktok(u.output_tokens)+" · 캐시 쓰기 "+ktok(u.cache_write_tokens)+" · 캐시 읽기 "+ktok(u.cache_read_tokens)+" 토큰"+(u.model?" · "+esc(u.model):"")}
+function tok(t){return "출력 "+ktok(t.output_tokens)+" · 입력 "+ktok(t.input_tokens+t.cache_write_tokens)+" · 캐시 읽기 "+ktok(t.cache_read_tokens)}
 function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f).join("")+'</ul>':''};
   var h='<div class="sec">클로드 심층 분석 · '+ago(n.at)+' <span style="font-weight:400">· 특이한 날에만 자동 실행</span></div><div class="card deep">';
   h+='<div class="dt">'+esc(d.title)+'</div><p>'+esc(d.summary)+'</p>';
@@ -140,7 +141,7 @@ function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f)
   if(d.usage)h+='<div class="us">이번 분석 사용량: '+usageLine(d.usage)+'</div>';
   return h+'</div>'}
 function usagePanel(u){if(!u)return "";var b=u.budget;
-  return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석</td><td>'+u.deep.runs+'회 · '+money(u.deep.cost_usd)+'</td></tr><tr><td>정기 분석(아침·저녁)</td><td>'+u.scheduled.runs+'회 · '+money(u.scheduled.cost_usd)+'</td></tr><tr><td>합계</td><td><b>'+money(u.deep.cost_usd+u.scheduled.cost_usd)+'</b></td></tr></table><p style="margin:10px 0 0">금액은 API 요금으로 환산한 참고치입니다. 실제로는 Claude 구독의 사용 한도에서 차감되고, 조직에 추가 사용 크레딧이 켜져 있을 때만 한도를 넘은 만큼 과금됩니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회, 이번 달 '+money(b?b.monthlyUsd:30)+'에 닿으면 자동으로 멈춥니다.</p></details>'}
+  return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석 '+u.deep.runs+'회</td><td>'+tok(u.deep)+'</td></tr><tr><td>정기 분석(아침·저녁) '+u.scheduled.runs+'회</td><td>'+tok(u.scheduled)+'</td></tr></table><p style="margin:10px 0 0">토큰 수입니다. Claude 구독의 사용 한도에서 차감되며, 조직에 추가 사용 크레딧이 켜져 있지 않으면 따로 결제되지 않습니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회이고, 한 달 상한에 닿으면 자동으로 멈춥니다.</p></details>'}
 function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+ago(st.lastCycle?st.lastCycle.at:st.now);

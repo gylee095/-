@@ -53,10 +53,10 @@ Secret 등록 후 Actions 에서 **Deploy Worker** 재실행 → 대시보드 '�
 
 **사용량 안전장치**
 - 같은 이유는 24시간에 한 번만 깨운다. 실행 사이 최소 3시간.
-- 하루 최대 `DEEP_DAILY_MAX`(기본 2)회, 한 달 `DEEP_MONTHLY_BUDGET_USD`(기본 30, API 요금 환산) 에 닿으면 자동 중지 — `wrangler.toml` [vars] 에서 바꾼다.
+- 하루 최대 `DEEP_DAILY_MAX`(기본 2)회. 한 달 상한 `DEEP_MONTHLY_BUDGET_USD`(기본 30)에 닿으면 자동 중지 — 상한은 세션이 보고한 사용량을 API 가격 기준 값으로 합산해 비교하는 내부 기준이다. `wrangler.toml` [vars] 에서 바꾼다.
 - 세션 안에서도 도구 30회·웹 검색 6회·원자료 조회 5회 상한(지침).
-- 사용량은 실행마다 기록된다: 세션이 `get_session` 의 사용량(토큰·API 요금 환산)을 `record_deep_report`/`record_usage` 로 남기고, 서버는 세션별 누적값에서 증가분만 더한다 → 대시보드 'Claude 사용량'.
-- 금액은 API 요금으로 환산한 참고치다. 실제로는 Claude 구독 사용 한도에서 차감되고, 조직에 추가 사용 크레딧이 켜져 있을 때만 한도를 넘은 만큼 과금된다(claude.ai/settings/usage).
+- 사용량은 실행마다 기록된다: 세션이 `get_session` 의 사용량을 `record_deep_report`/`record_usage` 로 남기고, 서버는 세션별 누적값에서 증가분만 더한다 → 대시보드 'Claude 사용량'(토큰 수).
+- 사용량은 Claude 구독 사용 한도에서 차감되고, 조직에 추가 사용 크레딧이 켜져 있을 때만 한도를 넘은 만큼 과금된다(claude.ai/settings/usage).
 
 **설정 (한 번)**: claude.ai/code/routines → 'KEW 심층 조사' → 편집 → Trigger 의 + → API → Fire URL 복사, Generate token 복사(한 번만 보임) → GitHub Secrets `CLAUDE_ROUTINE_URL`, `CLAUDE_ROUTINE_TOKEN` → Deploy Worker 재실행. 같은 편집 화면에서 저장소(gylee095/-)·환경·모델(비용을 아끼려면 Sonnet)을 확인한다.
 

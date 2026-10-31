@@ -37,4 +37,4 @@ description: 한반도 조기감지 — '특이한 날' 심층 조사 1회 (서�
 11. `record_deep_report` 로 기록한다. title, summary, findings(출처 URL), timeline, hypotheses, analogs, war_phase, p_clash_30d, p_war_30d, reasoning, watch, open_questions, wished_data, usage, session_id, notify=true 를 채운다.
 
 ## 최종 응답 (3줄)
-① 무엇이 이상했고 원인은 무엇인가 ② 전쟁 위험 단계와 30일 확률 ③ 이번 사용량(API 요금 환산 $)
+① 무엇이 이상했고 원인은 무엇인가 ② 전쟁 위험 단계와 30일 확률 ③ 이번 사용량(출력·입력 토큰 수)

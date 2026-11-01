@@ -124,12 +124,12 @@ export const INDICATORS: IndicatorDef[] = [
   {
     id: "rhetoric.nk_statements_24h", label: "북한 담화·성명 보도 (24h)", group: "rhetoric", unit: "건", direction: "high", slots: 1,
     why: "김여정·국방성·외무성 담화의 빈도 증가는 도발 전 '명분 쌓기' 단계에서 반복 관찰됐다(2022~2024년 발사 전 담화 집중).",
-    measure: "연합뉴스 북한 섹션 제목 중 담화·성명·대변인·경고·위협·비난 포함 기사 수(24시간)", latency: "보도 후 수 분", caveats: "국제 행사·한미훈련 시기에 자연 증가.",
+    measure: "연합뉴스 북한 섹션 제목 중 담화·성명·대변인·경고·위협·비난 포함 기사 수(24시간, 같은 기사의 여러 판은 한 번)", latency: "보도 후 수 분", caveats: "국제 행사·한미훈련 시기에 자연 증가.",
   },
   {
     id: "rhetoric.nk_hostile_24h", label: "북한 적대 수사 강도 (24h)", group: "rhetoric", unit: "건", direction: "high", slots: 1,
     why: "'핵·선제·초토화·보복·전쟁' 같은 단어의 급증은 위협 수위 상승의 정량 지표다.",
-    measure: "연합뉴스 북한 섹션 + NK News 제목에서 적대 핵심어가 포함된 기사 수(24시간)", latency: "보도 후 수 분", caveats: "분석 기사·외신 해설도 포함될 수 있다.",
+    measure: "연합뉴스 북한 섹션 + NK News 제목에서 적대 핵심어가 포함된 기사 수(24시간, 같은 기사의 여러 판은 한 번)", latency: "보도 후 수 분", caveats: "분석 기사·외신 해설도 포함될 수 있다.",
   },
   {
     id: "media.breaking_nk_1h", label: "북한 관련 속보 건수 (1h)", group: "media", unit: "건", direction: "high", slots: 24, absolute: { elevated: 2, anomalous: 4 },

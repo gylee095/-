@@ -142,6 +142,37 @@ describe("전쟁 위험 모델", () => {
   });
 });
 
+describe("전쟁 위험 모델: 위기(3단계)는 정부·돈·큰손의 확인이 있어야", () => {
+  // 실측 2026-11-01 09:00 — 군사(10/29 미사일 + 접경 보도 3건)·북한의 말(적대 수사 '이상')·대중 불안(생존 준비 89배)이 함께 '경계',
+  // 정부·돈·큰손은 평소. 예전 규칙('세 영역 경계 → 위기')으로는 3단계·국지 충돌 25%가 나왔다.
+  const nov1 = {
+    "border.incidents_72h": { value: 3, state: "elevated" as const },
+    "rhetoric.nk_hostile_24h": { value: 4, state: "anomalous" as const },
+    "psych.naver_war_search": { value: 8862, state: "anomalous" as const, meta: { worstGroup: "생존 준비" } },
+  };
+  const missile = brief(68, 3, "북한, 탄도미사일 약 10 발 발사 → 동해 · 일본 EEZ 밖", "탄도미사일 발사");
+  it("실측 11/01: 세 영역이 경계여도 정부·돈이 평소면 2단계, 이유를 남긴다", () => {
+    const w = run(board(nov1), [missile]);
+    expect(w.domains.filter((d) => d.level >= 2).map((d) => d.id).sort()).toEqual(["military", "nkwords", "public"]);
+    expect(w.phase).toBe(2);
+    expect(w.phaseReasons.join(" ")).toMatch(/세 영역이 경계.*정부·돈·큰손은 평소라 2단계/);
+    expect(w.clash30d.point).toBeLessThanOrEqual(4);
+  });
+  it("같은 상황에 환율이 크게 움직이면(돈의 확인) 3단계", () => {
+    const w = run(board({ ...nov1, "market.usdkrw_change_pct": { value: 2.1, state: "anomalous" } }), [missile]);
+    expect(w.phase).toBe(3);
+    expect(w.phaseReasons.join(" ")).toMatch(/정부·돈·큰손 쪽도 움직였다/);
+  });
+  it("방산주까지 같이 빠진 '한국 증시만 하락'은 돈의 확인으로 치지 않는다", () => {
+    const w = run(board({ ...nov1, "market.kr_equity_rel_pct": { value: -2.5, state: "elevated" }, "market.defense_rel_pct": { value: -1, state: "normal" } }), [missile]);
+    expect(w.phase).toBe(2);
+  });
+  it("정부 경보 하나(주의)만 붙어도 확인으로 본다", () => {
+    const w = run(board({ ...nov1, "official.ca_level_kr": { value: 2, state: "elevated" } }), [missile]);
+    expect(w.phase).toBe(3);
+  });
+});
+
 describe("전쟁 위험 모델: 엘리트·큰손", () => {
   it("외국인 대량 순매도만 → 엘리트 '주의'까지(백테스트: 미리 판 적 없음), 단계는 그대로", () => {
     const w = run(board({ "elite.foreign_net_kospi": { value: -3.4, state: "anomalous", meta: { net5dEok: -82000 } } }));

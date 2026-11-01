@@ -167,3 +167,19 @@ describe("한반도 '전쟁' 언급 보도", () => {
     expect(ms.find((m) => m.indicator === "media.war_talk_24h")!.value).toBe(1);
   });
 });
+
+describe("북한 수사 지표: 같은 기사는 한 번만 센다", () => {
+  it("실측 2026-11-01: 한 기사가 피드 두 곳 × (종합) 판으로 4번 → 1건", () => {
+    const at = NOW - 2 * 3600_000;
+    const titles = [
+      '北, 전술탄도미사일 집속탄두 위력시험…"13㏊ 초토화"(종합)',
+      '北, 전술탄도미사일 집속탄두 위력시험…"13ha 초토화"',
+      '北, 전술탄도미사일 집속탄두 위력시험…"13㏊ 초토화"(종합)',
+      '北, 전술탄도미사일 집속탄두 위력시험…"13ha 초토화"',
+      '김여정 "남조선 군부 응징할 것"…확성기 재개 위협',
+    ];
+    const m = Object.fromEntries(newsMetrics(titles.map((title, i) => ({ title, pubDate: at + i * 60_000 })), NOW, "rss_breaking").map((x) => [x.indicator, x]));
+    expect(m["rhetoric.nk_hostile_24h"].value).toBe(2);
+    expect((m["rhetoric.nk_hostile_24h"].meta as any).titles[0]).toMatch(/김여정/); // 최신 순
+  });
+});

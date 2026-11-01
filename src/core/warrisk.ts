@@ -199,6 +199,11 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   const elevated = domains.filter((d) => d.level >= 1).length;
   const high = domains.filter((d) => d.level >= 2).length;
 
+  // 한국 증시만 빠졌어도 방산주가 함께 빠지고 환율·예측시장이 조용하면, 돈이 '전쟁'을 가격에 넣은 것이 아니다(업종·세계 증시 요인)
+  const equityOnly = pts(by["market.kr_equity_rel_pct"]) > 0 && (val(by["market.defense_rel_pct"]) ?? 0) < 1 && pts(by["market.pm_war_prob"]) === 0 && pts(by["market.usdkrw_change_pct"]) === 0 && pts(by["market.defense_rel_pct"]) === 0;
+  // 정보를 가진 쪽(정부)·돈을 건 쪽(시장)·엘리트 중 하나라도 움직였나 — '위기' 이상은 이 확인이 있어야 한다
+  const insiders = L.gov >= 1 || L.money >= 2 || (L.money >= 1 && !equityOnly) || L.elite >= 2;
+
   // ── 국면 판정 ──
   let phase: Phase = 1;
   const reasons: string[] = [];
@@ -208,15 +213,17 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   } else if (L.gov === 3 || (L.gov >= 2 && L.military >= 2)) {
     phase = 4;
     reasons.push(L.gov === 3 ? "정부가 철수·여행 자제급 조치를 냈다" : "여러 정부의 경보와 군사 움직임이 겹쳤다");
-  } else if (serious14.length || L.gov >= 2 || (L.military >= 2 && (L.money >= 2 || L.gov >= 1)) || (L.elite >= 2 && (L.military >= 1 || L.nkwords >= 1)) || high >= 3) {
+  } else if (serious14.length || L.gov >= 2 || (L.military >= 2 && (L.money >= 2 || L.gov >= 1)) || (L.elite >= 2 && (L.military >= 1 || L.nkwords >= 1)) || (high >= 3 && insiders)) {
     phase = 3;
     if (serious14.length) reasons.push(`최근 14일 중대 사건: ${serious14[0].headline} (${serious14[0].danger.reason})`);
     if (L.gov >= 2) reasons.push("두 나라 이상 정부가 경보를 올렸다");
     if (L.military >= 2 && (L.money >= 2 || L.gov >= 1)) reasons.push("군사 움직임에 돈·정부가 반응했다");
     if (L.elite >= 2 && (L.military >= 1 || L.nkwords >= 1)) reasons.push("엘리트·큰손이 크게 움직이는데 북한 쪽 움직임이 겹쳤다");
-    if (high >= 3) reasons.push(`세 영역 이상이 동시에 경계 이상 (${domains.filter((d) => d.level >= 2).map((d) => d.label).join(", ")})`);
+    if (high >= 3 && insiders) reasons.push(`세 영역 이상이 동시에 경계 이상 (${domains.filter((d) => d.level >= 2).map((d) => d.label).join(", ")})이고 정부·돈·큰손 쪽도 움직였다`);
   } else if (prov7.length || elevated >= 2 || high >= 1) {
     phase = 2;
+    // 2026-11-01: 군사·북한의 말·대중 불안이 함께 '경계'였지만 정부·시장은 평소 — 위기로 올리지 않고 이유를 남긴다
+    if (high >= 3) reasons.push(`세 영역이 경계(${domains.filter((d) => d.level >= 2).map((d) => d.label).join(", ")})지만 정부·돈·큰손은 평소라 2단계에 둔다 — 위기는 정보를 가진 쪽이나 돈의 확인이 있어야 한다`);
     if (prov7.length) reasons.push(`최근 7일 도발 ${prov7.length}건 (가장 최근: ${[...prov7].sort((a, b) => b.at - a.at)[0].headline})`);
     if (elevated >= 2) reasons.push(`평소와 다른 영역 ${elevated}개 (${domains.filter((d) => d.level >= 1).map((d) => d.label).join(", ")})`);
     else if (high >= 1) reasons.push(`${domains.find((d) => d.level >= 2)!.label} 영역이 경계 수준`);
@@ -233,8 +240,6 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   const usual = { clash: +(BANDS[1].clash[0] + (BANDS[1].clash[1] - BANDS[1].clash[0]) * 0.4).toFixed(2), war: +(BANDS[1].war[0] + (BANDS[1].war[1] - BANDS[1].war[0]) * 0.4).toFixed(2) };
 
   // ── 누가 먼저 움직였나 ──
-  // 한국 증시만 빠졌어도 방산주가 함께 빠지고 환율·예측시장이 조용하면, 돈이 '전쟁'을 가격에 넣은 것이 아니다(업종·세계 증시 요인)
-  const equityOnly = pts(by["market.kr_equity_rel_pct"]) > 0 && (val(by["market.defense_rel_pct"]) ?? 0) < 1 && pts(by["market.pm_war_prob"]) === 0 && pts(by["market.usdkrw_change_pct"]) === 0 && pts(by["market.defense_rel_pct"]) === 0;
   let firstMover: WarRisk["firstMover"];
   if (L.gov >= 1 && L.money >= 1) firstMover = { kind: "warning", text: "정부와 돈이 함께 움직였다 — 비공개 정보를 가진 쪽과 돈을 건 쪽이 동시에 반응한, 가장 무거운 조합이다." };
   else if (L.gov >= 1 && L.public === 0) firstMover = { kind: "warning", text: "정부가 먼저 움직였고 대중은 아직 조용하다 — 정보를 가진 쪽이 먼저 반응한 모양이라 가장 무게를 둘 신호다. 경보 사유가 치안·재난인지 먼저 확인한다." };

@@ -68,23 +68,32 @@ const NOT_BORDER_RE = /6[·.]25|유해|관광|축제|생태|평화누리|둘레�
 export const isBorderIncident = (t: string) => BORDER_RE.test(t) && BORDER_CTX_RE.test(t) && !NOT_BORDER_RE.test(t);
 /** (종합)·(2보) 같은 꼬리표를 떼고 앞부분으로 같은 기사를 한 번만 센다 */
 const storyKey = (t: string) => t.replace(/\((종합|\d보)[^)]*\)|\[[^\]]*\]/g, "").replace(/\s+/g, "").slice(0, 18);
+/** 같은 기사가 여러 피드(전체·북한 섹션)와 (종합)·N보로 거듭 실린다 — 이야기 하나로 한 번만 센다.
+ *  2026-11-01: '北, 전술탄도미사일 집속탄두 위력시험…"13㏊ 초토화"' 한 건이 4건으로 세어져 '적대 수사 이상' → 자동 판정 3단계 오판 */
+export function uniqStories<T extends { title: string; pubDate?: number }>(items: T[]): T[] {
+  const seen = new Map<string, T>();
+  for (const i of items) {
+    const k = storyKey(i.title);
+    const prev = seen.get(k);
+    if (!prev || (i.pubDate ?? 0) > (prev.pubDate ?? 0)) seen.set(k, i);
+  }
+  return [...seen.values()].sort((a, b) => (b.pubDate ?? 0) - (a.pubDate ?? 0));
+}
 
 /** 최근 기사 제목들에서 언론 템포·북한 수사 지표를 계산한다 */
 export function newsMetrics(items: { title: string; pubDate?: number }[], now: number, source: string): Metric[] {
-  const day = items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 24 * 3600_000 && NK_RE.test(i.title));
+  const day = uniqStories(items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 24 * 3600_000 && NK_RE.test(i.title)));
   const metrics: Metric[] = [];
   if (source === "rss_breaking") {
-    const hour = items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 3600_000 && /\[속보\]|\[1보\]/.test(i.title) && NK_RE.test(i.title) && classifyText(i.title));
+    const hour = uniqStories(items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 3600_000 && /\[속보\]|\[1보\]/.test(i.title) && NK_RE.test(i.title) && classifyText(i.title)));
     metrics.push({ indicator: "media.breaking_nk_1h", value: hour.length, meta: { titles: hour.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
     const statements = day.filter((i) => NK_STATEMENT_RE.test(i.title));
     const hostile = day.filter((i) => NK_HOSTILE_RE.test(i.title));
     metrics.push({ indicator: "rhetoric.nk_statements_24h", value: statements.length, meta: { titles: statements.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
     metrics.push({ indicator: "rhetoric.nk_hostile_24h", value: hostile.length, meta: { titles: hostile.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
-    const warTalk = items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 24 * 3600_000 && isWarTalk(i.title));
+    const warTalk = uniqStories(items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 24 * 3600_000 && isWarTalk(i.title)));
     metrics.push({ indicator: "media.war_talk_24h", value: warTalk.length, meta: { titles: warTalk.slice(0, 5).map((i) => i.title.slice(0, 80)) } });
-    const border = new Map<string, { title: string; pubDate?: number }>();
-    for (const i of items) if (i.pubDate !== undefined && now - i.pubDate < 72 * 3600_000 && isBorderIncident(i.title) && !border.has(storyKey(i.title))) border.set(storyKey(i.title), i);
-    const b = [...border.values()].sort((x, y) => (y.pubDate ?? 0) - (x.pubDate ?? 0));
+    const b = uniqStories(items.filter((i) => i.pubDate !== undefined && now - i.pubDate < 72 * 3600_000 && isBorderIncident(i.title)));
     metrics.push({ indicator: "border.incidents_72h", value: b.length, meta: { titles: b.slice(0, 6).map((i) => i.title.slice(0, 80)) } });
   }
   return metrics;

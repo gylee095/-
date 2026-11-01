@@ -59,8 +59,20 @@ function fmt(v: number, unit: string): string {
   return `${Number.isInteger(v) ? v : v.toFixed(1)}${unit}`;
 }
 
+/** 징후판 카드와 같은 모양의 짧은 값 (평소 대비 배율은 '평소의 N배', 변화율은 부호를 붙인 %) */
+function shortValue(row: BoardRow): string {
+  const v = row.reading!.value;
+  const m = (row.reading!.meta ?? {}) as any;
+  if (row.id.startsWith("psych.") || row.id === "market.pm_war_prob") return `평소의 ${v >= 1000 ? Math.round(v / 100) : (v / 100).toFixed(1)}배`;
+  if (row.id.startsWith("nk.") || row.id === "sea.gfw_cn_change_pct") return `${v >= 0 ? "+" : ""}${Math.round(v)}%`;
+  if (row.id === "elite.foreign_net_kospi" && typeof m.net5dEok === "number") return `5일 ${m.net5dEok >= 0 ? "+" : "−"}${(Math.abs(m.net5dEok) / 10000).toFixed(1)}조 원`;
+  return fmt(v, row.unit);
+}
+
 function pctOfBaseline(row: BoardRow): number | undefined {
   const r = row.reading;
+  // 고정 문턱으로 판정하는 징후·이미 '평소 대비'인 값은 기준선 비율이 뜻이 없다 (예: 평소의 52배를 '평소의 59%'로 쓰던 오류)
+  if (row.absolute || row.unit === "%" || row.unit === "%p" || row.unit === "z") return undefined;
   if (!r || r.baseline === undefined || r.baseline <= 0) return undefined;
   return Math.round((r.value / r.baseline) * 100);
 }
@@ -283,8 +295,10 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
       const where = id.endsWith("korea") ? "한반도 전체" : id.endsWith("westsea") ? "서해" : "북한 상공";
       return `${where} GPS 교란 비율 ${fmt(v, "%")} (전일) → ${isAbnormal(row) ? "평소보다 높음. 북한 전자전 가동 또는 러·중발 교란 가능성" : "교란 없음 수준"}. 하루 지연 데이터`;
     }
-    case "thermal.nk_hotspots_24h":
-      return `북한 영역 위성 열점 ${v}건(24h) — 대부분 농업 소각·산불. 발사장 인근 건수가 중요`;
+    case "thermal.nk_fires_24h": {
+      const m = (r!.meta ?? {}) as any;
+      return `북한 땅 위성 열점 ${v}건(최근 24시간${typeof m.boxTotal === "number" ? `, 같은 사각형의 중국·한국까지 ${m.boxTotal}건` : ""}) — 대부분 농업 소각·산불. 발사장 인근 건수가 중요`;
+    }
     case "thermal.launch_site_hotspots":
       return v === 0 ? "발사장·시험장 12km 안 열점 없음 → 엔진 시험·연소 활동 징후 없음" : `발사장·시험장 인근 열점 ${v}건 — 엔진 시험 또는 인근 소각. 야간·고출력이면 가중`;
     default:
@@ -512,7 +526,7 @@ export function interpret(input: InterpretInput): Interpretation {
   if (abnormal.length === 0) {
     narrative.push(`측정 가능한 징후 ${board.length - unavailable.length - learning.length}개가 모두 평소 범위 안이다${learning.length ? ` (${learning.length}개는 아직 기준선 학습 중)` : ""}. 평소와 다른 것이 없다.`);
   } else {
-    narrative.push(`평소와 다른 것 ${abnormal.length}가지: ${abnormal.map((a) => `${a.label} ${fmt(a.reading!.value, a.unit)}${pctOfBaseline(a) !== undefined ? `(평소의 ${pctOfBaseline(a)}%)` : ""}`).join(", ")}.`);
+    narrative.push(`평소와 다른 것 ${abnormal.length}가지: ${abnormal.map((a) => `${a.label.replace(/\s*\([^()]*(평소 대비|대비 %|전일 대비 %)[^()]*\)$/, "")} ${shortValue(a)}${pctOfBaseline(a) !== undefined ? `(평소의 ${pctOfBaseline(a)}%)` : ""}`).join(", ")}.`);
   }
   if (warnings.length) {
     narrative.push(`주목할 힌트: ${warnings.map((w) => w.title).join(" / ")}. ${warnings[0].reasoning}${warnings[0].counter ? ` 반대로 보면 — ${warnings[0].counter}` : ""}`);

@@ -237,9 +237,10 @@ export const INDICATORS: IndicatorDef[] = [
     why: "북한 상공을 지나는 항공기가 교란을 겪으면 북한 내부에서 전자전 장비가 가동 중이라는 뜻이다.", measure: "GPSJam 북한 셀 집계", latency: "약 1일", caveats: "북한 상공 통과 항공기가 매우 적다.",
   },
   {
-    id: "thermal.nk_hotspots_24h", label: "북한 지역 위성 열 이상 (24h)", group: "thermal", unit: "건", direction: "high", slots: 1,
+    id: "thermal.nk_fires_24h", label: "북한 땅 위성 열점 (24h)", group: "thermal", unit: "건", direction: "high", slots: 1, sdFloor: 10,
     why: "NASA 위성(VIIRS)은 화재·연소·대형 엔진 시험의 열을 3시간 이내에 공개한다. 발사장·엔진시험장 인근 열점은 준비 활동의 단서다.",
-    measure: "NASA FIRMS 북한 영역 열점 수(24시간, 키 필요)", latency: "3시간 안팎", caveats: "봄가을 농업 소각·산불이 대부분이다. 위치(발사장 거리)로 걸러야 한다.",
+    measure: "NASA FIRMS 열점 중 북한 경계 안(압록강·두만강·군사분계선) 최근 24시간 건수 (NOAA-20, 없으면 Suomi NPP, 키 필요)", latency: "3시간 안팎",
+    caveats: "봄가을 농업 소각·산불이 대부분이다. 위치(발사장 거리)로 걸러야 한다. 2026-11-01 전에는 같은 사각형의 중국 동북부·한국 수도권 열점까지 세어 값이 수십 배 컸다(10/31 상자 1,237건 중 북한 땅 1건).",
   },
   {
     id: "thermal.launch_site_hotspots", label: "발사장·시험장 인근 열점", group: "thermal", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },

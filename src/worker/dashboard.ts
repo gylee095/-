@@ -127,6 +127,7 @@ function tension(t){if(!t||!t.view)return "";var v=t.view,n=t;
   var h='<div class="sec">긴장 온도계 <span style="font-weight:400">· 지난 10년과 같은 잣대 · 확률 아님</span></div><div class="card tm">';
   h+='<div class="th"><b>'+esc(topText(n.pct))+'</b><span>2016년 이후 하루하루 중 지금보다 긴장된 날의 비율 · 원점수 '+n.raw.toFixed(2)+' / 9</span></div>';
   h+='<div class="parts"><div><div class="pk">북한 도발</div><div class="pv">'+n.parts.military+'</div></div><div><div class="pk">사람들의 불안</div><div class="pv">'+n.parts.public+'</div></div><div><div class="pk">한국만의 돈 움직임</div><div class="pv">'+n.parts.money+'</div></div></div>';
+  if(n.note)h+='<div class="mk">'+esc(n.note)+'</div>';
   h+='<div class="chart" id="tchart"></div>';
   if(v.similar&&v.similar.length)h+='<div class="mk">비슷했던 때 · '+v.similar.map(function(x){return esc(x.d)+' '+esc(x.label)}).join(" · ")+'</div>';
   h+='<details><summary>지난 10년 가장 긴장됐던 날</summary><ol>'+v.top.map(function(x){return '<li>'+esc(x.d)+' · '+esc(x.label)+' <span style="color:var(--mute)">('+x.raw+')</span></li>'}).join("")+'</ol></details>';
@@ -282,9 +283,13 @@ function render(){
   // 7) 시스템
   h+=safe(usagePanel,st.usage,"Claude 사용량");
   h+='<details class="card"><summary>시스템 상태 · 데이터 출처</summary>'+health(st)+'</details>';
-  var lastFail=(st.alerts||[]).find(function(a){return !a.ok});var lastOk=(st.alerts||[]).find(function(a){return a.ok});
-  var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패 '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 재시도를 넣었지만 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).</p>':"";
-  h+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+(st.setup?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p><p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button><button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
+  // 지금 쓰는 채널의 실패만 경고한다 (예전 ntfy 실패가 Bark 로 바꾼 뒤에도 남아 있던 문제)
+  var chans=((st.setup&&st.setup.pushChannels)||[]).map(function(c){return c.split("(")[0]});
+  var mine=(st.alerts||[]).filter(function(a){return !chans.length||chans.indexOf(a.channel)>=0});
+  var lastFail=mine.find(function(a){return !a.ok});var lastOk=mine.find(function(a){return a.ok});
+  var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패('+esc(lastFail.channel||"")+') '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+(lastFail.channel==="ntfy"&&chans.indexOf("bark")<0?'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).':'')+'</p>':"";
+  var ntfyUi=chans.indexOf("ntfy")>=0&&st.setup?'<p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button>':'';
+  h+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+(st.setup?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
   if(top)drawMap(top.brief);

@@ -39,6 +39,8 @@ export interface TensionReading {
   parts: { military: number; public: number; money: number };
   units: Partial<Record<TensionKey, number>>;
   drivers: string[];
+  /** '전쟁' 검색·위키 관심이 높은데 북한 쪽 계기가 없어 세지 않았을 때의 설명 (화면에 '사람들의 불안 0'만 보이면 오해하므로) */
+  note?: string;
 }
 
 export const MILITARY_UNITS: Record<number, number> = { 0: 0, 1: 0, 2: 0.25, 3: 0.5, 4: 1.5, 5: 3 };
@@ -131,7 +133,15 @@ export function tensionOf(x: TensionInputs): TensionReading {
   if (r.parts.military > 0) drivers.push(`${PART_LABEL.military} ${r.parts.military}점 (최근 7일 최고 위험도 ${x.maxDanger7})`);
   if (r.parts.public > 0) drivers.push(`${PART_LABEL.public} ${r.parts.public}점 (북한 도발 검색 ${x.nk?.toFixed(1) ?? "?"}배, 전쟁 검색 ${x.war?.toFixed(1) ?? "?"}배, 위키 관심 ${x.wiki?.toFixed(1) ?? "?"}배)`);
   if (r.parts.money > 0) drivers.push(`${PART_LABEL.money} ${r.parts.money}점`);
-  return { ...r, pct: percentileOf(r.raw), drivers };
+  const nkUp = (x.nk ?? 0) >= TENSION_Q.nk[0] || (x.maxDanger7 ?? 0) >= 4;
+  const gated = [
+    !nkUp && (r.units.war ?? 0) > 0 && x.war !== undefined ? `'전쟁' 검색 평소의 ${x.war >= 10 ? Math.round(x.war) : x.war.toFixed(1)}배` : "",
+    !nkUp && (r.units.wiki ?? 0) > 0 && x.wiki !== undefined ? `위키백과 관심 ${x.wiki.toFixed(1)}배` : "",
+  ].filter(Boolean);
+  const note = gated.length
+    ? `${gated.join("·")}는 세지 않았다 — '북한 미사일·도발' 검색은 평소 수준이고 큰 도발(ICBM·포격·핵실험급)도 없어서다. 다른 나라 전쟁·큰 뉴스로 오른 불안이 섞이지 않게 하는 10년 공통 잣대 (전쟁 위험 판정의 '사람들의 불안'은 따로 센다)`
+    : undefined;
+  return { ...r, pct: percentileOf(r.raw), drivers, ...(note ? { note } : {}) };
 }
 
 export interface TensionView {

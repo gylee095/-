@@ -10,7 +10,7 @@ import { parseUsAdvisory, parseUkAdvice, travelSignals } from "../src/core/colle
 import { parseMndList, mndSignals } from "../src/core/collectors/koreakr.js";
 import { parseYahooChart } from "../src/core/collectors/markets.js";
 import { parseGpsjamCsv, gpsjamSignals } from "../src/core/collectors/gpsjam.js";
-import { parseFirmsCsv, thermalMetrics } from "../src/core/collectors/firms.js";
+import { inNorthKorea, parseFirmsCsv, thermalMetrics } from "../src/core/collectors/firms.js";
 import { ingest, vesselMetrics, flagOf, type VesselSample } from "../src/core/collectors/ais.js";
 import { parseIodaAlerts, iodaSignals } from "../src/core/collectors/ioda.js";
 import { parseSearch, alarmMetric } from "../src/core/collectors/bluesky.js";
@@ -120,9 +120,19 @@ describe("수집기 파서: 실데이터 픽스처", () => {
     expect(hot.length).toBeGreaterThan(10);
     expect(hot[0].acqTime).toBeGreaterThan(Date.UTC(2026, 9, 28));
     const m = thermalMetrics(hot);
-    expect(m[0].indicator).toBe("thermal.nk_hotspots_24h");
+    expect(m[0].indicator).toBe("thermal.nk_fires_24h");
+    // 상자 안 열점 중 북한 경계 안만 센다 (중국 동북부·한국 수도권 제외)
+    expect(m[0].value).toBe(hot.filter((h) => inNorthKorea(h.lat, h.lon)).length);
+    expect(m[0].value).toBeLessThan(hot.length);
+    expect((m[0].meta as any).boxTotal).toBe(hot.length);
     const near = parseFirmsCsv("latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,confidence,version,bright_ti5,frp,daynight\n39.68,124.72,340,0.4,0.4,2026-10-29,1700,N,nominal,2.0NRT,290,12.5,N\n");
     expect(near[0].nearSite?.name).toContain("동창리");
+  });
+  it("FIRMS: 북한 경계 판정 — 평양·신의주·개성·라선 안, 단둥·훈춘·연길·서울·철원·속초 밖", () => {
+    const inside: [number, number][] = [[39.03, 125.75], [40.08, 124.42], [37.97, 126.55], [42.25, 130.3], [41.8, 129.78], [41.39, 128.18], [38.04, 125.72]];
+    const outside: [number, number][] = [[40.13, 124.38], [42.87, 130.37], [42.89, 129.51], [37.57, 126.98], [38.15, 127.31], [38.2, 128.59], [37.75, 128.9]];
+    for (const [lat, lon] of inside) expect(inNorthKorea(lat, lon)).toBe(true);
+    for (const [lat, lon] of outside) expect(inNorthKorea(lat, lon)).toBe(false);
   });
   it("AIS: 국적 판별과 집계", () => {
     expect(flagOf(412345678)).toBe("CN");

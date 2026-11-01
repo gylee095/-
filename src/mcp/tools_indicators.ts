@@ -334,9 +334,11 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
     async ({ days }) => {
       if (!env.FIRMS_MAP_KEY) return out({ ok: false, error: "FIRMS_MAP_KEY 미설정 — https://firms.modaps.eosdis.nasa.gov/api/map_key/ 에서 무료 발급 후 GitHub Secrets 에 등록", sites: NK_SITES });
       try {
-        const hot = await fetchNkHotspots(env.FIRMS_MAP_KEY, days);
-        const near = hot.filter((h) => h.nearSite);
-        return out({ total: hot.length, nearSites: near.map((h) => ({ site: h.nearSite!.name, km: h.nearSite!.km, at: fmtKst(h.acqTime), frp: h.frp, night: h.daynight === "N", confidence: h.confidence })), caveat: "농업 소각·산불이 대부분. 야간(night) 고출력(frp) 열점이 더 의미 있다." });
+        const r = await fetchNkHotspots(env.FIRMS_MAP_KEY, Date.now(), days * 24);
+        if (!r) return out({ ok: false, error: "NOAA-20·Suomi NPP 모두 이 기간 자료 없음 (NASA 처리 지연) — 0건이 아니라 측정 불가", sites: NK_SITES });
+        const nk = r.hot.filter((h) => h.inNk);
+        const near = nk.filter((h) => h.nearSite);
+        return out({ satellite: r.source, northKorea: nk.length, boxTotalInclChinaSouthKorea: r.hot.length, nearSites: near.map((h) => ({ site: h.nearSite!.name, km: h.nearSite!.km, at: fmtKst(h.acqTime), frp: h.frp, night: h.daynight === "N", confidence: h.confidence })), caveat: "북한 경계 안만 센 값. 농업 소각·산불이 대부분. 야간(night) 고출력(frp) 열점이 더 의미 있다." });
       } catch (e) {
         return fail(e);
       }

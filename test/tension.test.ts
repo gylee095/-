@@ -88,3 +88,14 @@ describe("긴장 온도계: 지금 값", () => {
     expect(liveInputs(b, old, NOW)).toMatchObject({ kospiRelPct: undefined, maxDanger7: 0 });
   });
 });
+
+describe("온도계 설명: 세지 않은 불안", () => {
+  it("'전쟁' 검색이 높아도 북한 도발 검색·큰 도발이 없으면 0점 + 이유를 적는다", () => {
+    const t = tensionOf({ nk: 1, war: 17.3, wiki: 1.4, maxDanger7: 3 });
+    expect(t.parts.public).toBe(0);
+    expect(t.note).toMatch(/'전쟁' 검색 평소의 17배.*세지 않았다/);
+    const big = tensionOf({ nk: 1, war: 17.3, maxDanger7: 4 });
+    expect(big.parts.public).toBeGreaterThan(0);
+    expect(big.note).toBeUndefined();
+  });
+});

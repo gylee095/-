@@ -108,3 +108,18 @@ describe("해석 엔진", () => {
     expect(t).toMatch(/모든 배가 함께 줄어.*철수 징후 아님/);
   });
 });
+
+describe("요약 문장의 값 표기", () => {
+  it("'평소 대비' 배율·변화율 징후는 카드와 같은 모양 (예전: '5187.00%(평소의 59%)')", () => {
+    const naver = row("psych.naver_war_search", { value: 5187, baseline: 8862, state: "anomalous" });
+    naver.absolute = INDICATORS.find((d) => d.id === "psych.naver_war_search")!.absolute;
+    const fuel = row("nk.fuel_price_change_pct", { value: 88.4, state: "anomalous" });
+    fuel.absolute = INDICATORS.find((d) => d.id === "nk.fuel_price_change_pct")!.absolute;
+    const it_ = interpret({ now: NOW, threat, board: [...quietBoard(), naver, fuel], patterns: [], briefs: [] });
+    const text = it_.narrative.join(" ");
+    expect(text).toMatch(/한국 사람들의 전쟁 불안 평소의 52배/);
+    expect(text).toMatch(/북한 장마당 휘발유값 \+88%/);
+    expect(text).not.toMatch(/5187|평소의 59%|88\.40%/);
+  });
+});
+

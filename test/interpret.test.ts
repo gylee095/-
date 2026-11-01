@@ -99,7 +99,7 @@ describe("해석 엔진", () => {
     const storm = interpret({ now: NOW, threat, board: mk(true), patterns: [], briefs: [] }).hints.find((h) => h.title.includes("중국 선박"))!;
     expect(storm.kind).toBe("caveat");
     expect(storm.reasoning).toMatch(/태풍·풍랑 귀항/);
-    expect(meaningOf(mk(false).find((r) => r.id === "sea.gfw_cn_change_pct")!, { night: false, exercise: false, moratorium: false })).toMatch(/중국 배만 58% 빠짐.*약 6일 지연/);
+    expect(meaningOf(mk(false).find((r) => r.id === "sea.gfw_cn_change_pct")!, { night: false, exercise: false, moratorium: false })).toMatch(/중국 배만 58% 빠짐.*가장 최근 것이 6일 전/);
   });
   it("서해: 모든 배가 함께 줄면 뜻풀이가 기상·처리 지연 쪽으로 읽는다", () => {
     const r = row("sea.gfw_cn_change_pct", { value: -2, meta: { cnChangePct: -50, otherChangePct: -49, recentDates: ["2026-10-25", "2026-10-26", "2026-10-27"], delayDays: 4 } });
@@ -120,6 +120,19 @@ describe("요약 문장의 값 표기", () => {
     expect(text).toMatch(/한국 사람들의 전쟁 불안 평소의 52배/);
     expect(text).toMatch(/북한 장마당 휘발유값 \+88%/);
     expect(text).not.toMatch(/5187|평소의 59%|88\.40%/);
+  });
+});
+
+describe("서해 중국 선박 뜻풀이: 한국 배와 함께 본다", () => {
+  const m = (meta: Record<string, unknown>, value: number) => meaningOf(row("sea.gfw_cn_change_pct", { value, meta: { recentDates: ["2026-10-26", "2026-10-27", "2026-10-28"], delayDays: 4, ...meta } }), { night: false, exercise: false, moratorium: false });
+  it("2026-11-01 실제: 중국 −20%, 다른 배 −20%, 한국 배 −55% → 철수 징후 없음, 날씨·조업 사정 쪽", () => {
+    const t = m({ cnChangePct: -20.5, otherChangePct: -20.4, korChangePct: -54.8 }, -0.1);
+    expect(t).toMatch(/중국 선박 -20%, 다른 배 -20%, 한국 배 -55%/);
+    expect(t).toMatch(/철수 징후 없음\. 한국 배가 더 많이 줄어 날씨·조업 사정 쪽/);
+  });
+  it("한국 배는 그대로인데 중국·국적 불명 배가 함께 크게 줄면 '중국만의 변화'가 작아도 확인 필요로 쓴다", () => {
+    const t = m({ cnChangePct: -45, otherChangePct: -35, korChangePct: 2 }, -15.4);
+    expect(t).toMatch(/한국 배는 그대로인데.*국적 불명 배에 중국 어선이 섞여.*확인 필요/);
   });
 });
 

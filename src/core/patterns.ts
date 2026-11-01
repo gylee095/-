@@ -46,12 +46,13 @@ function isLow(x: Reading) {
   return x.baseline !== undefined && x.value < x.baseline;
 }
 
-/** 중국 서해 휴어기 (5/1~8/16, KST) — 이 기간 중국 어선 감소는 정상 */
+/** 중국 서해 휴어기 — 중국 농업농촌부 기준 북위 35° 이북 황해·발해 5/1 12시 ~ 9/1 12시 (35° 이남은 9/16, 소형 張網은 8/20).
+ *  2026-11-01 고침: 예전엔 8/16 까지로 잘못 적었다. 이 기간 중국 어선 감소는 정상 */
 export function inChineseMoratorium(now: number): boolean {
   const d = new Date(now + 9 * 3600_000);
   const m = d.getUTCMonth() + 1;
   const day = d.getUTCDate();
-  return (m >= 5 && m <= 7) || (m === 8 && day <= 16);
+  return (m >= 5 && m <= 8) || (m === 9 && day <= 1);
 }
 
 /** 한미 대규모 연합훈련 철(3월 Freedom Shield, 8월 Ulchi Freedom Shield) — ISR·군용기 증가가 정상인 시기 */
@@ -124,7 +125,7 @@ export function detectPatterns(r: R, events: CrisisEvent[], now = Date.now()): P
   {
     const mora = inChineseMoratorium(now);
     const p = base("west_sea_clash", "서해(NLL) 충돌 위험 징후",
-      ["중국 휴어기(5/1~8/16)·태풍·기상 악화로 어선이 줄 수 있다", "AIS 를 끈 어선은 보이지 않는다(수신 범위 문제)", "사격훈련 항행경보는 한국군 정례 훈련일 수 있다"],
+      ["중국 휴어기(5/1~9/1)·태풍·기상 악화로 어선이 줄 수 있다", "AIS 를 끈 어선은 보이지 않는다(수신 범위 문제)", "사격훈련 항행경보는 한국군 정례 훈련일 수 있다"],
       ["check_chinese_fishing_fleet 로 일별 추이(언제부터 줄었는지, 한국 선박도 같이 줄었는지 = 기상) 확인", "check_navigational_warnings(keyword=GUNNERY) 로 사격 구역·당국 확인", "search_news('서해 NLL 연평 백령 태풍 풍랑') 로 현장·기상 보도 확인"]);
     // 위성 AIS 중국 선박 체류시간 급감 (약 5일 지연 — 진행 중인 철수의 '추세' 신호)
     add(p, r, "sea.gfw_cn_change_pct", now, { anomalous: mora ? 15 : 40, elevated: mora ? 8 : 20 }, mora ? "휴어기라 감점" : "약 5일 지연 데이터");

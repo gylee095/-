@@ -91,6 +91,8 @@ export interface GfwSummary {
   otherChangePct?: number;
   /** 다른 배 대비 중국 변화율 = (중국 비율 ÷ 다른 배 비율 − 1) */
   relativeChangePct?: number;
+  /** 한국 선박 체류시간 변화율 — 날씨(소형 어선 귀항)와 '중국 쪽 철수'를 가르는 비교용. '다른 배'에는 국적 불명 중국 어선이 섞일 수 있다 */
+  korChangePct?: number;
   /** 징후 값: max(changePct, relativeChangePct) — 두 감소폭 중 작은 쪽 */
   chinaSpecificPct: number;
   latestDate?: string;
@@ -146,6 +148,9 @@ export function summarizeGfw(rows: GfwRow[]): GfwSummary | undefined {
   const otherOk = priorOther > 0 && recentOther > 0 && priorCn > 0;
   const otherChangePct = otherOk ? ((recentOther - priorOther) / priorOther) * 100 : undefined;
   const relativeChangePct = otherOk ? ((recentCn / priorCn) / (recentOther / priorOther) - 1) * 100 : undefined;
+  const recentKor = mean(recent.map((d) => d.KOR));
+  const priorKor = mean(prior.map((d) => d.KOR));
+  const korChangePct = priorKor > 0 ? ((recentKor - priorKor) / priorKor) * 100 : undefined;
   return {
     days,
     recentDates: recent.map((d) => d.date),
@@ -154,6 +159,7 @@ export function summarizeGfw(rows: GfwRow[]): GfwSummary | undefined {
     changePct,
     otherChangePct,
     relativeChangePct,
+    korChangePct,
     chinaSpecificPct: relativeChangePct === undefined ? changePct : Math.max(changePct, relativeChangePct),
     recentShareCn: share(recent),
     priorShareCn: share(prior),
@@ -172,6 +178,7 @@ export function gfwMetrics(s: GfwSummary, now: number): Metric[] {
         cnChangePct: +s.changePct.toFixed(1),
         otherChangePct: s.otherChangePct === undefined ? undefined : +s.otherChangePct.toFixed(1),
         relativeChangePct: s.relativeChangePct === undefined ? undefined : +s.relativeChangePct.toFixed(1),
+        korChangePct: s.korChangePct === undefined ? undefined : +s.korChangePct.toFixed(1),
         recentDates: s.recentDates,
         recentCnHoursPerDay: Math.round(s.recentCnHours),
         priorCnHoursPerDay: Math.round(s.priorCnHours),
@@ -182,7 +189,8 @@ export function gfwMetrics(s: GfwSummary, now: number): Metric[] {
         delayDays,
         droppedIncomplete: s.droppedIncomplete,
         series: s.days.slice(-21).map((d) => ({ date: d.date, CHN: Math.round(d.CHN), KOR: Math.round(d.KOR), other: Math.round(d.other + d.PRK) })),
-        note: `위성 AIS · 약 ${delayDays ?? 5}일 지연 · 서해 한가운데(항구 제외) 중국 선박 체류시간 · 값은 '직전 2주 대비'와 '다른 배 대비' 중 작은 감소폭`,
+        // 대시보드 카드는 70자까지 보여 준다 (값의 정의는 docs/INDICATORS.md 1.5)
+        note: `위성 AIS · 서해 한가운데(항구 제외) 선박 체류시간 · 최근 자료 ${delayDays ?? "?"}일 전`,
         attribution: "Powered by Global Fishing Watch (globalfishingwatch.org)",
       },
     },

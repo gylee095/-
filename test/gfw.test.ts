@@ -71,6 +71,13 @@ describe("Global Fishing Watch 서해 중국 선박", () => {
     expect(evaluate(DEF, gfwMetrics(s, NOW)[0].value, NOW, undefined).state).toBe("normal");
   });
 
+  it("한국 선박 변화도 따로 낸다 (날씨와 중국 쪽 철수를 가르는 비교용) · 카드 설명은 70자 안", () => {
+    const s = summarizeGfw(rowsOf(21, (i) => (i >= 18 ? 1200 : 2400), (i) => (i >= 18 ? 300 : 600)))!;
+    const [m] = gfwMetrics(s, NOW);
+    expect((m.meta as any).korChangePct).toBeCloseTo(s.korChangePct!, 1);
+    expect(String((m.meta as any).note).length).toBeLessThanOrEqual(70);
+  });
+
   it("다른 배만 몰려든 날: 상대 비율은 떨어져도 중국 배가 줄지 않았으면 정상", () => {
     const s = summarizeGfw(rowsOf(21, () => 2400, (i) => (i >= 18 ? 2400 : 600)))!;
     expect(s.relativeChangePct!).toBeLessThan(-50);

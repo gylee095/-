@@ -156,12 +156,17 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
       const pct = (x: number) => `${x > 0 ? "+" : ""}${Math.round(x)}%`;
       const cn = typeof m.cnChangePct === "number" ? m.cnChangePct : v;
       const other = typeof m.otherChangePct === "number" ? `, 다른 배 ${pct(m.otherChangePct)}` : "";
-      const lag = ` · 위성 데이터라 약 ${m.delayDays ?? 5}일 지연`;
-      const base = `${span} 서해 한가운데 중국 선박 ${pct(cn)}${other} (직전 2주 대비)`;
+      const kor = typeof m.korChangePct === "number" ? m.korChangePct : undefined;
+      const korTxt = kor !== undefined ? `, 한국 배 ${pct(kor)}` : "";
+      const lag = ` · 위성 자료라 가장 최근 것이 ${m.delayDays ?? "약 5"}일 전`;
+      const base = `${span} 서해 한가운데 중국 선박 ${pct(cn)}${other}${korTxt} (직전 2주 대비)`;
       if (v <= -30) return `${base} → 중국 배만 ${Math.abs(v).toFixed(0)}% 빠짐. 중국 어선 철수일 수 있지만 중국 내 조업 규제·AIS 일제 차단도 같은 모양${ctx.moratorium ? ", 휴어기이기도 함" : ""}${lag}`;
+      // '다른 배'에는 국적 불명 중국 어선이 섞일 수 있다: 한국 배는 그대로인데 중국·다른 배가 같이 크게 줄면 중국 쪽 철수를 가릴 수 있다
+      if (cn <= -30 && kor !== undefined && kor > -10) return `${base} → 한국 배는 그대로인데 중국 배와 국적 불명 배가 함께 크게 줄었다. 국적 불명 배에 중국 어선이 섞여 있어 '중국만의 변화'(${pct(v)})가 작게 보였을 수 있다 — 중국 쪽 철수인지 확인 필요${lag}`;
       if (cn <= -30) return `${base} → 모든 배가 함께 줄어 태풍·풍랑 귀항이나 위성 처리 지연 쪽. 중국만의 감소는 ${pct(v)}라 철수 징후 아님${lag}`;
       if (cn >= 30) return `${base} → 성어기 증가로 보이며 위기 신호 아님${lag}`;
-      return `${base} → 중국만의 변화 ${pct(v)}, 중국 어선 철수 징후 없음${lag}`;
+      const weather = kor !== undefined && cn < -10 && kor <= cn - 15 ? " 한국 배가 더 많이 줄어 날씨·조업 사정 쪽이다." : "";
+      return `${base} → 중국만의 변화 ${pct(v)}, 중국 어선 철수 징후 없음.${weather}${lag}`;
     }
     case "seismic.nk_events_24h":
       return v === 0 ? "북한 지역 지진 없음 → 핵실험 신호 없음 (핵실험은 규모 4~6 얕은 지진으로 10~30분 내 탐지됨)" : `북한 지역 지진 ${v}건 — 깊이·풍계리 거리로 인공 여부 판정 필요`;
@@ -319,7 +324,7 @@ export function interpret(input: InterpretInput): Interpretation {
   const context: string[] = [];
   if (night) context.push("심야(00~06시) — 항공·SNS·속보 표본이 원래 적은 시간대");
   if (exercise) context.push("한미 연합훈련 철(3월·8월) — 정찰기·군용기 증가와 북한 비난 담화는 이 시기 정상");
-  if (moratorium) context.push("중국 서해 휴어기(5/1~8/16) — 중국 어선 감소는 정상");
+  if (moratorium) context.push("중국 서해 휴어기(5/1~9/1) — 중국 어선 감소는 정상");
 
   const perIndicator: Record<string, string> = {};
   for (const row of board) perIndicator[row.id] = meaningOf(row, ctx);

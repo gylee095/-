@@ -254,7 +254,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     realtime: "near-realtime",
     terms: "aisstream.io 이용약관 (비상업)",
     hosts: ["stream.aisstream.io"],
-    notes: "중국·한국·북한 국적 선박 수. 키 없이는 미검증. 휴어기(5/1~8/16)·기상 영향 큼.",
+    notes: "중국·한국·북한 국적 선박 수. 키 없이는 미검증. 휴어기(5/1~9/1)·기상 영향 큼.",
   },
   firms: {
     id: "firms",

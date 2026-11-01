@@ -222,6 +222,42 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
       return json({ error: redactKey(String((e as Error)?.message ?? e), env.ECOS_API_KEY) }, 502);
     }
   }
+  if (url.pathname === "/api/history-source" && req.method === "GET") {
+    // 긴장 온도계(과거 10년) 재구성용 1회성 자료 받기 — 키가 필요한 출처(네이버)와 이 컨테이너에서 막힌 출처(위키미디어)를 서버가 대신 받는다.
+    // 허용 목록만: naver(묶음 번호), wiki(문서 번호), wikiparse(정해진 문서). 키·인증값은 응답에 넣지 않는다.
+    const kind = url.searchParams.get("kind");
+    const from = url.searchParams.get("from") ?? "";
+    const to = url.searchParams.get("to") ?? "";
+    try {
+      if (kind === "naver") {
+        const { NAVER_GROUPS, fetchNaverHistory } = await import("../core/collectors/naver.js");
+        const g = NAVER_GROUPS[Number(url.searchParams.get("group"))];
+        if (!g || !/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) return json({ error: "bad params" }, 400);
+        if (!env.NAVER_CLIENT_ID || !env.NAVER_CLIENT_SECRET) return json({ error: "NAVER 키 미설정" }, 400);
+        const j = await fetchNaverHistory(env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET, g, from, to);
+        return json({ group: g.groupName, keywords: g.keywords, data: (j?.results?.[0]?.data ?? []).map((d: any) => [d.period, d.ratio]) });
+      }
+      if (kind === "wiki") {
+        const { WIKI_BASKET, WIKI_UA } = await import("../core/collectors/wiki.js");
+        const a = WIKI_BASKET[Number(url.searchParams.get("i"))];
+        if (!a || !/^\d{8}$/.test(from) || !/^\d{8}$/.test(to)) return json({ error: "bad params" }, 400);
+        const r = await fetch(`https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/${a[0]}.wikipedia/all-access/user/${encodeURIComponent(a[1])}/daily/${from}/${to}`, { headers: { "User-Agent": WIKI_UA } });
+        const j = (await r.json()) as any;
+        return json({ project: a[0], article: a[1], status: r.status, data: (j?.items ?? []).map((it: any) => [String(it.timestamp).slice(0, 8), it.views]) });
+      }
+      if (kind === "wikiparse") {
+        const page = url.searchParams.get("page") ?? "";
+        if (!/^List_of_North_Korean_missile_tests$|^\d{4}_in_North_Korea$/.test(page)) return json({ error: "page not allowed" }, 400);
+        const { WIKI_UA } = await import("../core/collectors/wiki.js");
+        const r = await fetch(`https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(page)}&prop=wikitext&format=json&formatversion=2`, { headers: { "User-Agent": WIKI_UA } });
+        const j = (await r.json()) as any;
+        return json({ page, status: r.status, wikitext: j?.parse?.wikitext ?? null, error: j?.error?.info });
+      }
+      return json({ error: "unknown kind" }, 400);
+    } catch (e) {
+      return json({ error: String((e as Error)?.message ?? e).slice(0, 300) }, 502);
+    }
+  }
   if (url.pathname === "/api/push-probe" && req.method === "POST") {
     // ntfy.sh 가 이 Worker 의 발신 IP 를 얼마나 막는지 측정한다. 아무도 구독하지 않는 임시 토픽으로 보낸다.
     const topic = `kew-probe-${crypto.randomUUID().slice(0, 8)}`;

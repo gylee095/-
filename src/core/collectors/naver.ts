@@ -24,6 +24,19 @@ export function naverRequest(id: string, secret: string, now: number, api: "hub"
   return { url: api === "hub" ? NAVER_HUB_TREND : NAVER_DATALAB, init: { method: "POST", headers, body: JSON.stringify(body) } };
 }
 
+/** 과거 검증용: 묶음 하나의 긴 기간 일별 값 (2016-01-01부터 가능). 묶음마다 따로 받아 각자의 최댓값=100 기준으로 정밀도를 지킨다 */
+export async function fetchNaverHistory(id: string, secret: string, group: { groupName: string; keywords: string[] }, from: string, to: string): Promise<any> {
+  const body = JSON.stringify({ startDate: from, endDate: to, timeUnit: "date", keywordGroups: [group] });
+  const hub = { method: "POST", headers: { "X-NCP-APIGW-API-KEY-ID": id, "X-NCP-APIGW-API-KEY": secret, "content-type": "application/json" }, body };
+  try {
+    return JSON.parse(await fetchText(NAVER_HUB_TREND, hub, 30000));
+  } catch (e) {
+    if (!/HTTP (401|403)/.test(String((e as Error).message))) throw e;
+    const classic = { method: "POST", headers: { "X-Naver-Client-Id": id, "X-Naver-Client-Secret": secret, "content-type": "application/json" }, body };
+    return JSON.parse(await fetchText(NAVER_DATALAB, classic, 30000));
+  }
+}
+
 /** API HUB 로 먼저, 인증 거부(401·403)면 예전 개발자센터 주소로 */
 export async function fetchNaverTrend(id: string, secret: string, now: number): Promise<any> {
   const hub = naverRequest(id, secret, now, "hub");

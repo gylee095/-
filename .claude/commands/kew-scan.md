@@ -35,8 +35,14 @@ description: 한반도 위기 조기감지 — 징후·경보(I&W) 분석 1회 �
 3. **패턴이 있으면** 그 패턴의 `checks` 를 그대로 수행해 확인/반증한다. 예:
    - 발사 준비 → `check_navigational_warnings(keyword=ROCKET)` 로 발신 당국·기간, `check_military_aircraft` 로 정찰기 기종·등록번호, `check_state_media` 로 명분 담화.
    - 공역 통제 의심 → `check_airspace_detail(region=korea)` 로 실제 대수·군용기 비중, `search_news('결항 우회 기상')`.
-   - 서해 충돌 → `check_chinese_fishing_fleet`(위성 AIS, 약 5일 지연 — 한국 선박도 같이 줄었으면 기상), `check_navigational_warnings(keyword=GUNNERY)`, `search_news('NLL 연평 백령 풍랑')`.
+   - 서해 충돌 → `check_chinese_fishing_fleet`(위성 AIS, 약 4~6일 지연 — 한국 선박도 같이 줄었으면 기상), `check_sea_weather(area=yellow_sea, from=줄어든 날 −3일, to=+1일)` 로 그날 파고·풍속, `check_navigational_warnings(keyword=GUNNERY)`, `search_news('NLL 연평 백령 풍랑')`.
    - 서방 경계 격상 → `check_travel_advisories` 원문, `search_news('주한미군 FPCON 대사관')`.
+3-0. **평범한 원인은 사후에 자료로 확인한다** (추측으로 끝내지 않는다). 무언가 크게 변했으면 '날씨·명절·세계 증시 같은 흔한 이유'를 실제 자료로 맞춰 보고, 결과를 가설 근거에 ✅확인됨 / ❌반증됨으로 남긴다:
+   - 선박·어선 감소 → `check_sea_weather` 같은 날짜 파고·풍속. '풍랑주의보급'(파고 3m·풍속 14m/s 이상)이면 날씨로 설명됨 ✅, 앞뒤가 '잔잔'인데 줄었으면 날씨로는 설명 안 됨 ❌ → 다른 원인을 판다. 공식 특보가 필요하면 웹 검색 '기상청 풍랑주의보 <날짜> 서해'.
+   - 민항기 급감 → `search_news('결항 안개 태풍 공항')`, 그날 공항 날씨 보도.
+   - 사람들의 불안 급증 → 급증 시작일 3~7일 전 기사·영상에서 불씨를 찾는다(옛 영상이 다시 도는 경우가 있다 — 2026-10 '중국 어선 사라짐' 영상은 2024년 6월 보도였다).
+   - 증시·원화 → 같은 날 일본·대만·미국 증시, 반도체 뉴스.
+   - 평범한 이유로 모두 설명되면 그 신호는 전쟁 판단에서 빼고, **설명되지 않고 남는 것**에 집중한다.
 3-1. **전쟁 위험 판단** — 자동 판정을 반증해 보고 네 확률을 정한다:
    - 움직인 영역마다 **원인**을 확인한다: 정부 경보는 사유 문구(안보인가 치안·재난인가, `check_travel_advisories`), 돈은 세계 증시·국내 정치·업종 뉴스(`check_markets`, `search_news`), 사람들의 불안은 무엇이 불을 붙였는지(`search_news`).
    - 위키백과 관심이 여러 문서에서 함께 뛰었으면(예: 2026-10-17~20) 무슨 일이었는지 찾아 기록한다 — 인물 뉴스인지, 군사 사건인지.

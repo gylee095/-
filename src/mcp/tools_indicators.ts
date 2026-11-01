@@ -14,6 +14,7 @@ import { searchPosts, ALARM_QUERIES } from "../core/collectors/bluesky.js";
 import { fetchNkHotspots, NK_SITES } from "../core/collectors/firms.js";
 import { sampleAis, vesselMetrics, KOREA_WATERS_BOX } from "../core/collectors/ais.js";
 import { fetchGfwPresence, summarizeGfw, YELLOW_SEA_OFFSHORE } from "../core/collectors/gfw.js";
+import { fetchSeaWeather, SEA_POINTS } from "../core/seaweather.js";
 import { parseRss, BREAKING_FEEDS } from "../core/collectors/news.js";
 import { parseMndList, MND_LIST_URL } from "../core/collectors/koreakr.js";
 
@@ -368,6 +369,41 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
           chineseMoratorium: inChineseMoratorium(Date.now()),
           caveat: "국적은 AIS 식별번호(MMSI) 앞자리로 정해진다 — 식별번호를 규정대로 쓰지 않는 중국 어선은 기타·불명으로 잡혀 중국 수치가 실제보다 작을 수 있다. 추세만 본다.",
           attribution: "Powered by Global Fishing Watch (globalfishingwatch.org)",
+        });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
+    "check_sea_weather",
+    {
+      title: "바다 날씨 사후 확인 (날짜별 최대 파고·풍속)",
+      description:
+        "선박이 줄었거나 해상 활동이 이상할 때 '풍랑 같은 평범한 이유로 설명되는가'를 날짜별로 확인한다. Open-Meteo 해양·기상 모델(키 불필요)의 하루 최대 파고(m)와 최대 풍속(m/s), " +
+        "기상청 풍랑주의보 기준(파고 3m·풍속 14m/s 이상)에 맞춘 판정을 돌려준다. 같은 날 선박 감소가 '풍랑주의보급'이면 날씨로 설명됨, '잔잔'인데 줄었으면 날씨로 설명 안 됨. " +
+        "공식 특보 이력이 필요하면 웹 검색('기상청 풍랑주의보 <날짜> 서해')으로 확인한다.",
+      inputSchema: {
+        area: z.enum(Object.keys(SEA_POINTS) as [keyof typeof SEA_POINTS, ...(keyof typeof SEA_POINTS)[]]).default("yellow_sea"),
+        from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("시작일 YYYY-MM-DD (기본: 21일 전)"),
+        to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("종료일 YYYY-MM-DD (기본: 오늘)"),
+      },
+    },
+    async ({ area, from, to }) => {
+      const kst = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
+      const end = to ?? kst(Date.now());
+      const start = from ?? kst(Date.parse(`${end}T00:00:00Z`) - 21 * 86400_000);
+      try {
+        const pts = await fetchSeaWeather(area, start, end);
+        const rough = pts.flatMap((p) => p.days.filter((d) => d.verdict === "풍랑주의보급").map((d) => `${d.date} ${p.name} 파고 ${d.waveMaxM ?? "?"}m·풍속 ${d.windMaxMs ?? "?"}m/s`));
+        return out({
+          area,
+          period: `${start} ~ ${end}`,
+          roughDays: rough,
+          points: pts,
+          howToUse: "선박·어선 감소 날짜와 맞춰 본다: 같은 날 '풍랑주의보급'이면 날씨로 설명됨(✅), 앞뒤 며칠이 '잔잔'인데 줄었으면 날씨로는 설명 안 됨(❌ — 중국 당국 조치·AIS 정책·위성 처리 지연을 다음으로 확인). 모델 값이라 실제 관측과 다를 수 있다.",
+          source: "Open-Meteo Marine/Forecast API (open-meteo.com, CC BY 4.0)",
         });
       } catch (e) {
         return fail(e);

@@ -203,7 +203,8 @@ function nightReading(h: NightHistory, dates: string[], last: string, per: Parti
       lastNight,
       controlPct: ctl.length ? Math.round((ctl.reduce((a, b) => a + b, 0) / ctl.length) * 10) / 10 : undefined,
       recent,
-      note: "평양 중심 밤 밝기 — 최근 5일 중 두 번째로 밝은 밤 ÷ 직전 28일 평소 (NASA VIIRS 위성 두 대 평균, 단위 nW/cm²·sr)",
+      // 대시보드는 70자까지 보여 준다
+      note: "평양 중심 밤 밝기: 최근 5일 중 두 번째로 밝은 밤 ÷ 직전 28일 평소 (NASA 위성 2대)",
     },
   };
 }

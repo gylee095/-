@@ -306,8 +306,13 @@ function board(rows){var groups={};rows.forEach(function(r){(groups[r.groupLabel
   var learning=rows.filter(function(r){return r.reading&&r.reading.state==="learning"}).length;
   h+='<p style="font-size:12px;color:var(--mute);margin:12px 0 0">● 정상 · ● 상승 · ● 이상 · ○ 학습 중/측정 불가. 기준선은 같은 시간대의 최근 며칠 평균입니다'+(learning?' (아직 학습 중인 징후 '+learning+'개 — 하루쯤 지나면 안정됩니다)':'')+'. 항목을 누르면 왜 중요한지 설명이 나옵니다.</p>';
   return h}
+/** 고정 문턱으로 판정하는 징후: '학습 중' 대신 문턱을 보여 준다 (값과 같은 모양으로) */
+function thr(r){var a=r.absolute;if(!a)return "";var f=function(x){return fmtVal({id:r.id,unit:r.unit,reading:{value:r.direction==="low"?-x:x,meta:{}}})};
+  // 정수로만 나오는 값(단계·건·켜짐)에서 두 문턱이 같은 정수로 올라가면 한 문턱으로 쓴다 (예: 철수 권고 0.5/1 → '1부터 이상')
+  var one=a.elevated===a.anomalous||(r.unit!=="%"&&r.unit!=="%p"&&r.unit!=="z"&&Math.ceil(a.elevated)===Math.ceil(a.anomalous));
+  return one?"기준: "+f(Math.ceil(a.anomalous))+"부터 이상":"기준: "+f(a.elevated)+" 상승 · "+f(a.anomalous)+" 이상"}
 function ind(r){var rd=r.reading,unavail=!rd||r.stateLabel==="측정 불가";var stc=unavail?"unavailable":rd.state;
-  var base=rd&&rd.baseline!=null&&!unavail&&rd.state!=="learning"?"평소 "+(r.unit==="%"?rd.baseline.toFixed(2)+"%":(Math.round(rd.baseline)+(r.unit||"")))+(rd.z!=null?" · z "+rd.z.toFixed(1):""):(unavail?"측정 불가":"기준선 학습 중 "+(rd?rd.n:0)+"/10");
+  var base=unavail?"측정 불가":r.absolute?thr(r):rd&&rd.baseline!=null&&rd.state!=="learning"?"평소 "+(r.unit==="%"?rd.baseline.toFixed(2)+"%":(Math.round(rd.baseline)+(r.unit||"")))+(rd.z!=null?" · z "+rd.z.toFixed(1):""):"기준선 학습 중 "+(rd?rd.n:0)+"/10";
   var extra="";if(rd&&rd.meta){var m=rd.meta;if(m.aircraft&&m.aircraft.length)extra=m.aircraft.slice(0,3).map(function(a){return a.what.split("(")[0]}).join(", ");else if(m.titles&&m.titles.length)extra=m.titles[0];else if(m.note)extra=m.note;else if(m.signedPct!=null)extra=(m.signedPct>0?"+":"")+m.signedPct+"% · "+m.price+"원"}
   if(rd&&rd.meta&&rd.meta.cnChangePct!=null)base="중국 "+sgn(rd.meta.cnChangePct)+(rd.meta.otherChangePct!=null?" · 다른 배 "+sgn(rd.meta.otherChangePct):"")+" (직전 2주 대비)";
   var attr=rd&&rd.meta&&rd.meta.attribution&&/Global Fishing Watch/.test(rd.meta.attribution)?'<div class="ib" style="margin-top:2px"><a href="https://globalfishingwatch.org" target="_blank" rel="noopener" onclick="event.stopPropagation()">Powered by Global Fishing Watch</a></div>':"";

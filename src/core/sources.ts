@@ -25,7 +25,8 @@ export type SourceId =
   | "wiki"
   | "naver_datalab"
   | "ecos"
-  | "nk_market";
+  | "nk_market"
+  | "nightlights";
 
 export interface SourceMeta {
   id: SourceId;
@@ -358,6 +359,19 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     terms: "아시아프레스 (출처 표시, 값만 사용)",
     hosts: ["www.asiapress.org"],
     notes: "북한 안쪽을 보는 거의 유일한 공개 창. 군의 연료 비축·주민 사재기 힌트지만 제재·밀수 단속·국제 유가로도 뛴다.",
+  },
+  nightlights: {
+    id: "nightlights",
+    name: "NASA 위성 밤 불빛 (VIIRS 야간 밴드 일일 영상, NOAA-20·Suomi NPP) — 평양 밝기",
+    kind: "sensor",
+    access: "NASA GIBS 공개 지도 타일 (키 불필요)",
+    cost: "무료",
+    refresh: "하루 1장 × 위성 2대, 매시간 빈 날짜를 채움",
+    latency: "1~3일 (위성 처리 약 2일 + 5일 밝은 밤 창)",
+    realtime: "delayed",
+    terms: "NASA 공개 자료 (출처 표시: NASA GIBS / Black Marble)",
+    hosts: ["gibs.earthdata.nasa.gov"],
+    notes: "도시가 전쟁 태세에 들어가면 불이 꺼진다(등화관제·발전소 피격). 과거 북한 위기 때는 줄지 않았다 — 미리 알려 주기보다 확인해 주는 신호. 구름·눈·겨울 전력난으로도 흔들린다.",
   },
 };
 

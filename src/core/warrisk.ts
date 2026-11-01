@@ -41,8 +41,8 @@ export const DOMAINS: { id: DomainId; label: string; indicators: string[]; why: 
   },
   {
     id: "nkwords", label: "북한의 말·내부 사정",
-    indicators: ["rhetoric.nk_statements_24h", "rhetoric.nk_hostile_24h", "internet.kp_outage_alerts_24h", "nk.fuel_price_change_pct", "nk.rice_price_change_pct"],
-    why: "담화는 비용 없이 낼 수 있어 단독으로는 약한 신호다. 말이 구체적 시한·대상을 갖고 행동과 겹칠 때 무게가 실린다.",
+    indicators: ["rhetoric.nk_statements_24h", "rhetoric.nk_hostile_24h", "internet.kp_outage_alerts_24h", "nk.fuel_price_change_pct", "nk.rice_price_change_pct", "nk.pyongyang_lights_pct"],
+    why: "담화는 비용 없이 낼 수 있어 단독으로는 약한 신호다. 말이 구체적 시한·대상을 갖고 행동과 겹칠 때 무게가 실린다. 장마당 물가·평양 밤 불빛은 북한 안쪽을 보는 드문 창이지만 다른 이유로도 흔들려 각각 1점까지만 준다.",
   },
   {
     id: "public", label: "사람들의 불안",
@@ -207,6 +207,13 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
         const i = drivers.findIndex((t) => t.startsWith("북한 장마당"));
         if (i >= 0) drivers[i] += " — 다른 이유로도 뛰어 1점만";
       }
+      // 평양 밤 불빛: 전쟁에 들어간 도시는 어두워지지만 겨울 전력난·눈으로도 줄어 1점까지만 (2026-11-01, docs/INDICATORS.md 0.8)
+      const lights = by["nk.pyongyang_lights_pct"];
+      if (pts(lights) === 2) {
+        score -= 1;
+        const i = drivers.findIndex((t) => t.startsWith(lights.label));
+        if (i >= 0) drivers[i] += " — 전력난·날씨로도 줄어 1점만";
+      }
       level = score >= 4 ? 3 : score >= 2 ? 2 : score >= 1 ? 1 : 0;
     } else {
       level = score >= 5 ? 3 : score >= 2 ? 2 : score >= 1 ? 1 : 0;
@@ -302,7 +309,9 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
       } else parts.push("돈도 움직였다");
     }
     if (L.military >= 1) parts.push("군사 움직임(도발)이 있었다");
-    if (L.nkwords >= 1) parts.push("북한의 말이 거칠어졌다");
+    // 북한 쪽 영역은 '말'(담화)과 '내부 사정'(장마당 물가·밤 불빛·인터넷)이 섞여 있어 무엇이 움직였는지 나눠 쓴다
+    const nkTalk = pts(by["rhetoric.nk_statements_24h"]) + pts(by["rhetoric.nk_hostile_24h"]) > 0;
+    if (L.nkwords >= 1) parts.push(nkTalk ? "북한의 말이 거칠어졌다" : "북한 내부 사정(장마당 물가·밤 불빛·인터넷)이 평소와 다르다");
     const calm = L.money === 0 || equityOnly ? "하지만 정부와 돈은 평소대로다" : "하지만 비공개 정보를 가진 정부들은 평소대로다";
     let close: string;
     const jets = pts(by["elite.kr_bizjets"]) > 0;
@@ -313,7 +322,8 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
     else if (L.public >= 1 && L.money >= 1 && !equityOnly) close = "대중과 일반 투자자가 같은 사건·담화에 반응한 모양이라, 정보를 가진 쪽이 먼저 움직인 신호는 아니다. 무엇이 불을 붙였는지(담화·소문·사건) 확인하고, 정부 경보가 따라붙는지 지켜본다.";
     else if (L.public >= 1) close = "도발·담화에 대중이 반응한 모양이라, 정보를 가진 쪽(정부)이 먼저 움직인 신호는 아니다. 무엇이 불을 붙였는지 확인하고, 정부 경보나 시장의 전쟁 가격이 따라붙는지 지켜본다.";
     else if (L.military >= 1) close = "무력시위·훈련 성격으로 보인다. 정부 경보나 시장 반응이 따라붙는지 지켜본다.";
-    else if (L.nkwords >= 1) close = "말에 행동이 따르는지 지켜본다 — 명분 쌓기이거나 내부 결속용일 수 있다.";
+    else if (L.nkwords >= 1 && nkTalk) close = "말에 행동이 따르는지 지켜본다 — 명분 쌓기이거나 내부 결속용일 수 있다.";
+    else if (L.nkwords >= 1) close = "북한 안쪽의 변화는 제재·단속·전력난 같은 평범한 이유가 많다. 원인 보도와 군사 움직임이 따라붙는지 지켜본다.";
     else close = "정부 경보나 시장의 전쟁 가격이 따라붙는지가 다음 관건이다.";
     firstMover = {
       kind: L.elite >= 2 && (L.military >= 1 || L.nkwords >= 1) ? "warning" : L.elite >= 1 || L.public >= 2 || (L.money >= 1 && !equityOnly) ? "caveat" : L.public === 1 && L.military === 0 ? "reassuring" : "neutral",

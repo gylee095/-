@@ -21,6 +21,7 @@ import { collectWiki } from "./wiki.js";
 import { collectNaver } from "./naver.js";
 import { collectEcos } from "./ecos.js";
 import { collectNkMarket } from "./nkmarket.js";
+import { collectNightLights } from "./nightlights.js";
 
 /** 수집기가 이전 상태를 기억해야 할 때 쓰는 최소 저장소 */
 export interface CollectorKv {
@@ -60,6 +61,7 @@ export const COLLECTORS: Record<SourceId, Collector> = {
   naver_datalab: (env, now) => collectNaver(env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET, now),
   ecos: (env, now) => collectEcos(env.ECOS_API_KEY, now),
   nk_market: (_e, now) => collectNkMarket(now),
+  nightlights: (_e, now, kv) => collectNightLights(now, kv),
 };
 
 /** 모든 수집기를 병렬 실행. 한 소스 실패가 전체를 막지 않는다. */

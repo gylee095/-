@@ -174,6 +174,16 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
       const m = r!.meta as any;
       return `북한 장마당 1달러 ${m?.usdWon?.toLocaleString?.() ?? "?"}원 — 직전 8주 대비 ${v >= 0 ? "+" : ""}${Math.round(v)}%${v >= 37 ? " → 북한 돈이 급히 약해짐" : ""} (참고용)`;
     }
+    case "nk.pyongyang_lights_pct": {
+      const m = r!.meta as any;
+      const ctl = typeof m?.controlPct === "number" ? m.controlPct : undefined;
+      const base = `평양 밤 불빛 ${v >= 0 ? "+" : ""}${Math.round(v)}% (최근 5일 밝은 밤 ${m?.brightNight ?? "?"} vs 평소 ${m?.usual ?? "?"}, ${m?.dataDate ?? ""} 위성)${ctl !== undefined ? ` · 비교용 중국 단둥 ${ctl >= 0 ? "+" : ""}${Math.round(ctl)}%` : ""}`;
+      if (v <= -25 && ctl !== undefined && ctl <= -15) return `${base} → 단둥도 같이 어두워져 위성·날씨(구름·눈) 탓일 가능성이 크다`;
+      if (v <= -40) return `${base} → 가자(2023, 발전소 중단) 수준으로 어두워짐. 과거 북한 위기 때는 없던 일 — 등화관제·대규모 정전인지 즉시 확인`;
+      if (v <= -25) return `${base} → 키이우(2022 침공 직후) 수준으로 어두워짐. 겨울 전력난·눈일 수도 있어 등화관제 보도·다른 징후와 맞춰 본다`;
+      if (v >= 20) return `${base} → 평소보다 밝음 (명절·행사 조명 쪽)`;
+      return `${base} → 평소 범위. 과거 위기(2013·2015·2017·2024) 때도 평양 불은 꺼지지 않았다 — 꺼진다면 그때와 다른 일`;
+    }
     case "official.us_departure_kr":
       return v === 0
         ? "미 국무부 한국 경보 본문에 철수·출국 문구 없음 → 미국 정부가 자국민을 빼내지 않는 상태"

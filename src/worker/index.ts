@@ -9,6 +9,7 @@ import { registerTools } from "../mcp/tools.js";
 import { D1_FREE_LIMITS, D1Store, type D1Usage } from "./d1store.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
 import { loadMonthUsage, maybeFireDeep } from "../core/deep.js";
+import { recordRisk } from "../core/history.js";
 
 interface Env extends CoreEnv {
   DB: D1Database;
@@ -107,18 +108,22 @@ export default {
     // 알 수 없는 크론(배포 직후 이전 스케줄 등)은 전 소스를 돌리지 않고 속보 묶음만 실행 (CPU 한도 보호)
     const group = CRON_GROUPS[ctrl.cron] ?? CRON_GROUPS["* * * * *"];
     try {
-      if (ctrl.cron === "*/5 * * * *") await store.ensureReadIndexes().catch(() => false);
+      if (ctrl.cron === "*/5 * * * *") await store.ensureSchema().catch(() => false);
       await store.setKv(`cron_seen:${ctrl.cron}`, String(ctrl.scheduledTime));
       // 1분 주기는 새 속보가 있을 때만 상관분석까지 간다 (나머지는 5분 주기가 매번 전체를 돈다)
       const report = await runAndRecord(env, store, ctrl.scheduledTime, `cron ${ctrl.cron}`, group, ctrl.cron === "* * * * *");
       if (!report || "error" in report) return;
       const usage = await finishUsage(store, env, ctrl.scheduledTime);
-      // 특이한 날이면 Claude Code 심층 분석을 깨운다 (5분 주기에서만, 토큰이 있을 때만, 저장소 한도에 여유가 있을 때만)
+      // 5분마다: 자동 판정을 기록하고(영구 보관), 특이한 날이면 Claude Code 심층 분석을 깨운다 (저장소 한도에 여유가 있을 때만)
       const tight = !!usage && usage.read > D1_FREE_LIMITS.read * 0.8;
-      if (ctrl.cron === "*/5 * * * *" && env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN && !tight) {
+      if (ctrl.cron === "*/5 * * * *" && !tight) {
         try {
           const st = await buildState(store, report.at - 72 * 3600_000, env.DISABLED_SOURCES);
-          await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: env.DASHBOARD_URL });
+          await recordRisk(store, { ...st.warRisk, at: report.at }).catch(async (e) => {
+            await store.setKv("risk:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
+          });
+          if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
+            await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: env.DASHBOARD_URL });
         } catch (e) {
           await store.setKv("deep:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
         }

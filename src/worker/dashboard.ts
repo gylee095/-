@@ -117,6 +117,11 @@ function showErr(msg,limit){$("#login").style.display="none";
     (limit?'<div style="font-size:13px;margin-top:6px;opacity:.8">무료 요금제(Cloudflare D1)의 하루 읽기 한도는 500만 행입니다.'+(ST?' 아래 내용은 마지막으로 받은 화면입니다.':'')+'</div>':'')+'</div>';
   var old=$("#err");if(old)old.remove();
   if(ST){$("#upd").textContent="갱신 실패";$("#app").insertAdjacentHTML("afterbegin",box)}else{$("#upd").textContent="";$("#app").innerHTML=box}}
+// 판정 기록 (2026-11-01부터 영구 보관): 오늘 하루 최고값과 기록된 날 중 순위
+function histLine(hs){if(!hs||!hs.today)return "";var t=hs.today,d=t.d.slice(5).replace("-","/");
+  var s='<div class="mk">판정 기록 · 오늘('+esc(d)+') 최고 '+t.phase+'단계, 국지 충돌 '+pct(t.clash);
+  s+=hs.days<7?' — '+esc(hs.since||"")+'부터 쌓는 중 ('+hs.days+'일째). 1주일이 지나면 지난 기록 중 순위를 보여 줍니다.':' — 지난 '+hs.rank.of+'일 중 '+hs.rank.clash+'번째로 높음';
+  return s+'</div>'}
 function pickTop(evs){var p=evs.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});return p[0]||null}
 function pct(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<1?x.toFixed(1)+"%":Math.round(x)+"%"}
 function warRisk(w){var names=["평온","긴장","위기","임박","교전"];
@@ -125,6 +130,7 @@ function warRisk(w){var names=["평온","긴장","위기","임박","교전"];
   h+='<div class="ladder">';for(var i=1;i<=5;i++)h+='<div class="p'+i+(i===w.phase?' on':'')+'">'+names[i-1]+'</div>';h+='</div>';
   h+='<div class="probs"><div><div class="pk">앞으로 30일 · 국지 충돌</div><div class="pv">약 '+pct(w.clash30d.point)+'</div><div class="ps">평소 약 '+pct(w.usual.clash)+' · 범위 '+pct(w.clash30d.low)+'~'+pct(w.clash30d.high)+'</div></div>';
   h+='<div><div class="pk">앞으로 30일 · 전면전</div><div class="pv">'+pct(w.war30d.point)+'</div><div class="ps">평소 '+pct(w.usual.war)+' · 범위 '+pct(w.war30d.low)+'~'+pct(w.war30d.high)+'</div></div></div>';
+  h+=histLine(ST&&ST.history);
   h+='<div class="fm '+w.firstMover.kind+'"><b>누가 먼저 움직였나</b> · '+esc(w.firstMover.text)+'</div>';
   h+='<div>'+w.domains.map(function(d){return '<div class="dom"><div class="dl">'+esc(d.label)+'</div><div class="dv v'+d.level+'">'+esc(d.levelLabel)+'</div><div class="dd">'+(d.drivers.length?esc(d.drivers.join(" · ")):"특이 없음")+(d.measured<d.total?' <span style="opacity:.8">('+d.measured+'/'+d.total+' 측정)</span>':'')+'</div></div>'}).join("")+'</div>';
   h+='<details><summary>이 단계로 본 이유 · 지켜볼 신호 · 억제 요인</summary><b style="font-size:14px">이유</b><ul>'+w.phaseReasons.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';

@@ -1,5 +1,6 @@
 import type { AlertRecord, CrisisEvent, Reading, Signal } from "../core/types.js";
 import type { AgentNote, MetricPoint, SourceHealth, Store } from "../core/store.js";
+import type { RiskDay, RiskSnapshot } from "../core/history.js";
 
 /** Cloudflare D1 무료 요금제 하루 한도 (UTC 자정에 초기화) */
 export const D1_FREE_LIMITS = { read: 5_000_000, written: 100_000 } as const;
@@ -173,14 +174,35 @@ export class D1Store implements Store {
     return v ? { date: key.slice(3), ...(JSON.parse(v) as Omit<D1Usage, "date">) } : undefined;
   }
 
-  /** migrations/0003 과 같은 인덱스 — 배포 때 마이그레이션이 한도 초과로 실패했어도 한도가 풀린 뒤 스스로 만든다 (멱등) */
-  async ensureReadIndexes(): Promise<boolean> {
-    if (await this.getKv("schema:0003")) return false;
+  async getRiskDay(day: string): Promise<RiskDay | undefined> {
+    const rows = await this.all<{ doc: string }>(this.db.prepare("SELECT doc FROM risk_daily WHERE day = ?").bind(day));
+    return rows[0] ? JSON.parse(rows[0].doc) : undefined;
+  }
+  async putRiskDay(d: RiskDay): Promise<void> {
+    await this.run(this.db.prepare("INSERT OR REPLACE INTO risk_daily (day, doc) VALUES (?, ?)").bind(d.day, JSON.stringify(d)));
+  }
+  async getRiskDays(sinceDay: string): Promise<RiskDay[]> {
+    const rows = await this.all<{ doc: string }>(this.db.prepare("SELECT doc FROM risk_daily WHERE day >= ? ORDER BY day").bind(sinceDay));
+    return rows.map((x) => JSON.parse(x.doc));
+  }
+  async putRiskHourly(s: RiskSnapshot): Promise<void> {
+    await this.run(this.db.prepare("INSERT OR REPLACE INTO risk_hourly (at, doc) VALUES (?, ?)").bind(Math.floor(s.at / 3600_000) * 3600_000, JSON.stringify(s)));
+  }
+  async getRiskHourly(since: number): Promise<RiskSnapshot[]> {
+    const rows = await this.all<{ doc: string }>(this.db.prepare("SELECT doc FROM risk_hourly WHERE at >= ? ORDER BY at").bind(since));
+    return rows.map((x) => JSON.parse(x.doc));
+  }
+
+  /** migrations/0003·0004 와 같은 인덱스·표 — 배포 때 마이그레이션이 실패했어도(한도 초과 등) Worker 가 스스로 만든다 (멱등) */
+  async ensureSchema(): Promise<boolean> {
+    if (await this.getKv("schema:0004")) return false;
     await this.batch([
       this.db.prepare("CREATE INDEX IF NOT EXISTS idx_signals_event ON signals(event_at)"),
       this.db.prepare("CREATE INDEX IF NOT EXISTS idx_notes_at ON notes(at)"),
+      this.db.prepare("CREATE TABLE IF NOT EXISTS risk_daily (day TEXT PRIMARY KEY, doc TEXT NOT NULL)"),
+      this.db.prepare("CREATE TABLE IF NOT EXISTS risk_hourly (at INTEGER PRIMARY KEY, doc TEXT NOT NULL)"),
     ]);
-    await this.setKv("schema:0003", String(Date.now()));
+    await this.setKv("schema:0004", String(Date.now()));
     return true;
   }
 

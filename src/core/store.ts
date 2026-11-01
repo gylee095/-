@@ -1,5 +1,6 @@
 // 저장소 추상화: Cloudflare D1(운영) / JSON 파일(로컬·에이전트) / 메모리(테스트)
 import type { AlertRecord, CollectResult, CrisisEvent, Reading, Signal } from "./types.js";
+import type { RiskDay, RiskSnapshot } from "./history.js";
 
 export interface SourceHealth {
   source: string;
@@ -45,6 +46,12 @@ export interface Store {
   getMetricHistory(indicator: string, sinceMs: number): Promise<MetricPoint[]>;
   /** 모든 지표의 시간별 평균 (스파크라인용) */
   getMetricHourly(sinceMs: number): Promise<{ indicator: string; hour: number; avg: number }[]>;
+  /** 판정 기록 (영구 보관) — 하루 요약과 시간별 순간 */
+  getRiskDay(day: string): Promise<RiskDay | undefined>;
+  putRiskDay(d: RiskDay): Promise<void>;
+  getRiskDays(sinceDay: string): Promise<RiskDay[]>;
+  putRiskHourly(s: RiskSnapshot): Promise<void>;
+  getRiskHourly(sinceMs: number): Promise<RiskSnapshot[]>;
 }
 
 export function healthOf(r: CollectResult): SourceHealth {
@@ -59,9 +66,11 @@ interface State {
   kv: Record<string, string>;
   notes: AgentNote[];
   metrics: Reading[];
+  riskDaily: Record<string, RiskDay>;
+  riskHourly: Record<string, RiskSnapshot>;
 }
 
-const emptyState = (): State => ({ signals: {}, events: {}, alerts: [], health: {}, kv: {}, notes: [], metrics: [] });
+const emptyState = (): State => ({ signals: {}, events: {}, alerts: [], health: {}, kv: {}, notes: [], metrics: [], riskDaily: {}, riskHourly: {} });
 
 export class MemoryStore implements Store {
   protected s: State;
@@ -145,7 +154,24 @@ export class MemoryStore implements Store {
     }
     return [...acc.entries()].map(([k, a]) => ({ indicator: k.split("|")[0], hour: Number(k.split("|")[1]), avg: a.sum / a.n }));
   }
-  /** 보존 기간이 지난 데이터 정리 */
+  async getRiskDay(day: string) {
+    return this.s.riskDaily[day];
+  }
+  async putRiskDay(d: RiskDay) {
+    this.s.riskDaily[d.day] = d;
+    await this.save();
+  }
+  async getRiskDays(sinceDay: string) {
+    return Object.values(this.s.riskDaily).filter((d) => d.day >= sinceDay).sort((a, b) => a.day.localeCompare(b.day));
+  }
+  async putRiskHourly(x: RiskSnapshot) {
+    this.s.riskHourly[String(Math.floor(x.at / 3600_000))] = x;
+    await this.save();
+  }
+  async getRiskHourly(since: number) {
+    return Object.values(this.s.riskHourly).filter((x) => x.at >= since).sort((a, b) => a.at - b.at);
+  }
+  /** 보존 기간이 지난 데이터 정리 (판정 기록은 지우지 않는다) */
   prune(olderThan: number) {
     for (const [k, v] of Object.entries(this.s.signals)) if (v.detectedTime < olderThan) delete this.s.signals[k];
     for (const [k, v] of Object.entries(this.s.events)) if (v.firstDetectedTime < olderThan) delete this.s.events[k];

@@ -82,7 +82,7 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
       try {
         const { buildState } = await import("../core/state.js");
         const st = await buildState(store, Date.now() - 14 * 24 * 3600_000, env.DISABLED_SOURCES);
-        return out({ now: fmtKst(st.now), ...st.warRisk, at: undefined });
+        return out({ now: fmtKst(st.now), ...st.warRisk, at: undefined, history: st.history });
       } catch (e) {
         return fail(e);
       }

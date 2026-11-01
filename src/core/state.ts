@@ -10,6 +10,7 @@ import type { Pattern } from "./patterns.js";
 import { interpret } from "./interpret.js";
 import { assessWarRisk } from "./warrisk.js";
 import { loadMonthUsage } from "./deep.js";
+import type { RiskSummary } from "./history.js";
 
 export interface BoardRow {
   id: string;
@@ -37,7 +38,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const modelSince = Math.min(since, now - 14 * 24 * 3600_000);
   // 저장소(D1) 무료 한도: 신호 표 전체·시계열 표 전체를 훑지 않는다. 사건은 근거 신호 사본(evidence)을 함께 갖고 있고,
   // 스파크라인은 KV 'hourly' 한 줄에서 읽는다.
-  const [events, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourlyRaw, d1Raw] = await Promise.all([
+  const [events, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourlyRaw, d1Raw, historyRaw] = await Promise.all([
     store.getEvents(modelSince),
     store.getHealth(),
     store.getAlerts(since),
@@ -47,6 +48,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     store.getKv("patterns"),
     store.getKv("hourly"),
     store.getKv(`d1:${new Date(now).toISOString().slice(0, 10)}`),
+    store.getKv("risk:summary"),
   ]);
   // 근거 사본이 없는 옛 사건(이 변경 전에 저장된 것)만 신호를 ID로 찾아 채우고, 한 번 다시 저장한다
   const missing = events.filter((e) => !e.evidence);
@@ -116,6 +118,8 @@ export async function buildState(store: Store, since: number, disabledSources = 
     deepReport,
     deepRequest: deepRequest && { at: deepRequest.at, text: deepRequest.text, ok: (deepRequest.data as any)?.fire?.ok, id: (deepRequest.data as any)?.id },
     usage: { ...usage, budget },
+    /** 판정 기록 요약 — 최근 90일 하루 최고값과 오늘의 순위 (2026-11-01부터 기록) */
+    history: historyRaw ? (JSON.parse(historyRaw) as RiskSummary) : null,
     /** 오늘(UTC) 저장소 사용량 — 무료 한도: 읽기 500만 행, 쓰기 10만 행 (한국 시간 오전 9시 초기화) */
     storage: d1Raw ? { ...(JSON.parse(d1Raw) as { read: number; written: number; calls: number }), limitRead: 5_000_000, limitWritten: 100_000 } : null,
     health: health.filter((h) => !disabled.has(h.source)),

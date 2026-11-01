@@ -11,6 +11,7 @@ import { interpret } from "./interpret.js";
 import { assessWarRisk } from "./warrisk.js";
 import { loadMonthUsage } from "./deep.js";
 import type { RiskSummary } from "./history.js";
+import { liveInputs, tensionOf, tensionView } from "./tension.js";
 
 export interface BoardRow {
   id: string;
@@ -102,11 +103,15 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const interpretation = interpret({ now, threat, board, patterns: livePatterns, briefs: enriched.map((e) => e.brief) });
   // 전쟁 위험: 다섯 영역 → 국면 5단계 → 30일 확률 범위
   const warRisk = assessWarRisk({ now, board, briefs: enriched.map((e) => e.brief), patterns: livePatterns });
+  // 긴장 온도계: 지난 10년(2016~)과 같은 잣대로 잰 오늘의 위치
+  const tensionNow = tensionOf(liveInputs(board, enriched.map((e) => e.brief), now));
+  const tension = { ...tensionNow, view: tensionView(tensionNow) };
 
   return {
     now,
     threat,
     warRisk,
+    tension,
     interpretation,
     posture: posture(events.filter((e) => e.firstDetectedTime >= since), now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,

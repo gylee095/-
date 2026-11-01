@@ -34,7 +34,7 @@ export async function fetchUsdKrw(): Promise<FxQuote> {
 }
 
 /** 비교 묶음: 한국 증시, 이웃 증시(일본·대만), 방산 3종, 미국 상장 한국 ETF(야간 외국인 시각) */
-export const EQUITY_SYMBOLS = { kospi: "^KS11", peers: ["^N225", "^TWII"], defense: ["012450.KS", "079550.KS", "064350.KS"], ewy: "EWY" };
+export const EQUITY_SYMBOLS = { kospi: "^KS11", peers: ["^N225", "^TWII"], defense: ["012450.KS", "079550.KS", "064350.KS"], ewy: "EWY", krw: "KRW=X", fxPeers: ["JPY=X", "TWD=X"] };
 
 export interface DailyMove {
   symbol: string;
@@ -71,6 +71,15 @@ export function parseSpark(json: any): DailyMove[] {
   return out;
 }
 
+/** 원화만의 약세 — 달러 대비 원화 변동 − 엔·대만달러 평균 (%p, 양수 = 원화만 더 약해짐). 긴장 온도계의 '돈' 요소 */
+function krwRel(by: Map<string, DailyMove>): { krwPct?: number; fxPeersPct?: number; krwRelPct?: number } {
+  const krw = by.get(EQUITY_SYMBOLS.krw);
+  const peers = EQUITY_SYMBOLS.fxPeers.map((s) => by.get(s)).filter(Boolean) as DailyMove[];
+  if (!krw || !peers.length) return {};
+  const p = peers.reduce((a, b) => a + b.changePct, 0) / peers.length;
+  return { krwPct: +krw.changePct.toFixed(2), fxPeersPct: +p.toFixed(2), krwRelPct: +(krw.changePct - p).toFixed(2) };
+}
+
 export function equityMetrics(moves: DailyMove[]): Metric[] {
   const by = new Map(moves.map((m) => [m.symbol, m]));
   const kospi = by.get(EQUITY_SYMBOLS.kospi);
@@ -85,7 +94,7 @@ export function equityMetrics(moves: DailyMove[]): Metric[] {
     out.push({
       indicator: "market.kr_equity_rel_pct",
       value: r2(rel),
-      meta: { kospiPct: r2(kospi.changePct), peersPct: r2(mean(peers.map((p) => p.changePct))), ewyPct: by.get(EQUITY_SYMBOLS.ewy) ? r2(by.get(EQUITY_SYMBOLS.ewy)!.changePct) : undefined, quoteTime: kospi.at, note: "코스피 일간 변동 − 일본·대만 증시 평균 (음수 = 한국만 더 빠짐)" },
+      meta: { kospiPct: r2(kospi.changePct), peersPct: r2(mean(peers.map((p) => p.changePct))), ewyPct: by.get(EQUITY_SYMBOLS.ewy) ? r2(by.get(EQUITY_SYMBOLS.ewy)!.changePct) : undefined, quoteTime: kospi.at, ...krwRel(by), note: "코스피 일간 변동 − 일본·대만 증시 평균 (음수 = 한국만 더 빠짐)" },
     });
   }
   if (defense.length) {
@@ -96,7 +105,7 @@ export function equityMetrics(moves: DailyMove[]): Metric[] {
 }
 
 export async function fetchEquities(): Promise<DailyMove[]> {
-  const syms = [EQUITY_SYMBOLS.kospi, ...EQUITY_SYMBOLS.peers, ...EQUITY_SYMBOLS.defense, EQUITY_SYMBOLS.ewy].map(encodeURIComponent).join(",");
+  const syms = [EQUITY_SYMBOLS.kospi, ...EQUITY_SYMBOLS.peers, ...EQUITY_SYMBOLS.defense, EQUITY_SYMBOLS.ewy, EQUITY_SYMBOLS.krw, ...EQUITY_SYMBOLS.fxPeers].map(encodeURIComponent).join(",");
   const data = await fetchJson<any>(`https://query1.finance.yahoo.com/v7/finance/spark?symbols=${syms}&range=5d&interval=1d`, { headers: { "User-Agent": UA } });
   return parseSpark(data);
 }

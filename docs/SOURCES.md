@@ -99,3 +99,5 @@
 - [ICAO iSTARS Get NOTAM Data](https://www2023.icao.int/safety/iStars/Pages/Get-NOTAM-Data.aspx)
 - [flight-tracker-mcp (PyPI)](https://pypi.org/project/flight-tracker-mcp/) · [adsb.lol MCP (Glama)](https://glama.ai/mcp/servers/x86ed/adsb.lol-mcp/tree)
 - [rfi-fileparser (Stanford GNSS 간섭 데이터)](https://pypi.org/project/rfi-fileparser/)
+- 긴장 온도계(과거 10년 재구성, docs/INDICATORS.md 0.2): [CSIS Beyond Parallel — Database: North Korean Provocations](https://beyondparallel.csis.org/database-north-korean-provocations/) (1958~ 도발 일지, 날짜·종류만 사용) · 네이버 데이터랩 검색어 트렌드(2016~, 서버 키로 1회 내려받음) · [Wikimedia Pageviews API](https://wikimedia.org/api/rest_v1/) · Yahoo 일봉 · 한국은행 ECOS 802Y001
+- 2026-03-03~04 코스피 급락·방산주 급등의 배경(미국-이란 전쟁): [Al Jazeera](https://aljazeera.com/economy/2026/3/4/south-koreas-stock-market-in-meltdown-amid-us-iran-war) · [Bloomberg](https://bloomberg.com/news/articles/2026-03-04/korean-stock-gauge-poised-for-correction-on-iran-war-selloff) · [파이낸셜뉴스](https://www.fnnews.com/news/202603030939317459)

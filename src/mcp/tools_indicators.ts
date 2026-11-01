@@ -82,7 +82,16 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
       try {
         const { buildState } = await import("../core/state.js");
         const st = await buildState(store, Date.now() - 14 * 24 * 3600_000, env.DISABLED_SOURCES);
-        return out({ now: fmtKst(st.now), ...st.warRisk, at: undefined, history: st.history });
+        const t = st.tension;
+        return out({
+          now: fmtKst(st.now), ...st.warRisk, at: undefined, history: st.history,
+          tension: {
+            note: "긴장 온도계 — 2016년 이후 하루하루를 같은 잣대(북한 도발·사람들의 불안·한국만의 돈 움직임)로 잰 순위. 확률이 아니다.",
+            raw: t.raw, percentile: t.pct, parts: t.parts, drivers: t.drivers,
+            similarPastDays: t.view.similar.map((x) => `${x.d} ${x.label} (원점수 ${x.raw})`),
+            topPastDays: t.view.top.slice(0, 5).map((x) => `${x.d} ${x.label} (원점수 ${x.raw})`),
+          },
+        });
       } catch (e) {
         return fail(e);
       }

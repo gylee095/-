@@ -54,6 +54,7 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
           analystDuty:
             "record_assessment 에 war_phase(1~5)·p_clash_30d·p_war_30d(숫자 %)·war_reasoning(일반인 말로, 자동 판정과 같거나 다른 이유)·tripwires 를 반드시 채운다. " +
             "정부나 돈의 반응 없이 3단계 이상 금지. 움직인 영역은 원인(정부 경보 사유·세계 증시·인물 뉴스 등)을 확인한다. 자세한 근거는 get_war_risk. " +
+            "get_war_risk 의 tension(긴장 온도계: 2016년 이후 하루하루 중 지금의 순위)을 overall 에 '지난 10년 중 상위 N%'로 한 번 적는다 — 확률이 아니다. " +
             "도구 목록에 get_war_risk 나 war_* 칸이 안 보이면(세션이 옛 목록을 쓰는 경우) overall 첫 문장에 '전쟁 위험 N단계, 30일 국지 충돌 약 X%, 전면전 Y%'를 적는다. " +
             "사용량 기록은 '해당 항목 도구만' 규칙의 예외로 매번 한다(사용자 요청): 끝나기 직전 get_session(세션 ID 생략)이 있으면 그 usage 와 ccr.id 를, 없으면 Bash 로 " +
             "python3 -c \"import json,glob,os;f=max(glob.glob(os.path.expanduser('~/.claude/projects/*/*.jsonl')),key=os.path.getmtime);u={};s=set()\n" +

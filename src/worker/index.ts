@@ -119,7 +119,7 @@ export default {
       if (ctrl.cron === "*/5 * * * *" && !tight) {
         try {
           const st = await buildState(store, report.at - 72 * 3600_000, env.DISABLED_SOURCES);
-          await recordRisk(store, { ...st.warRisk, at: report.at }).catch(async (e) => {
+          await recordRisk(store, { ...st.warRisk, at: report.at }, { raw: st.tension.raw, pct: st.tension.pct }).catch(async (e) => {
             await store.setKv("risk:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)

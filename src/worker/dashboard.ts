@@ -11,9 +11,9 @@ export const DASHBOARD_HTML = String.raw`<!doctype html>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
-:root{--bg:#f3f4f6;--card:#fff;--fg:#111418;--mute:#5f6773;--line:#e2e5e9;--chip:#eef0f3;
+:root{--bg:#f3f4f6;--card:#fff;--fg:#111418;--mute:#5f6773;--line:#e2e5e9;--chip:#eef0f3;--viz:#1f5fbf;
 --l1:#2e7d32;--l2:#b58105;--l3:#e0650b;--l4:#d32f2f;--l5:#8e0000;--fresh:#d32f2f;--warm:#e0650b;--old:#8a929c;--link:#1f5fbf;--learn:#8a929c}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#181b21;--fg:#eceef1;--mute:#9aa3ae;--line:#2a2f37;--chip:#232830;
+@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#181b21;--fg:#eceef1;--mute:#9aa3ae;--line:#2a2f37;--chip:#232830;--viz:#5a96e8;
 --l1:#4caf50;--l2:#f2b632;--l3:#ff8a3d;--l4:#ff5252;--l5:#ff1744;--fresh:#ff5252;--warm:#ff8a3d;--old:#8a929c;--link:#7fb0ff;--learn:#6b7380}}
 *{box-sizing:border-box}html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;padding:0 16px 48px;padding-top:env(safe-area-inset-top)}
@@ -62,6 +62,10 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .dom{display:grid;grid-template-columns:7.5em 3.4em 1fr;gap:8px;align-items:start;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.dom:first-child{border-top:0}
 .dom .dl{font-weight:700}.dom .dv{font-size:12px;font-weight:800;border-radius:999px;text-align:center;padding:2px 0;color:#fff}.dom .v0{background:var(--l1)}.dom .v1{background:var(--l2)}.dom .v2{background:var(--l3)}.dom .v3{background:var(--l4)}
 .dom .dd{color:var(--mute);font-size:13px;min-width:0;overflow-wrap:anywhere}.wr ul{margin:6px 0 0 18px;padding:0;font-size:14px}.wr li{margin:3px 0}.wr .mk{font-size:13px;color:var(--mute);margin-top:10px}.wr .mk a{color:var(--link);text-decoration:none}
+.tm{word-break:keep-all}.tm .th{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.tm .th b{font-size:28px;font-weight:800;letter-spacing:-.5px}.tm .th span{font-size:14px;color:var(--mute)}
+.tm .parts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.tm .parts>div{background:var(--chip);border-radius:12px;padding:8px 10px}.tm .pk{font-size:12px;color:var(--mute)}.tm .pv{font-size:18px;font-weight:800}
+.tm .chart{position:relative;margin-top:6px}.tm svg{display:block;width:100%;height:auto;touch-action:pan-y}.tm .tip{position:absolute;top:0;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.12);display:none;max-width:220px}
+.tm .tip b{font-size:14px}.tm ol{margin:6px 0 0 20px;padding:0;font-size:14px}.tm li{margin:3px 0}.tm .mk{font-size:13px;color:var(--mute);margin-top:10px}
 .deep{border-left:5px solid var(--link)}.deep .dt{font-size:18px;font-weight:800;line-height:1.35}.deep p{font-size:15px;margin:8px 0}.deep .pr{font-size:15px;font-weight:700;margin:8px 0}
 .deep ul{margin:6px 0 0 18px;padding:0;font-size:14px}.deep li{margin:3px 0;overflow-wrap:anywhere}.deep a{color:var(--link);text-decoration:none}.deep .us,.use{font-size:13px;color:var(--mute);margin-top:10px}.deep{word-break:keep-all}
 .use table{width:100%;border-collapse:collapse;font-size:14px}.use td{padding:6px 4px;border-top:1px solid var(--line)}.use td:last-child{text-align:right}
@@ -117,6 +121,53 @@ function showErr(msg,limit){$("#login").style.display="none";
     (limit?'<div style="font-size:13px;margin-top:6px;opacity:.8">무료 요금제(Cloudflare D1)의 하루 읽기 한도는 500만 행입니다.'+(ST?' 아래 내용은 마지막으로 받은 화면입니다.':'')+'</div>':'')+'</div>';
   var old=$("#err");if(old)old.remove();
   if(ST){$("#upd").textContent="갱신 실패";$("#app").insertAdjacentHTML("afterbegin",box)}else{$("#upd").textContent="";$("#app").innerHTML=box}}
+// 긴장 온도계: 지난 10년(2016~) 하루하루와 같은 잣대로 잰 오늘의 위치. 확률이 아니라 '긴장의 크기' 순위.
+function topText(p){var t=100-p;return t<1?"상위 1% 안":t>=50?"평소 수준":"상위 "+Math.round(t)+"%"}
+function tension(t){if(!t||!t.view)return "";var v=t.view,n=t;
+  var h='<div class="sec">긴장 온도계 <span style="font-weight:400">· 지난 10년과 같은 잣대 · 확률 아님</span></div><div class="card tm">';
+  h+='<div class="th"><b>'+esc(topText(n.pct))+'</b><span>2016년 이후 하루하루 중 지금보다 긴장된 날의 비율 · 원점수 '+n.raw.toFixed(2)+' / 9</span></div>';
+  h+='<div class="parts"><div><div class="pk">북한 도발</div><div class="pv">'+n.parts.military+'</div></div><div><div class="pk">사람들의 불안</div><div class="pv">'+n.parts.public+'</div></div><div><div class="pk">한국만의 돈 움직임</div><div class="pv">'+n.parts.money+'</div></div></div>';
+  h+='<div class="chart" id="tchart"></div>';
+  if(v.similar&&v.similar.length)h+='<div class="mk">비슷했던 때 · '+v.similar.map(function(x){return esc(x.d)+' '+esc(x.label)}).join(" · ")+'</div>';
+  h+='<details><summary>지난 10년 가장 긴장됐던 날</summary><ol>'+v.top.map(function(x){return '<li>'+esc(x.d)+' · '+esc(x.label)+' <span style="color:var(--mute)">('+x.raw+')</span></li>'}).join("")+'</ol></details>';
+  h+='<div class="mk">점수: 각 요소를 지난 10년 하루 값에 견줘 상위 2.5%면 1점, 0.5%면 2점(최대 3). 정부 경보·북한 담화·항공·선박 신호는 과거 자료가 없어 빠졌고, 2026년 3월 미-이란 전쟁·2018년 정상회담처럼 한반도 밖 사건이나 큰 뉴스에도 오를 수 있습니다.</div></div>';
+  return h}
+// 10년 달마다 최고값 선 그래프 (단일 계열: 범례 없음, 제목이 이름) + 상위 2.5% 기준선 + 지금 점 + 십자선 툴팁
+function drawTension(t){var el=$("#tchart");if(!el||!t||!t.view)return;var w=t.view.monthly;if(!w||!w.length)return;
+  var W=Math.max(280,el.clientWidth||320),H=170,L=6,R=10,T=22,B=22,ns="http://www.w3.org/2000/svg";
+  var max=Math.max(6,Math.ceil(Math.max.apply(null,w.map(function(p){return p.raw}))));
+  var t0=Date.parse(w[0].d),t1=Date.now(),X=function(ms){return L+(ms-t0)/(t1-t0)*(W-L-R)},Y=function(v){return T+(1-v/max)*(H-T-B)};
+  var svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.setAttribute("role","img");svg.setAttribute("aria-label","2016년 이후 달마다 최고 긴장 온도계 원점수");
+  function mk(tag,a){var e=document.createElementNS(ns,tag);for(var k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e}
+  // 해마다 눈금(가는 회색), 상위 2.5% 기준선
+  for(var y=new Date(t0).getUTCFullYear()+1;y<=new Date(t1).getUTCFullYear();y++){var x=X(Date.UTC(y,0,1));mk("line",{x1:x,x2:x,y1:T,y2:H-B,stroke:"var(--line)","stroke-width":1});
+    if(y%2===0){var tx=mk("text",{x:x,y:H-6,"font-size":11,"text-anchor":"middle",fill:"var(--mute)"});tx.textContent=String(y)}}
+  var ref=Y(t.view.levels.top2_5);mk("line",{x1:L,x2:W-R,y1:ref,y2:ref,stroke:"var(--mute)","stroke-width":1,"stroke-opacity":.6});
+  mk("line",{x1:L,x2:W-R,y1:Y(0),y2:Y(0),stroke:"var(--line)","stroke-width":1});
+  var d="",a="M"+X(Date.parse(w[0].d))+","+Y(0);
+  w.forEach(function(p,i){var px=X(Date.parse(p.d)),py=Y(p.raw);d+=(i?"L":"M")+px.toFixed(1)+","+py.toFixed(1);a+="L"+px.toFixed(1)+","+py.toFixed(1)});
+  a+="L"+X(Date.parse(w[w.length-1].d))+","+Y(0)+"Z";
+  mk("path",{d:a,fill:"var(--viz)","fill-opacity":.1,stroke:"none"});
+  mk("path",{d:d,fill:"none",stroke:"var(--viz)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
+  // 글자는 선 위에 테두리(카드 색)를 둘러 겹쳐도 읽히게. 10년 최고점 하나만 이름표 (나머지는 툴팁·목록)
+  function label(x,y,txt,anchor,weight,color){var e=mk("text",{x:x,y:y,"font-size":11,"text-anchor":anchor,fill:color||"var(--mute)","font-weight":weight||400,stroke:"var(--card)","stroke-width":3,"paint-order":"stroke","stroke-linejoin":"round"});e.textContent=txt;return e}
+  label(W-R,ref-5,"상위 2.5%","end");
+  var top=t.view.top[0];if(top){var tx2=X(Date.parse(top.d)),ty2=Y(top.raw);label(Math.min(W-R-40,Math.max(L+34,tx2)),Math.max(12,ty2-6),top.d.slice(0,4)+" 6차 핵실험","middle")}
+  // 지금
+  var nx=X(t1),ny=Y(t.raw);mk("circle",{cx:nx,cy:ny,r:5,fill:"var(--viz)",stroke:"var(--card)","stroke-width":2});
+  label(nx-8,ny-9,"지금","end",700,"var(--fg)");
+  // 십자선 + 툴팁 (가까운 주에 붙는다)
+  var cross=mk("line",{x1:0,x2:0,y1:T,y2:H-B,stroke:"var(--mute)","stroke-width":1,visibility:"hidden"});
+  var hit=mk("rect",{x:0,y:0,width:W,height:H,fill:"transparent"});
+  el.innerHTML="";el.appendChild(svg);var tip=document.createElement("div");tip.className="tip";el.appendChild(tip);
+  function show(ev){var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)*W/r.width,ms=t0+(sx-L)/(W-L-R)*(t1-t0);
+    var best=0,bd=1e18;w.forEach(function(p,i){var dd=Math.abs(Date.parse(p.d)-ms);if(dd<bd){bd=dd;best=i}});var p=w[best],px=X(Date.parse(p.d));
+    cross.setAttribute("x1",px);cross.setAttribute("x2",px);cross.setAttribute("visibility","visible");
+    var ep=t.view.top.filter(function(x){return x.d.slice(0,7)===p.d.slice(0,7)})[0];
+    tip.textContent="";var b=document.createElement("b");b.textContent=p.raw.toFixed(2);tip.appendChild(b);
+    var s1=document.createElement("div");s1.textContent=p.d.slice(0,7).replace("-","년 ")+"월 최고";tip.appendChild(s1);if(ep){var s2=document.createElement("div");s2.textContent=ep.d.slice(5).replace("-","/")+" "+ep.label;tip.appendChild(s2)}
+    tip.style.display="block";var left=px*r.width/W+8;if(left>r.width-200)left=px*r.width/W-208;tip.style.left=Math.max(0,left)+"px"}
+  hit.addEventListener("pointermove",show);hit.addEventListener("pointerdown",show);hit.addEventListener("pointerleave",function(){tip.style.display="none";cross.setAttribute("visibility","hidden")})}
 // 판정 기록 (2026-11-01부터 영구 보관): 오늘 하루 최고값과 기록된 날 중 순위
 function histLine(hs){if(!hs||!hs.today)return "";var t=hs.today,d=t.d.slice(5).replace("-","/");
   var s='<div class="mk">판정 기록 · 오늘('+esc(d)+') 최고 '+t.phase+'단계, 국지 충돌 '+pct(t.clash);
@@ -173,6 +224,7 @@ function render(){
   h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>';
   // 1a) 전쟁 위험 — 다섯 영역 → 국면 5단계 → 30일 확률 (자동, 5분마다)
   if(st.warRisk)h+=safe(warRisk,st.warRisk,"전쟁 위험");
+  if(st.tension)h+=safe(tension,st.tension,"긴장 온도계");
   // 1b) 클로드 심층 분석 — 특이한 날에만 (72시간 안 보고서)
   if(st.deepReport&&st.deepReport.data)h+=safe(deep,st.deepReport,"클로드 심층 분석");
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다
@@ -218,6 +270,7 @@ function render(){
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
   if(top)drawMap(top.brief);
+  try{drawTension(st.tension)}catch(e){}
 }
 function fact(k,v){return '<div class="fact'+(v?"":" na")+'"><div class="fk">'+k+'</div><div class="fv">'+(v?esc(v):"보도 없음")+'</div></div>'}
 function sgn(x){return (x>0?"+":"")+Math.round(x)+"%"}
@@ -283,5 +336,6 @@ async function testPush(){var r=await fetch("/api/test-push",{method:"POST",head
 function copy(t){navigator.clipboard.writeText(t).then(function(){alert("복사됨")},function(){prompt("복사하세요",t)})}
 // 5분마다 갱신 (서버도 5분 주기로 판단한다). 화면이 꺼져 있으면 건너뛰고, 다시 볼 때 2분 넘게 지났으면 바로 갱신 — 저장소 읽기 절약
 load();setInterval(function(){if(!window.__KEW_STATE__&&!document.hidden)load()},300000);
+var rsz=0;window.addEventListener("resize",function(){clearTimeout(rsz);rsz=setTimeout(function(){if(ST)try{drawTension(ST.tension)}catch(e){}},200)});
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&!window.__KEW_STATE__&&Date.now()-LAST>120000)load()});
 </script></body></html>`;

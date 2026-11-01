@@ -46,7 +46,7 @@ export const DOMAINS: { id: DomainId; label: string; indicators: string[]; why: 
   },
   {
     id: "public", label: "사람들의 불안",
-    indicators: ["psych.naver_war_search", "psych.wiki_korea_attention", "media.war_talk_24h", "media.breaking_nk_1h", "social.alarm_posts_1h"],
+    indicators: ["psych.naver_war_search", "psych.wiki_korea_attention", "media.war_talk_24h", "media.breaking_nk_1h"],
     why: "대중의 불안은 보통 가장 늦게 움직이고 언론에 크게 흔들린다. 정부·돈이 조용한데 이것만 오르면 언론발 공포다.",
   },
 ];

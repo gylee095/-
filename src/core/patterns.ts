@@ -129,7 +129,6 @@ export function detectPatterns(r: R, events: CrisisEvent[], now = Date.now()): P
       ["check_chinese_fishing_fleet 로 일별 추이(언제부터 줄었는지, 한국 선박도 같이 줄었는지 = 기상) 확인", "check_navigational_warnings(keyword=GUNNERY) 로 사격 구역·당국 확인", "search_news('서해 NLL 연평 백령 태풍 풍랑') 로 현장·기상 보도 확인"]);
     // 위성 AIS 중국 선박 체류시간 급감 (약 5일 지연 — 진행 중인 철수의 '추세' 신호)
     add(p, r, "sea.gfw_cn_change_pct", now, { anomalous: mora ? 15 : 40, elevated: mora ? 8 : 20 }, mora ? "휴어기라 감점" : "약 5일 지연 데이터");
-    add(p, r, "sea.ys_vessels_total", now, { any: (x) => (x.state === "anomalous" && isLow(x) ? 15 : 0) });
     add(p, r, "navwarn.korea_warnings", now, { anomalous: 15, elevated: 10 });
     add(p, r, "official.mnd_provocation_24h", now, { any: (x) => (x.value >= 1 ? 20 : 0) });
     add(p, r, "rhetoric.nk_statements_24h", now, { anomalous: 10, elevated: 5 });
@@ -148,7 +147,7 @@ export function detectPatterns(r: R, events: CrisisEvent[], now = Date.now()): P
       ["check_airspace(region=korea, list_aircraft=true) 로 실제 대수·기종 확인", "search_news('항공 결항 우회 공역') 로 기상·운항 보도 확인", "check_airspace(region=east_sea) 로 동해 항로 우회 여부 확인"]);
     add(p, r, "air.civil_airborne", now, { any: (x) => (x.state === "anomalous" && isLow(x) ? 50 : x.state === "elevated" && isLow(x) ? 25 : 0) });
     add(p, r, "media.breaking_nk_1h", now, { anomalous: 25, elevated: 15 });
-    add(p, r, "social.alarm_posts_1h", now, { anomalous: 25, elevated: 15 });
+    add(p, r, "official.civil_defense_alerts_6h", now, { anomalous: 30, elevated: 20 });
     add(p, r, "air.mil_airborne", now, { anomalous: 15, elevated: 8 });
     out.push(finalize(p));
   }
@@ -176,10 +175,10 @@ export function detectPatterns(r: R, events: CrisisEvent[], now = Date.now()): P
   // 7. 정보 템포 급증
   {
     const p = base("info_tempo", "정보 템포 급증 — 무언가 진행 중",
-      ["정치·경제 뉴스로 속보가 몰릴 수 있다", "시장 급변은 금리·달러 요인이 대부분", "SNS 는 가짜 뉴스·훈련에도 반응한다"],
+      ["정치·경제 뉴스로 속보가 몰릴 수 있다", "시장 급변은 금리·달러 요인이 대부분", "재난문자는 오발령(2023-05-31 서울)도 있었다 — 정정 문자를 확인"],
       ["search_news(query='북한', hours=2) 로 무엇이 속보인지 확인", "check_emergency_alerts 로 공식 경보 여부 확인", "get_situation 으로 이미 사건이 잡혔는지 확인"]);
     add(p, r, "media.breaking_nk_1h", now, { anomalous: 35, elevated: 15 });
-    add(p, r, "social.alarm_posts_1h", now, { anomalous: 30, elevated: 15 });
+    add(p, r, "official.civil_defense_alerts_6h", now, { anomalous: 35, elevated: 20 });
     add(p, r, "market.usdkrw_change_pct", now, { anomalous: 25, elevated: 10 });
     out.push(finalize(p));
   }

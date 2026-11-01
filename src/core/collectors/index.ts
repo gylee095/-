@@ -32,7 +32,7 @@ export interface CollectorKv {
 export type Collector = (env: Env, now: number, kv?: CollectorKv) => Promise<CollectResult>;
 
 export const COLLECTORS: Record<SourceId, Collector> = {
-  safetydata: (env, now) => collectSafetyData(env.SAFETYDATA_API_KEY, now),
+  safetydata: (env, now, kv) => collectSafetyData(env.SAFETYDATA_API_KEY, now, kv),
   usgs: (_e, now) => collectUsgs(now),
   emsc: (_e, now) => collectEmsc(now),
   nga_msi: (_e, now, kv) => collectNga(now, kv),

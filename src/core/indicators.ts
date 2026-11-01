@@ -45,17 +45,10 @@ export const INDICATORS: IndicatorDef[] = [
   },
   {
     id: "air.isr_airborne", label: "정찰·감시·급유기 수", group: "air", unit: "대", direction: "high", slots: 4, absolute: { elevated: 3, anomalous: 5 },
-    coverage: "공개 신호(ADS-B)에 보이는 기체만 센다 — 정찰기는 흔히 신호를 끄고 비행한다",
+    coverage: "공개 신호(ADS-B, adsb.lol·adsb.fi 두 수신망)에 보이는 기체만 센다 — 정찰기는 흔히 신호를 끄고 비행한다",
     why: "RC-135S 코브라볼(미사일 추적), RC-135V/W, E-8, P-8, U-2, RQ-4 의 한반도 주변 집중 비행은 미사일 발사 임박 징후로 반복 보도됐다. WC-135(방사능 탐지)는 핵실험 전후에 전개된다.",
     measure: "군용기 중 기종 코드가 정찰·조기경보·해상초계·급유기인 것의 수와 목록",
     latency: "수 초~수십 초", caveats: "기종 코드만으로 RC-135와 WC-135, KC-135를 완전히 구분하지 못한다(목록의 등록번호·콜사인 확인 필요).",
-  },
-  {
-    id: "sea.ys_vessels_total", label: "한반도 해역 선박 수 (AIS 수신분)", group: "sea", unit: "척", direction: "low", slots: 24,
-    coverage: "공개 AIS 수신소가 한국 연안 일부뿐이라 몇 척만 잡힌다",
-    why: "선박이 일제히 사라지는 해역은 사격·봉쇄·기상 악화 중 하나다. 서해 NLL 일대 어선 이탈은 충돌 전 징후로 거론된다.",
-    measure: "aisstream.io 로 한반도 전 해역(위도 33~43°, 경도 123~132°) 위치 보고를 25초간 수집해 고유 MMSI 수 계산 (키 필요)",
-    latency: "수 초~수 분", caveats: "aisstream 수신소가 한국 연안 일부뿐이라 25초에 수 척 수준(2026-10-31 실측 7척). 해역 전체가 아니라 '수신되는 일부'의 변화만 본다. 수신기 장애로도 0이 된다.",
   },
   {
     id: "sea.gfw_cn_change_pct", label: "서해 중국 선박 증감 (위성 AIS, 중국만의 변화)", group: "sea", unit: "%", direction: "low", slots: 1, absolute: { elevated: 30, anomalous: 50 },
@@ -118,6 +111,13 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "최근 7일 영사 메일 제목 — 0 발사 보고뿐/없음 · 1 한반도 정세 주의 환기 · 2 출국·대피 권고", latency: "수 분", caveats: "태풍·지진 안내도 같은 메일로 나간다(북한·정세 문구가 있을 때만 센다).",
   },
   {
+    id: "official.civil_defense_alerts_6h", label: "정부 재난문자: 민방공·북한 관련 (6h)", group: "official", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "경계·공습경보와 북한 관련 재난문자는 정부가 국민 휴대폰으로 직접 보내는 가장 빠른 공식 경보다(2023-05-31 서울 경계경보, 2024년 북한 오물풍선 문자).",
+    measure: "국민재난안전포털 재난문자(전국, 5분마다 최신 10건, 키 불필요) 중 경계·공습경보, 민방공·민방위 경보, 북한·미사일·발사체·대남 풍선 관련 문자 수 — 최근 6시간, 같은 문구는 1건, 훈련 문자 제외",
+    latency: "수 분",
+    caveats: "오발령도 있었다(2023-05-31 서울 경계경보 → 행정안전부 '오발령' 정정). 전국에 한꺼번에 수백 건이 나가면 5분 사이 최신 10건만 보이지만 같은 문구라 판단에는 지장 없다. 전쟁 판정의 정부 영역에는 넣지 않고(같은 사건을 두 번 세지 않게) 사건 경보로 바로 알린다.",
+  },
+  {
     id: "official.mnd_provocation_24h", label: "국방부 보도자료: 북한 도발 관련 (24h)", group: "official", unit: "건", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
     why: "정부 공식 발표는 가장 신뢰도 높은 확인이다. 다만 합참 기자단 문자보다 수 시간 늦다.",
     measure: "정책브리핑(korea.kr) 국방부 보도자료 제목 중 미사일·포격·경보 관련 건수", latency: "수 시간", caveats: "훈련·방산 보도자료가 대부분. 분류기로 거른다.",
@@ -157,11 +157,6 @@ export const INDICATORS: IndicatorDef[] = [
     id: "psych.naver_war_search", label: "한국 사람들의 전쟁 불안 (네이버 검색, 평소 대비)", group: "psych", unit: "%", direction: "high", slots: 1, absolute: { elevated: 200, anomalous: 400 },
     why: "2023-05-31 서울 경계경보 오발령 때 '대피소' 검색이 순식간에 몰렸다. 한국 사람들의 불안은 검색량에 가장 먼저, 가장 크게 드러난다.",
     measure: "네이버 데이터랩 '전쟁 불안·대피·생존 준비' 검색어 묶음의 어제 검색량 ÷ 직전 28일 중앙값 중 가장 큰 값", latency: "약 1일", caveats: "언론발 공포·영화·게임에도 움직인다. 정부·돈이 조용한데 이것만 오르면 '언론발 불안'으로 읽는다. 키 필요.",
-  },
-  {
-    id: "social.alarm_posts_1h", label: "SNS 경보·사이렌 언급 (1h)", group: "social", unit: "건", direction: "high", slots: 24,
-    why: "사이렌·전투기 소음·폭발음 목격담은 현장에서 올라오는 가장 빠른 군중 신호다(2023-05-31 서울 경계경보 때 수 분 내 급증).",
-    measure: "Bluesky 공개 검색에서 '공습경보·사이렌·포격·전투기' 등 키워드 게시물 수(최근 60분)", latency: "수 분", caveats: "X·네이버 카페 등 주요 한국 SNS 는 API 가 없어 표본이 작다. 가짜 뉴스·훈련 때도 오른다.",
   },
   {
     id: "market.usdkrw_change_pct", label: "원·달러 환율 변동 (전일 대비 %)", group: "market", unit: "%", direction: "high", slots: 1, absolute: { elevated: 1.5, anomalous: 3 },

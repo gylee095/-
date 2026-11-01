@@ -57,7 +57,9 @@ describe("한국 기업 제트기 출국 (대수만, 개인 식별 없음)", () 
   });
   it("1주일 이상 쌓여야 판단하고, 4대 미만 차이는 '상승'으로 보지 않는다", () => {
     const dep = (n: number) => Object.fromEntries(Array.from({ length: n }, (_, i) => [`2026-10-${String(10 + i).padStart(2, "0")}`, 2]));
-    expect(jetMetric({ dep: { ...dep(5), "2026-10-30": 9 } }, NOW)).toBeUndefined();
+    // 1주일이 안 되면 판정하지 않고 '학습 중 (n/8일)'로 낸다 (예전엔 아예 '측정 불가')
+    const early = jetMetric({ dep: { ...dep(5), "2026-10-30": 9 } }, NOW)!;
+    expect(early.meta).toMatchObject({ learning: true, learningDays: 6, need: 8, departures: 9 });
     const big = jetMetric({ dep: { ...dep(14), "2026-10-30": 9, "2026-10-31": 1 } }, NOW)!;
     expect(big).toMatchObject({ indicator: "elite.kr_bizjets", value: 450 });
     expect((big.meta as any).todaySoFar).toBe(1);
@@ -136,5 +138,14 @@ describe("백테스트 실측 사례 (2003~2026 한국은행 자료, docs/INDICA
     });
     expect(w.domains.find((d) => d.id === "elite")!.level).toBe(1);
     expect(w.phase).toBe(2);
+  });
+});
+
+describe("군용기 두 수신망 합치기", () => {
+  it("같은 기체(hex)는 한 번만 센다", async () => {
+    const { mergeAircraft } = await import("../src/core/collectors/adsb.js");
+    const a = { icao24: "ae1234", type: "RC135" } as any;
+    const b = { icao24: "ae5678", type: "KC135" } as any;
+    expect(mergeAircraft([[a], [a, b]]).map((x) => x.icao24)).toEqual(["ae1234", "ae5678"]);
   });
 });

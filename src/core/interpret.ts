@@ -112,10 +112,9 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
   const r = row.reading;
   const id = row.id;
   if (isUnavailable(row)) {
-    if (id === "sea.ys_vessels_total") return "측정 불가 — AIS 수신 실패 또는 키 없음";
     if (id === "sea.gfw_cn_change_pct") return "측정 불가 — Global Fishing Watch 토큰이 없거나 응답 실패. '서해 중국 어선이 사라졌는가'를 지금 볼 수 없음";
     if (id.startsWith("thermal.")) return "측정 불가 — 위성 열점(FIRMS) 키가 없어 발사장·시험장의 열 활동은 볼 수 없음";
-    if (id.startsWith("social.")) return "측정 불가 — SNS 공개 검색이 서버에서 차단됨. 사이렌·폭발음 목격담은 수집 안 됨";
+    if (id === "official.civil_defense_alerts_6h") return "측정 불가 — 국민재난안전포털 재난문자 목록을 읽지 못함(화면 구조 변경·접속 차단). 경계·공습경보 재난문자를 지금 못 보고 있음";
     if (id === "elite.foreign_net_kospi") return "측정 불가 — 한국은행 경제통계 키가 없거나 응답 실패. 외국인 투자자의 돈이 빠지는지 지금 볼 수 없음";
     if (id === "elite.kr_bizjets") return "기록 쌓는 중 — 한국 기업 제트기 하루 출국 대수를 1주일 이상 모아야 평소와 비교할 수 있음";
     if (id === "psych.naver_war_search") return "측정 불가 — 네이버 데이터랩 키가 없어 한국 사람들의 '전쟁·대피소' 검색 불안을 볼 수 없음";
@@ -147,9 +146,6 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
       const names = (ac ?? []).slice(0, 3).map((a) => `${a.what.split("(")[0].trim()}${a.lat !== undefined ? `(${a.lon > 128.5 ? "동해" : a.lon < 125.5 ? "서해" : "한반도"} 상공)` : ""}`).join(", ");
       return `정찰·급유기 ${v}대 관측: ${names}. ${ctx.exercise ? "연합훈련 철 정례 비행일 가능성 높음" : "RC-135S·WC-135 면 발사·핵실험 관측 임무 가능성 — 등록번호로 확인 필요"}`;
     }
-    case "sea.ys_vessels_total":
-      if (isAbnormal(row) && p !== undefined && p < 100) return `한반도 해역에서 수신된 선박 ${v}척 — 평소의 ${p}%. 수신기 장애일 가능성이 가장 크고, 그다음이 기상 악화·해역 통제`;
-      return `한반도 해역에서 수신된 선박 ${v}척${vs}${learn} → 평소 수준 (수신소가 한국 연안 일부뿐이라 참고용)`;
     case "sea.gfw_cn_change_pct": {
       const m = (r!.meta ?? {}) as any;
       const span = m.recentDates?.length ? `${String(m.recentDates[0]).slice(5)}~${String(m.recentDates[m.recentDates.length - 1]).slice(5)}` : "최근 3일";
@@ -221,8 +217,14 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
       return v === 0 ? "적대 핵심어(핵·보복·초토화 등) 담긴 보도 없음 → 위협 수위 낮음" : `적대 핵심어 담긴 보도 ${v}건${vs}${isAbnormal(row) ? " → 위협 수위 상승" : ""}`;
     case "media.breaking_nk_1h":
       return v === 0 ? "최근 1시간 북한 관련 속보 없음 → 진행 중인 사건 없음" : `최근 1시간 북한 관련 속보 ${v}건 → 무언가 진행 중. 사건 목록 확인`;
-    case "social.alarm_posts_1h":
-      return v === 0 ? "SNS 에 사이렌·경보 목격담 없음" : `SNS 사이렌·경보 언급 ${v}건(1h) — 가짜 뉴스·훈련 가능성 있음, 공식 경보와 대조`;
+    case "official.civil_defense_alerts_6h": {
+      const m = (r!.meta ?? {}) as any;
+      const fmtT = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(5, 16).replace("T", " ");
+      const fresh = typeof m.newestAt === "number" ? ` · 가장 최근 재난문자 ${fmtT(m.newestAt)} 확인` : "";
+      if (v === 0) return `최근 6시간 전국 재난문자 중 경계·공습경보·북한 관련 문자 없음${m.drills ? ` (훈련 문자 ${m.drills}건 제외)` : ""}${fresh}`;
+      const top = Array.isArray(m.latest) && m.latest[0] ? ` — ${fmtT(m.latest[0].at)} [${m.latest[0].step ?? ""}] ${m.latest[0].region ?? ""}: ${String(m.latest[0].text).slice(0, 70)}` : "";
+      return `북한·민방공 관련 재난문자 ${v}건(최근 6시간)${top} → 정부가 국민에게 직접 알린 사안. 오발령 정정 문자가 뒤따랐는지 확인`;
+    }
     case "market.usdkrw_change_pct": {
       const m = r!.meta as any;
       const signed = m?.signedPct as number | undefined;
@@ -384,7 +386,7 @@ export function interpret(input: InterpretInput): Interpretation {
   if (isAbnormal(by["air.civil_airborne"]) && (pctOfBaseline(by["air.civil_airborne"]) ?? 100) < 100) {
     const row = by["air.civil_airborne"];
     const total = (row.reading!.meta as any)?.total as number | undefined;
-    const quietNews = (val("media.breaking_nk_1h") ?? 0) === 0 && !isAbnormal(by["social.alarm_posts_1h"]);
+    const quietNews = (val("media.breaking_nk_1h") ?? 0) === 0 && !isAbnormal(by["official.civil_defense_alerts_6h"]);
     const milUp = isAbnormal(by["air.mil_airborne"]);
     const dur = anomalyDurationHours(row);
     hints.push({

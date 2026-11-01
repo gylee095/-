@@ -54,8 +54,9 @@ async function handleMcp(req: Request, env: Env, store: D1Store): Promise<Respon
 const CRON_GROUPS: Record<string, string[]> = {
   "* * * * *": ["rss_breaking"],
   "*/5 * * * *": ["safetydata", "usgs", "emsc", "adsb_lol", "rss_news"],
-  "3-59/15 * * * *": ["nga_msi", "bluesky", "markets"],
-  "11 * * * *": ["travel", "korea_kr_mnd", "ioda", "aisstream", "firms", "advisories", "polymarket", "nightlights"],
+  // bluesky·aisstream 은 뺐다(2026-11-01): 서버에서 막히거나(블루스카이 403) 한국 바다를 몇 척밖에 못 봐서 지표가 '사실상 모름'이었다
+  "3-59/15 * * * *": ["nga_msi", "markets"],
+  "11 * * * *": ["travel", "korea_kr_mnd", "ioda", "firms", "advisories", "polymarket", "nightlights"],
   "41 2 * * *": ["gpsjam", "gfw", "wiki", "naver_datalab", "ecos", "nk_market"],
 };
 

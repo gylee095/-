@@ -57,10 +57,20 @@ export async function fetchAircraft(c: Circle): Promise<{ now: number; aircraft:
   return { now: d.now ?? Date.now(), aircraft: (d.ac ?? []).map(normalize) };
 }
 
-/** 전 세계 군용 표시 항공기 중 동북아 범위 */
+/** 전 세계 군용 표시 항공기 중 동북아 범위 — adsb.lol 과 adsb.fi 는 수신자 망이 달라 합치면 더 많이 보인다(같은 기체는 한 번만) */
+export const MIL_FEEDS = ["https://api.adsb.lol/v2/mil", "https://opendata.adsb.fi/api/v2/mil"];
 export async function fetchMilitaryNeAsia(): Promise<{ now: number; aircraft: Aircraft[] }> {
-  const d = await fetchJson<any>("https://api.adsb.lol/v2/mil", {}, 20000);
-  return { now: d.now ?? Date.now(), aircraft: filterNeAsia((d.ac ?? []).map(normalize)) };
+  const res = await Promise.allSettled(MIL_FEEDS.map((u) => fetchJson<any>(u, {}, 20000)));
+  const ok = res.filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled").map((r) => r.value);
+  if (!ok.length) throw (res[0] as PromiseRejectedResult).reason;
+  return { now: ok[0].now ?? Date.now(), aircraft: mergeAircraft(ok.map((d) => filterNeAsia((d.ac ?? d.aircraft ?? []).map(normalize)))) };
+}
+
+/** 여러 수신망의 같은 기체(hex)는 하나로 */
+export function mergeAircraft(lists: Aircraft[][]): Aircraft[] {
+  const by = new Map<string, Aircraft>();
+  for (const list of lists) for (const a of list) if (a.icao24 && !by.has(a.icao24)) by.set(a.icao24, a);
+  return [...by.values()];
 }
 
 export function filterNeAsia(ac: Aircraft[]): Aircraft[] {
@@ -136,7 +146,9 @@ export function jetMetric(hist: JetHistory, now: number): Metric | undefined {
   const today = kstDate(now);
   const yesterday = kstDate(now - 86400_000);
   const past = Object.entries(hist.dep).filter(([d]) => d < yesterday).sort(([a], [b]) => a.localeCompare(b)).slice(-28);
-  if (past.length < 7 || hist.dep[yesterday] === undefined) return undefined; // 1주일은 쌓여야 평소를 안다
+  // 1주일은 쌓여야 평소를 안다 — 그 전에는 '측정 불가'가 아니라 '학습 중 (n/7일)'로 보여 준다
+  if (past.length < 7 || hist.dep[yesterday] === undefined)
+    return { indicator: "elite.kr_bizjets", value: 0, meta: { learning: true, learningDays: past.length + (hist.dep[yesterday] !== undefined ? 1 : 0), need: 8, departures: hist.dep[yesterday], todaySoFar: hist.dep[today] ?? 0, note: "평소를 알려면 8일치(어제 + 이전 7일)가 필요 — 기록 쌓는 중 (개인 식별 없음)" } };
   const sorted = past.map(([, n]) => n).sort((a, b) => a - b);
   const usual = Math.max(1, sorted[Math.floor(sorted.length / 2)]);
   const dep = hist.dep[yesterday];

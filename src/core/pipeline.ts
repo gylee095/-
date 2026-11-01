@@ -100,6 +100,9 @@ export async function processMetrics(store: Store, metrics: Metric[], now: numbe
     const key = `${def.id}|${slotKey(def, now)}`;
     const prev = baselines[key];
     const reading = evaluate(def, m.value, now, prev, m.meta);
+    // 수집기가 '아직 평소를 모른다'고 알려 온 값(예: 기업 제트기 기록 1주일 미만)은 판정하지 않고 학습 중으로 둔다
+    const learningOnly = !!(m.meta as { learning?: boolean } | undefined)?.learning;
+    if (learningOnly) reading.state = "learning";
     // 시계열 표에는 15분에 한 번만 남긴다 (상태가 바뀐 순간은 바로) — D1 무료 쓰기 한도 절약
     const last = latest[def.id];
     const write = !last?.writtenAt || now - last.writtenAt >= METRIC_WRITE_INTERVAL_MS || last.state !== reading.state;
@@ -109,7 +112,7 @@ export async function processMetrics(store: Store, metrics: Metric[], now: numbe
     latest[def.id] = reading;
     const due = !prev?.updatedAt || now - prev.updatedAt >= updateIntervalMs(def.slots);
     const contaminating = reading.state === "anomalous" && (prev?.n ?? 0) >= 10;
-    if (due && !contaminating) baselines[key] = { ...updateBaseline(prev, m.value, alphaFor(def.slots)), updatedAt: now };
+    if (due && !contaminating && !learningOnly) baselines[key] = { ...updateBaseline(prev, m.value, alphaFor(def.slots)), updatedAt: now };
   }
   await store.setKv("baselines", JSON.stringify(baselines));
   await store.setKv("readings", JSON.stringify(latest));

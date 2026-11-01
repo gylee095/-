@@ -3,7 +3,7 @@
 // 각 징후를 시간대별 평소 값과 비교해 정상/상승/이상으로 판정하고, 여러 징후의 동시 이상을 patterns.ts 에서 조합한다.
 import type { IndicatorState, Reading } from "./types.js";
 
-export type IndicatorGroup = "air" | "sea" | "seismic" | "navwarn" | "official" | "rhetoric" | "media" | "social" | "market" | "internet" | "gnss" | "thermal" | "psych" | "elite" | "border";
+export type IndicatorGroup = "air" | "sea" | "seismic" | "navwarn" | "official" | "rhetoric" | "media" | "social" | "market" | "internet" | "gnss" | "thermal" | "psych" | "elite" | "border" | "nkinside";
 
 export interface IndicatorDef {
   id: string;
@@ -168,6 +168,23 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "Yahoo Finance KRW=X 현재가의 전일 종가 대비 변동률(절대값)", latency: "수 분", caveats: "금리·달러 강세 등 경제 요인이 대부분. 다른 징후와 겹칠 때만 의미 있다.",
   },
   {
+    id: "nk.fuel_price_change_pct", label: "북한 장마당 휘발유값 (직전 8주 대비 %)", group: "nkinside", unit: "%", direction: "high", slots: 1, absolute: { elevated: 50, anomalous: 70 },
+    why: "전쟁을 준비하면 군이 연료를 비축해 장마당 연료값이 뛸 것이라는 논리다. 북한 안쪽을 공개적으로 볼 수 있는 거의 유일한 창이다. 직접적인 전쟁 전례는 없다.",
+    measure: "아시아프레스 매주 조사 휘발유 kg당 값 ÷ 직전 8주 중앙값 (2017~2026 분포: 상위 2.5% 약 +59%, 1% 약 +73% → +50% 상승, +70% 이상)", latency: "약 1주",
+    caveats: "제재(2017)·국경 봉쇄(2020)·국제 유가(2026-03 미국-이란 전쟁 +75%)·밀수 단속(2026-09)으로도 크게 뛴다. 판정에는 북한 쪽 영역에 최대 1점만 준다.",
+  },
+  {
+    id: "nk.rice_price_change_pct", label: "북한 장마당 쌀값 (직전 8주 대비 %)", group: "nkinside", unit: "%", direction: "high", slots: 1, absolute: { elevated: 30, anomalous: 45 },
+    why: "주민이 불안하면 쌀을 사재기한다. 다만 북한 쌀값은 수확철·작황·환율로 늘 크게 움직인다.",
+    measure: "아시아프레스 매주 조사 쌀 kg당 값 ÷ 직전 8주 중앙값 (2017~2026: 상위 2.5% 약 +34%, 1% 약 +47%)", latency: "약 1주",
+    caveats: "2025년 10월 +111%(최대)처럼 식량 사정만으로도 뛴다. 판정에는 연료와 합쳐 최대 1점.",
+  },
+  {
+    id: "nk.usd_rate_change_pct", label: "북한 장마당 달러값 (직전 8주 대비 %)", group: "nkinside", unit: "%", direction: "high", slots: 1, absolute: { elevated: 37, anomalous: 45 },
+    why: "북한 돈이 갑자기 약해지면 체제 불안·외화 통제 신호다. 참고용 (판정에 넣지 않음).",
+    measure: "아시아프레스 매주 조사 1달러 값(북한 원) ÷ 직전 8주 중앙값", latency: "약 1주", caveats: "2024~2026년 북한 원화가 계속 약해져 큰 폭 상승이 잦다.",
+  },
+  {
     id: "elite.foreign_net_kospi", label: "외국인 투자자 코스피 순매수 (5거래일, 평소 대비)", group: "elite", unit: "z", direction: "low", slots: 1, absolute: { elevated: 2, anomalous: 3 },
     why: "글로벌 기관 투자자는 자체 정보망을 갖고 돈을 건다는 가정으로 넣었다. 2003~2026년 자료로 검증한 결과 외국인은 북한 사건을 미리 알고 팔지 않았다(사건 34건 중 직전 5일 대량 매도 2건, 아무 날이나 고른 비율과 같음). 사건 뒤 5일 대량 매도는 평소의 약 2.5배로 잦아, 시장이 사건을 얼마나 무겁게 받아들이는지 보는 '반응' 지표로 쓴다.",
     measure: "한국은행 경제통계(802Y001)의 외국인 코스피 순매수 — 최근 5거래일 합계를 직전 120거래일의 5일 합계 분포와 비교한 z (−2 이하 상승, −3 이하 이상)", latency: "약 1일 (전 거래일까지)", caveats: "z −2 이하 매도는 해마다 2~3번, −3 이하는 1번꼴로 오고 대부분 세계 증시·반도체·미국 금리 때문이다(2007 서브프라임, 2013 긴축 발작, 2020 코로나, 2025 미국 관세). 그래서 전쟁 모델에서 혼자서는 '주의'까지만 준다. 키 필요.",
@@ -227,7 +244,7 @@ export const INDICATORS: IndicatorDef[] = [
 export const INDICATOR_BY_ID: Record<string, IndicatorDef> = Object.fromEntries(INDICATORS.map((d) => [d.id, d]));
 
 export const GROUP_LABEL: Record<IndicatorGroup, string> = {
-  air: "항공", sea: "해상", seismic: "지진", navwarn: "항행경보", official: "정부 공식", rhetoric: "북한 수사", media: "언론 템포", social: "SNS", market: "시장", internet: "인터넷", gnss: "GPS 교란", thermal: "위성 열점", psych: "사람들의 관심", elite: "엘리트·큰손", border: "접경 사건",
+  air: "항공", sea: "해상", seismic: "지진", navwarn: "항행경보", official: "정부 공식", rhetoric: "북한 수사", media: "언론 템포", social: "SNS", market: "시장", internet: "인터넷", gnss: "GPS 교란", thermal: "위성 열점", psych: "사람들의 관심", elite: "엘리트·큰손", border: "접경 사건", nkinside: "북한 장마당",
 };
 
 export interface Baseline {

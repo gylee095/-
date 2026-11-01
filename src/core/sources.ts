@@ -24,7 +24,8 @@ export type SourceId =
   | "polymarket"
   | "wiki"
   | "naver_datalab"
-  | "ecos";
+  | "ecos"
+  | "nk_market";
 
 export interface SourceMeta {
   id: SourceId;
@@ -344,6 +345,19 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     terms: "한국은행 Open API 이용약관 (출처 표시)",
     hosts: ["ecos.bok.or.kr"],
     notes: "엘리트·큰손의 돈: 글로벌 기관 자금이 평소보다 많이 빠져나가는지. 2003년부터 일별 자료가 있어 과거 위기와 비교할 수 있다.",
+  },
+  nk_market: {
+    id: "nk_market",
+    name: "아시아프레스 북한 장마당 물가 (휘발유·경유·쌀·옥수수·위안·달러)",
+    kind: "media",
+    access: "공개 웹 페이지 (키 불필요)",
+    cost: "무료",
+    refresh: "주 1회 조사, 하루 1회 확인",
+    latency: "약 1주 (북한 안 협력자 조사 → 공개)",
+    realtime: "delayed",
+    terms: "아시아프레스 (출처 표시, 값만 사용)",
+    hosts: ["www.asiapress.org"],
+    notes: "북한 안쪽을 보는 거의 유일한 공개 창. 군의 연료 비축·주민 사재기 힌트지만 제재·밀수 단속·국제 유가로도 뛴다.",
   },
 };
 

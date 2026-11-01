@@ -40,8 +40,8 @@ export const DOMAINS: { id: DomainId; label: string; indicators: string[]; why: 
     why: "실제 도발·전개·교란. 북한은 해마다 수십 번 쏘므로 도발 한 번은 '긴장'이지 '위기'가 아니다.",
   },
   {
-    id: "nkwords", label: "북한의 말",
-    indicators: ["rhetoric.nk_statements_24h", "rhetoric.nk_hostile_24h", "internet.kp_outage_alerts_24h"],
+    id: "nkwords", label: "북한의 말·내부 사정",
+    indicators: ["rhetoric.nk_statements_24h", "rhetoric.nk_hostile_24h", "internet.kp_outage_alerts_24h", "nk.fuel_price_change_pct", "nk.rice_price_change_pct"],
     why: "담화는 비용 없이 낼 수 있어 단독으로는 약한 신호다. 말이 구체적 시한·대상을 갖고 행동과 겹칠 때 무게가 실린다.",
   },
   {
@@ -200,6 +200,13 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
       }
       level = score >= 5 ? 3 : score >= 3 ? 2 : score >= 1 ? 1 : 0;
     } else if (d.id === "nkwords") {
+      // 장마당 물가(연료·쌀)는 제재·밀수 단속·국제 유가로도 크게 뛰어 합쳐 1점까지만 (2026-11-01)
+      const mk = pts(by["nk.fuel_price_change_pct"]) + pts(by["nk.rice_price_change_pct"]);
+      if (mk > 1) {
+        score -= mk - 1;
+        const i = drivers.findIndex((t) => t.startsWith("북한 장마당"));
+        if (i >= 0) drivers[i] += " — 다른 이유로도 뛰어 1점만";
+      }
       level = score >= 4 ? 3 : score >= 2 ? 2 : score >= 1 ? 1 : 0;
     } else {
       level = score >= 5 ? 3 : score >= 2 ? 2 : score >= 1 ? 1 : 0;

@@ -159,6 +159,21 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
       return v === 0 ? "발사 예고 항행경보 없음 → 위성·장거리 로켓 발사 임박 징후 없음 (북한은 위성 발사 전 일본에 구역을 통보해 왔음). 단거리 미사일은 예고 없이 쏨" : `발사 예고 항행경보 ${v}건 — 발신 당국이 북한(DPRK)인지, 기간이 언제인지가 핵심`;
     case "official.us_travel_level_kr":
       return v <= 1 ? "미 국무부 한국 여행경보 1단계(일반 주의) 유지 → 미국 정부가 자국민에게 위험을 경고하지 않는 상태" : v === 2 ? "미 여행경보 2단계로 상향 — 드문 일. 사유(치안·보건·안보) 확인 필요" : `미 여행경보 ${v}단계 — 미국 정부가 한국 방문 재고·금지를 권고. 매우 강한 신호`;
+    case "nk.fuel_price_change_pct": {
+      const m = r!.meta as any;
+      const base = `북한 장마당 휘발유 kg당 ${m?.gasWon?.toLocaleString?.() ?? "?"}원 — 직전 8주 평소 ${m?.usualWon?.toLocaleString?.() ?? "?"}원 대비 ${v >= 0 ? "+" : ""}${Math.round(v)}%${m?.dieselPct !== undefined ? ` (경유 ${m.dieselPct >= 0 ? "+" : ""}${Math.round(m.dieselPct)}%)` : ""}, ${m?.dataDate ?? ""} 조사`;
+      if (v >= 70) return `${base} → 2017년 이후 손꼽히는 급등. 군의 연료 비축일 수도 있지만 밀수 단속·국제 유가·제재로도 뛴다 — 원인 확인 필요`;
+      if (v >= 50) return `${base} → 평소보다 크게 오름. 원인(공급 단속·유가·비축) 확인 필요`;
+      return `${base} → 평소 범위`;
+    }
+    case "nk.rice_price_change_pct": {
+      const m = r!.meta as any;
+      return `북한 장마당 쌀 kg당 ${m?.riceWon?.toLocaleString?.() ?? "?"}원 — 직전 8주 평소 대비 ${v >= 0 ? "+" : ""}${Math.round(v)}%${v >= 30 ? " → 크게 오름 (사재기일 수도, 작황·수확철·환율일 수도)" : " → 평소 범위"}`;
+    }
+    case "nk.usd_rate_change_pct": {
+      const m = r!.meta as any;
+      return `북한 장마당 1달러 ${m?.usdWon?.toLocaleString?.() ?? "?"}원 — 직전 8주 대비 ${v >= 0 ? "+" : ""}${Math.round(v)}%${v >= 37 ? " → 북한 돈이 급히 약해짐" : ""} (참고용)`;
+    }
     case "official.us_departure_kr":
       return v === 0
         ? "미 국무부 한국 경보 본문에 철수·출국 문구 없음 → 미국 정부가 자국민을 빼내지 않는 상태"

@@ -292,12 +292,12 @@ function render(){
 }
 function fact(k,v){return '<div class="fact'+(v?"":" na")+'"><div class="fk">'+k+'</div><div class="fv">'+(v?esc(v):"보도 없음")+'</div></div>'}
 function sgn(x){return (x>0?"+":"")+Math.round(x)+"%"}
-function fmtVal(r){var v=r.reading.value,m=r.reading.meta||{};if(r.id==="sea.gfw_cn_change_pct")return sgn(v);if(r.id==="elite.foreign_net_kospi"&&m.net5dEok!=null)return "5일 "+(m.net5dEok>=0?"+":"−")+(Math.abs(m.net5dEok)/10000).toFixed(1)+"조";if(r.id.indexOf("psych.")===0||r.id==="market.pm_war_prob")return "평소의 "+(v>=1000?Math.round(v/100):(v/100).toFixed(1))+"배";if(r.unit==="%")return v.toFixed(2)+"%";return (Number.isInteger(v)?v:v.toFixed(1))+(r.unit||"")}
+function fmtVal(r){var v=r.reading.value,m=r.reading.meta||{};if(r.id==="sea.gfw_cn_change_pct"||r.id.indexOf("nk.")===0)return sgn(v);if(r.id==="elite.foreign_net_kospi"&&m.net5dEok!=null)return "5일 "+(m.net5dEok>=0?"+":"−")+(Math.abs(m.net5dEok)/10000).toFixed(1)+"조";if(r.id.indexOf("psych.")===0||r.id==="market.pm_war_prob")return "평소의 "+(v>=1000?Math.round(v/100):(v/100).toFixed(1))+"배";if(r.unit==="%")return v.toFixed(2)+"%";return (Number.isInteger(v)?v:v.toFixed(1))+(r.unit||"")}
 function spark(hist){if(!hist||hist.length<2)return "";var vs=hist.map(function(p){return p.avg});var mn=Math.min.apply(null,vs),mx=Math.max.apply(null,vs);var W=100,H=26;
   var pts=hist.map(function(p,i){var x=i/(hist.length-1)*W;var y=mx===mn?H/2:H-2-((p.avg-mn)/(mx-mn))*(H-4);return x.toFixed(1)+","+y.toFixed(1)}).join(" ");
   return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><polyline fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.5" points="'+pts+'"/></svg>'}
 function board(rows){var groups={};rows.forEach(function(r){(groups[r.groupLabel]=groups[r.groupLabel]||[]).push(r)});
-  var order=["정부 공식","엘리트·큰손","접경 사건","시장","사람들의 관심","항공","항행경보","북한 수사","언론 템포","해상","지진","GPS 교란","위성 열점","SNS","인터넷"];
+  var order=["정부 공식","엘리트·큰손","접경 사건","시장","사람들의 관심","항공","항행경보","북한 수사","북한 장마당","언론 템포","해상","지진","GPS 교란","위성 열점","SNS","인터넷"];
   var abn=rows.filter(function(r){return r.reading&&(r.reading.state==="anomalous"||r.reading.state==="elevated")&&r.stateLabel!=="측정 불가"});
   var h="";
   if(abn.length)h+='<div class="grp" style="color:var(--l3)">⚠ 평소와 다른 징후 '+abn.length+'개</div><div class="board">'+abn.map(ind).join("")+'</div>';

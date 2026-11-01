@@ -56,7 +56,7 @@ const CRON_GROUPS: Record<string, string[]> = {
   "*/5 * * * *": ["safetydata", "usgs", "emsc", "adsb_lol", "rss_news"],
   "3-59/15 * * * *": ["nga_msi", "bluesky", "markets"],
   "11 * * * *": ["travel", "korea_kr_mnd", "ioda", "aisstream", "firms", "advisories", "polymarket"],
-  "41 2 * * *": ["gpsjam", "gfw", "wiki", "naver_datalab", "ecos"],
+  "41 2 * * *": ["gpsjam", "gfw", "wiki", "naver_datalab", "ecos", "nk_market"],
 };
 
 /** D1 무료 한도 초과 오류인가 (UTC 자정 = 한국 시간 오전 9시에 풀린다) */

@@ -38,7 +38,7 @@
 | 네이버 검색어 트렌드 (NAVER API HUB) | ✅ 10/30 '생존 준비' 평소의 89배, '전쟁' 25배 (10/26부터 급증) | 2026년 키 발급이 NAVER API HUB 로 옮겨 감 — 예전 openapi.naver.com 주소는 새 키로 401. naverapihub.apigw.ntruss.com/search-trend/v1/search + X-NCP-APIGW-API-KEY-ID/KEY 헤더 |
 | 한국은행 경제통계 ECOS (802Y001 주식시장(일)) | ✅ 견본 키로 형식 확인 — 외국인 코스피 순매수 10/29 +6,600억, 10/30 −1조6,256억 | 2003년부터 일별. 실사용은 무료 인증키 필요. CDS·외평채 가산금리 표는 ECOS 에 없음 |
 | NASA GIBS 밤 불빛 (VIIRS 야간 밴드 일일 영상, 2026-11-01) | ✅ 키 없이 정상 — 평양 32×32 칸 영상 약 1.7KB, 512×512 타일과 같은 값. 최신은 이틀 전 밤(10/30), 공개 전인 날은 투명 영상 | WMS 작은 영상으로 받아 Worker CPU 절약. 매시간 빈 날짜를 위성 두 대 × 최대 2일씩 채움 |
-| Metaculus API | ❌ 403 | 제외 |
+| Metaculus API | ❌ 계정 API 토큰 필수(없으면 403 "only available to authenticated users") | 제외 (2026-11-01 결정) — 한반도 질문이 '2050년까지 남북 전쟁'·'2045년 통일' 같은 장기 질문뿐이라 30일 판정의 비교 기준으로 약함. 단기 군중 확률은 Polymarket '2027년 전 북한의 한국 침공'으로 본다 |
 | ntfy.sh (Worker 발신) | ❌ 10회 중 10회 429, 이후 522 | Cloudflare 공유 IP 제한. **Bark 로 대체(테스트 성공)** |
 | Bark (api.day.app) | ✅ 테스트 푸시 성공 | iOS 앱, 계정 불필요, 긴급 알림 지원 |
 

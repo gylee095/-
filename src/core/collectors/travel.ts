@@ -12,6 +12,25 @@ export interface UsAdvisory {
   title: string;
   pubDate?: number;
   url: string;
+  /** 본문의 철수·출국 문구: 0 없음 · 1 자발적 출국 허용 · 2 철수 명령 · 3 즉시 출국 권고 */
+  departure: 0 | 1 | 2 | 3;
+  departureText?: string;
+}
+
+// 국무부 경보 본문 문구 (2022-01-23 우크라이나: "authorized the voluntary departure of U.S. direct hire employees and ordered the departure of
+// eligible family members from Embassy Kyiv" → 한 달 뒤 침공). 단계 숫자와 별개로 본다 — 2023년 10월 이스라엘처럼 단계는 그대로인데 출국만 허용한 경우 대비.
+// 2022-01-23 우크라이나 "should consider departing now", 2022-02-11 "should depart now" — 둘 다 '지금 떠나라'
+const DEPART_NOW_RE = /(should|must) (consider )?(depart(ing)?|leav(e|ing))[^.]{0,60}(immediately|now|as soon as possible)|(depart|leave) (immediately|now)|depart [^.]{0,40}while commercial (options|flights)/i;
+const DEPART_ORDERED_RE = /ordered (the )?(departure|evacuation)|ordered departure/i;
+const DEPART_AUTH_RE = /authorized (the )?(voluntary )?departure|voluntary departure|authorized departure/i;
+
+export function departureOf(text: string): { departure: UsAdvisory["departure"]; departureText?: string } {
+  const plain = text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  for (const [re, d] of [[DEPART_NOW_RE, 3], [DEPART_ORDERED_RE, 2], [DEPART_AUTH_RE, 1]] as const) {
+    const m = re.exec(plain);
+    if (m) return { departure: d, departureText: plain.slice(Math.max(0, m.index - 80), m.index + m[0].length + 80).trim() };
+  }
+  return { departure: 0 };
 }
 
 /** South Korea 항목만 찾는다 (RSS 전체는 500KB 가 넘으므로 Country-Tag 로 먼저 위치를 잡는다) */
@@ -26,7 +45,8 @@ export function parseUsAdvisory(xml: string): UsAdvisory | undefined {
   const level = Number(/Level\s*(\d)/.exec(/domain="Threat-Level">([^<]*)</.exec(item)?.[1] ?? title)?.[1] ?? NaN);
   const pd = /<pubDate>([\s\S]*?)<\/pubDate>/.exec(item)?.[1]?.trim();
   const url = /<link>([\s\S]*?)<\/link>/.exec(item)?.[1]?.trim() ?? "https://travel.state.gov";
-  return { level: Number.isFinite(level) ? level : 0, title, pubDate: pd ? Date.parse(pd) : undefined, url };
+  const desc = (/<description>([\s\S]*?)<\/description>/.exec(item)?.[1] ?? "").replace(/<!\[CDATA\[|\]\]>/g, "");
+  return { level: Number.isFinite(level) ? level : 0, title, pubDate: pd ? Date.parse(pd) : undefined, url, ...departureOf(desc) };
 }
 
 export const UK_SECURITY_RE = /North Korea|DPRK|military|tension|missile|security situation|leave the country|evacuat|conflict|hostilit|advise against/i;
@@ -62,6 +82,22 @@ export function travelSignals(us: UsAdvisory | undefined, prevUsLevel: number | 
       severity,
     });
   }
+  if (us && us.departure > 0) {
+    const what = us.departure === 3 ? "미국 시민 즉시 출국 권고" : us.departure === 2 ? "주한 대사관 직원·가족 철수 명령" : "주한 대사관 직원·가족 자발적 출국 허용";
+    out.push({
+      id: `travel_us_departure:${us.departure}:${us.pubDate ?? Math.floor(now / 86400_000)}`,
+      source: "travel",
+      sourceKind: "official",
+      category: "evacuation",
+      title: `미 국무부: ${what} (한국 여행경보 ${us.level}단계)`,
+      summary: (us.departureText ?? "").slice(0, 300),
+      url: us.url,
+      eventTime: us.pubDate,
+      publishedTime: us.pubDate,
+      detectedTime: now,
+      severity: 95,
+    });
+  }
   if (uk.securityFlag && uk.updated && now - uk.updated < 3 * 86400_000) {
     out.push({
       id: `travel_uk:${uk.updated}`,
@@ -87,6 +123,7 @@ export async function collectTravel(prevUsLevel: number | undefined, now = Date.
   const errors = [usR, ukR].flatMap((r, i) => (r.status === "rejected" ? [`${i === 0 ? "US" : "UK"}: ${String(r.reason).slice(0, 80)}`] : []));
   const metrics: Metric[] = [];
   if (us) metrics.push({ indicator: "official.us_travel_level_kr", value: us.level, meta: { title: us.title, pubDate: us.pubDate } });
+  if (us) metrics.push({ indicator: "official.us_departure_kr", value: us.departure, meta: { text: us.departureText, level: us.level, pubDate: us.pubDate } });
   if (ukR.status === "fulfilled") metrics.push({ indicator: "official.uk_advice_security_flag", value: uk.securityFlag ? 1 : 0, meta: { updated: uk.updated, summary: uk.summary.slice(0, 200) } });
   return {
     source: "travel",

@@ -20,6 +20,7 @@ export const BASE_SEVERITY: Record<Category, number> = {
   gps_interference: 40,
   aviation_emergency: 35,
   civil_alert_other: 30,
+  evacuation: 90,
 };
 
 interface Rule {
@@ -48,7 +49,34 @@ const REGION_RE =
 const DRILL_RE = /훈련\s*(상황|입니다|임|중)|민방위\s*훈련|을지|모의|시험\s*발송|\bEXERCISE\b(?!.*LIVE FIRING)|\bDRILL\b|\bTEST MESSAGE\b/i;
 const RETRACTION_RE = /오발령|잘못\s*발송|해제|정정|취소|CANCEL|CORRECTION|DISREGARD/i;
 
+// ── 한국을 떠나는 움직임 (2026-11-01 추가) ──
+// 미국·일본 등이 자국민·대사관 가족·미군 가족을 한국 밖으로 빼내면, 비공개 정보로 위험을 인정한 가장 무거운 신호다(2022-01-23 주우크라이나
+// 미 대사관 가족 철수 명령 → 한 달 뒤 침공). 다만 주한미군은 해마다 봄·가을 가족 후송 훈련을 하고(2016년 가을엔 실제로 C-130 으로 주일미군
+// 기지까지 이송), 2017-09-21 엔 가짜 '실제 대피' 문자가 돌았다. 그래서 훈련·가짜·'유사시 계획'은 기록만 하고 알리지 않는다.
+// '주한미군 철수(감축)' 논쟁, 외국인 투자자 이탈, 다른 나라에서의 교민 철수는 여기에 해당하지 않는다.
+const EVAC_WHO_RE = /가족|민간인|비전투원|자국민|미국인|일본인|중국인|미\s*시민|미국\s*시민|대사관\s*(직원|인력)|외교관|\bNEO\b|dependents|families|citizens|nationals|non-?combatant|embassy (staff|personnel)|diplomats/i;
+const EVAC_ACT_RE = /대피|후송|피신|소개\s*(작전|명령)|출국\s*(권고|명령|권유|준비|시작)|철수\s*(명령|시작|개시|권고|착수|작전)|떠나(라|도록|야)|evacuat|ordered departure|authorized departure|voluntary departure|order(s|ed)? (the )?departure|departure of|(leave|depart|flee) (south )?korea|\bNEO\b/i;
+const EVAC_FROM_KR_RE = /주한|한국\s*(에서|내|체류|거주|을|를|떠)|in (south )?korea|from (south )?korea|(leave|depart|flee) (south )?korea|서울|한반도|seoul|korean peninsula/i;
+const EVAC_ELSEWHERE_RE = /이스라엘|레바논|우크라|러시아|수단|아프간|가자|이란|시리아|미얀마|아이티|니제르|리비아|예멘|홍콩|israel|lebanon|ukraine|sudan|gaza|iran|syria/i;
+const EVAC_NOT_RE = /투자자|증시|주식|자금|코스피|매도|펀드|관광객|investor|stocks?|funds?/i;
+const EVAC_DRILL_RE = /훈련|연습|모의|exercise|drill|courageous channel|커레이저스|커리져스/i;
+const EVAC_HOAX_RE = /가짜|허위|사실무근|오보|해프닝|fake|hoax|false/i;
+const EVAC_PLAN_RE = /유사시|계획|검토|대비|시나리오|방안|점검|논의|매뉴얼|가능성|contingency|\bplans?\b/i;
+const EVAC_GO_RE = /명령|개시|시작|착수|권고|권유|촉구|떠나라|즉시|실시|orders?|ordered|authoriz|begins?|began|underway|urged|told to leave|leave now|depart immediately/i;
+
+export function classifyEvacuation(text: string): Classification | null {
+  if (!EVAC_WHO_RE.test(text) || !EVAC_ACT_RE.test(text) || !EVAC_FROM_KR_RE.test(text) || EVAC_NOT_RE.test(text)) return null;
+  if (EVAC_ELSEWHERE_RE.test(text) && !/주한|한국에서|한국\s*내|in (south )?korea/i.test(text)) return null;
+  const matched = EVAC_ACT_RE.exec(text)![0];
+  if (EVAC_HOAX_RE.test(text)) return { category: "evacuation", severity: 30, drill: false, retraction: true, matched };
+  if (EVAC_DRILL_RE.test(text)) return { category: "evacuation", severity: 18, drill: true, retraction: false, matched };
+  if (EVAC_PLAN_RE.test(text) && !EVAC_GO_RE.test(text.replace(EVAC_PLAN_RE, ""))) return { category: "evacuation", severity: 40, drill: false, retraction: false, matched };
+  return { category: "evacuation", severity: BASE_SEVERITY.evacuation, drill: false, retraction: false, matched };
+}
+
 export function classifyText(text: string, opts: { requireRegion?: boolean } = {}): Classification | null {
+  const evac = classifyEvacuation(text);
+  if (evac) return evac;
   if (opts.requireRegion && !REGION_RE.test(text)) return null;
   for (const r of RULES) {
     const m = r.re.exec(text);

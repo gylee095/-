@@ -1,0 +1,34 @@
+<?xml version="1.0"?><!-- 합성 시험 자료: 2022-01-23 주우크라이나 미 대사관 경보 문구를 한국에 옮겨 놓은 가상 사례 (실제 경보 아님) -->
+<rss><channel><item>
+      <title>South Korea - Level 4: Do Not Travel</title>
+      <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.kor.html</link>
+      <pubDate>Mon, 02 Nov 2026</pubDate>
+      <description><![CDATA[Do not travel to the <b>Republic of Korea</b> due to the increased threat of military action by North Korea.<p>On November 2, 2026, the Department of State authorized the voluntary departure of U.S. direct hire employees and ordered the departure of eligible family members from Embassy Seoul.</p><p>U.S. citizens in South Korea should consider departing now using commercial or other privately available transportation options.</p>]]></description>
+      <category domain="Threat-Level">Level 4: Do Not Travel</category>
+      <category domain="Country-Tag">KS</category>
+      <category domain="Keyword">advisory</category>
+      <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.kor.html</guid>
+      <dc:identifier>KS,advisory</dc:identifier>
+    </item><item>
+      <title>North Korea - Level 4: Do Not Travel</title>
+      <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.prk.html</link>
+      <pubDate>Tue, 29 Apr 2025</pubDate>
+      <description><![CDATA[Do not travel<p>to<b> North Korea</b> due to <b>wrongful</b> <b>detention</b> and <b>other</b> <b>risks</b>.</p>
+<p><span class='body-regular'>Do not travel to North Korea due to the continuing serious risk of arrest, long-term detention, and the threat of wrongful detention of U.S. citizens.</span></p>
+<p><span class='body-regular'><b>Do not travel to the Democratic People’s Republic of Korea for any reason.</b></span></p>
+<ul>
+<li><span class='body-regular'>U.S. passports cannot be used to travel to, in, or through the Democratic People's Republic of Korea (DPRK or North Korea) unless they are specially validated for such travel by the Secretary of State.</span></li>
+<li><span class='body-regular'>Special validations are granted only in very limited circumstances. Review the information on <a href='https://travel.state.gov/content/travel/en/passports/requirements/passport-for-travel-to-north-korea.html' target='_blank'>how to apply for the special validation</a>.</span></li>
+</ul>
+<p><b data-rte-class='rte-temp'><b data-rte-class='rte-temp'><span class='body-regular'>Because the U.S. government does not have diplomatic relations with North Korea, it cannot provide direct help to U.S. citizens in North Korea in emergencies.</span></b></b></p>
+<ul>
+<li><span class='body-regular'>Sweden serves as the U.S. protecting power in North Korea through its Embassy in Pyongyang and provides limited consular services to U.S. citizens. Additionally, the North Korean government has often delayed or denied Swedish officials access to U.S. citizens who are detained. </span></li>
+<li><span class='body-regular'>The Federal Aviation Administration (FAA) has issued a Notice to Airmen (NOTAM) or a Special Federal Aviation Regulation (SFAR). This is due to the risks to civil aviation operating within or in the vicinity of North Korea. </span></li>
+<li><span class='body-regular'>For more information U.S. citizens should consult the <a href='https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/north-korea-travel-advisory.html#ExternalPopup' target='_blank'><span class='links_external'>Federal Aviation Administration’s Prohibitions, Restrictions and Notices</span></a>.</span></li>
+</ul>]]></description>
+      <category domain="Threat-Level">Level 4: Do Not Travel</category>
+      <category domain="Country-Tag">KN</category>
+      <category domain="Keyword">advisory</category>
+      <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.prk.html</guid>
+      <dc:identifier>KN,advisory</dc:identifier>
+    </item></channel></rss>

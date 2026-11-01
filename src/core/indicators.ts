@@ -86,6 +86,12 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "travel.state.gov RSS 의 South Korea 항목 Threat-Level (1~4)", latency: "발표 즉시~1시간", caveats: "평시 1단계. 변화 자체가 신호이므로 단계가 바뀌면 즉시 알린다.",
   },
   {
+    id: "official.us_departure_kr", label: "미 국무부 주한 대사관 철수·출국 권고", group: "official", unit: "", direction: "high", slots: 1, absolute: { elevated: 0.5, anomalous: 1 },
+    why: "정부가 자기 직원·가족과 자국민을 빼내는 것은 비공개 정보로 위험을 인정한 가장 무거운 행동이다. 2022년 1월 23일 미 국무부가 주우크라이나 대사관 가족 철수를 명령했고 한 달 뒤 침공이 시작됐다.",
+    measure: "미 국무부 한국 여행경보 본문의 '자발적 출국 허용(authorized/voluntary departure)'·'철수 명령(ordered departure)'·'즉시 출국(depart immediately)' 문구 — 0 없음, 1 출국 허용, 2 철수 명령, 3 즉시 출국. 하나라도 있으면 '이상'(정부 영역 심각)",
+    latency: "~1시간", caveats: "단계 숫자와 별개로 본문을 읽는다(2023년 10월 이스라엘처럼 단계는 그대로인데 출국만 허용한 경우 대비). 주한미군 가족 후송 '훈련'(해마다 봄·가을)은 여기에 나오지 않는다.",
+  },
+  {
     id: "official.uk_advice_security_flag", label: "영국 외무부 한국 여행권고 안보 경고", group: "official", unit: "", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 1 },
     why: "영국 FCDO 는 안보 상황 변화 시 'Warnings' 섹션을 갱신한다. 미국과 독립된 두 번째 서방 정부 판단이다.",
     measure: "gov.uk South Korea 여행권고 Atom 의 최신 갱신 요약에 북한·군사·긴장·출국 관련 문구 포함 여부", latency: "발표 즉시~1시간", caveats: "입국 절차 등 일상 갱신이 대부분이다.",

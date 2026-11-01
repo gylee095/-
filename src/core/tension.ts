@@ -108,7 +108,7 @@ export function liveInputs(board: BoardRow[], briefs: EventBrief[], now: number)
   const eq = fresh(by["market.kr_equity_rel_pct"], now, 100);
   const def = fresh(by["market.defense_rel_pct"], now, 100);
   const fz = fresh(by["elite.foreign_net_kospi"], now, 100);
-  const week = briefs.filter((b) => now - b.at < 7 * 86400_000 && now - b.at >= -3600_000 && b.danger.level >= 2 && (b.isProvocation || b.danger.level >= 3));
+  const week = briefs.filter((b) => !b.evacuation && now - b.at < 7 * 86400_000 && now - b.at >= -3600_000 && b.danger.level >= 2 && (b.isProvocation || b.danger.level >= 3));
   const kday = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
   return {
     nk: groupRatio(naver, "북한 도발"),

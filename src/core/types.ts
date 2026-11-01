@@ -13,7 +13,8 @@ export type Category =
   | "gps_interference" // GPS/GNSS 전파 교란
   | "airspace_anomaly" // 항공 교통량 급감 등 공역 이상
   | "aviation_emergency" // 비상 스쿼크(7500/7600/7700)
-  | "civil_alert_other"; // 기타 군사 관련 정부 안내
+  | "civil_alert_other" // 기타 군사 관련 정부 안내
+  | "evacuation"; // 자국민·미군 가족이 한국을 떠나는 움직임 (철수 명령·출국 권고·후송) — 훈련·가짜는 따로 표시
 
 export interface Signal {
   /** 출처 고유 ID 기반 지문(중복 제거 키) */

@@ -21,7 +21,7 @@ export const PHASE_LABEL: Record<Phase, string> = { 1: "평온", 2: "긴장", 3:
 export const DOMAINS: { id: DomainId; label: string; indicators: string[]; why: string }[] = [
   {
     id: "gov", label: "정부의 행동",
-    indicators: ["official.us_travel_level_kr", "official.uk_advice_security_flag", "official.ca_level_kr", "official.de_warning_kr", "official.jp_risk_level_kr", "official.jp_embassy_alert"],
+    indicators: ["official.us_travel_level_kr", "official.us_departure_kr", "official.uk_advice_security_flag", "official.ca_level_kr", "official.de_warning_kr", "official.jp_risk_level_kr", "official.jp_embassy_alert"],
     why: "정부는 비공개 정보를 갖고 있다. 자국민 경보·철수는 전쟁 위험을 행동으로 인정한 것이라 가장 무겁게 본다.",
   },
   {
@@ -134,9 +134,11 @@ export interface WarRiskInput {
 export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): WarRisk {
   const by = Object.fromEntries(board.map((b) => [b.id, b])) as Record<string, BoardRow>;
   const recent = (ms: number) => briefs.filter((b) => now - b.at < ms && now - b.at >= -H);
-  const prov7 = recent(7 * DAY).filter((b) => b.isProvocation || b.danger.level >= 3);
+  // 한국을 떠나는 움직임(철수·출국 권고)은 북한의 도발이 아니라 '정부의 행동'으로 센다
+  const prov7 = recent(7 * DAY).filter((b) => !b.evacuation && (b.isProvocation || b.danger.level >= 3));
   const maxDanger7 = prov7.reduce((m, b) => Math.max(m, b.danger.level), 0);
-  const serious14 = recent(14 * DAY).filter((b) => b.danger.level >= 5);
+  const serious14 = recent(14 * DAY).filter((b) => !b.evacuation && b.danger.level >= 5);
+  const evac7 = recent(7 * DAY).filter((b) => b.evacuation);
   const CLASH_RE = /교전|사상자|전사|사망|부상|대응\s?사격|맞대응|exchange of fire|casualt|killed/i;
   const clashNow = recent(2 * DAY).filter((b) => b.danger.level >= 5 && CLASH_RE.test(`${b.headline} ${b.latest?.title ?? ""}`));
 
@@ -150,6 +152,13 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
       // 영국 문구 플래그는 거칠어서 '주의' 근거로만 쓴다. 나머지 정부 지표의 '이상'(철수·여행 자제급)은 곧바로 심각.
       const severe = hot.some((r) => r.id !== "official.uk_advice_security_flag" && pts(r) === 2);
       level = severe ? 3 : hot.length >= 2 ? 2 : hot.length === 1 ? 1 : 0;
+      // 철수·출국 권고 보도: 정부 발표 원문·교차확인이면 심각, 공식 인용 한 곳이면 경계, 공식 인용 없으면 주의 (단일 보도로 임박까지 올리지 않는다)
+      if (evac7.length) {
+        const best = evac7.some((b) => b.evacuation === "confirmed") ? 3 : evac7.some((b) => b.evacuation === "official") ? 2 : 1;
+        level = Math.max(level, best) as Level;
+        const top = [...evac7].sort((a, b) => b.at - a.at)[0];
+        drivers.unshift(`한국을 떠나라는 움직임: ${top.headline} (${top.evacuation === "confirmed" ? "확인" : top.evacuation === "official" ? "공식 인용 보도, 교차확인 전" : "보도만, 확인 중"})`);
+      }
     } else if (d.id === "military") {
       // 실제 도발은 지표보다 확실한 근거 — 위험도에 따라 가산
       const bonus = maxDanger7 >= 5 ? 4 : maxDanger7 === 4 ? 3 : maxDanger7 === 3 ? 2 : maxDanger7 >= 2 ? 1 : 0;

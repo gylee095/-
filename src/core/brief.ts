@@ -24,6 +24,9 @@ export interface EventBrief {
   /** 사건 기준 시각 (발생 > 공개 > 감지) */
   at: number;
   latest?: { title: string; at: number; url?: string; source: string };
+  /** 자국민·대사관 가족·미군 가족이 한국을 떠나는 움직임 (훈련·가짜·계획 제외).
+   *  confirmed = 정부 발표 원문 또는 두 곳 이상 교차확인, official = 공식 인용 보도 한 곳, media = 공식 인용 없는 보도 */
+  evacuation?: "confirmed" | "official" | "media";
 }
 
 const DANGER_LABEL = ["", "관심", "주의", "경계", "심각", "위급"] as const;
@@ -135,8 +138,9 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
 
   const cats = new Set(e.categories);
   const strikeLike = cats.has("missile") || cats.has("artillery") || cats.has("air_raid_alert");
+  const evacOnly = cats.has("evacuation") && cats.size === 1;
   const isProvocation =
-    !e.drill && !e.retracted &&
+    !evacOnly && !e.drill && !e.retracted &&
     (e.basis !== "media" || texts.some((t) => PROVOCATION_RE.test(t) && !COMMENTARY_RE.test(t))) &&
     (e.basis === "primary" || texts.some((t) => PROVOCATION_RE.test(t)));
 
@@ -158,7 +162,14 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   // 위험도 판정
   let level: 1 | 2 | 3 | 4 | 5 = 1;
   let reason = "관련 보도·분석";
-  if (e.drill) reason = "훈련 상황";
+  // 한국을 떠나는 움직임: 훈련·가짜·'유사시 계획'(심각도 85 미만)은 관심 수준으로만
+  const evacLive = evacOnly && !e.drill && !e.retracted && e.severity >= 85;
+  const evacuation: EventBrief["evacuation"] = evacLive ? (e.status !== "UNVERIFIED" ? "confirmed" : e.basis === "media" ? "media" : "official") : undefined;
+  if (evacOnly && e.drill) reason = "대피·후송 훈련";
+  else if (evacOnly && e.retracted) reason = "가짜·허위로 확인된 대피 안내";
+  else if (evacuation) [level, reason] = evacuation === "confirmed" ? [5, "외국 정부·주한미군의 철수·출국 권고 (확인)"] : [4, `한국을 떠나라는 보도${evacuation === "media" ? " (공식 인용 없음, 확인 중)" : " (공식 인용, 교차확인 전)"}`];
+  else if (evacOnly) reason = "대피 계획·검토 보도";
+  else if (e.drill) reason = "훈련 상황";
   else if (e.retracted) reason = "오발령·해제됨";
   else if (cats.has("air_raid_alert") && e.status === "CONFIRMED") [level, reason] = [5, "정부 민방위 경보 발령"];
   else if (cats.has("nuclear_test") && e.status !== "UNVERIFIED") [level, reason] = [5, "핵실험 의심 지진 교차확인"];
@@ -191,12 +202,13 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
     danger: { level, label: DANGER_LABEL[level], reason },
     at,
     latest,
+    ...(evacuation ? { evacuation } : {}),
   };
 }
 
 /** 화면 맨 위 '지금 상황' — 가장 최근 도발의 경과 시간에 따라 위험도를 낮춘다 */
 export function currentThreat(briefs: EventBrief[], now = Date.now()) {
-  const provocations = briefs.filter((b) => b.isProvocation || b.danger.level >= 3).sort((a, b) => b.at - a.at);
+  const provocations = briefs.filter((b) => !b.evacuation && (b.isProvocation || b.danger.level >= 3)).sort((a, b) => b.at - a.at);
   const last = provocations[0];
   const active = briefs.filter((b) => now - b.at < 24 * 3600_000);
   const top = active.reduce<EventBrief | undefined>((m, b) => (!m || b.danger.level > m.danger.level ? b : m), undefined);

@@ -143,11 +143,16 @@ function outletOf(url: string, fallback: string): string {
   }
 }
 
+// 철수·후송 보도에서 공식 발표로 보는 출처 (미·일 정부, 주한미군, 대사관, 외교부)
+const EVAC_OFFICIAL_RE = /국무부|대사관|주한미군|외무성|외교부|백악관|USFK|State Department|Embassy|White House|Pentagon/i;
+
 function mediaSignal(source: string, url: string, title: string, published: number | undefined, now: number, domain?: string): Signal[] {
-  if (!title || !isKoreaRelevant(title)) return [];
+  if (!title) return [];
   const cls = classifyText(title);
   if (!cls || cls.category === "civil_alert_other") return [];
-  const citesOfficial = OFFICIAL_QUOTE_RE.test(title);
+  // 철수·후송은 분류기가 '한국에서 떠나는' 맥락을 이미 확인했다 (제목에 '북한'이 없어도 된다)
+  if (cls.category !== "evacuation" && !isKoreaRelevant(title)) return [];
+  const citesOfficial = OFFICIAL_QUOTE_RE.test(title) || (cls.category === "evacuation" && EVAC_OFFICIAL_RE.test(title));
   const breaking = /\[속보\]|\[1보\]|BREAKING|FLASH/i.test(title);
   const outlet = domain ?? outletOf(url, source);
   return [
@@ -163,7 +168,8 @@ function mediaSignal(source: string, url: string, title: string, published: numb
       publishedTime: published,
       detectedTime: now,
       // 공식발표 인용 보도만 사건 심각도에 반영한다 (그 외 언론은 교차검증·리드타임 측정용)
-      severity: citesOfficial ? cls.severity : Math.min(cls.severity, 20),
+      // 철수·후송 보도는 공식 인용이 없어도 알린다('미확인' 표기) — 놓치는 쪽이 더 비싸다. 단 전쟁 판정은 '주의'까지만 올린다(warrisk)
+      severity: citesOfficial ? cls.severity : cls.category === "evacuation" ? Math.min(cls.severity, 85) : Math.min(cls.severity, 20),
       citesOfficial,
       breaking,
       drill: cls.drill,

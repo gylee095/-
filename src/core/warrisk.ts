@@ -311,7 +311,17 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
     if (L.military >= 1) parts.push("군사 움직임(도발)이 있었다");
     // 북한 쪽 영역은 '말'(담화)과 '내부 사정'(장마당 물가·밤 불빛·인터넷)이 섞여 있어 무엇이 움직였는지 나눠 쓴다
     const nkTalk = pts(by["rhetoric.nk_statements_24h"]) + pts(by["rhetoric.nk_hostile_24h"]) > 0;
-    if (L.nkwords >= 1) parts.push(nkTalk ? "북한의 말이 거칠어졌다" : "북한 내부 사정(장마당 물가·밤 불빛·인터넷)이 평소와 다르다");
+    const signed = (r: BoardRow) => `${val(r)! >= 0 ? "+" : ""}${Math.round(val(r)!)}%`;
+    const inside = [
+      ["nk.fuel_price_change_pct", "장마당 휘발유"],
+      ["nk.rice_price_change_pct", "장마당 쌀"],
+      ["nk.pyongyang_lights_pct", "평양 밤 불빛"],
+    ]
+      .filter(([id]) => pts(by[id]) > 0)
+      .map(([id, name]) => `${name} ${signed(by[id])}`)
+      .concat(pts(by["internet.kp_outage_alerts_24h"]) > 0 ? ["북한 인터넷 장애"] : [])
+      .join(", ");
+    if (L.nkwords >= 1) parts.push(nkTalk ? "북한의 말이 거칠어졌다" : `북한 내부 사정이 평소와 다르다${inside ? `(${inside})` : ""}`);
     const calm = L.money === 0 || equityOnly ? "하지만 정부와 돈은 평소대로다" : "하지만 비공개 정보를 가진 정부들은 평소대로다";
     let close: string;
     const jets = pts(by["elite.kr_bizjets"]) > 0;

@@ -223,7 +223,7 @@ describe("전쟁 판정: 평양 불빛은 북한 쪽 영역에 최대 1점", () 
     expect(nk.level).toBe(1);
     expect(nk.drivers.join(" ")).toMatch(/평양 밤 불빛.*1점만/);
     expect(w.phase).toBeLessThanOrEqual(2);
-    expect(w.firstMover?.text ?? "").toMatch(/북한 내부 사정/);
+    expect(w.firstMover?.text ?? "").toMatch(/북한 내부 사정이 평소와 다르다\(평양 밤 불빛 -45%\)/);
     expect(w.firstMover?.text ?? "").not.toMatch(/북한의 말이 거칠어졌다/);
   });
   it("평소 범위(−10%)면 0점", () => {

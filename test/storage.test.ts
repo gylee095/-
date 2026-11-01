@@ -100,7 +100,7 @@ describe("사건은 근거 신호 사본을 갖고, 바뀐 사건만 다시 쓴�
   });
 });
 
-describe("지표 기록: 스파크라인은 KV 집계, 1분 지표는 5분에 한 번", () => {
+describe("지표 기록: 스파크라인은 KV 집계, 시계열 표는 15분에 한 번", () => {
   const m = (v: number) => [{ indicator: "media.breaking_nk_1h", value: v }];
   it("시간별 평균을 KV 한 줄에 쌓고, 26시간 지난 것은 버린다", () => {
     const agg = addHourly({}, [{ indicator: "x", value: 2, at: T, n: 1, state: "normal" }, { indicator: "x", value: 4, at: T + MIN, n: 1, state: "normal" }], T);
@@ -108,7 +108,7 @@ describe("지표 기록: 스파크라인은 KV 집계, 1분 지표는 5분에 �
     const later = addHourly(agg, [{ indicator: "x", value: 1, at: T + 30 * 3600_000, n: 1, state: "normal" }], T + 30 * 3600_000);
     expect(Object.keys(later.x)).toEqual([String(Math.floor((T + 30 * 3600_000) / 3600_000))]);
   });
-  it("1분마다 들어와도 시계열 표에는 5분 간격으로만 쓴다 (상태가 바뀌면 바로)", async () => {
+  it("1분마다 들어와도 시계열 표에는 15분 간격으로만 쓴다 (상태가 바뀌면 바로)", async () => {
     const store = new MemoryStore();
     const writes: number[] = [];
     const orig = store.putMetrics.bind(store);
@@ -116,14 +116,15 @@ describe("지표 기록: 스파크라인은 KV 집계, 1분 지표는 5분에 �
       writes.push(r.length);
       return orig(r);
     };
-    for (let i = 0; i < 6; i++) await processMetrics(store, m(1), T + i * MIN);
-    expect(writes).toEqual([1, 0, 0, 0, 0, 1]);
-    expect(METRIC_WRITE_INTERVAL_MS).toBeLessThan(5 * MIN);
-    // 속보가 몰려 상태가 바뀐 순간은 5분을 기다리지 않고 바로 남긴다
-    await processMetrics(store, m(5), T + 6 * MIN);
+    for (let i = 0; i < 16; i++) await processMetrics(store, m(1), T + i * MIN);
+    expect(writes.map((n, i) => (n ? i : -1)).filter((i) => i >= 0)).toEqual([0, 15]);
+    expect(METRIC_WRITE_INTERVAL_MS).toBeLessThan(15 * MIN);
+    // 속보가 몰려 상태가 바뀐 순간은 기다리지 않고 바로 남긴다
+    await processMetrics(store, m(5), T + 16 * MIN);
     expect(writes.at(-1)).toBe(1);
     const hourly = JSON.parse((await store.getKv("hourly"))!);
-    expect(Object.values(hourly["media.breaking_nk_1h"])[0]).toEqual([11, 7]); // 집계는 매번
+    const total = Object.values(hourly["media.breaking_nk_1h"] as Record<string, [number, number]>).reduce((a, [sum, n]) => [a[0] + sum, a[1] + n], [0, 0]);
+    expect(total).toEqual([16 + 5, 17]); // 집계는 매번
   });
 });
 

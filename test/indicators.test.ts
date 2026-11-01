@@ -58,8 +58,8 @@ describe("processMetrics: 기준선 갱신과 오염 방지", () => {
     expect(r.state).toBe("anomalous");
     const after = JSON.parse((await store.getKv("baselines"))!)["air.civil_airborne|h15"];
     expect(after.mean).toBeCloseTo(before.mean, 5);
-    // 시계열 표에는 5분 간격(0·5·10분)과 상태가 바뀐 순간(13분, 이상)만 남는다 — D1 무료 쓰기 한도 절약 (2026-11-01)
-    expect((await store.getMetricHistory("air.civil_airborne", 0)).map((p) => (p.at - NOW) / 60_000)).toEqual([0, 5, 10, 13]);
+    // 시계열 표에는 15분 간격(0분)과 상태가 바뀐 순간(10분 '학습 중→정상', 13분 '이상')만 남는다 — D1 무료 쓰기 한도 절약 (2026-11-01)
+    expect((await store.getMetricHistory("air.civil_airborne", 0)).map((p) => (p.at - NOW) / 60_000)).toEqual([0, 10, 13]);
   });
 });
 

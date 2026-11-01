@@ -53,8 +53,10 @@ function alphaFor(slots: 24 | 4 | 1): number {
 }
 
 /** 관측값을 기준선과 비교하고 기준선을 갱신한다. 이상치는 기준선에 반영하지 않는다(오염 방지). */
-/** 시계열 표에 같은 지표를 다시 기록하는 최소 간격 (상태가 바뀌면 바로 기록) */
-export const METRIC_WRITE_INTERVAL_MS = 5 * 60_000 - 20_000;
+/** 시계열 표에 같은 지표를 다시 기록하는 최소 간격 (상태가 바뀌면 바로 기록).
+ *  시계열 한 줄 = 쓰기 3행(표 + 인덱스 2개) — 5분마다 쓰면 하루 쓰기 한도(10만 행)의 절반을 먹어서 15분으로 둔다 (2026-11-01 실측).
+ *  기준선은 KV 에서 매 표본 갱신되므로 판정에는 영향이 없다. */
+export const METRIC_WRITE_INTERVAL_MS = 15 * 60_000 - 20_000;
 
 /** 지표별 시간별 합계 — 대시보드 스파크라인용. 시계열 표를 매번 훑지 않도록 KV 한 줄에 모아 둔다. { 지표: { 시(epoch/3600000): [합, 개수] } } */
 export type HourlyAgg = Record<string, Record<string, [number, number]>>;
@@ -98,7 +100,7 @@ export async function processMetrics(store: Store, metrics: Metric[], now: numbe
     const key = `${def.id}|${slotKey(def, now)}`;
     const prev = baselines[key];
     const reading = evaluate(def, m.value, now, prev, m.meta);
-    // 1분 주기 지표는 5분에 한 번만 시계열 표에 남긴다 (상태가 바뀐 순간은 바로) — D1 무료 쓰기 한도 절약
+    // 시계열 표에는 15분에 한 번만 남긴다 (상태가 바뀐 순간은 바로) — D1 무료 쓰기 한도 절약
     const last = latest[def.id];
     const write = !last?.writtenAt || now - last.writtenAt >= METRIC_WRITE_INTERVAL_MS || last.state !== reading.state;
     reading.writtenAt = write ? now : last!.writtenAt;

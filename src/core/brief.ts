@@ -1,6 +1,8 @@
 // 사건 요약: 여러 출처의 제목에서 '무엇을, 몇 발, 어디서, 어디로'를 뽑아 한눈에 읽히는 형태로 만든다.
 // 규칙 기반 추출이므로 기사 표현이 다르면 비어 있을 수 있다 (비어 있으면 화면에 '미상'으로 표시).
 import type { CrisisEvent, Signal } from "./types.js";
+import type { DomainId, Level } from "./warrisk.js";
+import { TRIPWIRE_BY_ID } from "./tripwires.js";
 
 export interface Place {
   name: string;
@@ -27,6 +29,8 @@ export interface EventBrief {
   /** 자국민·대사관 가족·미군 가족이 한국을 떠나는 움직임 (훈련·가짜·계획 제외).
    *  confirmed = 정부 발표 원문 또는 두 곳 이상 교차확인, official = 공식 인용 보도 한 곳, media = 공식 인용 없는 보도 */
   evacuation?: "confirmed" | "official" | "media";
+  /** 경보 단어(군·정부 태세 변화, 북한 전시 태세 명령, 돈·사람이 빠지는 행동) — 훈련·부인 제외. 판정에서 해당 영역을 최소 그 수준으로 올린다 */
+  posture?: { id: string; label: string; domain: DomainId; level: Level }[];
 }
 
 const DANGER_LABEL = ["", "관심", "주의", "경계", "심각", "위급"] as const;
@@ -139,8 +143,16 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   const cats = new Set(e.categories);
   const strikeLike = cats.has("missile") || cats.has("artillery") || cats.has("air_raid_alert");
   const evacOnly = cats.has("evacuation") && cats.size === 1;
+  const postureOnly = cats.has("posture") && cats.size === 1;
+  // 경보 단어: 이 사건을 이룬 신호들이 걸린 단어 (훈련·부인 신호는 뺀다)
+  const posture = postureOnly && !e.drill && !e.retracted
+    ? [...new Map(signals.filter((s) => s.tripwire && !s.drill && !s.retraction && TRIPWIRE_BY_ID[s.tripwire]).map((s) => {
+        const t = TRIPWIRE_BY_ID[s.tripwire!];
+        return [t.id, { id: t.id, label: t.label, domain: t.domain, level: t.level }] as const;
+      })).values()]
+    : [];
   const isProvocation =
-    !evacOnly && !e.drill && !e.retracted &&
+    !evacOnly && !postureOnly && !e.drill && !e.retracted &&
     (e.basis !== "media" || texts.some((t) => PROVOCATION_RE.test(t) && !COMMENTARY_RE.test(t))) &&
     (e.basis === "primary" || texts.some((t) => PROVOCATION_RE.test(t)));
 
@@ -165,7 +177,10 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   // 한국을 떠나는 움직임: 훈련·가짜·'유사시 계획'(심각도 85 미만)은 관심 수준으로만
   const evacLive = evacOnly && !e.drill && !e.retracted && e.severity >= 85;
   const evacuation: EventBrief["evacuation"] = evacLive ? (e.status !== "UNVERIFIED" ? "confirmed" : e.basis === "media" ? "media" : "official") : undefined;
-  if (evacOnly && e.drill) reason = "대피·후송 훈련";
+  const pTop = posture.reduce((m, p) => Math.max(m, p.level), 0);
+  if (postureOnly && posture.length) [level, reason] = [(pTop >= 3 ? 4 : pTop === 2 ? 3 : 2) as 2 | 3 | 4, `경보 단어: ${posture.map((p) => p.label).join("·")}`];
+  else if (postureOnly) reason = e.drill ? "경보 단어 (훈련)" : "경보 단어 (부인·오보)";
+  else if (evacOnly && e.drill) reason = "대피·후송 훈련";
   else if (evacOnly && e.retracted) reason = "가짜·허위로 확인된 대피 안내";
   else if (evacuation) [level, reason] = evacuation === "confirmed" ? [5, "외국 정부·주한미군의 철수·출국 권고 (확인)"] : [4, `한국을 떠나라는 보도${evacuation === "media" ? " (공식 인용 없음, 확인 중)" : " (공식 인용, 교차확인 전)"}`];
   else if (evacOnly) reason = "대피 계획·검토 보도";
@@ -203,12 +218,13 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
     at,
     latest,
     ...(evacuation ? { evacuation } : {}),
+    ...(posture.length ? { posture } : {}),
   };
 }
 
 /** 화면 맨 위 '지금 상황' — 가장 최근 도발의 경과 시간에 따라 위험도를 낮춘다 */
 export function currentThreat(briefs: EventBrief[], now = Date.now()) {
-  const provocations = briefs.filter((b) => !b.evacuation && (b.isProvocation || b.danger.level >= 3)).sort((a, b) => b.at - a.at);
+  const provocations = briefs.filter((b) => !b.evacuation && !b.posture && (b.isProvocation || b.danger.level >= 3)).sort((a, b) => b.at - a.at);
   const last = provocations[0];
   const active = briefs.filter((b) => now - b.at < 24 * 3600_000);
   const top = active.reduce<EventBrief | undefined>((m, b) => (!m || b.danger.level > m.danger.level ? b : m), undefined);

@@ -1,5 +1,6 @@
 // 텍스트(한/영) 기반 규칙 분류기. 오탐 억제를 위해 '관련 지역' + '위협 키워드'가 동시에 있어야 한다.
 import type { Category } from "./types.js";
+import { matchTripwire } from "./tripwires.js";
 
 export interface Classification {
   category: Category;
@@ -7,6 +8,8 @@ export interface Classification {
   drill: boolean;
   retraction: boolean;
   matched: string;
+  /** 경보 단어 id (category = posture) */
+  tripwire?: string;
 }
 
 export const BASE_SEVERITY: Record<Category, number> = {
@@ -21,6 +24,7 @@ export const BASE_SEVERITY: Record<Category, number> = {
   aviation_emergency: 35,
   civil_alert_other: 30,
   evacuation: 90,
+  posture: 88,
 };
 
 interface Rule {
@@ -77,6 +81,11 @@ export function classifyEvacuation(text: string): Classification | null {
 export function classifyText(text: string, opts: { requireRegion?: boolean } = {}): Classification | null {
   const evac = classifyEvacuation(text);
   if (evac) return evac;
+  const tw = matchTripwire(text);
+  if (tw) {
+    const quiet = tw.drill || tw.denied;
+    return { category: "posture", severity: quiet ? 15 : BASE_SEVERITY.posture, drill: tw.drill, retraction: tw.denied, matched: tw.matched, tripwire: tw.tripwire.id };
+  }
   if (opts.requireRegion && !REGION_RE.test(text)) return null;
   for (const r of RULES) {
     const m = r.re.exec(text);

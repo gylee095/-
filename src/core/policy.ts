@@ -46,7 +46,7 @@ export function decideAlerts(events: CrisisEvent[], history: AlertRecord[], now 
     if (prev && e.retracted) {
       if (prev.title.startsWith("[정정]")) reason = "정정 알림 이미 발송";
       else decision = { event: e, kind: "correction", reason: "기존 알림 사건이 정정/해제됨" };
-    } else if (e.basis === "media" && !(e.categories.includes("evacuation") && e.severity >= 85)) reason = "언론 보도만 존재 (1차 원천·공식발표 인용 없음)";
+    } else if (e.basis === "media" && !((e.categories.includes("evacuation") || e.categories.includes("posture")) && e.severity >= 85)) reason = "언론 보도만 존재 (1차 원천·공식발표 인용 없음)";
     else if (e.drill) reason = "훈련 발령";
     else if (e.retracted) reason = "오발령/해제 메시지";
     else if (!prev && e.firstDetectedTime - origin > STALE_MS) reason = `최초 감지 시점에 이미 ${Math.round((e.firstDetectedTime - origin) / 3600_000)}시간 지난 사건`;
@@ -74,7 +74,7 @@ export function decideAlerts(events: CrisisEvent[], history: AlertRecord[], now 
 function thresholdFor(e: CrisisEvent): number {
   if (e.status === "UNVERIFIED" && e.basis === "official_quote" && e.breaking) return BREAKING_QUOTE_THRESHOLD;
   // 한국을 떠나라는 보도(훈련·가짜·계획 제외, 심각도 85 이상)는 단일 출처라도 바로 알린다
-  if (e.categories.includes("evacuation")) return Math.min(THRESHOLDS[e.status], 85);
+  if (e.categories.includes("evacuation") || e.categories.includes("posture")) return Math.min(THRESHOLDS[e.status], 85);
   return THRESHOLDS[e.status];
 }
 

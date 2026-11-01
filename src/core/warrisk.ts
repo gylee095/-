@@ -135,10 +135,12 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   const by = Object.fromEntries(board.map((b) => [b.id, b])) as Record<string, BoardRow>;
   const recent = (ms: number) => briefs.filter((b) => now - b.at < ms && now - b.at >= -H);
   // 한국을 떠나는 움직임(철수·출국 권고)은 북한의 도발이 아니라 '정부의 행동'으로 센다
-  const prov7 = recent(7 * DAY).filter((b) => !b.evacuation && (b.isProvocation || b.danger.level >= 3));
+  const prov7 = recent(7 * DAY).filter((b) => !b.evacuation && !b.posture && (b.isProvocation || b.danger.level >= 3));
   const maxDanger7 = prov7.reduce((m, b) => Math.max(m, b.danger.level), 0);
-  const serious14 = recent(14 * DAY).filter((b) => !b.evacuation && b.danger.level >= 5);
+  const serious14 = recent(14 * DAY).filter((b) => !b.evacuation && !b.posture && b.danger.level >= 5);
   const evac7 = recent(7 * DAY).filter((b) => b.evacuation);
+  // 경보 단어(태세 변화·발 빼기 행동): 영역별로 최근 7일 가장 높은 것
+  const posture7 = recent(7 * DAY).flatMap((b) => (b.posture ?? []).map((p) => ({ ...p, headline: b.headline })));
   const CLASH_RE = /교전|사상자|전사|사망|부상|대응\s?사격|맞대응|exchange of fire|casualt|killed/i;
   const clashNow = recent(2 * DAY).filter((b) => b.danger.level >= 5 && CLASH_RE.test(`${b.headline} ${b.latest?.title ?? ""}`));
 
@@ -201,6 +203,12 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
       level = score >= 4 ? 3 : score >= 2 ? 2 : score >= 1 ? 1 : 0;
     } else {
       level = score >= 5 ? 3 : score >= 2 ? 2 : score >= 1 ? 1 : 0;
+    }
+    // 경보 단어는 그 영역을 최소 정해진 수준까지 올린다 (예: 워치콘 격상 → 정부 '경계', 북한 준전시상태 → 군사 '경계')
+    const pz = posture7.filter((p) => p.domain === d.id).sort((a, b) => b.level - a.level);
+    if (pz.length) {
+      level = Math.max(level, pz[0].level) as Level;
+      drivers.unshift(`경보 단어 '${pz[0].label}': ${pz[0].headline}`);
     }
     return { id: d.id, label: d.label, level, levelLabel: LEVEL_LABEL[level], drivers: drivers.slice(0, 4), measured: rows.filter(measured).length, total: d.indicators.length, why: d.why };
   });

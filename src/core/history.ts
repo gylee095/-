@@ -15,6 +15,8 @@ export interface RiskSnapshot {
   why: string[];
   /** 긴장 온도계 (과거 10년 같은 잣대) — 계산되면 함께 남긴다 */
   tension?: { raw: number; pct: number };
+  /** 앞으로 30일 큰 도발 확률 (%) — 스스로 채점하는 예측 (forecast.ts) */
+  p30?: number;
 }
 
 export interface RiskDay {
@@ -30,6 +32,8 @@ export interface RiskDay {
   peak: RiskSnapshot;
   maxTension?: number;
   maxTensionPct?: number;
+  /** 그날 첫 예측 (그날 사건을 보기 전) — 30일 뒤 채점에 쓴다 */
+  p30First?: number;
 }
 
 export interface RiskSummary {
@@ -42,21 +46,23 @@ export interface RiskSummary {
   today?: { d: string; phase: number; clash: number; tension?: number; tensionPct?: number };
   /** 오늘이 기록된 날 중 국지 충돌 확률이 몇 번째로 높은지 (1 = 가장 높음) */
   rank?: { clash: number; of: number; window: number };
+  /** 스스로 채점: 30일이 지난 예측의 점수 */
+  score?: import("./forecast.js").ForecastScore;
 }
 
 export const kstDay = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
 
-export function snapshotOf(w: WarRisk, tension?: { raw: number; pct: number }): RiskSnapshot {
+export function snapshotOf(w: WarRisk, tension?: { raw: number; pct: number }, p30?: number): RiskSnapshot {
   const levels: Partial<Record<DomainId, Level>> = {};
   for (const d of w.domains) levels[d.id] = d.level;
-  return { at: w.at, phase: w.phase, clash: w.clash30d.point, war: w.war30d.point, levels, why: w.phaseReasons.slice(0, 3).map((r) => r.slice(0, 140)), ...(tension ? { tension } : {}) };
+  return { at: w.at, phase: w.phase, clash: w.clash30d.point, war: w.war30d.point, levels, why: w.phaseReasons.slice(0, 3).map((r) => r.slice(0, 140)), ...(tension ? { tension } : {}), ...(p30 !== undefined ? { p30 } : {}) };
 }
 
 /** 오늘의 하루 기록에 이번 판정을 더한다 */
 export function foldDay(prev: RiskDay | undefined, s: RiskSnapshot): RiskDay {
   const day = kstDay(s.at);
   if (!prev || prev.day !== day) {
-    return { day, n: 1, maxPhase: s.phase, maxClash: s.clash, avgClash: s.clash, maxWar: s.war, peak: s, maxTension: s.tension?.raw, maxTensionPct: s.tension?.pct };
+    return { day, n: 1, maxPhase: s.phase, maxClash: s.clash, avgClash: s.clash, maxWar: s.war, peak: s, maxTension: s.tension?.raw, maxTensionPct: s.tension?.pct, p30First: s.p30 };
   }
   const n = prev.n + 1;
   const higher = s.clash > prev.peak.clash || s.phase > prev.peak.phase;
@@ -70,6 +76,7 @@ export function foldDay(prev: RiskDay | undefined, s: RiskSnapshot): RiskDay {
     peak: higher ? s : prev.peak,
     maxTension: s.tension ? Math.max(prev.maxTension ?? -Infinity, s.tension.raw) : prev.maxTension,
     maxTensionPct: s.tension ? Math.max(prev.maxTensionPct ?? -Infinity, s.tension.pct) : prev.maxTensionPct,
+    p30First: prev.p30First ?? s.p30,
   };
 }
 
@@ -93,8 +100,8 @@ export function summarize(days: RiskDay[], now: number, window = 90): RiskSummar
 }
 
 /** 5분 주기에서 부른다: 오늘 기록 갱신, 한 시간에 한 번 순간 기록과 요약 갱신 */
-export async function recordRisk(store: Store, w: WarRisk, tension?: { raw: number; pct: number }): Promise<{ hourly: boolean }> {
-  const s = snapshotOf(w, tension);
+export async function recordRisk(store: Store, w: WarRisk, tension?: { raw: number; pct: number }, p30?: number): Promise<{ hourly: boolean }> {
+  const s = snapshotOf(w, tension, p30);
   const day = kstDay(s.at);
   const prev = await store.getRiskDay(day);
   await store.putRiskDay(foldDay(prev, s));
@@ -104,6 +111,8 @@ export async function recordRisk(store: Store, w: WarRisk, tension?: { raw: numb
   await store.putRiskHourly(s);
   await store.setKv("risk:lastHour", String(hour));
   const days = await store.getRiskDays(kstDay(s.at - 400 * 86400_000));
-  await store.setKv("risk:summary", JSON.stringify(summarize(days, s.at)));
+  const { loadMajorDays, scoreForecasts } = await import("./forecast.js");
+  const score = scoreForecasts(days, await loadMajorDays(store), s.at);
+  await store.setKv("risk:summary", JSON.stringify({ ...summarize(days, s.at), score }));
   return { hourly: true };
 }

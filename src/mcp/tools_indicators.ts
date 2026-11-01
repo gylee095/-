@@ -91,6 +91,11 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
             similarPastDays: t.view.similar.map((x) => `${x.d} ${x.label} (원점수 ${x.raw})`),
             topPastDays: t.view.top.slice(0, 5).map((x) => `${x.d} ${x.label} (원점수 ${x.raw})`),
           },
+          majorProvocationForecast: {
+            note: "앞으로 30일·7일 안에 큰 도발(위험도 4 이상: ICBM·일본 상공·포격·위성·핵실험 등)이 있을 확률. 최근 180일 큰 도발 빈도로 만들고 지난 10년 실제 비율로 보정했다(2022~26 검증: 평균값보다 27% 덜 틀림). 전쟁 확률이 아니다.",
+            ...st.forecast,
+            score: st.history?.score,
+          },
           preWarFingerprints: {
             note: "다른 전쟁 직전(우크라이나 2022·걸프 1990·한국 1950 등)에 공개적으로 보였던 것 중 지금 켜진 것. 1950년·10·7 처럼 지문 없이 오는 기습도 있다.",
             on: st.fingerprints.on, watched: st.fingerprints.watched,

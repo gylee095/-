@@ -178,6 +178,12 @@ function fingerprints(f){var on=f.checks.filter(function(c){return c.status==="o
   h+='<details><summary>지문 '+f.checks.length+'개 모두 보기</summary><ul>'+rest.map(fpRow).join("")+'</ul></details>';
   h+='<div class="mk">1950년 한국전쟁·2023년 하마스 10·7 기습처럼 지문 없이 오는 경우도 있습니다. 그때 목표는 \'미리\'가 아니라 \'몇 분 안에\' 알리는 것입니다.</div></div>';
   return h}
+// 스스로 채점하는 예측: 다음 30일·7일 큰 도발 확률 (최근 180일 빈도, 지난 10년으로 보정) + 예측 성적
+function forecastLine(f,sc){if(!f)return "";
+  var s='<div class="mk"><b>다음 30일 큰 도발</b>(ICBM·일본 상공·포격·위성·핵실험급) 약 <b>'+f.p30+'%</b> · 7일 '+f.p7+'% <span>(아무 날 평균 '+f.base30+'%)</span> — 최근 180일 큰 도발 '+f.count180+'번'+(f.last?', 마지막 '+esc(f.last.d):'')+' 기준, 지난 10년 실제 비율로 보정. 전쟁 확률이 아니라 자주 일어나는 일로 실력을 재는 예측입니다.';
+  if(sc&&sc.n)s+=' <b>예측 성적</b>: '+sc.n+'일 채점, 평균값보다 '+(sc.skill>=0?Math.round(sc.skill*100)+'% 덜 틀림':Math.round(-sc.skill*100)+'% 더 틀림')+'.';
+  else if(sc&&sc.firstDue)s+=' 첫 채점 '+esc(sc.firstDue)+'.';
+  return s+'</div>'}
 // 판정 기록 (2026-11-01부터 영구 보관): 오늘 하루 최고값과 기록된 날 중 순위
 function histLine(hs){if(!hs||!hs.today)return "";var t=hs.today,d=t.d.slice(5).replace("-","/");
   var s='<div class="mk">판정 기록 · 오늘('+esc(d)+') 최고 '+t.phase+'단계, 국지 충돌 '+pct(t.clash);
@@ -192,6 +198,7 @@ function warRisk(w){var names=["평온","긴장","위기","임박","교전"];
   h+='<div class="probs"><div><div class="pk">앞으로 30일 · 국지 충돌</div><div class="pv">약 '+pct(w.clash30d.point)+'</div><div class="ps">평소 약 '+pct(w.usual.clash)+' · 범위 '+pct(w.clash30d.low)+'~'+pct(w.clash30d.high)+'</div></div>';
   h+='<div><div class="pk">앞으로 30일 · 전면전</div><div class="pv">'+pct(w.war30d.point)+'</div><div class="ps">평소 '+pct(w.usual.war)+' · 범위 '+pct(w.war30d.low)+'~'+pct(w.war30d.high)+'</div></div></div>';
   h+=histLine(ST&&ST.history);
+  h+=forecastLine(ST&&ST.forecast,ST&&ST.history&&ST.history.score);
   h+='<div class="fm '+w.firstMover.kind+'"><b>누가 먼저 움직였나</b> · '+esc(w.firstMover.text)+'</div>';
   h+='<div>'+w.domains.map(function(d){return '<div class="dom"><div class="dl">'+esc(d.label)+'</div><div class="dv v'+d.level+'">'+esc(d.levelLabel)+'</div><div class="dd">'+(d.drivers.length?esc(d.drivers.join(" · ")):"특이 없음")+(d.measured<d.total?' <span style="opacity:.8">('+d.measured+'/'+d.total+' 측정)</span>':'')+'</div></div>'}).join("")+'</div>';
   h+='<details><summary>이 단계로 본 이유 · 지켜볼 신호 · 억제 요인</summary><b style="font-size:14px">이유</b><ul>'+w.phaseReasons.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';

@@ -10,6 +10,7 @@ import { D1_FREE_LIMITS, D1Store, type D1Usage } from "./d1store.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
 import { loadMonthUsage, maybeFireDeep } from "../core/deep.js";
 import { recordRisk } from "../core/history.js";
+import { recordMajorDays } from "../core/forecast.js";
 
 interface Env extends CoreEnv {
   DB: D1Database;
@@ -119,7 +120,8 @@ export default {
       if (ctrl.cron === "*/5 * * * *" && !tight) {
         try {
           const st = await buildState(store, report.at - 72 * 3600_000, env.DISABLED_SOURCES);
-          await recordRisk(store, { ...st.warRisk, at: report.at }, { raw: st.tension.raw, pct: st.tension.pct }).catch(async (e) => {
+          await recordMajorDays(store, st.events.map((e) => e.brief), report.at).catch(() => 0);
+          await recordRisk(store, { ...st.warRisk, at: report.at }, { raw: st.tension.raw, pct: st.tension.pct }, st.forecast.p30).catch(async (e) => {
             await store.setKv("risk:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)

@@ -248,6 +248,43 @@ async function main() {
     top.push({ ...r, label });
     if (top.length >= 30) break;
   }
+  // 9) 큰 도발 날(위험도 4 이상: ICBM·일본 상공·포격·위성·핵실험·무인기 침투·연결도로 폭파·DMZ 지뢰) — 예측과 채점의 기준
+  const majorDays = days.filter((d, i) => lv[i] >= 4);
+  // 10) '최근 180일 큰 도발 빈도' 예측의 보정표: 포아송 원값 구간 → 지난 10년 실제 비율 (구간 평균이 단조 증가하도록 이웃 구간을 합친다)
+  const isMajor = new Set(majorDays);
+  const fc = (i: number, win: number, k: number) => {
+    let c = 0;
+    for (let j = Math.max(0, i - win + 1); j <= i; j++) if (isMajor.has(days[j])) c++;
+    return 1 - Math.exp(-((c + 0.5) / win) * k);
+  };
+  const hit = (i: number, k: number) => {
+    for (let j = i + 1; j <= i + k && j < days.length; j++) if (isMajor.has(days[j])) return 1;
+    return 0;
+  };
+  const calib = (k: number, edges: number[]) => {
+    const rows: { f: number; y: number }[] = [];
+    days.forEach((d, i) => {
+      if (d < FROM || toMs(d) + k * DAY > toMs(TO)) return;
+      rows.push({ f: fc(i, 180, k), y: hit(i, k) });
+    });
+    let bins = edges.slice(0, -1).map((lo, b) => {
+      const r = rows.filter((x) => x.f > lo && x.f <= edges[b + 1]);
+      return { lo, hi: edges[b + 1], n: r.length, y: r.reduce((a, x) => a + x.y, 0) };
+    }).filter((b) => b.n > 0);
+    // 단조 회귀(PAV): 앞 구간보다 실제 비율이 낮으면 합친다
+    for (let changed = true; changed; ) {
+      changed = false;
+      for (let b = 1; b < bins.length; b++) if (bins[b].y / bins[b].n < bins[b - 1].y / bins[b - 1].n) {
+        bins.splice(b - 1, 2, { lo: bins[b - 1].lo, hi: bins[b].hi, n: bins[b - 1].n + bins[b].n, y: bins[b - 1].y + bins[b].y });
+        changed = true;
+        break;
+      }
+    }
+    const base = rows.reduce((a, x) => a + x.y, 0) / rows.length;
+    return { base: +base.toFixed(4), bins: bins.map((b) => ({ upTo: b.hi, p: +(b.y / b.n).toFixed(4), n: b.n })) };
+  };
+  const cal30 = calib(30, [0, 0.1, 0.2, 0.3, 0.45, 0.6, 1]);
+  const cal7 = calib(7, [0, 0.03, 0.06, 0.1, 0.15, 0.25, 1]);
   const lines = [
     "// 자동 생성: scripts/build-tension-history.ts — 직접 고치지 말 것. 근거·검증: docs/INDICATORS.md 0.2",
     "// 자료: CSIS Beyond Parallel 'Database: North Korean Provocations', 네이버 데이터랩, Wikimedia 조회수, Yahoo 일봉, 한국은행 ECOS",
@@ -257,12 +294,17 @@ async function main() {
     `/** ${FROM} 부터 하루 하나씩, 원점수 (0~9) */`,
     `export const TENSION_DAILY = "${out.map((r) => r.raw).join(",")}";`,
     `export const TENSION_TOP: { d: string; raw: number; mil: number; pub: number; mon: number; label: string }[] = ${JSON.stringify(top)};`,
+    `/** 큰 도발 날 (CSIS 도발 일지, 위험도 4 이상) ${WARM} ~ ${TO} — 이후는 시스템이 감지한 날을 더한다 */`,
+    `export const MAJOR_DAYS: string[] = ${JSON.stringify(majorDays)};`,
+    `/** '최근 180일 큰 도발 빈도' 예측의 보정표 — 원값이 upTo 이하이면 지난 10년 실제 비율 p (base = 아무 날 평균) */`,
+    `export const FORECAST_CALIBRATION = ${JSON.stringify({ d30: cal30, d7: cal7 })};`,
     "",
   ];
   writeFileSync(new URL("../src/core/tension_history.ts", import.meta.url), lines.join("\n"));
   writeFileSync(new URL("components.json", CACHE), JSON.stringify(debug)); // 검증용 (커밋하지 않음)
   console.log(`${out.length}일 (${FROM} ~ ${TO}), 도발 ${provs.length}건, 원점수=0 인 날 ${((out.filter((r) => r.raw === 0).length / out.length) * 100).toFixed(1)}%`);
   console.log("문턱", JSON.stringify(Q));
+  console.log("큰 도발 날", majorDays.length, "· 보정표 30일", JSON.stringify(cal30), "· 7일", JSON.stringify(cal7));
   for (const t of top.slice(0, 12)) console.log(t.d, t.raw, `(군 ${t.mil} 사람 ${t.pub} 돈 ${t.mon})`, t.label);
 }
 

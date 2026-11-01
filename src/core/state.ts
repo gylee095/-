@@ -13,6 +13,7 @@ import { loadMonthUsage } from "./deep.js";
 import type { RiskSummary } from "./history.js";
 import { liveInputs, tensionOf, tensionView } from "./tension.js";
 import { checkFingerprints } from "./fingerprints.js";
+import { forecastMajor, loadMajorDays } from "./forecast.js";
 
 export interface BoardRow {
   id: string;
@@ -109,6 +110,8 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const tension = { ...tensionNow, view: tensionView(tensionNow) };
   // 전쟁 직전의 지문: 다른 전쟁 직전에 공개적으로 보였던 것 중 지금 켜진 것
   const fingerprints = checkFingerprints(warRisk, board, enriched.map((e) => e.brief), now);
+  // 스스로 채점하는 예측: 앞으로 30일·7일 큰 도발 확률 (최근 180일 빈도, 과거 10년으로 보정)
+  const forecast = forecastMajor(await loadMajorDays(store), now);
 
   return {
     now,
@@ -116,6 +119,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     warRisk,
     tension,
     fingerprints,
+    forecast,
     interpretation,
     posture: posture(events.filter((e) => e.firstDetectedTime >= since), now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,

@@ -168,6 +168,16 @@ function drawTension(t){var el=$("#tchart");if(!el||!t||!t.view)return;var w=t.v
     var s1=document.createElement("div");s1.textContent=p.d.slice(0,7).replace("-","년 ")+"월 최고";tip.appendChild(s1);if(ep){var s2=document.createElement("div");s2.textContent=ep.d.slice(5).replace("-","/")+" "+ep.label;tip.appendChild(s2)}
     tip.style.display="block";var left=px*r.width/W+8;if(left>r.width-200)left=px*r.width/W-208;tip.style.left=Math.max(0,left)+"px"}
   hit.addEventListener("pointermove",show);hit.addEventListener("pointerdown",show);hit.addEventListener("pointerleave",function(){tip.style.display="none";cross.setAttribute("visibility","hidden")})}
+// 전쟁 직전의 지문: 다른 전쟁 직전 공개적으로 보였던 것 중 지금 켜진 것 (켜짐을 위로)
+function fingerprints(f){var on=f.checks.filter(function(c){return c.status==="on"}),rest=f.checks.filter(function(c){return c.status!=="on"});
+  var h='<div class="sec">전쟁 직전 지문 <span style="font-weight:400">· 다른 전쟁 직전에 보였던 것</span></div><div class="card tm">';
+  h+='<div class="th"><b>'+f.on+' / '+f.watched+'</b><span>자동으로 보는 지문 중 지금 켜진 것'+(f.on?'':' — 없음')+'</span></div>';
+  function fpRow(c){var mark=c.status==="on"?'<b style="color:var(--l4)">●</b>':c.status==="off"?'<span style="color:var(--mute)">○</span>':'<span style="color:var(--mute)">?</span>';
+    return '<li style="list-style:none;margin-left:-18px">'+mark+' '+esc(c.label)+(c.evidence?' — <b>'+esc(c.evidence)+'</b>':'')+(c.status==="unknown"?' <span style="color:var(--mute)">('+(c.watch==="analyst"?"분석관 확인":"공개 자료 없음")+')</span>':'')+'<div style="font-size:12px;color:var(--mute);margin-left:16px">'+esc(c.precedent)+'</div></li>'}
+  if(on.length)h+='<ul>'+on.map(fpRow).join("")+'</ul>';
+  h+='<details><summary>지문 '+f.checks.length+'개 모두 보기</summary><ul>'+rest.map(fpRow).join("")+'</ul></details>';
+  h+='<div class="mk">1950년 한국전쟁·2023년 하마스 10·7 기습처럼 지문 없이 오는 경우도 있습니다. 그때 목표는 \'미리\'가 아니라 \'몇 분 안에\' 알리는 것입니다.</div></div>';
+  return h}
 // 판정 기록 (2026-11-01부터 영구 보관): 오늘 하루 최고값과 기록된 날 중 순위
 function histLine(hs){if(!hs||!hs.today)return "";var t=hs.today,d=t.d.slice(5).replace("-","/");
   var s='<div class="mk">판정 기록 · 오늘('+esc(d)+') 최고 '+t.phase+'단계, 국지 충돌 '+pct(t.clash);
@@ -225,6 +235,7 @@ function render(){
   // 1a) 전쟁 위험 — 다섯 영역 → 국면 5단계 → 30일 확률 (자동, 5분마다)
   if(st.warRisk)h+=safe(warRisk,st.warRisk,"전쟁 위험");
   if(st.tension)h+=safe(tension,st.tension,"긴장 온도계");
+  if(st.fingerprints)h+=safe(fingerprints,st.fingerprints,"전쟁 직전 지문");
   // 1b) 클로드 심층 분석 — 특이한 날에만 (72시간 안 보고서)
   if(st.deepReport&&st.deepReport.data)h+=safe(deep,st.deepReport,"클로드 심층 분석");
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다

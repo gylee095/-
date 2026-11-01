@@ -86,3 +86,15 @@ describe("경보 단어 → 알림과 전쟁 판정", () => {
     expect(st.warRisk.domains.find((d) => d.id === "gov")!.level).toBe(0);
   });
 });
+
+describe("경보 단어 추가분: 병력 집결 포착·정보당국 경고", () => {
+  it("한국·미국 군이 '포착'한 전방 집결만 센다 (북한의 공언은 아님)", () => {
+    expect(matchTripwire("합참 \"北 전방 장사정포 전진 배치 포착\"")!.tripwire.id).toBe("nk_forward_deploy");
+    expect(matchTripwire("北 김여정 \"전술타격수단 남부 국경 증강할 것\"")).toBeNull();
+  });
+  it("미국 정보당국의 '남침' 경고만 (대만·우크라이나 이야기는 아님)", () => {
+    expect(matchTripwire("美 정보당국 \"北, 남침 결정한 듯\"")!.tripwire).toMatchObject({ id: "us_intel_warning", domain: "gov", level: 2 });
+    expect(matchTripwire("美 정보당국 \"中 대만 침공 땐 北 도발 가능성\"")).toBeNull();
+    expect(matchTripwire("美 국방부 \"北, 우크라이나 침공 러시아에 포탄 지원\"")).toBeNull();
+  });
+});

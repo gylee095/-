@@ -91,6 +91,11 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
             similarPastDays: t.view.similar.map((x) => `${x.d} ${x.label} (원점수 ${x.raw})`),
             topPastDays: t.view.top.slice(0, 5).map((x) => `${x.d} ${x.label} (원점수 ${x.raw})`),
           },
+          preWarFingerprints: {
+            note: "다른 전쟁 직전(우크라이나 2022·걸프 1990·한국 1950 등)에 공개적으로 보였던 것 중 지금 켜진 것. 1950년·10·7 처럼 지문 없이 오는 기습도 있다.",
+            on: st.fingerprints.on, watched: st.fingerprints.watched,
+            items: st.fingerprints.checks.map((c) => `${c.status === "on" ? "● 켜짐" : c.status === "off" ? "○ 꺼짐" : "? 확인 필요"} ${c.label}${c.evidence ? ` — ${c.evidence}` : ""} [${c.precedent}]`),
+          },
         });
       } catch (e) {
         return fail(e);

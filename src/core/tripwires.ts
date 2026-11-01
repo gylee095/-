@@ -44,6 +44,12 @@ export const TRIPWIRES: Tripwire[] = [
   { id: "pyongyang_embassies_leave", label: "평양 주재 외국 공관 철수", domain: "gov", level: 3,
     re: /(평양|북한|北).{0,20}(주재|소재)?.{0,10}(중국|러시아|외국|각국)?\s*(대사관|공관|외교관).{0,15}(철수|대피|귀국|떠나|출국)|(중국|러시아).{0,10}(대사관|외교관).{0,10}평양.{0,10}(철수|대피|떠나)/,
     why: "2022년 2월 침공 직전 러시아 외교관들이 키이우를 떠났다. 북한 안에 있는 중국·러시아 공관이 사람을 빼면 북한 쪽 사정을 아는 쪽의 행동이다." },
+  { id: "nk_forward_deploy", label: "북한군 전방 병력·포병 증강 포착", domain: "military", level: 2,
+    re: /(북한|北|북한군).{0,15}(전방|접경|DMZ|군사분계선|휴전선|국경).{0,20}(병력|포병|전차|장사정포|방사포|부대).{0,15}(전진\s*배치|집결|증강|이동).{0,15}(포착|확인|관측|식별)|(포착|확인|관측|식별).{0,15}(북한|北|북한군).{0,15}(전방|접경|DMZ|휴전선).{0,20}(병력|포병|전차|장사정포|부대).{0,10}(전진\s*배치|집결|증강)/,
+    why: "1990년 7월 말 이라크군 사단들이 쿠웨이트 국경에 집결한 것이 공개 보도됐고 8월 2일 침공했다. 2021년 말~2022년 초 러시아군 집결도 상업 위성사진으로 공개됐다. 북한의 공언이 아니라 한국·미국 군이 '포착'한 것만 센다." },
+  { id: "us_intel_warning", label: "미국 정보당국의 침공 임박 경고", domain: "gov", level: 2,
+    re: /(미|美|미국|백악관|국무부|국방부|정보\s*당국|정보기관|국가정보국|CIA|DNI|White House|Pentagon|U\.S\. intelligence).{0,40}(북한|北|North Korea).{0,30}(남침|(한국|남한|남측)\s*(을\s*)?(침공|공격)|전면전|전쟁\s*개시|invasion of (south )?korea|invade (south )?korea|attack (on )?south korea)/i,
+    why: "2021년 11월~2022년 2월 미국은 기밀을 풀어 러시아의 침공 계획을 공개 경고했고, 2월 18일 '푸틴이 결정했다'고 밝힌 엿새 뒤 침공이 시작됐다." },
   // ── 돈과 사람이 실제로 빠지는 행동 ──
   { id: "airlines_suspend", label: "외국 항공사 한국 운항 중단", domain: "money", level: 2,
     re: /(항공사|항공|에어라인|airlines?).{0,25}(인천|김포|서울|한국|korea|seoul|incheon).{0,20}(운항|노선|취항|flights?).{0,10}(중단|중지|취소|suspend|cancel|halt)|(인천|김포|서울|한국|korea|seoul).{0,10}(행|노선|flights?).{0,15}(운항\s*)?(중단|중지|suspend|halt)/i,
@@ -58,7 +64,7 @@ export const TRIPWIRES: Tripwire[] = [
 
 const DRILL_RE = /훈련(?!\s*(아니|아냐|아님))|연습|모의|가상|시뮬레이션|exercise|drill|simulation/i;
 const DENY_RE = /사실무근|오보|가짜|허위|없다|아니다|부인|일축|가능성\s*(낮|희박)|검토\s*(안|않)|fake|denies|no plans/i;
-const ELSEWHERE_RE = /이스라엘|레바논|이란|우크라|러시아\s*(본토|군)|가자|중동|대만\s*해협|홍해|예멘|israel|iran|ukraine|gaza|middle east|red sea|taiwan strait/i;
+const ELSEWHERE_RE = /이스라엘|레바논|이란|우크라|러시아\s*(본토|군)|가자|중동|대만|타이완|홍해|예멘|israel|iran|ukraine|gaza|middle east|red sea|taiwan/i;
 // 회고·기념 기사 (연도만 나온 기사는 걸러내지 않는다: "2015년 이후 처음 준전시상태" 는 지금 일이다)
 const PAST_RE = /당시|회고|기념식|\d+\s*주년|history of|anniversary/i;
 

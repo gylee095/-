@@ -12,6 +12,7 @@ import { assessWarRisk } from "./warrisk.js";
 import { loadMonthUsage } from "./deep.js";
 import type { RiskSummary } from "./history.js";
 import { liveInputs, tensionOf, tensionView } from "./tension.js";
+import { checkFingerprints } from "./fingerprints.js";
 
 export interface BoardRow {
   id: string;
@@ -106,12 +107,15 @@ export async function buildState(store: Store, since: number, disabledSources = 
   // 긴장 온도계: 지난 10년(2016~)과 같은 잣대로 잰 오늘의 위치
   const tensionNow = tensionOf(liveInputs(board, enriched.map((e) => e.brief), now));
   const tension = { ...tensionNow, view: tensionView(tensionNow) };
+  // 전쟁 직전의 지문: 다른 전쟁 직전에 공개적으로 보였던 것 중 지금 켜진 것
+  const fingerprints = checkFingerprints(warRisk, board, enriched.map((e) => e.brief), now);
 
   return {
     now,
     threat,
     warRisk,
     tension,
+    fingerprints,
     interpretation,
     posture: posture(events.filter((e) => e.firstDetectedTime >= since), now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,

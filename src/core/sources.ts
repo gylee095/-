@@ -87,7 +87,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
   },
   nga_msi: {
     id: "nga_msi",
-    name: "NGA MSI 항행경보 (HYDROPAC 등 Broadcast Warnings)",
+    name: "항행경보 — 미국 NGA MSI · 일본 해상보안청 NAVAREA XI · 국립해양조사원 국내 항행경보",
     kind: "official",
     access: "키 불필요",
     cost: "무료",
@@ -95,9 +95,9 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     latency: "사건 '이전'에 공개되는 선행 신호 (발사 예고 구역·기간) / 사후 공개는 수 시간",
     realtime: "precursor",
     terms: "미국 정부 퍼블릭 도메인",
-    hosts: ["msi.nga.mil"],
+    hosts: ["msi.nga.mil", "www1.kaiho.mlit.go.jp", "www.khoa.go.kr"],
     notes:
-      "북한·중국·한국의 로켓 발사, 사격훈련, GPS 교란 항행경보가 영문 텍스트로 게재됨. 일본 NAVAREA XI(해상보안청) 원문은 2단계에서 추가.",
+      "북한·중국·한국의 로켓 발사, 사격훈련, GPS 교란 항행경보. 북한이 위성 발사 전 낙하 구역을 통보하는 일본 해상보안청 NAVAREA XI 원문과 국립해양조사원 국내 경보(합참 해상사격훈련 주간 계획 등)를 2026-11-01부터 직접 읽는다(30분마다, 새 경보 본문만).",
   },
   adsb_lol: {
     id: "adsb_lol",

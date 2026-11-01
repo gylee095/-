@@ -130,7 +130,7 @@ export function detectPatterns(r: R, events: CrisisEvent[], now = Date.now()): P
     // 위성 AIS 중국 선박 체류시간 급감 (약 5일 지연 — 진행 중인 철수의 '추세' 신호)
     add(p, r, "sea.gfw_cn_change_pct", now, { anomalous: mora ? 15 : 40, elevated: mora ? 8 : 20 }, mora ? "휴어기라 감점" : "약 5일 지연 데이터");
     add(p, r, "sea.ys_vessels_total", now, { any: (x) => (x.state === "anomalous" && isLow(x) ? 15 : 0) });
-    add(p, r, "navwarn.korea_active", now, { anomalous: 15, elevated: 10 });
+    add(p, r, "navwarn.korea_warnings", now, { anomalous: 15, elevated: 10 });
     add(p, r, "official.mnd_provocation_24h", now, { any: (x) => (x.value >= 1 ? 20 : 0) });
     add(p, r, "rhetoric.nk_statements_24h", now, { anomalous: 10, elevated: 5 });
     // 서해·NLL 과 관련된 포격·해안포 사건만 (내륙 방사포 시험사격은 제외)

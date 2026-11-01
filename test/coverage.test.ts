@@ -27,12 +27,13 @@ describe("0 점검 (2026-10-31): 진짜 0인지, 못 잡는 것인지", () => {
       { issueDate: "011545Z MAY 2024", text: "SEA OF JAPAN. DISTRESS SIGNAL", navArea: "P", msgNumber: 1433, msgYear: 2024 },
       { issueDate: "301200Z OCT 2026", text: "YELLOW SEA. GUNNERY EXERCISES", navArea: "P", msgNumber: 3001, msgYear: 2026 },
     ];
-    expect(navwarnMetrics(rows, NOW).find((m) => m.indicator === "navwarn.korea_active")!.value).toBe(1);
+    expect(navwarnMetrics(rows, NOW).find((m) => m.indicator === "navwarn.korea_warnings")!.value).toBe(1);
   });
-  it("범위가 좁은 지표가 0이면 뜻풀이에 '범위 제한'을 붙인다", () => {
+  it("범위가 좁은 지표 목록 — 발사 예고는 해상보안청 원문을 읽어 더 이상 '범위 제한'이 아니다", () => {
     const d = INDICATORS.find((x) => x.id === "navwarn.launch_notice_active")!;
     const row: BoardRow = { id: d.id, label: d.label, group: d.group, groupLabel: GROUP_LABEL[d.group], unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats, coverage: d.coverage, reading: { indicator: d.id, value: 0, at: NOW, n: 20, state: "normal" }, stateLabel: STATE_LABEL.normal, history: [] };
-    expect(meaningOf(row, { night: false, exercise: false, moratorium: false })).toMatch(/⚠ 범위 제한: .*NAVAREA XI/);
-    expect(INDICATORS.filter((x) => x.coverage).map((x) => x.id).sort()).toEqual(["air.isr_airborne", "gnss.bad_ratio_north", "navwarn.korea_active", "navwarn.launch_notice_active", "sea.ys_vessels_total"]);
+    // 2026-11-01: 해상보안청 원문을 직접 읽어 발사 예고 칸은 더 이상 '범위 제한'이 아니다
+    expect(meaningOf(row, { night: false, exercise: false, moratorium: false })).not.toMatch(/범위 제한/);
+    expect(INDICATORS.filter((x) => x.coverage).map((x) => x.id).sort()).toEqual(["air.isr_airborne", "gnss.bad_ratio_north", "sea.ys_vessels_total"]);
   });
 });

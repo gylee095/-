@@ -36,7 +36,7 @@ export const DOMAINS: { id: DomainId; label: string; indicators: string[]; why: 
   },
   {
     id: "military", label: "군사 동향",
-    indicators: ["border.incidents_72h", "air.mil_airborne", "air.isr_airborne", "air.civil_airborne", "navwarn.launch_notice_active", "navwarn.korea_active", "seismic.nk_events_24h", "thermal.launch_site_hotspots", "gnss.bad_ratio_korea", "gnss.bad_ratio_westsea", "gnss.bad_ratio_north", "sea.gfw_cn_change_pct", "official.mnd_provocation_24h"],
+    indicators: ["border.incidents_72h", "air.mil_airborne", "air.isr_airborne", "air.civil_airborne", "navwarn.launch_notice_active", "navwarn.korea_warnings", "seismic.nk_events_24h", "thermal.launch_site_hotspots", "gnss.bad_ratio_korea", "gnss.bad_ratio_westsea", "gnss.bad_ratio_north", "sea.gfw_cn_change_pct", "official.mnd_provocation_24h"],
     why: "실제 도발·전개·교란. 북한은 해마다 수십 번 쏘므로 도발 한 번은 '긴장'이지 '위기'가 아니다.",
   },
   {

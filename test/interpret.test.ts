@@ -17,7 +17,7 @@ const quietBoard = (): BoardRow[] => [
   row("air.mil_airborne", { value: 1, baseline: 1.5, z: -0.3 }),
   row("air.isr_airborne", { value: 0, meta: { aircraft: [] } }),
   row("navwarn.launch_notice_active", { value: 0 }),
-  row("navwarn.korea_active", { value: 1, baseline: 1, z: 0 }),
+  row("navwarn.korea_warnings", { value: 1, baseline: 1, z: 0 }),
   row("rhetoric.nk_statements_24h", { value: 2, baseline: 2.5, z: -0.3 }),
   row("rhetoric.nk_hostile_24h", { value: 0, baseline: 0.5, z: -0.5 }),
   row("media.breaking_nk_1h", { value: 0 }),

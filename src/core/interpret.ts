@@ -170,10 +170,16 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
     }
     case "seismic.nk_events_24h":
       return v === 0 ? "북한 지역 지진 없음 → 핵실험 신호 없음 (핵실험은 규모 4~6 얕은 지진으로 10~30분 내 탐지됨)" : `북한 지역 지진 ${v}건 — 깊이·풍계리 거리로 인공 여부 판정 필요`;
-    case "navwarn.korea_active":
+    case "navwarn.korea_warnings":
       return `한반도 주변 유효 항행경보 ${v}건${vs}${learn}${isAbnormal(row) ? " → 평소보다 많음. 사격·발사 구역이 늘었는지 내용 확인" : " → 새 통제 구역 징후 없음"}`;
-    case "navwarn.launch_notice_active":
-      return v === 0 ? "발사 예고 항행경보 없음 → 위성·장거리 로켓 발사 임박 징후 없음 (북한은 위성 발사 전 일본에 구역을 통보해 왔음). 단거리 미사일은 예고 없이 쏨" : `발사 예고 항행경보 ${v}건 — 발신 당국이 북한(DPRK)인지, 기간이 언제인지가 핵심`;
+    case "navwarn.launch_notice_active": {
+      const m = (r!.meta ?? {}) as any;
+      const other = Array.isArray(m.otherLaunches) && m.otherLaunches.length ? ` (서해 다른 나라 발사 경보 ${m.otherLaunches.length}건은 낙하 구역이 중국 쪽이라 북한으로 보지 않음)` : "";
+      const src = m.sources?.jcg && !String(m.sources.jcg).startsWith("실패") ? "일본 해상보안청·미국 NGA 원문 기준" : "⚠ 일본 해상보안청 원문을 못 받아 미국 NGA 만 봄";
+      if (v === 0) return `북한 발사 예고 항행경보 없음 (${src}) → 위성·장거리 로켓 발사 임박 징후 없음 (북한은 위성 발사 며칠 전 일본에 낙하 구역을 통보해 왔음). 단거리 미사일은 예고 없이 쏨${other}`;
+      const head = Array.isArray(m.refs) && m.refs[0] ? ` — ${m.refs[0].ref} ${m.refs[0].head ?? ""}` : "";
+      return `북한 발사 예고로 보이는 항행경보 ${v}건${head} → 위성·장거리 로켓 발사 준비. 며칠 안 발사 가능성이 크다 (2023~2024년 네 번 모두 통보 뒤 이틀 안에 쐈다)${other}`;
+    }
     case "official.us_travel_level_kr":
       return v <= 1 ? "미 국무부 한국 여행경보 1단계(일반 주의) 유지 → 미국 정부가 자국민에게 위험을 경고하지 않는 상태" : v === 2 ? "미 여행경보 2단계로 상향 — 드문 일. 사유(치안·보건·안보) 확인 필요" : `미 여행경보 ${v}단계 — 미국 정부가 한국 방문 재고·금지를 권고. 매우 강한 신호`;
     case "nk.fuel_price_change_pct": {

@@ -117,3 +117,16 @@ describe("수집 시간표가 정본이다 (크론·목록·주기가 어긋나�
     expect(activeSources().map((x) => x.id)).not.toContain("bluesky");
   });
 });
+
+describe("정기 분석 횟수는 이번 달 실제 판단 기록에서 센다 (11/2 '정기 분석 0회')", () => {
+  it("사용량 기록 없이 판단만 두 번 남겨도 2회", async () => {
+    const { buildState } = await import("../src/core/state.js");
+    const store = new MemoryStore();
+    const now = Date.now();
+    await store.addNote({ at: now - 2000, author: "claude-agent", kind: "assessment", text: "a", data: {} });
+    await store.addNote({ at: now - 1000, author: "claude-agent", kind: "assessment", text: "b", data: {} });
+    const st = await buildState(store, now - 72 * 3600_000);
+    expect(st.usage.scheduled.runs).toBeGreaterThanOrEqual(2);
+    expect(st.usage.scheduled.tokenRuns ?? 0).toBe(0);
+  });
+});

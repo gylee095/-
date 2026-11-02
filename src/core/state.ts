@@ -1,5 +1,5 @@
 // 대시보드·에이전트가 공유하는 상태 스냅샷
-import type { Store } from "./store.js";
+import type { AgentNote, Store } from "./store.js";
 import { dataHealthOf, markFailing } from "./datahealth.js";
 import { compareWithYesterday, judgmentsFromNotes } from "./compare.js";
 import { loadSeries } from "./history.js";
@@ -96,6 +96,10 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const deepReport = notes.find((n) => n.kind === "deep_report" && now - n.at < 72 * 3600_000);
   const deepRequest = notes.find((n) => n.kind === "deep_request");
   const usage = await loadMonthUsage(store, now);
+  // 정기 분석 횟수는 이번 달 실제로 남은 판단 기록에서 센다 (사용량 기록을 빠뜨린 실행도 빠지지 않게 — 11/2 '정기 분석 0회')
+  const monthStart = Date.parse(`${usage.month}-01T00:00:00+09:00`);
+  const monthAssessments = (await store.getNotes(monthStart).catch(() => [] as AgentNote[])).filter((n) => n.kind === "assessment").length;
+  if (monthAssessments > usage.scheduled.runs) usage.scheduled = { ...usage.scheduled, runs: monthAssessments };
   // 소스가 계속 실패하는 징후는 '수집 실패'로 (마지막 값이 '정상'처럼 보이지 않게)
   const active = activeSources(disabled);
   const activeIds = new Set<string>(active.map((s) => s.id));

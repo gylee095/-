@@ -1,5 +1,6 @@
 // Cloudflare Worker: 5분 크론 감시 사이클 + 원격 MCP 커넥터 + 모바일 대시보드
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { SCHEDULE } from "../core/sources.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { Env as CoreEnv } from "../core/types.js";
 import { runCycle } from "../core/pipeline.js";
@@ -51,14 +52,8 @@ async function handleMcp(req: Request, env: Env, store: D1Store): Promise<Respon
 }
 
 /** 크론 표현식별 소스 묶음 (wrangler.toml 의 crons 와 일치해야 함) */
-const CRON_GROUPS: Record<string, string[]> = {
-  "* * * * *": ["rss_breaking"],
-  "*/5 * * * *": ["safetydata", "usgs", "emsc", "adsb_lol", "rss_news"],
-  // bluesky·aisstream 은 뺐다(2026-11-01): 서버에서 막히거나(블루스카이 403) 한국 바다를 몇 척밖에 못 봐서 지표가 '사실상 모름'이었다
-  "3-59/15 * * * *": ["nga_msi", "markets"],
-  "11 * * * *": ["travel", "korea_kr_mnd", "ioda", "firms", "advisories", "polymarket", "nightlights"],
-  "41 2 * * *": ["gpsjam", "gfw", "wiki", "naver_datalab", "ecos", "nk_market"],
-};
+// 크론 묶음은 core/sources.ts SCHEDULE 이 정본이다
+const CRON_GROUPS: Record<string, string[]> = SCHEDULE;
 
 /** D1 무료 한도 초과 오류인가 (UTC 자정 = 한국 시간 오전 9시에 풀린다) */
 export const isD1Limit = (e: unknown) => /D1_ERROR|exceeded D1|row read limit|rows? written limit/i.test(String((e as Error)?.message ?? e));

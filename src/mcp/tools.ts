@@ -67,7 +67,9 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
           posture: st.posture,
           patterns: st.patterns.map((p) => ({ name: p.name, confidence: p.confidence, score: p.score, summary: p.summary, alternatives: p.alternatives, checks: p.checks })),
           abnormalIndicators: st.board.filter((b) => b.reading && (b.reading.state === "elevated" || b.reading.state === "anomalous")).map((b) => describeReading(b.reading, b.id)),
-          learningIndicators: st.board.filter((b) => b.reading?.state === "learning").length,
+          learningIndicators: st.board.filter((b) => b.reading?.state === "learning").map((b) => b.id),
+          // 지금 못 받는 소스(서버 사실) — 분석관의 '못 보는 것'은 여기와 warRisk.blindSpots 에서만 쓴다
+          dataHealth: st.dataHealth,
           unavailableIndicators: st.board.filter((b) => !b.reading || b.stateLabel === "측정 불가").map((b) => b.id),
           lastAssessment: st.assessment ? { at: fmtKst(st.assessment.at), text: st.assessment.text } : null,
           // 토큰 절약: 중요한 사건 최대 8건만 상세, 나머지는 한 줄

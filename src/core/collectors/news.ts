@@ -1,6 +1,6 @@
 // 언론(GDELT, RSS) — 알림 트리거가 아니라 교차검증과 '뉴스 대비 리드타임' 측정용
 import type { CollectResult, Metric, Signal } from "../types.js";
-import { OFFICIAL_QUOTE_RE, classifyText, isKoreaRelevant, launchTitleKind } from "../classify.js";
+import { OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind } from "../classify.js";
 import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 
 const GDELT_QUERY =
@@ -58,14 +58,12 @@ const NK_HOSTILE_RE = /핵\s?(무력|공격|타격|전쟁|보복|사용)|선제|
 const NK_RE = /북한|北|김정은|김여정|평양|조선중앙|노동신문|North Korea|DPRK|Kim Jong/i;
 // 한반도 전쟁을 입에 올리는 보도 (역사 기념·다른 나라 전쟁·무역전쟁은 뺀다)
 export const WAR_TALK_RE = /전쟁|전면전|확전|선전포고|전시\s?상태|준전시|동원령|대피령|교전|무력\s?충돌/;
-const KOREA_CTX_RE = /북한|北|남북|한반도|김정은|김여정|평양|NLL|DMZ|휴전선|접경/;
 const NOT_WAR_TALK_RE = /6[·.]25|한국\s?전쟁\s?(기념|참전|유해|\d+주년)|참전|전쟁기념|정전\s?협정|우크라|러시아|이스라엘|이란|가자|중동|무역\s?전쟁|관세|게임|영화|드라마|웹툰/;
-export const isWarTalk = (t: string) => WAR_TALK_RE.test(t) && KOREA_CTX_RE.test(t) && !NOT_WAR_TALK_RE.test(t);
+export const isWarTalk = (t: string) => WAR_TALK_RE.test(t) && isKoreaContext(t) && !NOT_WAR_TALK_RE.test(t);
 // 접경 사건: 확성기·경고사격·군사분계선 침범·지뢰·풍선·전단·감시초소(GP) 총격 (2026-10-29 '접경지 주민들 아침부터 北확성기 소리'를 놓친 뒤 추가)
 export const BORDER_RE = /확성기|경고\s?사격|경고\s?방송|군사분계선|MDL|지뢰|오물\s?풍선|쓰레기\s?풍선|대북\s?전단|전단\s?살포|GP\s?(총격|사격)|총격|월선|침범|포탄\s?(낙하|발견)/;
-const BORDER_CTX_RE = /북한|北|남북|접경|비무장지대|DMZ|휴전선|NLL|군사분계선|MDL|대북|대남/;
 const NOT_BORDER_RE = /6[·.]25|유해|관광|축제|생태|평화누리|둘레길|다큐|영화|전시회|마라톤|영공\s?침범.*(중국|러시아)|사이버/;
-export const isBorderIncident = (t: string) => BORDER_RE.test(t) && BORDER_CTX_RE.test(t) && !NOT_BORDER_RE.test(t);
+export const isBorderIncident = (t: string) => BORDER_RE.test(t) && isKoreaContext(t) && !NOT_BORDER_RE.test(t);
 /** (종합)·(2보) 같은 꼬리표를 떼고 앞부분으로 같은 기사를 한 번만 센다 */
 const storyKey = (t: string) => t.replace(/\((종합|\d보)[^)]*\)|\[[^\]]*\]/g, "").replace(/\s+/g, "").slice(0, 18);
 /** 같은 기사가 여러 피드(전체·북한 섹션)와 (종합)·N보로 거듭 실린다 — 이야기 하나로 한 번만 센다.

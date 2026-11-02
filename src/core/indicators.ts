@@ -52,7 +52,7 @@ export const INDICATORS: IndicatorDef[] = [
     id: "air.isr_airborne", label: "정찰·감시·급유기 수", group: "air", unit: "대", direction: "high", slots: 4, absolute: { elevated: 3, anomalous: 5 },
     coverage: "공개 신호(ADS-B, adsb.lol·adsb.fi 두 수신망)에 보이는 기체만 센다 — 정찰기는 흔히 신호를 끄고 비행한다",
     why: "RC-135S 코브라볼(미사일 추적), RC-135V/W, E-8, P-8, U-2, RQ-4 의 한반도 주변 집중 비행은 미사일 발사 임박 징후로 반복 보도됐다. WC-135(방사능 탐지)는 핵실험 전후에 전개된다.",
-    measure: "군용기 중 기종 코드가 정찰·조기경보·해상초계·급유기인 것의 수와 목록",
+    measure: "군용기 중 기종 코드가 정찰·조기경보·해상초계·급유기인 것의 수와 목록 — 한반도·서해·동해(위도 30~45°, 경도 119~137.5°, 일본 서해안까지)만. 도쿄·간토 상공은 세지 않는다(2026-11-02, 호주 공군 P-8·급유기가 동해 2대로 세어졌다)",
     latency: "수 초~수십 초", caveats: "기종 코드만으로 RC-135와 WC-135, KC-135를 완전히 구분하지 못한다(목록의 등록번호·콜사인 확인 필요).",
   },
   {
@@ -290,6 +290,8 @@ export const MIN_DAYS = 7;
 /** 이만큼만 있어도 아주 큰 변화(z ≥ EARLY_Z)는 '이상'으로 본다 — 공역 폐쇄 같은 급변을 놓치지 않으려고 */
 export const EARLY_DAYS = 2;
 export const EARLY_Z = 4;
+/** '학습 중' 규칙을 사람이 읽는 말로 — 해설 힌트·징후판 설명이 이 문장 하나를 같이 쓴다 (규칙을 바꾸면 여기만 고친다) */
+export const LEARNING_RULE = `'평소'는 최근 4주 같은 시간대의 중앙값이다. 기록이 ${MIN_DAYS}일 쌓이기 전에는 작은 흔들림을 판정하지 않고, ${EARLY_DAYS}일 넘게 쌓였으면 아주 큰 변화(평소 흔들림의 ${EARLY_Z}배 이상)만 '이상'으로 잡는다. 고정 문턱으로 보는 항목(여행경보·발사 예고·지진 등)은 지금도 판정한다.`;
 
 export interface DayBaseline {
   /** 날마다 평균의 중앙값 */

@@ -80,12 +80,19 @@ function krwRel(by: Map<string, DailyMove>): { krwPct?: number; fxPeersPct?: num
   return { krwPct: +krw.changePct.toFixed(2), fxPeersPct: +p.toFixed(2), krwRelPct: +(krw.changePct - p).toFixed(2) };
 }
 
+/** 한국 시각 날짜 (아시아 증시는 같은 날 거래분이 같은 날짜가 된다) */
+const kstDate = (ms?: number) => (ms === undefined ? undefined : new Date(ms + 9 * 3600_000).toISOString().slice(0, 10));
+
 export function equityMetrics(moves: DailyMove[]): Metric[] {
   const by = new Map(moves.map((m) => [m.symbol, m]));
   const kospi = by.get(EQUITY_SYMBOLS.kospi);
   if (!kospi) return [];
   const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
-  const peers = EQUITY_SYMBOLS.peers.map((s) => by.get(s)).filter(Boolean) as DailyMove[];
+  // 같은 날 거래한 이웃 증시만 비교한다 — 휴장일의 이웃 증시는 전날 변동이라, 섞으면 '한국만의 움직임'이 다른 날끼리 빼기가 된다 (2026-11-02)
+  const day = kstDate(kospi.at);
+  const allPeers = EQUITY_SYMBOLS.peers.map((s) => by.get(s)).filter(Boolean) as DailyMove[];
+  const peers = allPeers.filter((p) => !day || !p.at || kstDate(p.at) === day);
+  const skipped = allPeers.filter((p) => !peers.includes(p)).map((p) => p.symbol);
   const defense = EQUITY_SYMBOLS.defense.map((s) => by.get(s)).filter(Boolean) as DailyMove[];
   const r2 = (x: number) => +x.toFixed(2);
   const out: Metric[] = [];
@@ -94,7 +101,8 @@ export function equityMetrics(moves: DailyMove[]): Metric[] {
     out.push({
       indicator: "market.kr_equity_rel_pct",
       value: r2(rel),
-      meta: { kospiPct: r2(kospi.changePct), peersPct: r2(mean(peers.map((p) => p.changePct))), ewyPct: by.get(EQUITY_SYMBOLS.ewy) ? r2(by.get(EQUITY_SYMBOLS.ewy)!.changePct) : undefined, quoteTime: kospi.at, ...krwRel(by), note: "코스피 일간 변동 − 일본·대만 증시 평균 (음수 = 한국만 더 빠짐)" },
+      // 값마다 자기 거래 시각을 남긴다: 미국 상장 한국 ETF 는 미국 장 값이라 한국 아침엔 '전날(주말이면 금요일) 미국 장' 변동이다 (11/2 월요일 화면의 '−5.52%'는 10/30 미국 장)
+      meta: { kospiPct: r2(kospi.changePct), peersPct: r2(mean(peers.map((p) => p.changePct))), ...(skipped.length ? { peersSkipped: skipped } : {}), ewyPct: by.get(EQUITY_SYMBOLS.ewy) ? r2(by.get(EQUITY_SYMBOLS.ewy)!.changePct) : undefined, ewyAt: by.get(EQUITY_SYMBOLS.ewy)?.at, quoteTime: kospi.at, ...krwRel(by), note: "코스피 일간 변동 − 일본·대만 증시 평균 (음수 = 한국만 더 빠짐)" },
     });
   }
   if (defense.length) {

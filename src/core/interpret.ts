@@ -1,11 +1,12 @@
 // 해석 엔진: 징후판의 숫자를 사람 말로 풀고, 징후끼리 조합해 '힌트'를 만든다.
 // 규칙 기반이라 5분마다 비용 없이 돌며, 클로드 분석관(하루 2회)은 이 결과 위에서 더 깊은 추론을 보탠다.
 // 원칙: 숫자 → 뜻 → 조합 → 근거 → 반대 해석 → 지금 확인할 것. 단정하지 않고 '힌트'라고 부른다.
+import { placeName } from "./geo.js";
 import type { BoardRow } from "./state.js";
 import type { Pattern } from "./patterns.js";
 import type { EventBrief } from "./brief.js";
 import { inChineseMoratorium, inExerciseSeason } from "./patterns.js";
-import { INDICATOR_BY_ID, displayValue, shortLabel } from "./indicators.js";
+import { INDICATOR_BY_ID, LEARNING_RULE, displayValue, shortLabel } from "./indicators.js";
 
 export interface Hint {
   /** warning: 위험 쪽 힌트 · reassuring: 안심 쪽 힌트 · caveat: 해석 주의 · gap: 사각지대 */
@@ -98,7 +99,9 @@ function isLearning(row: BoardRow | undefined): boolean {
 
 /** 징후 하나의 숫자를 뜻으로 풀어 쓴다 — 범위가 좁은 지표가 0이면 '없음'이 아니라는 점을 덧붙인다 */
 export function meaningOf(row: BoardRow, ctx: { night: boolean; exercise: boolean; moratorium: boolean }): string {
-  const text = meaningCore(row, ctx);
+  let text = meaningCore(row, ctx).replace(/\?(대|건|%|배|원|일)/g, "(모름)").replace(/undefined|NaN/g, "(모름)");
+  // 평소를 아직 모르는 징후는 '평소 수준'이라고 판정하지 않는다 (11/2 '기업 제트기 평소 ?대 → 평소 수준')
+  if (row.reading && (row.reading.state === "learning" || (row.reading.meta as any)?.learning)) text = text.replace(/→\s*평소 (수준|범위)/g, "→ 아직 평소와 비교하지 않음");
   const cov = INDICATOR_BY_ID[row.id]?.coverage;
   return cov && row.reading && row.stateLabel !== "측정 불가" && row.reading.value === 0 ? `${text} ⚠ 범위 제한: ${cov}` : text;
 }
@@ -141,7 +144,7 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
     case "air.isr_airborne": {
       const ac = (r!.meta as any)?.aircraft as any[] | undefined;
       if (v === 0) return "정찰·급유기 미관측 → 미사일 발사 임박 때 흔히 보이는 RC-135 계열 전개가 지금은 보이지 않음 (임무기는 종종 송출을 끔)";
-      const names = (ac ?? []).slice(0, 3).map((a) => `${a.what.split("(")[0].trim()}${a.lat !== undefined ? `(${a.lon > 128.5 ? "동해" : a.lon < 125.5 ? "서해" : "한반도"} 상공)` : ""}`).join(", ");
+      const names = (ac ?? []).slice(0, 3).map((a) => `${a.what.split("(")[0].trim()}${a.lat !== undefined ? `(${placeName(a.lat, a.lon)})` : ""}`).join(", ");
       return `정찰·급유기 ${v}대 관측: ${names}. ${ctx.exercise ? "연합훈련 철 정례 비행일 가능성 높음" : "RC-135S·WC-135 면 발사·핵실험 관측 임무 가능성 — 등록번호로 확인 필요"}`;
     }
     case "sea.gfw_cn_change_pct": {
@@ -244,13 +247,17 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
     }
     case "elite.kr_bizjets": {
       const m = r!.meta as any;
-      if (isAbnormal(row)) return `어제 한국 기업 제트기 출국 ${m?.departures}대 — 평소(${m?.usual}대)의 ${(v / 100).toFixed(1)}배. 출장이 몰린 것일 수 있지만, 정보를 먼저 들은 쪽이 떠나는 모양일 수도 있음 (오늘 지금까지 ${m?.todaySoFar ?? 0}대)`;
-      return `어제 한국 기업 제트기 출국 ${m?.departures ?? "?"}대 (평소 ${m?.usual ?? "?"}대) → 평소 수준 (오늘 지금까지 ${m?.todaySoFar ?? 0}대)`;
+      const dep = m?.departures !== undefined ? `${m.departures}대` : "(대수 모름)";
+      if (isAbnormal(row)) return `어제 한국 기업 제트기 출국 ${dep} — 평소${m?.usual !== undefined ? `(${m.usual}대)` : ""}의 ${(v / 100).toFixed(1)}배. 출장이 몰린 것일 수 있지만, 정보를 먼저 들은 쪽이 떠나는 모양일 수도 있음 (오늘 지금까지 ${m?.todaySoFar ?? 0}대)`;
+      if (m?.learning || m?.usual === undefined) return `어제 한국 기업 제트기 출국 ${m?.departures ?? 0}대 · 평소는 아직 모름 (기록 ${m?.learningDays ?? 0}/${m?.need ?? 8}일 — 다 쌓이면 비교) · 오늘 지금까지 ${m?.todaySoFar ?? 0}대`;
+      return `어제 한국 기업 제트기 출국 ${m?.departures ?? 0}대 (평소 ${m.usual}대) → 평소 수준 (오늘 지금까지 ${m?.todaySoFar ?? 0}대)`;
     }
     case "market.kr_equity_rel_pct": {
       const m = r!.meta as any;
       const sg = (x?: number) => (x === undefined ? "?" : `${x > 0 ? "+" : ""}${x}%`);
-      const body = `코스피 ${sg(m?.kospiPct)}, 일본·대만 평균 ${sg(m?.peersPct)}${m?.ewyPct !== undefined ? `, 미국 상장 한국 ETF ${sg(m.ewyPct)}` : ""}`;
+      // 미국 장 값은 날짜를 붙인다 (뉴욕 날짜, 서머타임 무시 −5시간) — 같은 날 일처럼 읽히지 않게
+      const usDay = (ms?: number) => { if (!ms) return ""; const d = new Date(ms - 5 * 3600_000); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} 미국 장`; };
+      const body = `코스피 ${sg(m?.kospiPct)}, 일본·대만 평균 ${sg(m?.peersPct)}${m?.peersSkipped?.length ? "(휴장한 곳 빼고)" : ""}${m?.ewyPct !== undefined ? `, 미국 상장 한국 ETF ${sg(m.ewyPct)}${m.ewyAt ? `(${usDay(m.ewyAt)})` : ""}` : ""}`;
       if (v <= -4) return `${body} → 한국만 ${Math.abs(v).toFixed(1)}%p 더 빠짐. 이웃 증시와 따로 빠진 큰 하락 — 북한 뉴스와 시점이 겹치는지, 국내 정치·업종 요인인지 확인`;
       if (v <= -2) return `${body} → 한국만 ${Math.abs(v).toFixed(1)}%p 더 빠짐. 한국 고유 요인이 있음 (북한·정치·반도체 중 무엇인지 확인)`;
       return `${body} → 한국만의 이상 하락 없음`;
@@ -519,8 +526,8 @@ export function interpret(input: InterpretInput): Interpretation {
   if (learning.length >= 5) {
     hints.push({
       kind: "caveat",
-      title: `기준선 학습 중인 징후 ${learning.length}개`,
-      reasoning: "'평소'가 아직 없어서 이 징후들은 정상/이상을 가리지 못한다. 절대 임계값이 있는 항목(여행경보·발사 예고·지진 등)만 지금 판정이 유효하다.",
+      title: `평소를 아직 다 배우지 못한 징후 ${learning.length}개`,
+      reasoning: LEARNING_RULE,
       indicators: learning.map((l) => l.id),
     });
   }

@@ -40,6 +40,8 @@ export interface Usage {
 
 export interface UsageTotals {
   runs: number;
+  /** 토큰이 기록된 실행 수 — 실행 수보다 적으면 화면에 '토큰 기록 N회분'으로 보인다 */
+  tokenRuns?: number;
   input_tokens: number;
   output_tokens: number;
   cache_read_tokens: number;
@@ -151,6 +153,7 @@ export async function addUsage(store: Store, kind: "deep" | "scheduled", raw: Us
   const m = await loadMonthUsage(store, now);
   const t = m[kind];
   if (countRun) t.runs += 1;
+  if ((u.input_tokens ?? 0) + (u.output_tokens ?? 0) + (u.cache_read_tokens ?? 0) + (u.cache_write_tokens ?? 0) > 0) t.tokenRuns = (t.tokenRuns ?? 0) + 1;
   t.input_tokens += u.input_tokens ?? 0;
   t.output_tokens += u.output_tokens ?? 0;
   t.cache_read_tokens += u.cache_read_tokens ?? 0;

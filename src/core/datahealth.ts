@@ -1,8 +1,9 @@
 // 데이터를 제대로 받고 있나 (2026-11-02)
 // 소스가 계속 실패해도 징후 카드는 마지막 값('재난문자 0건 · 정상')을 30시간까지 그대로 보여 줬다.
 // 11/2 14:50부터 국민재난안전포털·정책브리핑이 서버 접속에 응답하지 않았는데(HTTP 522) 화면은 평소처럼 보였다.
-// 이제 실패가 30분 넘게 이어지거나 하루 넘게 수집 기록이 없는 소스는 '못 받는 것'으로 맨 위에 보이고, 그 소스의 카드는 '수집 실패'가 된다.
+// 이제 실패가 이어지거나(소스마다 받는 주기에 맞춰) 수집 기록이 끊긴 소스는 '못 받는 것'으로 맨 위에 보이고, 그 소스의 카드는 '수집 실패'가 된다.
 import type { SourceHealth } from "./store.js";
+import { intervalOf } from "./sources.js";
 
 /** 실패가 이만큼 이어지면 '못 받는 중'으로 본다 (5분 주기 소스 기준 여섯 번 연속) */
 export const FAIL_AFTER_MS = 30 * 60_000;
@@ -27,12 +28,20 @@ export interface DataHealth {
   learning: number;
 }
 
-/** 이 소스를 지금 못 받고 있나: 실패가 30분 넘게 이어졌거나(성공 시각을 모르면 실패 그 자체), 하루 넘게 수집 기록이 없다 */
-export function isFailing(h: SourceHealth | undefined, now: number): boolean {
+/**
+ * 이 소스를 지금 못 받고 있나 — 소스마다 받는 주기(분)를 보고 판정한다 (주기는 core/sources.ts SCHEDULE).
+ * - 기록이 끊김: 주기의 세 배(최소 30분, 하루 한 번 받는 소스는 26시간) 넘게 수집 기록이 없다
+ * - 실패가 이어짐: 두 번 연속 실패했고 마지막 성공이 주기+5분(최소 30분)보다 오래됐다.
+ *   한 번 실패는 흔하다(11/2 정책브리핑 HTTP 522 가 몇 번 끊겼다 이어짐) — 1시간마다 받는 소스가 한 번 실패로 바로 '못 받는 것'이 되던 문제.
+ *   하루 한 번 받는 소스는 한 번만 실패해도 하루가 비므로 바로 본다.
+ */
+export function isFailing(h: SourceHealth | undefined, now: number, intervalMin = intervalOf(h?.source ?? "") ?? 5): boolean {
   if (!h) return false;
-  if (now - h.fetchedAt > STALE_AFTER_MS) return true;
+  const staleAfter = intervalMin >= 1440 ? STALE_AFTER_MS : Math.max(FAIL_AFTER_MS, 3 * intervalMin * 60_000);
+  if (now - h.fetchedAt > staleAfter) return true;
   if (h.ok) return false;
-  return now - (h.lastOkAt ?? 0) > FAIL_AFTER_MS;
+  const repeated = (h.failCount ?? 1) >= 2 || intervalMin >= 1440;
+  return repeated && now - (h.lastOkAt ?? 0) > Math.max(FAIL_AFTER_MS, (intervalMin + 5) * 60_000);
 }
 
 /** '행정안전부 긴급재난문자 API (safetydata.go.kr)' → '행정안전부 긴급재난문자' */

@@ -6,3 +6,10 @@
 - 코드 변경 시 `npm test`와 `npm run typecheck`를 통과시킨다. 탐지 규칙을 바꾸면 test/fixtures 에 사례를 추가한다.
 - 비밀값(API 키, 푸시 토픽, 토큰)을 코드·커밋·로그·노트에 쓰지 않는다.
 - 징후·패턴 규칙을 바꿀 때는 docs/INDICATORS.md 의 근거(왜 보는가·대안 설명)도 함께 갱신한다. 패턴은 단일 징후로 'high' 가 되면 안 된다.
+- 같은 실수를 막는 정본 (2026-11-02 대시보드 점검 13건의 원인 — 같은 것을 여러 곳에 따로 적어 두고 일부만 고쳤다):
+  - 수집원 추가·은퇴는 `src/core/sources.ts` 의 `SCHEDULE` 한 곳만 고친다. Worker 크론 묶음·화면 '지금 쓰는 소스'·실패 판정 주기가 여기서 나온다. wrangler.toml crons 는 같아야 한다(테스트가 확인).
+  - 지역 범위와 '어디 상공' 이름은 `src/core/geo.ts`, '한반도 이야기인가'는 `classify.ts` 의 `isKoreaContext`, 확률 표기는 `fmtRiskPct`(화면 `pct()` 와 같아야 함 — 테스트), '학습 중' 설명은 `LEARNING_RULE` 하나만 쓴다.
+  - 징후 정의(이름·측정·문턱)를 바꾸면 `npm run docs:indicators` 로 docs/INDICATORS.md 의 자동 생성 표를 갱신한다(다르면 테스트 실패).
+  - 대시보드·화면 문구를 바꾸면 `npm run check:ui <상태.json>` 을 통과시킨다 (390px 밝은·어두운 화면, 모두 펼침: 가로 밀림·스크립트 오류·'?대'·undefined·영어 상태어 없음). 상태 파일은 /api/state 를 받아 setup 을 지운 것.
+  - 화면의 출처·판정 표시는 저장된 값이 아니라 지금 규칙으로 다시 계산한 요약(brief)에서 가져온다.
+

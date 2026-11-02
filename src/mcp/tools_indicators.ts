@@ -1,4 +1,5 @@
 // 징후·경보(I&W) 분석용 MCP 도구. tools.ts 의 registerTools 끝에서 호출된다.
+import { addUsage } from "../core/deep.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { Env, Reading } from "../core/types.js";
@@ -490,6 +491,8 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
         a.gaps.length ? `[감시 공백] ${a.gaps.join(" / ")}` : "",
       ].filter(Boolean).join("\n");
       await store.addNote({ at: Date.now(), author: "claude-agent", text, kind: "assessment", data: a });
+      // 정기 분석 실행 1회 — 판단을 남길 때 서버가 센다(지침을 잊어도 0회가 되지 않게). 토큰은 record_usage 가 채운다
+      await addUsage(store, "scheduled", {}, Date.now(), undefined, true).catch(() => undefined);
       return out({ ok: true });
     },
   );

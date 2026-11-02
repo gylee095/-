@@ -1,6 +1,7 @@
 // adsb.lol ADS-B (무료·무인증, ODbL). OpenSky가 클라우드 서버 접속을 차단해 주 항공 소스로 사용.
 // 한반도 수신기 커버리지가 제한적이므로 이 소스 단독 신호는 항상 미확인(UNVERIFIED)이다.
 //  - 민항기 수(공역 통제 징후), 한반도 주변 군용기 수, 동북아 정찰·급유기(ISR) 목록, 비상 스쿼크를 관측한다.
+import { AREAS, inBox } from "../geo.js";
 import type { CollectResult, Metric, Signal } from "../types.js";
 import { fetchJson } from "../util.js";
 
@@ -21,12 +22,12 @@ export const AIR_REGIONS: Record<string, Circle> = {
 };
 
 /** 군용기 집계 범위: 한반도·일본 서부·중국 동북부·동해·서해 */
-export const NE_ASIA_BOX = { minLat: 28, maxLat: 47, minLon: 117, maxLon: 147 };
+// 범위는 core/geo.ts 한 곳에서 정한다
+export const NE_ASIA_BOX = AREAS.neAsia;
 /** 군용기 '수'는 한반도와 주변 바다만 센다 (2026-11-02). 동북아 전체로 세면 일본 중부의 급유·수송기가 대부분이라
- *  11/2 '10대 중 5대가 일본 상공'인데도 군사 동향을 '경계'로 올렸다. 정찰기(RC-135 등)는 동해·일본 쪽에서 한반도를 보므로 넓은 범위 그대로 */
-export const KOREA_THEATER_BOX = { minLat: 32.5, maxLat: 43.5, minLon: 123, maxLon: 132.5 };
-export const inBox = (a: { lat?: number; lon?: number }, b: { minLat: number; maxLat: number; minLon: number; maxLon: number }) =>
-  a.lat !== undefined && a.lon !== undefined && a.lat >= b.minLat && a.lat <= b.maxLat && a.lon >= b.minLon && a.lon <= b.maxLon;
+ *  11/2 '10대 중 5대가 일본 상공'인데도 군사 동향을 '경계'로 올렸다. */
+export const KOREA_THEATER_BOX = AREAS.koreaTheater;
+export { inBox };
 
 export interface Aircraft {
   icao24: string;
@@ -106,7 +107,7 @@ export function normalize(a: any): Aircraft {
 // 기체 고유번호는 하루 안의 중복 제거용 해시로만 쓰고 이틀 뒤 지운다.
 export const BIZJET_TYPES = /^(GLF[2-6]|GA[5-8]C|G280|G150|GL5T|GL6T|GL7T|GL8T|GLEX|CL30|CL35|CL60|FA7X|FA8X|FA6X|F900|F2TH|FA50|E35L|E545|E550|E55P|C680|C68A|C700|C750|C56X|LJ45|LJ60|LJ75|H25B|PC24)$/i;
 /** 한국 영역 대략 (출국 상승 중인 기체만 센다) */
-const KOREA_BOX = { minLat: 33, maxLat: 38.7, minLon: 124.5, maxLon: 131 };
+const KOREA_BOX = AREAS.southKorea;
 
 export type JetPhase = "d" | "a" | "c";
 
@@ -218,7 +219,8 @@ export function airMetrics(korea: Aircraft[], neAsiaMil: Aircraft[]): Metric[] {
   const civil = airborne.filter((a) => !a.military);
   const milAir = neAsiaMil.filter((a) => !a.onGround);
   const nearKorea = milAir.filter((a) => inBox(a, KOREA_THEATER_BOX));
-  const isr = describeIsr(milAir);
+  // 정찰·급유기는 한반도·서해·동해(일본 서해안까지)만 — 도쿄 근처 호주 공군 P-8·급유기가 '동해 상공 2대'로 세어졌다 (11/2)
+  const isr = describeIsr(milAir.filter((a) => inBox(a, AREAS.isrWatch)));
   return [
     { indicator: "air.civil_airborne", value: civil.length, meta: { total: airborne.length } },
     { indicator: "air.mil_airborne", value: nearKorea.length, meta: { types: countBy(nearKorea.map((a) => a.type ?? "?")), elsewhere: milAir.length - nearKorea.length } },

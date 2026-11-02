@@ -36,6 +36,9 @@ export interface EventBrief {
   selfReport?: { day: number; reportedAt: number };
   /** 화면에 덧붙이는 한 줄 설명 */
   note?: string;
+  /** 출처 성격 — 저장된 판정(basis)이 아니라 지금 규칙으로 다시 읽은 제목으로 정한다. 규칙이 바뀌면 옛 사건의 표시도 따라 바뀐다
+   *  (2026-11-02: 해설 기사 '합참 "北발사체 모두 공지하진 않아"'가 저장 당시 판정대로 '속보 1곳'으로 보였다) */
+  sourceLabel?: string;
 }
 
 const DANGER_LABEL = ["", "관심", "주의", "경계", "심각", "위급"] as const;
@@ -245,6 +248,7 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
     latest,
     ...(evacuation ? { evacuation } : {}),
     ...(posture.length ? { posture } : {}),
+    ...(e.basis === "official_quote" && !kinds.some((k) => k === "report" || k === "self" || k === "commentary") ? { sourceLabel: "해설·후속 기사 (공식 인용)" } : {}),
     ...(selfReport
       ? { selfReport, note: `우리 군·일본 발표 없이 북한 매체 보도(${kstText(selfReport.reportedAt)})로 알려진 발사 — 날짜(${kstText(selfReport.day, false)})만 확인, 시각 미상` }
       : {}),

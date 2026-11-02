@@ -2,7 +2,7 @@
 // 합참 기자단 문자보다 수 시간 늦지만 '정부 공식 확인'으로 쓴다.
 import type { CollectResult, Metric, Signal } from "../types.js";
 import { classifyText } from "../classify.js";
-import { fetchText } from "../util.js";
+import { fetchText, withRetry } from "../util.js";
 
 export const MND_LIST_URL = "https://www.korea.kr/briefing/pressReleaseList.do?repCodeType=&repCode=A00005&pageIndex=1";
 
@@ -80,7 +80,7 @@ export function mndSignals(items: PressRelease[], now: number): { signals: Signa
 }
 
 export async function collectKoreaKrMnd(now = Date.now()): Promise<CollectResult> {
-  const html = await fetchText(MND_LIST_URL, {}, 25000);
+  const html = await withRetry(() => fetchText(MND_LIST_URL, {}, 25000));
   const items = parseMndList(html);
   const { signals, metrics } = mndSignals(items, now);
   return { source: "korea_kr_mnd", ok: items.length > 0, error: items.length ? undefined : "목록 파싱 실패(페이지 구조 변경?)", fetchedAt: now, rawCount: items.length, signals, metrics };

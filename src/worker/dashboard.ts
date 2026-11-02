@@ -118,7 +118,7 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .ib.fail{color:var(--l3);font-weight:700}
 .since{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--chip);font-size:13px;line-height:1.5}.since ul{margin:2px 0 6px 18px;padding:0}.since div{margin-top:4px;color:var(--mute)}
 .btn{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--link);border-radius:10px;padding:8px 12px;font-size:14px;margin:4px 6px 4px 0;text-decoration:none}
-table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}.ok{color:var(--l1)}.bad{color:var(--l4)}
+table{width:100%;max-width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere;word-break:break-word}.ok{color:var(--l1)}.bad{color:var(--l4)}
 #login{display:none}#login input{width:100%;padding:12px;font-size:16px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);margin:8px 0}
 .foot{font-size:12px;color:var(--mute);margin-top:20px}
 .leaflet-container{background:var(--chip);font:inherit}.leaflet-tooltip{font-weight:700;font-size:12px}.leaflet-control-attribution{font-size:9px!important;line-height:1.2}
@@ -141,7 +141,7 @@ function tok(){try{var q=new URLSearchParams(location.search).get("key");if(q){l
 function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch(e){}load()}
 var STATUS={CONFIRMED:"정부 공식확인",CORROBORATED:"복수 출처 교차확인",UNVERIFIED:"단일 출처"};
 var CONF={high:"신뢰도 높음",medium:"신뢰도 보통",low:"신뢰도 낮음"};
-function basisText(e){if(e.basis==="official_quote")return e.status==="CORROBORATED"?"언론 "+e.sources.length+"곳이 공식발표 인용":"속보 1곳 (교차확인 전)";if(e.basis==="media")return "언론 보도만";return STATUS[e.status]}
+function basisText(e){if(e.brief&&e.brief.sourceLabel)return e.brief.sourceLabel;if(e.basis==="official_quote")return e.status==="CORROBORATED"?"언론 "+e.sources.length+"곳이 공식발표 인용":"속보 1곳 (교차확인 전)";if(e.basis==="media")return "언론 보도만";return STATUS[e.status]}
 async function load(){
   var st=window.__KEW_STATE__;
   if(!st){var t=tok();if(!t){$("#login").style.display="block";return}
@@ -306,7 +306,7 @@ function fingerprints(f){var on=f.checks.filter(function(c){return c.status==="o
   return h}
 // 스스로 채점하는 예측: 다음 30일·7일 큰 도발 확률 (최근 180일 빈도, 지난 10년으로 보정) + 예측 성적
 function forecastLine(f,sc){if(!f)return "";
-  var s='<div class="mk"><b>다음 30일 큰 도발</b>(ICBM·일본 상공·포격·위성·핵실험급) 약 <b>'+f.p30+'%</b> · 7일 '+f.p7+'% <span>(아무 날 평균 '+f.base30+'%)</span> — 최근 180일 큰 도발 '+f.count180+'번'+(f.last?', 마지막 '+esc(f.last.d):'')+' 기준, 지난 10년 실제 비율로 보정. 전쟁 확률이 아니라 자주 일어나는 일로 실력을 재는 예측입니다.';
+  var s='<div class="mk"><b>다음 30일 큰 도발</b>(ICBM·일본 상공·포격·위성·핵실험급) 약 <b>'+f.p30+'%</b> · 7일 '+f.p7+'% <span>(지난 10년 평균 '+f.base30+'%)</span> — 최근 180일 큰 도발 '+f.count180+'번'+(f.last?', 마지막 '+esc(f.last.d):'')+' 기준, 지난 10년 실제 비율로 보정. 전쟁 확률이 아니라 자주 일어나는 일로 실력을 재는 예측입니다.';
   if(sc&&sc.n)s+=' <b>예측 성적</b>: '+sc.n+'일 채점, 평균값보다 '+(sc.skill>=0?Math.round(sc.skill*100)+'% 덜 틀림':Math.round(-sc.skill*100)+'% 더 틀림')+'.';
   else if(sc&&sc.firstDue)s+=' 첫 채점 '+esc(sc.firstDue)+'.';
   return s+'</div>'}
@@ -323,7 +323,7 @@ function gauge(w){var names=["평온","긴장","위기","임박","교전"],rng=[
   var r=w.vsUsual!=null?w.vsUsual:w.clash30d.point/w.usual.clash;
   var times=r<1.15?"평소 수준":r<10?"평소의 "+(Math.abs(r-Math.round(r))<0.05?Math.round(r):r.toFixed(1))+"배":"평소의 "+Math.round(r)+"배";
   var odds=w.clash30d.point>=99.5?"":"약 "+Math.max(2,Math.round(100/w.clash30d.point))+"번에 1번꼴";
-  var wp=function(x){return x>=1?Math.round(x)+"%":x.toFixed(1)+"%"},fighting=w.clash30d.point>=99.5;
+  var fighting=w.clash30d.point>=99.5;
   var h='<div class="gq">앞으로 30일 안에 남북 무력 충돌이 일어날 가능성</div>';
   h+=fighting?'<div class="gnum"><b>교전 중</b><span class="gx" style="color:'+col+'">남북이 지금 서로 쏘고 있음</span></div>':'<div class="gnum"><b>약 '+pct(w.clash30d.point)+'</b><span class="gx" style="color:'+col+'">'+times+'</span><span class="gu">평소 약 '+pct(w.usual.clash)+'</span></div>';
   h+='<div class="gauge" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+w.clash30d.point+'" aria-label="앞으로 30일 국지 충돌 가능성 약 '+pct(w.clash30d.point)+', 평소 약 '+pct(w.usual.clash)+', '+w.phase+'단계 '+esc(w.phaseLabel)+'">';
@@ -333,7 +333,7 @@ function gauge(w){var names=["평온","긴장","위기","임박","교전"],rng=[
   h+='<i class="gmark" style="left:'+(now*100).toFixed(1)+'%;border-color:'+col+'"></i></div>';
   h+='<div class="gusual" style="left:'+(us*100).toFixed(1)+'%">▲ 평소 '+pct(w.usual.clash)+'</div>';
   h+='<div class="gzones">'+names.map(function(n,i){return '<span class="'+(i+1===w.phase?"on":"")+'" title="'+n+': 30일 국지 충돌 '+rng[i]+'"><b>'+n+'</b><small>'+rng[i]+'</small></span>'}).join("")+'</div></div>';
-  h+='<div class="gfoot">'+(odds&&!fighting?odds+' — 한 달 동안 아무 일 없이 지나갈 가능성 약 '+pct(100-w.clash30d.point)+' · ':'')+'전면전 '+wp(w.war30d.point)+' (평소 약 '+wp(w.usual.war)+')</div>';
+  h+='<div class="gfoot">'+(odds&&!fighting?odds+' — 한 달 동안 아무 일 없이 지나갈 가능성 약 '+pct(100-w.clash30d.point)+' · ':'')+'전면전 '+pct(w.war30d.point)+' (평소 '+pct(w.usual.war)+')</div>';
   return h}
 // 첫 화면 한 장: 지금 단계 · 30일 국지 충돌 확률 · 어제와 비교 · 왜 · 오를 조건 · 마지막 도발 · 클로드 의견 · 할 일 · 데이터 상태 (2026-11-02)
 function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평온","긴장","위기","임박","교전"],LV=["평소","주의","경계","심각"];
@@ -377,7 +377,7 @@ function safe(fn,arg,name){try{return fn(arg)}catch(e){return '<div class="card"
 function money(x){return x==null?"—":"$"+Number(x).toFixed(2)}
 function ktok(n){n=Number(n||0);return n>=1e6?(n/1e6).toFixed(1)+"백만":n>=1e4?Math.round(n/1e4)+"만":String(n)}
 function usageLine(u){if(!u)return "";return "입력 "+ktok(u.input_tokens)+" · 출력 "+ktok(u.output_tokens)+" · 캐시 쓰기 "+ktok(u.cache_write_tokens)+" · 캐시 읽기 "+ktok(u.cache_read_tokens)+" 토큰"+(u.model?" · "+esc(u.model):"")}
-function tokTotals(t){return "출력 "+ktok(t.output_tokens)+" · 입력 "+ktok(t.input_tokens+t.cache_write_tokens)+" · 캐시 읽기 "+ktok(t.cache_read_tokens)}
+function tokTotals(t,strict){var tr=strict?(t.tokenRuns||0):t.tokenRuns;var miss=tr!=null&&t.runs>tr?" (토큰 기록 "+tr+"회분 — 나머지는 기록 안 됨)":"";return "출력 "+ktok(t.output_tokens)+" · 입력 "+ktok(t.input_tokens+t.cache_write_tokens)+" · 캐시 읽기 "+ktok(t.cache_read_tokens)+miss}
 // 분석이 나온 뒤 새로 확인된 일 + 분석에 없는 최근 도발 (2026-11-02: 09시 심층 분석이 10/31 발사를 10/29 발사와 같은 것으로 본 채 그대로 보였다)
 function sinceNote(at,text){
   var evs=(ST.events||[]).map(function(e){return e.brief}).filter(function(b){return b&&((b.isProvocation&&b.danger.level>=2)||b.danger.level>=3||b.evacuation||b.posture)});
@@ -405,7 +405,7 @@ function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f)
   if(d.usage)h+='<div class="us">이번 분석 사용량: '+usageLine(d.usage)+'</div>';
   return h+'</div>'}
 function usagePanel(u){if(!u)return "";var b=u.budget;
-  return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석 '+u.deep.runs+'회</td><td>'+tokTotals(u.deep)+'</td></tr><tr><td>정기 분석(아침·저녁) '+u.scheduled.runs+'회</td><td>'+tokTotals(u.scheduled)+'</td></tr></table><p style="margin:10px 0 0">토큰 수입니다. Claude 구독의 사용 한도에서 차감되며, 조직에 추가 사용 크레딧이 켜져 있지 않으면 따로 결제되지 않습니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회, 한 달 최대 '+(b?b.monthlyMax:30)+'회이고, 다 쓰면 자동으로 멈춥니다.</p></details>'}
+  return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석 '+u.deep.runs+'회</td><td>'+tokTotals(u.deep)+'</td></tr><tr><td>정기 분석(아침·저녁) '+u.scheduled.runs+'회</td><td>'+tokTotals(u.scheduled,true)+'</td></tr></table><p style="margin:10px 0 0">토큰 수입니다. Claude 구독의 사용 한도에서 차감되며, 조직에 추가 사용 크레딧이 켜져 있지 않으면 따로 결제되지 않습니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회, 한 달 최대 '+(b?b.monthlyMax:30)+'회이고, 다 쓰면 자동으로 멈춥니다.</p></details>'}
 function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+ago(st.lastCycle?st.lastCycle.at:st.now);
@@ -507,7 +507,7 @@ function board(rows){var groups={};rows.forEach(function(r){(groups[r.groupLabel
   else h+='<div class="grp" style="color:var(--l1)">✓ 측정 가능한 징후가 모두 평소 범위 안</div>';
   order.forEach(function(g){if(!groups[g])return;h+='<div class="grp">'+g+'</div><div class="board">'+groups[g].map(ind).join("")+'</div>'});
   var learning=rows.filter(function(r){return r.reading&&r.reading.state==="learning"}).length;
-  h+='<p style="font-size:12px;color:var(--mute);margin:12px 0 0">● 정상 · ● 상승 · ● 이상 · ○ 학습 중/측정 불가. 평소는 최근 4주 같은 시간대의 중앙값입니다'+(learning?' (아직 평소를 정하지 못한 징후 '+learning+'개 — 기록이 7일 쌓이면 판정하고, 그 전에는 아주 큰 변화만 봅니다)':'')+'. 항목을 누르면 왜 중요한지 설명이 나옵니다.</p>';
+  h+='<p style="font-size:12px;color:var(--mute);margin:12px 0 0">● 정상 · ● 상승 · ● 이상 · ○ 학습 중/측정 불가. '+esc((ST&&ST.rules&&ST.rules.learning)||"")+(learning?' (지금 평소를 다 배우지 못한 징후 '+learning+'개)':'')+' 항목을 누르면 왜 중요한지 설명이 나옵니다.</p>';
   return h}
 /** 고정 문턱으로 판정하는 징후: '학습 중' 대신 문턱을 보여 준다 (값과 같은 모양으로) */
 function thr(r){var a=r.absolute;if(!a)return "";var f=function(x){return fmtVal({id:r.id,unit:r.unit,reading:{value:r.direction==="low"?-x:x,meta:{}}})};

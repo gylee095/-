@@ -12,6 +12,8 @@ export interface SourceHealth {
   signalCount: number;
   /** 마지막으로 성공한 수집 시각 — 실패가 이어질 때 '언제부터 못 받나'를 보여 주려고 (2026-11-02) */
   lastOkAt?: number;
+  /** 연속 실패 횟수 (성공하면 0) */
+  failCount?: number;
 }
 
 export interface AgentNote {

@@ -23,6 +23,24 @@ export async function fetchText(
   }
 }
 
+/** 잠깐 끊긴 것으로 보이는 오류인가: 서버 쪽 5xx(Cloudflare 520~524 포함)·시간 초과·연결 끊김. 4xx 는 다시 해도 같다 */
+export const isTransientError = (e: unknown) => /HTTP (5\d\d)|abort|timed? ?out|network|connection|ECONNRESET|fetch failed/i.test(String((e as Error)?.message ?? e));
+
+/**
+ * 잠깐 끊긴 것이면 한 번 더 받는다 (2026-11-02: 정책브리핑·국민재난안전포털이 Cloudflare 서버에 HTTP 522 를 띄웠다가 곧 이어졌다).
+ * 1분·5분 주기 소스는 다음 주기에 어차피 다시 받으므로 1시간·하루 주기 소스와 정부 사이트에만 쓴다.
+ */
+export async function withRetry<T>(fn: () => Promise<T>, retries = 1, delayMs = 2000): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (i >= retries || !isTransientError(e)) throw e;
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+}
+
 /** 큰 문서의 앞부분만 읽는다 (최신 항목이 앞에 오는 피드에서 CPU·메모리 절약). maxBytes 를 넘으면 연결을 끊는다. */
 export async function fetchHead(url: string, maxBytes: number, init: RequestInit = {}, timeoutMs = 15000): Promise<string> {
   const ctrl = new AbortController();

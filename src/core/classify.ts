@@ -46,6 +46,16 @@ const RULES: Rule[] = [
   { category: "civil_alert_other", re: /북한|North Korea|DPRK|군사분계선|NLL|무인기|오물\s*풍선|대남\s*풍선/i },
 ];
 
+/**
+ * 한반도 이야기인가 — 한반도에만 쓰는 말이 하나는 있어야 한다 (2026-11-02, 전쟁 언급·접경 사건 판정 공용).
+ * '접경·국경·전선·총격·침범·무력 충돌'은 어느 나라 기사에도 나오는 일반어라 그것만으로는 아니다
+ * ('키르기스, 무력충돌 벌였던 타지크 접경 327㎞ 철조망벽 완공'이 한반도 '전쟁' 보도로 세어졌다).
+ * 접경 지명은 북한과 맞닿은 곳만 (강화·고성처럼 다른 뜻·다른 지역과 겹치는 말은 '강화도'·'교동도'처럼 정확히).
+ */
+export const KOREA_TERMS_RE =
+  /북한|北|남북|한반도|김정은|김여정|평양|조선중앙|노동신문|인민군|NLL|북방한계선|휴전선|군사분계선|\bMDL\b|비무장지대|DMZ|대북|대남|판문점|개성공단|서해\s?5도|연평도?|백령도?|대청도|소청도|교동도|강화도|파주|연천|철원|North Korea|DPRK|Pyongyang|Korean Peninsula|Kim Jong Un/i;
+export const isKoreaContext = (text: string) => KOREA_TERMS_RE.test(text);
+
 /** 한반도 관련성: 영문 항행경보·외신은 지역명이 있어야만 통과 */
 const REGION_RE =
   /KOREA|DPRK|PYONGYANG|YELLOW SEA|SEA OF JAPAN|EAST SEA|EAST CHINA SEA|JAPAN|PUNGGYE|SOHAE|TONGCHANG|북한|北|한반도|서해|동해|연평|백령|휴전선|군사분계선|NLL|경기|서울|인천|강원|합참|합동참모본부|국방부/i;

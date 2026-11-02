@@ -4,7 +4,7 @@
 import type { CollectResult, Metric, Signal } from "../types.js";
 import type { CollectorKv } from "./index.js";
 import { classifyText } from "../classify.js";
-import { USER_AGENT, fetchJson, parseKst } from "../util.js";
+import { USER_AGENT, fetchJson, parseKst, withRetry } from "../util.js";
 
 export const SAFEKOREA_LIST = "https://www.safekorea.go.kr/safekorea-kor/ctim/cmsg/calamitySms.do?menuSn=34&firstYn=Y";
 
@@ -26,9 +26,13 @@ export function parseSafekoreaList(html: string): any[] {
 }
 
 export async function fetchSafekoreaMessages(fetchImpl: typeof fetch = fetch): Promise<any[]> {
-  const res = await fetchImpl(SAFEKOREA_LIST, { headers: { "User-Agent": USER_AGENT } });
-  if (!res.ok) throw new Error(`국민재난안전포털 HTTP ${res.status}`);
-  const rows = parseSafekoreaList(await res.text());
+  // 재난문자는 가장 중요한 공식 경보라 잠깐 끊김(HTTP 522 등)은 2초 뒤 한 번 더 받는다
+  const html = await withRetry(async () => {
+    const res = await fetchImpl(SAFEKOREA_LIST, { headers: { "User-Agent": USER_AGENT } });
+    if (!res.ok) throw new Error(`국민재난안전포털 HTTP ${res.status}`);
+    return res.text();
+  });
+  const rows = parseSafekoreaList(html);
   if (!rows.length) throw new Error("국민재난안전포털 재난문자 목록을 읽지 못함 (화면 구조가 바뀌었을 수 있음)");
   return rows;
 }

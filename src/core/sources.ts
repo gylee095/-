@@ -378,3 +378,31 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
 export function listSources(): SourceMeta[] {
   return Object.values(SOURCES);
 }
+
+/**
+ * 수집 시간표 — 크론 → 소스. 이 표 하나가 정본이다 (2026-11-02).
+ * Worker 크론 묶음, 화면의 '지금 쓰는 소스'·'수집 정상 N/M', 실패 판정 주기가 모두 여기서 나온다.
+ * 예전에는 Worker 크론 표·소스 검증표·수집기 표를 따로 고쳐서, 11/1 크론에서 뺀 aisstream 이 화면 목록에 남아 '못 받는 것' 가짜 경고가 날 뻔했다.
+ * wrangler.toml 의 crons 는 이 표의 열쇠와 같아야 한다 (테스트가 확인).
+ */
+export const SCHEDULE: Record<string, SourceId[]> = {
+  "* * * * *": ["rss_breaking"],
+  "*/5 * * * *": ["safetydata", "usgs", "emsc", "adsb_lol", "rss_news"],
+  // bluesky·aisstream 은 뺐다(2026-11-01): 서버에서 막히거나(블루스카이 403) 한국 바다를 몇 척밖에 못 봐서 지표가 '사실상 모름'이었다
+  "3-59/15 * * * *": ["nga_msi", "markets"],
+  "11 * * * *": ["travel", "korea_kr_mnd", "ioda", "firms", "advisories", "polymarket", "nightlights"],
+  "41 2 * * *": ["gpsjam", "gfw", "wiki", "naver_datalab", "ecos", "nk_market"],
+};
+/** 크론 한 번의 간격(분) */
+export const CRON_MINUTES: Record<string, number> = { "* * * * *": 1, "*/5 * * * *": 5, "3-59/15 * * * *": 15, "11 * * * *": 60, "41 2 * * *": 1440 };
+
+/** 이 소스를 몇 분마다 받나 (시간표에 없으면 undefined — 요청할 때만 쓰는 소스) */
+export function intervalOf(id: string): number | undefined {
+  for (const [cron, ids] of Object.entries(SCHEDULE)) if ((ids as string[]).includes(id)) return CRON_MINUTES[cron];
+  return undefined;
+}
+
+/** 지금 정기적으로 받는 소스 (시간표에 있고 꺼 두지 않은 것) */
+export function activeSources(disabled: Set<string> = new Set()): SourceMeta[] {
+  return listSources().filter((s) => intervalOf(s.id) !== undefined && !disabled.has(s.id));
+}

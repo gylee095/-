@@ -5,10 +5,10 @@ import { compareWithYesterday, judgmentsFromNotes } from "./compare.js";
 import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
-import { listSources } from "./sources.js";
+import { activeSources } from "./sources.js";
 import { briefEvent, mergeFollowUps, currentThreat } from "./brief.js";
 import type { Reading, Signal } from "./types.js";
-import { GROUP_LABEL, INDICATORS, STATE_LABEL } from "./indicators.js";
+import { GROUP_LABEL, INDICATORS, LEARNING_RULE, STATE_LABEL } from "./indicators.js";
 import type { Pattern } from "./patterns.js";
 import { interpret } from "./interpret.js";
 import { assessWarRisk } from "./warrisk.js";
@@ -97,6 +97,8 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const deepRequest = notes.find((n) => n.kind === "deep_request");
   const usage = await loadMonthUsage(store, now);
   // 소스가 계속 실패하는 징후는 '수집 실패'로 (마지막 값이 '정상'처럼 보이지 않게)
+  const active = activeSources(disabled);
+  const activeIds = new Set<string>(active.map((s) => s.id));
   markFailing(board, health, now);
   const threat = currentThreat(enriched.map((e) => e.brief), now);
   // 규칙 기반 해설: 숫자 → 뜻 → 조합 힌트 (클로드 분석관은 이 위에서 추론한다)
@@ -144,12 +146,15 @@ export async function buildState(store: Store, since: number, disabledSources = 
     history: historyRaw ? (JSON.parse(historyRaw) as RiskSummary) : null,
     /** 오늘(UTC) 저장소 사용량 — 무료 한도: 읽기 500만 행, 쓰기 10만 행 (한국 시간 오전 9시 초기화) */
     storage: d1Raw ? { ...(JSON.parse(d1Raw) as { read: number; written: number; calls: number }), limitRead: 5_000_000, limitWritten: 100_000 } : null,
-    health: health.filter((h) => !disabled.has(h.source)),
+    // 지금 정기적으로 받는 소스만 (크론에서 뺀 소스의 옛 기록이 '정상'·'못 받는 것'으로 남지 않게)
+    health: health.filter((h) => activeIds.has(h.source)),
     alerts: alerts.slice(-50).reverse(),
     notes,
     metrics: latencyMetrics(events.filter((e) => e.firstDetectedTime >= since)),
-    sources: listSources().filter((s) => !disabled.has(s.id)),
+    sources: active,
+    /** 화면 설명 문장 — 규칙과 같은 곳에서 (규칙을 바꿔도 설명이 남지 않게) */
+    rules: { learning: LEARNING_RULE },
     /** 데이터를 제대로 받고 있나 — 첫 화면 한 줄 */
-    dataHealth: dataHealthOf(health.filter((h) => !disabled.has(h.source)), listSources().filter((s) => !disabled.has(s.id)), board, now),
+    dataHealth: dataHealthOf(health.filter((h) => activeIds.has(h.source)), active, board, now),
   };
 }

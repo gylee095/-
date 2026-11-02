@@ -130,7 +130,8 @@ export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Sto
     async ({ kind, usage, session_id, backfill }) => {
       try {
         const now = Date.now();
-        const month = await addUsage(store, kind, usage, now, session_id, !backfill);
+        // 정기 분석의 실행 횟수는 record_assessment 가 센다 (11/2: 지침에 사용량 기록 단계가 없어 '정기 분석 0회'로 보였다) — 여기서는 토큰만 더한다
+        const month = await addUsage(store, kind, usage, now, session_id, kind === "deep" && !backfill);
         await store.addNote({ at: now, author: "claude-agent", kind: "usage", text: `${kind} 사용량: API 환산 $${(usage.cost_usd ?? 0).toFixed(2)}`, data: { kind, usage, session_id } });
         return out({ ok: true, monthUsage: month });
       } catch (e) {

@@ -10,7 +10,9 @@
     "scan": "NODE_USE_ENV_PROXY=1 tsx src/cli.ts scan",
     "scan:dry": "NODE_USE_ENV_PROXY=1 tsx src/cli.ts scan --dry-run",
     "mcp": "NODE_USE_ENV_PROXY=1 tsx src/mcp/server.ts",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "docs:indicators": "tsx scripts/gen-indicator-docs.ts",
+    "check:ui": "tsx scripts/check-ui.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",

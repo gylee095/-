@@ -72,6 +72,24 @@ description: 한반도 위기 조기감지 — 징후·경보(I&W) 분석 1회 �
    - overall 끝에 "자동 해설과 다른 점"을 한 구절 넣는다 (동의하면 "자동 해설과 같은 판단" 이라고 쓴다)
    - overall_level 은 사건 위험도와 패턴을 종합하되 **단일 징후로 3 이상 금지**
    - 가설 1~3개: 각각 likelihood, 찬성 근거, 반대 근거, 다음 확인
-   - anomalies: 이번에 새로 눈에 띈 것 (없으면 빈 배열), gaps: 측정 불가·오류 소스
+   - anomalies: 이번에 새로 눈에 띈 것 (없으면 빈 배열)
+   - gaps(지금 못 보고 있는 것)는 **서버가 알려 준 사실에서만** 쓴다: `get_situation` 의 `dataHealth.failing`(지금 못 받는 소스), `learningIndicators`(평소를 아직 다 배우지 못한 징후), `warRisk.blindSpots`. 문서나 지난 기록·기억에서 베끼지 않는다 — 2026-11-02 아침 분석이 이미 수집 중인 일본 해상보안청 항행경보를 '미수집'으로 썼다.
    - 직전 분석과 **달라진 점**을 overall 에 한 구절로 넣는다 ("직전 대비 변화 없음" 포함)
+6-1. **사용량(토큰)을 남긴다.** 실행 횟수는 `record_assessment` 를 부를 때 서버가 센다. 토큰은 끝내기 직전 자기 대화 기록을 합산해 `record_usage`(kind="scheduled", usage, session_id=대화 기록 파일 이름)로 남긴다 — 빠뜨리면 대시보드 사용량에 '토큰 기록 N회분'으로 모자라게 보인다.
+   ```bash
+   python3 - <<'PYEOF'
+   import json, glob, os
+   f = max(glob.glob(os.path.expanduser('~/.claude/projects/*/*.jsonl')), key=os.path.getmtime)
+   u = {'input_tokens': 0, 'output_tokens': 0, 'cache_read_tokens': 0, 'cache_write_tokens': 0}; seen = set()
+   for line in open(f):
+       try: e = json.loads(line)
+       except Exception: continue
+       m = e.get('message') if isinstance(e.get('message'), dict) else {}
+       if e.get('type') != 'assistant' or 'usage' not in m or m.get('id') in seen: continue
+       seen.add(m.get('id')); x = m['usage']
+       u['input_tokens'] += x.get('input_tokens', 0); u['output_tokens'] += x.get('output_tokens', 0)
+       u['cache_read_tokens'] += x.get('cache_read_input_tokens', 0); u['cache_write_tokens'] += x.get('cache_creation_input_tokens', 0)
+   print(json.dumps(u), os.path.basename(f))
+   PYEOF
+   ```
 7. 최종 응답은 3줄 이내: 종합 단계·가장 중요한 변화·다음 확인 1개.

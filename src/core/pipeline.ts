@@ -199,8 +199,10 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
   if (healths.some((h) => !h.ok)) {
     const prev = new Map((await store.getHealth()).map((h) => [h.source, h]));
     for (const h of healths) {
+      if (h.ok) continue;
       const p = prev.get(h.source);
-      if (!h.ok && p) h.lastOkAt = p.ok ? p.fetchedAt : p.lastOkAt;
+      if (p) h.lastOkAt = p.ok ? p.fetchedAt : p.lastOkAt;
+      h.failCount = (p && !p.ok ? (p.failCount ?? 1) : 0) + 1;
     }
   }
   await store.putHealth(healths);

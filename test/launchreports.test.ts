@@ -135,3 +135,15 @@ describe("발사 예고 항행경보는 '도발'이 아니다 (발사 전 신호
     expect(currentThreat([b], t + H).lastProvocation).toBeNull();
   });
 });
+
+describe("출처 표시는 지금 규칙으로 (저장 당시 판정이 남지 않게)", () => {
+  it("11/2 해설 기사: 옛 신호는 '공식발표 인용'으로 저장돼 있어도 '해설·후속 기사'로 보인다", () => {
+    const [e] = briefed(REAL.retrospective_20261102);
+    expect(e.basis).toBe("official_quote");
+    expect(e.brief.sourceLabel).toBe("해설·후속 기사 (공식 인용)");
+  });
+  it("진짜 속보에는 붙지 않는다", () => {
+    const [e] = briefed(REAL.jcs_20261029);
+    expect(e.brief.sourceLabel).toBeUndefined();
+  });
+});

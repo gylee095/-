@@ -1,6 +1,6 @@
 // 전쟁 위험 차트 — 시간별 기록과 '어제 이맘때와 비교' (2026-11-02)
 import { describe, expect, it } from "vitest";
-import { compareWithYesterday, pointNear } from "../src/core/compare.js";
+import { compareWithYesterday, judgmentsFromNotes, pointNear } from "../src/core/compare.js";
 import { appendSeries, loadSeries, pointOf, type RiskSnapshot } from "../src/core/history.js";
 import { MemoryStore } from "../src/core/store.js";
 import { GROUP_LABEL, INDICATORS, STATE_LABEL, evaluate } from "../src/core/indicators.js";
@@ -33,22 +33,41 @@ describe("차트 점 (시간별, 30일)", () => {
 
 describe("어제 이맘때와 비교", () => {
   const series = [pointOf(snap(NOW - 24 * H, 2, 4.5, [0, 0, 0, 1, 1, 2]))];
-  it("기록이 없으면 '비교는 하루 쌓인 뒤부터'", () => {
+  it("과거 기록이 하나도 없을 때만 '비교 기록 없음'", () => {
     const c = compareWithYesterday([], war(2, 4, [0, 0, 0, 1, 1, 1]), [], [], NOW);
     expect(c.verdict).toBe("unknown");
-    expect(c.headline).toMatch(/기록이 하루 쌓인 뒤/);
+    expect(c.headline).toMatch(/비교할 과거 기록이 아직 없습니다/);
+  });
+  it("같은 시각이 아니어도 된다: 자동 판정 기록이 18시간 전부터면 그 점과 비교 ('11/1 18시 (18시간 전)')", () => {
+    const at = Date.UTC(2026, 10, 1, 9); // 11/1 18시 KST
+    const c = compareWithYesterday([pointOf(snap(at, 2, 4.5, [0, 0, 0, 1, 1, 2]))], war(2, 4, [0, 0, 0, 1, 1, 1]), [], [], at + 18 * H);
+    expect(c).toMatchObject({ basis: "nearest", agoLabel: "11/1 18시 (18시간 전)", verdict: "better" });
+    expect(c.headline).toMatch(/^11\/1 18시 \(18시간 전\) 대비 나아졌다/);
+  });
+  it("자동 판정 기록이 아직 짧으면(6시간 안) 클로드 분석관 판단과 비교한다", () => {
+    const js = judgmentsFromNotes([
+      { at: NOW - 25 * H, kind: "assessment", data: { overall_level: 2, overall: "전쟁 위험 2단계(긴장), 30일 내 국지 충돌 약 3%·전면전 0.2%로 평소보다 약간 높습니다." } },
+      { at: NOW - 40 * H, kind: "deep_report", data: { war_phase: 2, p_clash_30d: 5, p_war_30d: 0.2 } },
+      { at: NOW - 30 * H, kind: "assessment", data: { overall_level: 2, overall: "주의(2): 직전 대비 변화 없음." } }, // 숫자 없는 판단은 건너뛴다
+    ]);
+    expect(js.map((j) => [j.source, j.clash])).toEqual([["심층 분석", 5], ["분석관", 3]]);
+    const c = compareWithYesterday([pointOf(snap(NOW - 2 * H, 2, 4, [0, 0, 0, 1, 1, 1]))], war(2, 4, [0, 0, 0, 1, 1, 1]), [], [], NOW, undefined, js);
+    expect(c).toMatchObject({ basis: "judgment", verdict: "worse" });
+    expect(c.agoLabel).toMatch(/분석관 판단$/);
+    expect(c.headline).toMatch(/대비 위기 쪽으로 움직였다 — 30일 국지 충돌 3% → 4%/);
   });
   it("2026-11-02 같은 모양: 국지 충돌 4.5% → 4%, 사람들의 불안 경계 → 주의 → '나아졌다'", () => {
     const c = compareWithYesterday(series, war(2, 4, [0, 0, 0, 1, 1, 1]), [], [], NOW);
     expect(c.verdict).toBe("better");
-    expect(c.headline).toMatch(/^어제 이맘때보다 나아졌다 — 30일 국지 충돌 4\.5% → 4%/);
+    expect(c).toMatchObject({ basis: "same-time", agoLabel: "어제 이맘때" });
+    expect(c.headline).toMatch(/^어제 이맘때 대비 나아졌다 — 30일 국지 충돌 4\.5% → 4%/);
     expect(c.changes).toEqual(expect.arrayContaining([{ text: "사람들의 불안 경계 → 주의", dir: -1 }]));
     expect(c.ago).toMatchObject({ phase: 2, clash: 4.5 });
   });
   it("단계가 오르면 확률이 비슷해도 '위기 쪽'", () => {
     const c = compareWithYesterday(series, war(3, 4.6, [1, 0, 0, 2, 1, 2]), [], [], NOW);
     expect(c.verdict).toBe("worse");
-    expect(c.headline).toMatch(/위기 쪽으로 움직였다 — 전쟁 위험 2단계 → 3단계/);
+    expect(c.headline).toMatch(/대비 위기 쪽으로 움직였다 — 전쟁 위험 2단계 → 3단계/);
   });
   it("작은 흔들림(0.3%p 미만)이고 영역이 그대로면 '비슷하다'", () => {
     expect(compareWithYesterday(series, war(2, 4.6, [0, 0, 0, 1, 1, 2]), [], [], NOW).verdict).toBe("same");
@@ -77,5 +96,20 @@ describe("측정 방식이 바뀐 징후는 기준선을 새로 배운다", () =
     const [r] = await processMetrics(store, [{ indicator: "air.mil_airborne", value: 7 }], NOW);
     expect(r.state).toBe("learning");
     expect(Object.keys(JSON.parse((await store.getKv("baselines"))!))).toContain(`air.mil_airborne#2|${slotKey(def, NOW)}`);
+  });
+});
+
+describe("판정 방식이 바뀐 탓인 변화는 '나아짐·악화'에 넣지 않는다", () => {
+  it("11/1 18시 → 11/2 아침: 북한 쪽 영역 '평소 → 주의'는 장마당 물가를 새로 넣은 탓 → '비슷하다', 이유를 적는다", () => {
+    const at = Date.UTC(2026, 10, 1, 9); // 11/1 18시 KST, 장마당 물가 반영(20:57 KST) 전
+    const now = Date.UTC(2026, 10, 2, 0, 40);
+    const c = compareWithYesterday([pointOf(snap(at, 2, 3.4, [0, 0, 0, 1, 0, 2]))], war(2, 3.6, [0, 0, 0, 1, 1, 2]), [], [], now);
+    expect(c.verdict).toBe("same");
+    expect(c.headline).toMatch(/대비 비슷하다 — 측정 방식이 바뀐 것을 빼면 큰 변화 없음/);
+    expect(c.changes).toEqual(expect.arrayContaining([
+      { text: "30일 국지 충돌 3.4% → 3.6% (측정 변경 영향 포함)", dir: 0 },
+      expect.objectContaining({ dir: 0, text: expect.stringMatching(/^북한의 말·내부 사정 평소 → 주의 \(그 사이 측정 변경: 북한 장마당 물가/) }),
+    ]));
+    expect(c.modelChanges!.length).toBeGreaterThan(0);
   });
 });

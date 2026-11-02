@@ -152,11 +152,14 @@ function seriesOf(st){var s=(st.riskSeries||[]).slice(),w=st.warRisk;
 function riskChart(st){var w=st.warRisk,c=st.vsYesterday;
   var h='<div class="sec">전쟁 위험 차트 <span style="font-weight:400">· 시간마다 기록 · 주식 차트처럼</span></div><div class="card tm rc">';
   var d=c&&c.ago?w.clash30d.point-c.ago.clash:null,dir=d==null?"none":d>=0.05?"up":d<=-0.05?"down":"flat";
-  var badge=dir==="none"?'<span class="dlt flat">어제 기록 없음</span>':dir==="flat"?'<span class="dlt flat">– 어제와 같음</span>':'<span class="dlt '+dir+'">'+(dir==="up"?"▲ ":"▼ ")+Math.abs(d).toFixed(1)+'%p '+(dir==="up"?"위험 증가":"위험 감소")+'</span>';
+  // 그 사이 판정 방식이 바뀐 탓이면 색 없이 숫자만 (나아짐·악화로 세지 않는다)
+  var sys=c&&(c.changes||[]).some(function(x){return x.dir===0&&/^30일 국지 충돌/.test(x.text)});
+  var badge=dir==="none"?'<span class="dlt flat">비교 기록 없음</span>':dir==="flat"?'<span class="dlt flat">– 변화 없음</span>':sys?'<span class="dlt flat">'+(d>0?"+":"−")+Math.abs(d).toFixed(1)+'%p · 측정 변경 포함</span>':'<span class="dlt '+dir+'">'+(dir==="up"?"▲ ":"▼ ")+Math.abs(d).toFixed(1)+'%p '+(dir==="up"?"위험 증가":"위험 감소")+'</span>';
   h+='<div class="rch"><div><div class="pk">앞으로 30일 · 국지 충돌 확률</div><div class="rv">'+pct1(w.clash30d.point)+'</div></div>'+badge+'</div>';
-  h+='<div class="ps">'+(c&&c.ago?'어제 이맘때 '+pct1(c.ago.clash)+' · 전면전 '+pct1(c.ago.war)+' → '+pct1(w.war30d.point)+' · '+c.ago.phase+'단계 → '+w.phase+'단계':'어제 이맘때 기록이 아직 없습니다 (기록은 2026-11-01부터)')+'</div>';
+  h+='<div class="ps">'+(c&&c.ago?'비교 기준 '+esc(c.agoLabel||"어제 이맘때")+' '+pct1(c.ago.clash)+(c.ago.war?' · 전면전 '+pct1(c.ago.war)+' → '+pct1(w.war30d.point):'')+' · '+c.ago.phase+'단계 → '+w.phase+'단계':'비교할 과거 기록이 아직 없습니다')+'</div>';
   var cur=getRange();
   h+='<div class="rng" role="group" aria-label="기간">'+Object.keys(RANGE_H).map(function(k){return '<button type="button" class="'+(k===cur?'on':'')+'" onclick="setRange(\''+k+'\')">'+k+'</button>'}).join("")+'</div>';
+  h+='<div class="legend"><span style="color:var(--viz);font-weight:700">━</span> 자동 판정 (5분마다, 시간별 기록 · 11/1부터) &nbsp; <span style="color:var(--viz);font-weight:700">○</span> 클로드 분석관 판단</div>';
   h+='<div class="chart" id="rchart"></div>';
   if(c){var cls=c.verdict==="worse"?"up":c.verdict==="better"?"down":"flat";
     h+='<div class="vs"><span class="'+cls+'" style="font-weight:700">'+(cls==="up"?"▲":cls==="down"?"▼":"–")+'</span> <b>'+esc(c.headline)+'</b></div>';
@@ -165,17 +168,20 @@ function riskChart(st){var w=st.warRisk,c=st.vsYesterday;
     (c.newEvents||[]).forEach(function(e){items.push('<li><span class="flat">●</span>'+esc(kst(e.at))+' '+esc(e.headline)+'</li>')});
     if(items.length)h+='<ul class="chg">'+items.join("")+'</ul>';else if(c.ago)h+='<div class="ps" style="margin-top:4px">영역 수준·징후 상태 모두 어제 이맘때와 같습니다.</div>'}
   h+='<details><summary>표로 보기 (날마다 최고값)</summary>'+riskTable(seriesOf(st))+'</details>';
-  h+='<div class="mk">시간마다 남긴 자동 판정입니다(2026-11-01부터, 날이 갈수록 길어집니다). 확률은 근거를 밝힌 판단값이고, 세로 점선은 어제 이맘때, 아래쪽 ◆는 북한 도발·경보 사건입니다.</div></div>';
+  h+='<div class="mk">선은 시간마다 남긴 자동 판정, 속 빈 점은 그 전부터 남아 있는 클로드 분석관·심층 분석 판단입니다. 확률은 근거를 밝힌 판단값이고, 세로 점선은 비교 기준 시각, 아래쪽 ◆는 북한 도발·경보 사건입니다.</div></div>';
   return h}
 function riskTable(s){var by={};s.forEach(function(p){var d=new Date(p.t+9*3600000).toISOString().slice(0,10),x=by[d]||(by[d]={c:0,ph:0,w:0});x.c=Math.max(x.c,p.c);x.ph=Math.max(x.ph,p.ph);x.w=Math.max(x.w,p.w)});
   var days=Object.keys(by).sort().reverse().slice(0,30);if(!days.length)return '<div class="ps">기록 없음</div>';
   return '<table class="rtab"><tr><th>날짜</th><th>최고 단계</th><th>국지 충돌 최고</th><th>전면전 최고</th></tr>'+days.map(function(d){var x=by[d];return '<tr><td>'+esc(d.slice(5).replace("-","/"))+'</td><td>'+x.ph+'</td><td>'+pct1(x.c)+'</td><td>'+pct1(x.w)+'</td></tr>'}).join("")+'</table>'}
 function niceTop(v){v=Math.max(v,5);var m=Math.pow(10,Math.floor(Math.log(v)/Math.LN10)),st=[1,2,2.5,5,10];for(var i=0;i<st.length;i++)if(st[i]*m>=v)return st[i]*m;return 10*m}
 function drawRiskChart(st,rk){var el=$("#rchart");if(!el||!st.warRisk)return;var all=seriesOf(st),hrs=RANGE_H[rk||getRange()]||168,t1=st.now;
-  var t0=Math.max(all.length?all[0].t:t1-3600000,t1-hrs*3600000),s=all.filter(function(p){return p.t>=t0});
-  if(s.length<2){el.innerHTML='<div class="ps">아직 점이 '+s.length+'개뿐입니다 — 시간마다 하나씩 쌓입니다.</div>';return}
+  var js=(st.judgments||[]).filter(function(j){return j.at<=t1});
+  var first=Math.min(all.length?all[0].t:t1,js.length?js[0].at:t1);
+  var t0=Math.max(first,t1-hrs*3600000),s=all.filter(function(p){return p.t>=t0});js=js.filter(function(j){return j.at>=t0});
+  if(s.length+js.length<2){el.innerHTML='<div class="ps">아직 점이 '+(s.length+js.length)+'개뿐입니다 — 시간마다 하나씩 쌓입니다.</div>';return}
+  if(t1-t0<6*3600000)t0=t1-6*3600000;
   var W=Math.max(280,el.clientWidth||320),H=190,L=36,R=12,T=16,B=26,ns="http://www.w3.org/2000/svg";
-  var top=niceTop(Math.max.apply(null,s.map(function(p){return p.c}))*1.25);
+  var top=niceTop(Math.max.apply(null,s.map(function(p){return p.c}).concat(js.map(function(j){return j.clash})))*1.25);
   var X=function(ms){return L+(ms-t0)/Math.max(1,t1-t0)*(W-L-R)},Y=function(v){return T+(1-v/top)*(H-T-B)};
   var svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.setAttribute("role","img");svg.setAttribute("aria-label","시간별 앞으로 30일 국지 충돌 확률");
   function rmk(tag,a){var e=document.createElementNS(ns,tag);for(var k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e}
@@ -187,8 +193,8 @@ function drawRiskChart(st,rk){var el=$("#rchart");if(!el||!st.warRisk)return;var
   var k0=Math.ceil((t0+9*3600000)/step)*step-9*3600000;
   for(var tk=k0;tk<=t1;tk+=step){var x=X(tk),dt=new Date(tk+9*3600000);rmk("line",{x1:x,x2:x,y1:T,y2:H-B,stroke:"var(--line)","stroke-width":1,"stroke-opacity":.6});
     rlabel(x,H-8,step<86400000?(dt.getUTCHours()===0?(dt.getUTCMonth()+1)+"/"+dt.getUTCDate():dt.getUTCHours()+"시"):(dt.getUTCMonth()+1)+"/"+dt.getUTCDate(),"middle")}
-  // 어제 이맘때
-  var yx=t1-24*3600000;if(yx>=t0){var xx=X(yx);rmk("line",{x1:xx,x2:xx,y1:T,y2:H-B,stroke:"var(--mute)","stroke-width":1,"stroke-dasharray":"3 3"});rlabel(Math.min(W-R-30,Math.max(L+30,xx)),T-4,"어제 이맘때","middle")}
+  // 비교 기준 시각 (어제 이맘때, 없으면 가장 가까운 과거 기록)
+  var vc=st.vsYesterday,yx=vc&&vc.agoAt?vc.agoAt:t1-24*3600000;if(yx>=t0){var xx=X(yx);rmk("line",{x1:xx,x2:xx,y1:T,y2:H-B,stroke:"var(--mute)","stroke-width":1,"stroke-dasharray":"3 3"});rlabel(Math.min(W-R-30,Math.max(L+30,xx)),T-4,vc&&vc.basis&&vc.basis!=="same-time"?"비교 기준":"어제 이맘때","middle")}
   // 선 + 옅은 면
   var d="",a="M"+X(s[0].t).toFixed(1)+","+Y(0);
   s.forEach(function(p,i){var px=X(p.t).toFixed(1),py=Y(p.c).toFixed(1);d+=(i?"L":"M")+px+","+py;a+="L"+px+","+py});
@@ -198,18 +204,22 @@ function drawRiskChart(st,rk){var el=$("#rchart");if(!el||!st.warRisk)return;var
   // 북한 도발·경보 사건 (아래쪽 ◆)
   var evs=(st.events||[]).map(function(e){return e.brief}).filter(function(b){return b&&b.at>=t0&&b.at<=t1&&((b.isProvocation&&b.danger.level>=3)||b.danger.level>=4||b.evacuation||b.posture)});
   evs.forEach(function(b){var ex=X(b.at),ey=H-B-6;rmk("path",{d:"M"+ex+","+(ey-5)+"L"+(ex+5)+","+ey+"L"+ex+","+(ey+5)+"L"+(ex-5)+","+ey+"Z",fill:"var(--l3)",stroke:"var(--card)","stroke-width":2})});
+  // 클로드 분석관·심층 분석 판단 (속 빈 점)
+  js.forEach(function(j){rmk("circle",{cx:X(j.at),cy:Y(j.clash),r:4.5,fill:"var(--card)",stroke:"var(--viz)","stroke-width":2})});
   // 지금
-  var lp=s[s.length-1],nx=X(lp.t),ny=Y(lp.c);rmk("circle",{cx:nx,cy:ny,r:5,fill:"var(--viz)",stroke:"var(--card)","stroke-width":2});
+  var lp=s.length?s[s.length-1]:{t:t1,c:st.warRisk.clash30d.point,w:st.warRisk.war30d.point,ph:st.warRisk.phase,live:1},nx=X(lp.t),ny=Y(lp.c);rmk("circle",{cx:nx,cy:ny,r:5,fill:"var(--viz)",stroke:"var(--card)","stroke-width":2});
   rlabel(nx-8,Math.max(12,ny-9),"지금 "+pct1(lp.c),"end",700,"var(--fg)");
   // 십자선 + 툴팁 (가까운 시각에 붙는다)
   var cross=rmk("line",{x1:0,x2:0,y1:T,y2:H-B,stroke:"var(--mute)","stroke-width":1,visibility:"hidden"});
   var hit=rmk("rect",{x:0,y:0,width:W,height:H,fill:"transparent"});
   el.innerHTML="";el.appendChild(svg);var tip=document.createElement("div");tip.className="tip";el.appendChild(tip);
   function rshow(ev){var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)*W/r.width,ms=t0+(sx-L)/(W-L-R)*(t1-t0);
-    var best=0,bd=1e18;s.forEach(function(p,i){var dd=Math.abs(p.t-ms);if(dd<bd){bd=dd;best=i}});var p=s[best],px=X(p.t);
+    var pts=s.map(function(p){return {t:p.t,c:p.c,w:p.w,ph:p.ph,live:p.live,who:"자동 판정"}}).concat(js.map(function(j){return {t:j.at,c:j.clash,w:j.war,ph:j.phase,who:"클로드 "+j.source}}));
+    var best=0,bd=1e18;pts.forEach(function(p,i){var dd=Math.abs(p.t-ms);if(dd<bd){bd=dd;best=i}});var p=pts[best],px=X(p.t);
     cross.setAttribute("x1",px);cross.setAttribute("x2",px);cross.setAttribute("visibility","visible");
     tip.textContent="";var b=document.createElement("b");b.textContent="국지 충돌 "+pct1(p.c);tip.appendChild(b);
-    var l1=document.createElement("div");l1.textContent=(p.live?"지금":kst(p.t))+" · "+p.ph+"단계 · 전면전 "+pct1(p.w);tip.appendChild(l1);
+    var l1=document.createElement("div");l1.textContent=(p.live?"지금":kst(p.t))+" · "+p.ph+"단계"+(p.w!=null?" · 전면전 "+pct1(p.w):"");tip.appendChild(l1);
+    var l0=document.createElement("div");l0.textContent=p.who;l0.style.color="var(--mute)";tip.appendChild(l0);
     evs.filter(function(e){return Math.abs(e.at-p.t)<=90*60000}).slice(0,2).forEach(function(e){var l2=document.createElement("div");l2.textContent="◆ "+e.headline;tip.appendChild(l2)});
     tip.style.display="block";var left=px*r.width/W+8;if(left>r.width-210)left=px*r.width/W-218;tip.style.left=Math.max(0,left)+"px"}
   hit.addEventListener("pointermove",rshow);hit.addEventListener("pointerdown",rshow);hit.addEventListener("pointerleave",function(){tip.style.display="none";cross.setAttribute("visibility","hidden")})}

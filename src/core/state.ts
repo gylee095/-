@@ -1,6 +1,6 @@
 // 대시보드·에이전트가 공유하는 상태 스냅샷
 import type { Store } from "./store.js";
-import { compareWithYesterday } from "./compare.js";
+import { compareWithYesterday, judgmentsFromNotes } from "./compare.js";
 import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
@@ -118,7 +118,9 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const forecast = forecastMajor(await loadMajorDays(store), now);
   // 주식 차트처럼: 시간별 판정 기록(30일)과 어제 이맘때와의 비교
   const riskSeries = await loadSeries(store, now).catch(() => []);
-  const vsYesterday = compareWithYesterday(riskSeries, warRisk, board, enriched.map((e) => e.brief), now, tension.pct);
+  // 자동 판정 기록(11/1 저녁부터) 앞의 며칠은 클로드 분석관·심층 분석 판단으로 메운다
+  const judgments = judgmentsFromNotes(notes);
+  const vsYesterday = compareWithYesterday(riskSeries, warRisk, board, enriched.map((e) => e.brief), now, tension.pct, judgments);
 
   return {
     now,
@@ -131,6 +133,8 @@ export async function buildState(store: Store, since: number, disabledSources = 
     riskSeries,
     /** 어제 이맘때와 비교 */
     vsYesterday,
+    /** 클로드 분석관·심층 분석 판단 (차트의 속 빈 점) */
+    judgments,
     interpretation,
     posture: posture(events.filter((e) => e.firstDetectedTime >= since), now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,

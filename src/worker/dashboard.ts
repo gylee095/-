@@ -159,7 +159,7 @@ function riskChart(st){var w=st.warRisk,c=st.vsYesterday;
   h+='<div class="ps">'+(c&&c.ago?'비교 기준 '+esc(c.agoLabel||"어제 이맘때")+' '+pct1(c.ago.clash)+(c.ago.war?' · 전면전 '+pct1(c.ago.war)+' → '+pct1(w.war30d.point):'')+' · '+c.ago.phase+'단계 → '+w.phase+'단계':'비교할 과거 기록이 아직 없습니다')+'</div>';
   var cur=getRange();
   h+='<div class="rng" role="group" aria-label="기간">'+Object.keys(RANGE_H).map(function(k){return '<button type="button" class="'+(k===cur?'on':'')+'" onclick="setRange(\''+k+'\')">'+k+'</button>'}).join("")+'</div>';
-  h+='<div class="legend"><span style="color:var(--viz);font-weight:700">━</span> 자동 판정 (5분마다, 시간별 기록 · 11/1부터) &nbsp; <span style="color:var(--viz);font-weight:700">○</span> 클로드 분석관 판단</div>';
+  h+='<div class="legend"><span style="color:var(--viz);font-weight:700">━</span> 자동 판정 (시간마다 · 11/1 저녁부터) &nbsp; <span style="color:var(--viz);font-weight:700">┅</span> 그 전: 클로드 판단을 이은 선 &nbsp; <span style="color:var(--viz);font-weight:700">○</span> 클로드 분석관 판단</div>';
   h+='<div class="chart" id="rchart"></div>';
   if(c){var cls=c.verdict==="worse"?"up":c.verdict==="better"?"down":"flat";
     h+='<div class="vs"><span class="'+cls+'" style="font-weight:700">'+(cls==="up"?"▲":cls==="down"?"▼":"–")+'</span> <b>'+esc(c.headline)+'</b></div>';
@@ -168,7 +168,7 @@ function riskChart(st){var w=st.warRisk,c=st.vsYesterday;
     (c.newEvents||[]).forEach(function(e){items.push('<li><span class="flat">●</span>'+esc(kst(e.at))+' '+esc(e.headline)+'</li>')});
     if(items.length)h+='<ul class="chg">'+items.join("")+'</ul>';else if(c.ago)h+='<div class="ps" style="margin-top:4px">영역 수준·징후 상태 모두 어제 이맘때와 같습니다.</div>'}
   h+='<details><summary>표로 보기 (날마다 최고값)</summary>'+riskTable(seriesOf(st))+'</details>';
-  h+='<div class="mk">선은 시간마다 남긴 자동 판정, 속 빈 점은 그 전부터 남아 있는 클로드 분석관·심층 분석 판단입니다. 확률은 근거를 밝힌 판단값이고, 세로 점선은 비교 기준 시각, 아래쪽 ◆는 북한 도발·경보 사건입니다.</div></div>';
+  h+='<div class="mk">실선은 시간마다 남긴 자동 판정, 점선은 그 전 며칠을 클로드 분석관·심층 분석 판단(속 빈 점)으로 이은 것입니다. 확률은 근거를 밝힌 판단값이고, 세로 점선은 비교 기준 시각, 아래쪽 ◆는 북한 도발·경보 사건입니다.</div></div>';
   return h}
 function riskTable(s){var by={};s.forEach(function(p){var d=new Date(p.t+9*3600000).toISOString().slice(0,10),x=by[d]||(by[d]={c:0,ph:0,w:0});x.c=Math.max(x.c,p.c);x.ph=Math.max(x.ph,p.ph);x.w=Math.max(x.w,p.w)});
   var days=Object.keys(by).sort().reverse().slice(0,30);if(!days.length)return '<div class="ps">기록 없음</div>';
@@ -195,12 +195,15 @@ function drawRiskChart(st,rk){var el=$("#rchart");if(!el||!st.warRisk)return;var
     rlabel(x,H-8,step<86400000?(dt.getUTCHours()===0?(dt.getUTCMonth()+1)+"/"+dt.getUTCDate():dt.getUTCHours()+"시"):(dt.getUTCMonth()+1)+"/"+dt.getUTCDate(),"middle")}
   // 비교 기준 시각 (어제 이맘때, 없으면 가장 가까운 과거 기록)
   var vc=st.vsYesterday,yx=vc&&vc.agoAt?vc.agoAt:t1-24*3600000;if(yx>=t0){var xx=X(yx);rmk("line",{x1:xx,x2:xx,y1:T,y2:H-B,stroke:"var(--mute)","stroke-width":1,"stroke-dasharray":"3 3"});rlabel(Math.min(W-R-30,Math.max(L+30,xx)),T-4,vc&&vc.basis&&vc.basis!=="same-time"?"비교 기준":"어제 이맘때","middle")}
-  // 선 + 옅은 면
-  var d="",a="M"+X(s[0].t).toFixed(1)+","+Y(0);
-  s.forEach(function(p,i){var px=X(p.t).toFixed(1),py=Y(p.c).toFixed(1);d+=(i?"L":"M")+px+","+py;a+="L"+px+","+py});
-  a+="L"+X(s[s.length-1].t).toFixed(1)+","+Y(0)+"Z";
-  rmk("path",{d:a,fill:"var(--viz)","fill-opacity":.1,stroke:"none"});
-  rmk("path",{d:d,fill:"none",stroke:"var(--viz)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"});
+  // 한 줄로 잇는다: 자동 판정 기록이 시작되기 전은 클로드 판단 점들을 점선으로 잇고, 그 뒤는 자동 판정 실선
+  var autoStart=s.length?s[0].t:t1+1,pre=js.filter(function(j){return j.at<autoStart}).map(function(j){return {t:j.at,c:j.clash}});
+  var line=pre.concat(s.map(function(p){return {t:p.t,c:p.c}}));
+  if(line.length){var a="M"+X(line[0].t).toFixed(1)+","+Y(0);line.forEach(function(p){a+="L"+X(p.t).toFixed(1)+","+Y(p.c).toFixed(1)});a+="L"+X(line[line.length-1].t).toFixed(1)+","+Y(0)+"Z";
+    rmk("path",{d:a,fill:"var(--viz)","fill-opacity":.1,stroke:"none"})}
+  if(pre.length){var dp="";pre.concat(s.length?[s[0]]:[]).forEach(function(p,i){dp+=(i?"L":"M")+X(p.t).toFixed(1)+","+Y(p.c).toFixed(1)});
+    rmk("path",{d:dp,fill:"none",stroke:"var(--viz)","stroke-width":2,"stroke-dasharray":"5 4","stroke-linejoin":"round","stroke-linecap":"round"})}
+  if(s.length>1){var d="";s.forEach(function(p,i){d+=(i?"L":"M")+X(p.t).toFixed(1)+","+Y(p.c).toFixed(1)});
+    rmk("path",{d:d,fill:"none",stroke:"var(--viz)","stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"})}
   // 북한 도발·경보 사건 (아래쪽 ◆)
   var evs=(st.events||[]).map(function(e){return e.brief}).filter(function(b){return b&&b.at>=t0&&b.at<=t1&&((b.isProvocation&&b.danger.level>=3)||b.danger.level>=4||b.evacuation||b.posture)});
   evs.forEach(function(b){var ex=X(b.at),ey=H-B-6;rmk("path",{d:"M"+ex+","+(ey-5)+"L"+(ex+5)+","+ey+"L"+ex+","+(ey+5)+"L"+(ex-5)+","+ey+"Z",fill:"var(--l3)",stroke:"var(--card)","stroke-width":2})});

@@ -1,6 +1,6 @@
 // adsb.lol ADS-B (무료·무인증, ODbL). OpenSky가 클라우드 서버 접속을 차단해 주 항공 소스로 사용.
 // 한반도 수신기 커버리지가 제한적이므로 이 소스 단독 신호는 항상 미확인(UNVERIFIED)이다.
-//  - 민항기 수(공역 통제 징후), 동북아 군용기 수, 정찰·급유기(ISR) 목록, 비상 스쿼크를 관측한다.
+//  - 민항기 수(공역 통제 징후), 한반도 주변 군용기 수, 동북아 정찰·급유기(ISR) 목록, 비상 스쿼크를 관측한다.
 import type { CollectResult, Metric, Signal } from "../types.js";
 import { fetchJson } from "../util.js";
 
@@ -22,6 +22,11 @@ export const AIR_REGIONS: Record<string, Circle> = {
 
 /** 군용기 집계 범위: 한반도·일본 서부·중국 동북부·동해·서해 */
 export const NE_ASIA_BOX = { minLat: 28, maxLat: 47, minLon: 117, maxLon: 147 };
+/** 군용기 '수'는 한반도와 주변 바다만 센다 (2026-11-02). 동북아 전체로 세면 일본 중부의 급유·수송기가 대부분이라
+ *  11/2 '10대 중 5대가 일본 상공'인데도 군사 동향을 '경계'로 올렸다. 정찰기(RC-135 등)는 동해·일본 쪽에서 한반도를 보므로 넓은 범위 그대로 */
+export const KOREA_THEATER_BOX = { minLat: 32.5, maxLat: 43.5, minLon: 123, maxLon: 132.5 };
+export const inBox = (a: { lat?: number; lon?: number }, b: { minLat: number; maxLat: number; minLon: number; maxLon: number }) =>
+  a.lat !== undefined && a.lon !== undefined && a.lat >= b.minLat && a.lat <= b.maxLat && a.lon >= b.minLon && a.lon <= b.maxLon;
 
 export interface Aircraft {
   icao24: string;
@@ -212,10 +217,11 @@ export function airMetrics(korea: Aircraft[], neAsiaMil: Aircraft[]): Metric[] {
   const airborne = korea.filter((a) => !a.onGround);
   const civil = airborne.filter((a) => !a.military);
   const milAir = neAsiaMil.filter((a) => !a.onGround);
+  const nearKorea = milAir.filter((a) => inBox(a, KOREA_THEATER_BOX));
   const isr = describeIsr(milAir);
   return [
     { indicator: "air.civil_airborne", value: civil.length, meta: { total: airborne.length } },
-    { indicator: "air.mil_airborne", value: milAir.length, meta: { types: countBy(milAir.map((a) => a.type ?? "?")) } },
+    { indicator: "air.mil_airborne", value: nearKorea.length, meta: { types: countBy(nearKorea.map((a) => a.type ?? "?")), elsewhere: milAir.length - nearKorea.length } },
     { indicator: "air.isr_airborne", value: isr.length, meta: { aircraft: isr.slice(0, 20) } },
   ];
 }

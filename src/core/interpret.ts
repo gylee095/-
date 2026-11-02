@@ -5,7 +5,7 @@ import type { BoardRow } from "./state.js";
 import type { Pattern } from "./patterns.js";
 import type { EventBrief } from "./brief.js";
 import { inChineseMoratorium, inExerciseSeason } from "./patterns.js";
-import { INDICATOR_BY_ID } from "./indicators.js";
+import { INDICATOR_BY_ID, displayValue, shortLabel } from "./indicators.js";
 
 export interface Hint {
   /** warning: 위험 쪽 힌트 · reassuring: 안심 쪽 힌트 · caveat: 해석 주의 · gap: 사각지대 */
@@ -61,12 +61,7 @@ function fmt(v: number, unit: string): string {
 
 /** 징후판 카드와 같은 모양의 짧은 값 (평소 대비 배율은 '평소의 N배', 변화율은 부호를 붙인 %) */
 function shortValue(row: BoardRow): string {
-  const v = row.reading!.value;
-  const m = (row.reading!.meta ?? {}) as any;
-  if (row.id.startsWith("psych.") || row.id === "market.pm_war_prob") return `평소의 ${v >= 1000 ? Math.round(v / 100) : (v / 100).toFixed(1)}배`;
-  if (row.id.startsWith("nk.") || row.id === "sea.gfw_cn_change_pct") return `${v >= 0 ? "+" : ""}${Math.round(v)}%`;
-  if (row.id === "elite.foreign_net_kospi" && typeof m.net5dEok === "number") return `5일 ${m.net5dEok >= 0 ? "+" : "−"}${(Math.abs(m.net5dEok) / 10000).toFixed(1)}조 원`;
-  return fmt(v, row.unit);
+  return displayValue(row.id, row.reading!.value, row.reading!.meta);
 }
 
 function pctOfBaseline(row: BoardRow): number | undefined {
@@ -126,7 +121,10 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
   const unit = row.unit;
   const base = r!.baseline;
   const p = pctOfBaseline(row);
-  const learn = isLearning(row) ? ` (기준선 학습 중 ${r!.n}/10 — 아직 '평소'와 비교할 수 없음)` : "";
+  // 최근 4주 기록으로 '평소'를 정하는 지표는 쌓인 날 수를 보여 준다 (2일부터는 아주 큰 변화만 판정)
+  const learn = !isLearning(row) ? "" : r!.days !== undefined
+    ? ` (평소 기준 ${r!.days}/7일 — 아직 '평소'와 비교할 수 없음${r!.days >= 2 ? ", 아주 큰 변화만 판정" : ""})`
+    : ` (기준선 학습 중 ${r!.n}/10 — 아직 '평소'와 비교할 수 없음)`;
   const vs = base !== undefined && !isLearning(row) ? ` · 이 시간대 평소 ${fmt(base, unit)}` : "";
 
   switch (id) {
@@ -138,8 +136,8 @@ function meaningCore(row: BoardRow, ctx: { night: boolean; exercise: boolean; mo
       return `민항기 ${v}대${vs}${learn} → ${ctx.night ? "심야 교통량 수준, " : ""}공역 통제·우회 징후 없음`;
     }
     case "air.mil_airborne":
-      if (isAbnormal(row)) return `동북아 군용기 ${v}대${vs} — 평소보다 많음. ${ctx.exercise ? "연합훈련 철이라 자연스러운 증가일 수 있음" : "증원·급유·수송 활동 가능성. 기종 목록을 봐야 함"}`;
-      return `동북아에서 ADS-B 로 보이는 군용기 ${v}대${vs}${learn} → 눈에 띄는 전개 없음 (트랜스폰더를 끈 기체는 원래 안 보임)`;
+      if (isAbnormal(row)) return `한반도 주변 군용기 ${v}대${vs} — 평소보다 많음. ${ctx.exercise ? "연합훈련 철이라 자연스러운 증가일 수 있음" : "증원·급유·수송 활동 가능성. 기종 목록을 봐야 함"}`;
+      return `한반도 주변에서 ADS-B 로 보이는 군용기 ${v}대${vs}${learn} → 눈에 띄는 전개 없음 (트랜스폰더를 끈 기체는 원래 안 보임)`;
     case "air.isr_airborne": {
       const ac = (r!.meta as any)?.aircraft as any[] | undefined;
       if (v === 0) return "정찰·급유기 미관측 → 미사일 발사 임박 때 흔히 보이는 RC-135 계열 전개가 지금은 보이지 않음 (임무기는 종종 송출을 끔)";
@@ -539,7 +537,7 @@ export function interpret(input: InterpretInput): Interpretation {
   if (abnormal.length === 0) {
     narrative.push(`측정 가능한 징후 ${board.length - unavailable.length - learning.length}개가 모두 평소 범위 안이다${learning.length ? ` (${learning.length}개는 아직 기준선 학습 중)` : ""}. 평소와 다른 것이 없다.`);
   } else {
-    narrative.push(`평소와 다른 것 ${abnormal.length}가지: ${abnormal.map((a) => `${a.label.replace(/\s*\([^()]*(평소 대비|대비 %|전일 대비 %)[^()]*\)$/, "")} ${shortValue(a)}${pctOfBaseline(a) !== undefined ? `(평소의 ${pctOfBaseline(a)}%)` : ""}`).join(", ")}.`);
+    narrative.push(`평소와 다른 것 ${abnormal.length}가지: ${abnormal.map((a) => `${shortLabel(a.label)} ${shortValue(a)}${pctOfBaseline(a) !== undefined ? `(평소의 ${pctOfBaseline(a)}%)` : ""}`).join(", ")}.`);
   }
   if (warnings.length) {
     narrative.push(`주목할 힌트: ${warnings.map((w) => w.title).join(" / ")}. ${warnings[0].reasoning}${warnings[0].counter ? ` 반대로 보면 — ${warnings[0].counter}` : ""}`);

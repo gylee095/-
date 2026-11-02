@@ -2,7 +2,7 @@
 // 각 규칙은 왜 그 조합이 의미 있는지, 다른 설명(대안 가설)은 무엇인지, 다음에 무엇을 확인해야 하는지를 함께 낸다.
 // 점수는 설명 가능한 가중 합이며 확률이 아니다. 단일 징후로는 어떤 패턴도 'high' 가 되지 않는다.
 import type { CrisisEvent, Reading } from "./types.js";
-import { INDICATOR_BY_ID } from "./indicators.js";
+import { INDICATOR_BY_ID, STATE_LABEL, displayValue, shortLabel } from "./indicators.js";
 
 export type Confidence = "low" | "medium" | "high";
 
@@ -74,7 +74,9 @@ function finalize(p: Pattern): Pattern | null {
   return p;
 }
 
-const fmt = (e: Pattern["evidence"][number]) => `${e.label} ${e.value}${INDICATOR_BY_ID[e.indicator]?.unit ?? ""}(${e.state})`;
+/** 근거 한 줄: 징후판 카드와 같은 값 표기, 상태는 한국어 ('5498%(anomalous)' → '평소의 55배 (이상)') */
+const EVIDENCE_STATE: Record<string, string> = { ...STATE_LABEL, event: "사건", watch: "관찰" };
+const fmt = (e: Pattern["evidence"][number]) => `${shortLabel(e.label)} ${displayValue(e.indicator, e.value)} (${EVIDENCE_STATE[e.state] ?? e.state})`;
 
 export function detectPatterns(r: R, events: CrisisEvent[], now = Date.now()): Pattern[] {
   const out: (Pattern | null)[] = [];

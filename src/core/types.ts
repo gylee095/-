@@ -113,6 +113,8 @@ export interface Reading {
   z?: number;
   /** 이 시간대 기준선에 반영된 표본 수 */
   n: number;
+  /** '평소'를 정한 날 수 (최근 4주 기록 기준 지표만, 2026-11-02~) */
+  days?: number;
   state: IndicatorState;
   meta?: Record<string, unknown>;
   /** 시계열 표(metrics)에 마지막으로 기록한 시각 — 1분 주기 지표를 5분에 한 번만 기록해 저장소 쓰기를 줄인다 */

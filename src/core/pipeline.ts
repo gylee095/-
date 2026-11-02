@@ -7,7 +7,7 @@ import { runCollectors } from "./collectors/index.js";
 import { correlate } from "./correlate.js";
 import { decideAlerts, formatAlert, posture, type AlertDecision } from "./policy.js";
 import { sendPush } from "./notify.js";
-import { INDICATOR_BY_ID, evaluate, slotKey, updateBaseline, type Baseline } from "./indicators.js";
+import { INDICATORS, INDICATOR_BY_ID, addToDay, dayBaseline, evaluate, kstDay, slotKey, updateBaseline, type Baseline, type DayHistory } from "./indicators.js";
 import { detectPatterns, type Pattern } from "./patterns.js";
 import { hash } from "./util.js";
 
@@ -84,10 +84,41 @@ export function hourlySeries(agg: HourlyAgg, indicator: string, since: number): 
     .sort((a, b) => a.hour - b.hour);
 }
 
+/** 기준선 열쇠(지표#판|시간대) → 날마다 관측 합계 (최근 4주 '평소' 계산용) */
+export type DayHistoryMap = Record<string, DayHistory>;
+export const DAY_HISTORY_KEY = "baseline:days";
+
+/** 기준선 저장 이름: 지표#판|시간대 */
+export const baselineKey = (id: string, at: number) => {
+  const def = INDICATOR_BY_ID[id];
+  return `${def.id}${def.baselineVersion ? `#${def.baselineVersion}` : ""}|${slotKey(def, at)}`;
+};
+
+/**
+ * 처음 한 번: 시계열 표(15분마다 남긴 관측값)에서 날마다 합계를 되살린다 — 이미 쌓인 며칠을 버리지 않으려고.
+ * 측정 방식이 바뀐 지표(baselineVersion 이 있는 것)는 예전 값이 다른 것을 잰 것이라 되살리지 않는다.
+ */
+export async function seedDayHistory(store: Pick<Store, "getMetricHistory">, now: number): Promise<DayHistoryMap> {
+  const out: DayHistoryMap = {};
+  const since = now - 28 * 86400_000;
+  for (const def of INDICATORS) {
+    if (def.absolute || def.baselineVersion) continue;
+    const pts = await store.getMetricHistory(def.id, since).catch(() => []);
+    for (const p of pts) {
+      const key = baselineKey(def.id, p.at);
+      out[key] = addToDay(out[key], p.value, p.at);
+    }
+  }
+  return out;
+}
+
 export async function processMetrics(store: Store, metrics: Metric[], now: number): Promise<Reading[]> {
   if (!metrics.length) return [];
   const raw = await store.getKv("baselines");
   const baselines: BaselineMap = raw ? JSON.parse(raw) : {};
+  const daysRaw = await store.getKv(DAY_HISTORY_KEY);
+  const dayHist: DayHistoryMap = daysRaw ? JSON.parse(daysRaw) : await seedDayHistory(store, now);
+  const today = kstDay(now);
   const readingsRaw = await store.getKv("readings");
   const latest: Record<string, Reading> = readingsRaw ? JSON.parse(readingsRaw) : {};
   const hourlyRaw = await store.getKv("hourly");
@@ -97,11 +128,14 @@ export async function processMetrics(store: Store, metrics: Metric[], now: numbe
   for (const m of metrics) {
     const def = INDICATOR_BY_ID[m.indicator];
     if (!def) continue;
-    const key = `${def.id}${def.baselineVersion ? `#${def.baselineVersion}` : ""}|${slotKey(def, now)}`;
+    const key = baselineKey(def.id, now);
     const prev = baselines[key];
-    const reading = evaluate(def, m.value, now, prev, m.meta);
+    // 기준선이 필요한 지표는 최근 4주 기록으로 판정한다 (절대 임계값 지표는 기준선 없이 판정)
+    const days = def.absolute ? undefined : dayBaseline(dayHist[key], today) ?? null;
+    const reading = evaluate(def, m.value, now, prev, m.meta, days);
     // 수집기가 '아직 평소를 모른다'고 알려 온 값(예: 기업 제트기 기록 1주일 미만)은 판정하지 않고 학습 중으로 둔다
     const learningOnly = !!(m.meta as { learning?: boolean } | undefined)?.learning;
+    if (!def.absolute && !learningOnly) dayHist[key] = addToDay(dayHist[key], m.value, now);
     if (learningOnly) reading.state = "learning";
     // 시계열 표에는 15분에 한 번만 남긴다 (상태가 바뀐 순간은 바로) — D1 무료 쓰기 한도 절약
     const last = latest[def.id];
@@ -115,6 +149,7 @@ export async function processMetrics(store: Store, metrics: Metric[], now: numbe
     if (due && !contaminating && !learningOnly) baselines[key] = { ...updateBaseline(prev, m.value, alphaFor(def.slots)), updatedAt: now };
   }
   await store.setKv("baselines", JSON.stringify(baselines));
+  await store.setKv(DAY_HISTORY_KEY, JSON.stringify(dayHist));
   await store.setKv("readings", JSON.stringify(latest));
   await store.setKv("hourly", JSON.stringify(addHourly(hourly, readings, now)));
   await store.putMetrics(toWrite);

@@ -40,11 +40,12 @@ export const INDICATORS: IndicatorDef[] = [
     latency: "수 초~수십 초", caveats: "심야에는 원래 적다(시간대 기준선으로 보정). 안개·태풍, 수신기 장애, 명절에도 줄어든다.",
   },
   {
-    id: "air.mil_airborne", label: "동북아 군용기 수 (ADS-B 노출)", group: "air", unit: "대", direction: "high", slots: 4,
-    // 2026-11-02: adsb.fi 수신망을 더해 같은 시각에 보이는 대수가 늘었다 → adsb.lol 만으로 배운 기준선을 버린다 (안 그러면 가짜 '상승')
-    baselineVersion: 2,
+    id: "air.mil_airborne", label: "한반도 주변 군용기 수 (ADS-B 노출)", group: "air", unit: "대", direction: "high", slots: 4,
+    // 2026-11-02: adsb.fi 수신망을 더해 같은 시각에 보이는 대수가 늘었다 → 예전 기준선을 버렸다(2).
+    // 같은 날 범위를 동북아 전체에서 한반도 주변으로 좁혔다 → 다시 처음부터 배운다(3). 일본 중부 급유·수송기가 대부분이었다.
+    baselineVersion: 3,
     why: "증원 전력 전개·장거리 폭격기 비행·대규모 공중 급유는 작전 준비의 가시적 징후다.",
-    measure: "adsb.lol /v2/mil 에서 위도 28~47°, 경도 117~147° 안의 군용 표시 항공기 수",
+    measure: "adsb.lol·adsb.fi 군용 목록에서 한반도와 주변 바다(위도 32.5~43.5°, 경도 123~132.5°) 안의 공중 군용기 수. 일본 등 나머지 동북아는 세지 않는다(정찰기 수는 따로 넓게 본다)",
     latency: "수 초~수십 초", caveats: "군용기 다수는 트랜스폰더를 끈다. 보이는 건 '공개하기로 한 것'뿐이며, 한미 연합훈련(3월·8월) 기간엔 정상적으로 늘어난다.",
   },
   {
@@ -272,6 +273,70 @@ export function slotKey(def: IndicatorDef, at: number): string {
 
 export const DEFAULT_MIN_N = 10;
 
+// ── '평소' = 최근 4주 같은 시간대 (2026-11-02) ──
+// 예전 기준선(지수가중 평균)은 기억이 1~3일뿐이라 몇 주에 걸쳐 서서히 늘어나는 준비가 '평소'에 묻혔고,
+// 새로 시작한 지표는 몇 시간 만에 판정을 시작했다(11/2 군용기: 오전 몇 시간 배운 '평소 6대'로 '상승' → 군사 동향 '경계').
+// 이제 기준선이 필요한 지표는 날마다 같은 시간대 관측의 합계를 4주 동안 남기고, 그 날들의 중앙값을 '평소'로 쓴다.
+// 근거·대안: docs/INDICATORS.md 5
+
+/** 하루 한 시간대의 관측 합계: [합, 제곱합, 개수] */
+export type DayStat = [number, number, number];
+/** 한국 날짜(YYYY-MM-DD) → 그날 그 시간대 관측 합계 */
+export type DayHistory = Record<string, DayStat>;
+/** 기억하는 날 수 */
+export const HISTORY_DAYS = 28;
+/** 이만큼 쌓이면 상승·이상을 모두 판정한다 */
+export const MIN_DAYS = 7;
+/** 이만큼만 있어도 아주 큰 변화(z ≥ EARLY_Z)는 '이상'으로 본다 — 공역 폐쇄 같은 급변을 놓치지 않으려고 */
+export const EARLY_DAYS = 2;
+export const EARLY_Z = 4;
+
+export interface DayBaseline {
+  /** 날마다 평균의 중앙값 */
+  center: number;
+  /** 날 사이 흔들림(중앙값 절대편차)과 하루 안 흔들림(날마다 표준편차의 중앙값)을 합친 표준편차 */
+  sd: number;
+  /** 쓴 날 수 (오늘 제외, 최대 28) */
+  days: number;
+}
+
+const median = (xs: number[]) => {
+  const s = [...xs].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+
+/** 한국 날짜 문자열 */
+export const kstDay = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
+
+/** 오늘을 뺀 최근 28일로 '평소'를 정한다. 오늘 값이 자기 기준선을 끌어올리지 못하게 오늘은 넣지 않는다 */
+export function dayBaseline(hist: DayHistory | undefined, today: string): DayBaseline | undefined {
+  if (!hist) return undefined;
+  const days = Object.keys(hist).filter((d) => d < today && hist[d][2] > 0).sort().slice(-HISTORY_DAYS);
+  if (!days.length) return undefined;
+  const means = days.map((d) => hist[d][0] / hist[d][2]);
+  const within = days.map((d) => {
+    const [s, ss, n] = hist[d];
+    const m = s / n;
+    return n > 1 ? Math.sqrt(Math.max(0, ss / n - m * m)) : 0;
+  });
+  const center = median(means);
+  const between = median(means.map((m) => Math.abs(m - center))) * 1.4826;
+  const w = median(within);
+  return { center, sd: Math.sqrt(between * between + w * w), days: days.length };
+}
+
+/** 오늘 기록에 관측 하나를 더하고, 28일보다 오래된 날은 지운다 */
+export function addToDay(hist: DayHistory | undefined, value: number, at: number): DayHistory {
+  const h: DayHistory = { ...(hist ?? {}) };
+  const d = kstDay(at);
+  const [s, ss, n] = h[d] ?? [0, 0, 0];
+  h[d] = [+(s + value).toFixed(4), +(ss + value * value).toFixed(4), n + 1];
+  const oldest = kstDay(at - (HISTORY_DAYS + 1) * 86400_000);
+  for (const k of Object.keys(h)) if (k < oldest) delete h[k];
+  return h;
+}
+
 /** 지수가중 평균·분산 갱신. 표본이 적을 때는 단순 평균처럼 빨리 수렴한다. */
 export function updateBaseline(prev: Baseline | undefined, value: number, alpha = 0.1): Baseline {
   if (!prev) return { mean: value, var: 0, n: 1 };
@@ -282,13 +347,31 @@ export function updateBaseline(prev: Baseline | undefined, value: number, alpha 
   return { mean, var: v, n: prev.n + 1 };
 }
 
-/** 관측값을 기준선과 비교해 상태를 판정한다 */
-export function evaluate(def: IndicatorDef, value: number, at: number, baseline: Baseline | undefined, meta?: Record<string, unknown>): Reading {
+/**
+ * 관측값을 기준선과 비교해 상태를 판정한다.
+ * days 를 넘기면(기준선이 필요한 지표 — 파이프라인은 항상 넘긴다) 최근 4주 기록으로 판정하고, null 이면 기록이 아직 없다는 뜻(학습 중).
+ * days 를 넘기지 않으면 예전 지수가중 기준선(baseline)으로 판정한다 — 절대 임계값 지표의 '평소' 표시용으로만 남아 있다.
+ */
+export function evaluate(def: IndicatorDef, value: number, at: number, baseline: Baseline | undefined, meta?: Record<string, unknown>, days?: DayBaseline | null): Reading {
   const minN = def.minN ?? DEFAULT_MIN_N;
   const reading: Reading = { indicator: def.id, value, at, n: baseline?.n ?? 0, state: "learning", meta };
+  const floor = (center: number) => Math.max(Math.abs(center) * 0.15, def.sdFloor ?? (def.unit === "%" ? 0.2 : 1));
+  const badOf = (z: number) => (def.direction === "high" ? z : def.direction === "low" ? -z : Math.abs(z));
+  if (!def.absolute && days !== undefined) {
+    reading.days = days?.days ?? 0;
+    if (!days) return reading;
+    const sd = Math.max(days.sd, floor(days.center));
+    reading.baseline = days.center;
+    reading.sd = sd;
+    reading.z = (value - days.center) / sd;
+    const bad = badOf(reading.z);
+    if (days.days >= MIN_DAYS) reading.state = bad >= 3 ? "anomalous" : bad >= 2 ? "elevated" : "normal";
+    else if (days.days >= EARLY_DAYS && bad >= EARLY_Z) reading.state = "anomalous";
+    return reading;
+  }
   if (baseline) {
     // 분산이 0에 가까울 때 z 가 폭발하지 않도록 바닥값을 둔다
-    const sd = Math.max(Math.sqrt(baseline.var), Math.abs(baseline.mean) * 0.15, def.sdFloor ?? (def.unit === "%" ? 0.2 : 1));
+    const sd = Math.max(Math.sqrt(baseline.var), floor(baseline.mean));
     reading.baseline = baseline.mean;
     reading.sd = sd;
     reading.z = (value - baseline.mean) / sd;
@@ -302,11 +385,24 @@ export function evaluate(def: IndicatorDef, value: number, at: number, baseline:
     return reading;
   }
   if (!baseline || baseline.n < minN) return reading; // learning
-  const z = reading.z!;
-  const bad = def.direction === "high" ? z : def.direction === "low" ? -z : Math.abs(z);
+  const bad = badOf(reading.z!);
   reading.state = bad >= 3 ? "anomalous" : bad >= 2 ? "elevated" : "normal";
   return reading;
 }
+
+/** 징후판 카드와 같은 모양의 짧은 값: 평소 대비 배율은 '평소의 N배', 변화율은 부호 붙은 % (패턴·해설 문구 공용, 2026-11-02 '5498%(anomalous)' 표기 오류 뒤) */
+export function displayValue(id: string, v: number, meta?: Record<string, unknown>): string {
+  const unit = INDICATOR_BY_ID[id]?.unit ?? "";
+  if (id.startsWith("psych.") || id === "market.pm_war_prob") return `평소의 ${v >= 1000 ? Math.round(v / 100) : (v / 100).toFixed(1)}배`;
+  if (id.startsWith("nk.") || id === "sea.gfw_cn_change_pct") return `${v >= 0 ? "+" : ""}${Math.round(v)}%`;
+  const eok = meta?.net5dEok;
+  if (id === "elite.foreign_net_kospi" && typeof eok === "number") return `5일 ${eok >= 0 ? "+" : "−"}${(Math.abs(eok) / 10000).toFixed(1)}조 원`;
+  if (unit === "%") return `${v.toFixed(2)}%`;
+  return `${Number.isInteger(v) ? v : v.toFixed(1)}${unit}`;
+}
+
+/** 이름 끝의 측정 설명 괄호('(네이버 검색, 평소 대비)', '(직전 8주 대비 %)')를 뗀 짧은 이름 */
+export const shortLabel = (label: string) => label.replace(/\s*\([^()]*(평소 대비|대비 %|전일 대비 %)[^()]*\)$/, "");
 
 export const STATE_LABEL: Record<IndicatorState, string> = {
   normal: "정상", elevated: "상승", anomalous: "이상", learning: "학습 중", unavailable: "측정 불가",

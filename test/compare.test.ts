@@ -95,7 +95,7 @@ describe("측정 방식이 바뀐 징후는 기준선을 새로 배운다", () =
     await store.setKv("baselines", JSON.stringify({ [`air.mil_airborne|${slotKey(def, NOW)}`]: { mean: 2.5, var: 1, n: 50, updatedAt: NOW - 3600_000 } }));
     const [r] = await processMetrics(store, [{ indicator: "air.mil_airborne", value: 7 }], NOW);
     expect(r.state).toBe("learning");
-    expect(Object.keys(JSON.parse((await store.getKv("baselines"))!))).toContain(`air.mil_airborne#2|${slotKey(def, NOW)}`);
+    expect(Object.keys(JSON.parse((await store.getKv("baselines"))!))).toContain(`air.mil_airborne#${def.baselineVersion}|${slotKey(def, NOW)}`);
   });
 });
 

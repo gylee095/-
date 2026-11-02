@@ -89,6 +89,7 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .lk{font-size:12px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;color:#fff}.lk.high{background:var(--l4)}.lk.medium{background:var(--l2)}.lk.low{background:var(--old)}
 .note{white-space:pre-wrap;font-size:15px}
 .bnote{font-size:13px;color:var(--mute);margin-top:4px}
+.since{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--chip);font-size:13px;line-height:1.5}.since ul{margin:2px 0 6px 18px;padding:0}.since div{margin-top:4px;color:var(--mute)}
 .btn{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--link);border-radius:10px;padding:8px 12px;font-size:14px;margin:4px 6px 4px 0;text-decoration:none}
 table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}.ok{color:var(--l1)}.bad{color:var(--l4)}
 #login{display:none}#login input{width:100%;padding:12px;font-size:16px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);margin:8px 0}
@@ -313,6 +314,17 @@ function money(x){return x==null?"—":"$"+Number(x).toFixed(2)}
 function ktok(n){n=Number(n||0);return n>=1e6?(n/1e6).toFixed(1)+"백만":n>=1e4?Math.round(n/1e4)+"만":String(n)}
 function usageLine(u){if(!u)return "";return "입력 "+ktok(u.input_tokens)+" · 출력 "+ktok(u.output_tokens)+" · 캐시 쓰기 "+ktok(u.cache_write_tokens)+" · 캐시 읽기 "+ktok(u.cache_read_tokens)+" 토큰"+(u.model?" · "+esc(u.model):"")}
 function tokTotals(t){return "출력 "+ktok(t.output_tokens)+" · 입력 "+ktok(t.input_tokens+t.cache_write_tokens)+" · 캐시 읽기 "+ktok(t.cache_read_tokens)}
+// 분석이 나온 뒤 새로 확인된 일 + 분석에 없는 최근 도발 (2026-11-02: 09시 심층 분석이 10/31 발사를 10/29 발사와 같은 것으로 본 채 그대로 보였다)
+function sinceNote(at,text){
+  var evs=(ST.events||[]).map(function(e){return e.brief}).filter(function(b){return b&&((b.isProvocation&&b.danger.level>=2)||b.danger.level>=3||b.evacuation||b.posture)});
+  var known=function(b){return b.selfReport?b.selfReport.reportedAt:b.at};
+  var md=function(ms){var d=new Date(ms+9*3600000),m=d.getUTCMonth()+1,dd=d.getUTCDate();return [m+"/"+dd,m+"월 "+dd+"일"]};
+  var after=evs.filter(function(b){return known(b)>at+60000});
+  var missed=evs.filter(function(b){return b.isProvocation&&known(b)<=at&&at-b.at<7*86400000&&!md(b.at).some(function(x){return text.indexOf(x)>=0})});
+  if(!after.length&&!missed.length)return "";
+  var li=function(b){return '<li>'+esc(bwhen(b))+' · '+esc(b.headline)+'</li>'};
+  return '<div class="since"><b>이 분석 뒤 바뀐 것 (자동 확인)</b>'+(after.length?'<div>분석 뒤 새로 확인된 일</div><ul>'+after.map(li).join("")+'</ul>':'')+(missed.length?'<div>이 분석에 없는 최근 도발</div><ul>'+missed.map(li).join("")+'</ul>':'')+'</div>';
+}
 function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f).join("")+'</ul>':''};
   var h='<div class="sec">클로드 심층 분석 · '+ago(n.at)+' <span style="font-weight:400">· 특이한 날에만 자동 실행</span></div><div class="card deep">';
   h+='<div class="dt">'+esc(d.title)+'</div><p>'+esc(d.summary)+'</p>';
@@ -323,6 +335,7 @@ function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f)
   more+=L(d.analogs,function(a){return '<li><b>'+esc(a.case)+'</b> — 닮은 점: '+esc(a.similar)+' / 다른 점: '+esc(a.different)+'</li>'});
   more+=L(d.open_questions,function(x){return '<li>❓ '+esc(x)+'</li>'});
   if(more)h+='<details><summary>시간순 정리 · 가설 · 과거 사례 · 못 푼 질문</summary>'+more+'</details>';
+  h+=sinceNote(n.at,JSON.stringify(d));
   if(d.usage)h+='<div class="us">이번 분석 사용량: '+usageLine(d.usage)+'</div>';
   return h+'</div>'}
 function usagePanel(u){if(!u)return "";var b=u.budget;
@@ -346,7 +359,7 @@ function render(){
   if(st.deepReport&&st.deepReport.data)h+=safe(deep,st.deepReport,"클로드 심층 분석");
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다
   if(st.assessment&&st.assessment.data){var stale=Date.now()-st.assessment.at>14*3600000;
-    h+='<div class="sec">클로드 분석관 판단 · '+ago(st.assessment.at)+(stale?' <span style="color:var(--l3)">(오래됨)</span>':'')+' · 다음 분석 08:09 / 20:09</div><div class="card as">'+assessment(st.assessment.data)+'</div>'}
+    h+='<div class="sec">클로드 분석관 판단 · '+ago(st.assessment.at)+(stale?' <span style="color:var(--l3)">(오래됨)</span>':'')+' · 다음 분석 08:09 / 20:09</div><div class="card as">'+assessment(st.assessment.data)+sinceNote(st.assessment.at,JSON.stringify(st.assessment.data))+'</div>'}
   else if(st.notes&&st.notes.length){var n=st.notes[0];h+='<div class="sec">클로드 분석관 판단 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
   // 2a) 지금 상황 해설 (규칙 기반, 5분마다 갱신)
   var it=st.interpretation;
@@ -408,7 +421,7 @@ function board(rows){var groups={};rows.forEach(function(r){(groups[r.groupLabel
   else h+='<div class="grp" style="color:var(--l1)">✓ 측정 가능한 징후가 모두 평소 범위 안</div>';
   order.forEach(function(g){if(!groups[g])return;h+='<div class="grp">'+g+'</div><div class="board">'+groups[g].map(ind).join("")+'</div>'});
   var learning=rows.filter(function(r){return r.reading&&r.reading.state==="learning"}).length;
-  h+='<p style="font-size:12px;color:var(--mute);margin:12px 0 0">● 정상 · ● 상승 · ● 이상 · ○ 학습 중/측정 불가. 기준선은 같은 시간대의 최근 며칠 평균입니다'+(learning?' (아직 학습 중인 징후 '+learning+'개 — 하루쯤 지나면 안정됩니다)':'')+'. 항목을 누르면 왜 중요한지 설명이 나옵니다.</p>';
+  h+='<p style="font-size:12px;color:var(--mute);margin:12px 0 0">● 정상 · ● 상승 · ● 이상 · ○ 학습 중/측정 불가. 평소는 최근 4주 같은 시간대의 중앙값입니다'+(learning?' (아직 평소를 정하지 못한 징후 '+learning+'개 — 기록이 7일 쌓이면 판정하고, 그 전에는 아주 큰 변화만 봅니다)':'')+'. 항목을 누르면 왜 중요한지 설명이 나옵니다.</p>';
   return h}
 /** 고정 문턱으로 판정하는 징후: '학습 중' 대신 문턱을 보여 준다 (값과 같은 모양으로) */
 function thr(r){var a=r.absolute;if(!a)return "";var f=function(x){return fmtVal({id:r.id,unit:r.unit,reading:{value:r.direction==="low"?-x:x,meta:{}}})};
@@ -416,7 +429,8 @@ function thr(r){var a=r.absolute;if(!a)return "";var f=function(x){return fmtVal
   var one=a.elevated===a.anomalous||(r.unit!=="%"&&r.unit!=="%p"&&r.unit!=="z"&&Math.ceil(a.elevated)===Math.ceil(a.anomalous));
   return one?"기준: "+f(Math.ceil(a.anomalous))+"부터 이상":"기준: "+f(a.elevated)+" 상승 · "+f(a.anomalous)+" 이상"}
 function ind(r){var rd=r.reading,unavail=!rd||r.stateLabel==="측정 불가";var stc=unavail?"unavailable":rd.state;
-  var base=unavail?"측정 불가":rd&&rd.state==="learning"&&rd.meta&&rd.meta.learningDays!=null?"평소 학습 중 "+rd.meta.learningDays+"/"+(rd.meta.need||8)+"일":r.absolute?thr(r):rd&&rd.baseline!=null&&rd.state!=="learning"?"평소 "+(r.unit==="%"?rd.baseline.toFixed(2)+"%":(Math.round(rd.baseline)+(r.unit||"")))+(rd.z!=null?" · z "+rd.z.toFixed(1):""):"기준선 학습 중 "+(rd?rd.n:0)+"/10";
+  var bv=function(x){return r.unit==="%"?x.toFixed(2)+"%":Math.round(x)+(r.unit||"")};
+  var base=unavail?"측정 불가":rd&&rd.state==="learning"&&rd.meta&&rd.meta.learningDays!=null?"평소 학습 중 "+rd.meta.learningDays+"/"+(rd.meta.need||8)+"일":r.absolute?thr(r):rd&&rd.days!=null&&rd.state==="learning"?"평소 기준 "+rd.days+"/7일째"+(rd.days>=2?" · 아주 큰 변화만 판정":""):rd&&rd.baseline!=null&&rd.state!=="learning"?"평소 "+bv(rd.baseline)+(rd.days!=null?" (최근 "+rd.days+"일)":"")+(rd.z!=null?" · z "+rd.z.toFixed(1):""):"기준선 학습 중 "+(rd?rd.n:0)+"/10";
   var extra="";if(rd&&rd.meta){var m=rd.meta;if(m.aircraft&&m.aircraft.length)extra=m.aircraft.slice(0,3).map(function(a){return a.what.split("(")[0]}).join(", ");else if(m.titles&&m.titles.length)extra=m.titles[0];else if(m.note)extra=m.note;else if(m.signedPct!=null)extra=(m.signedPct>0?"+":"")+m.signedPct+"% · "+m.price+"원"}
   if(rd&&rd.meta&&rd.meta.cnChangePct!=null)base="중국 "+sgn(rd.meta.cnChangePct)+(rd.meta.otherChangePct!=null?" · 다른 배 "+sgn(rd.meta.otherChangePct):"")+" (직전 2주 대비)";
   var attr=rd&&rd.meta&&rd.meta.attribution&&/Global Fishing Watch/.test(rd.meta.attribution)?'<div class="ib" style="margin-top:2px"><a href="https://globalfishingwatch.org" target="_blank" rel="noopener" onclick="event.stopPropagation()">Powered by Global Fishing Watch</a></div>':"";

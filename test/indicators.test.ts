@@ -49,17 +49,75 @@ describe("기준선 통계", () => {
   });
 });
 
-describe("processMetrics: 기준선 갱신과 오염 방지", () => {
-  it("이상치는 표본이 충분할 때 기준선에 반영하지 않는다", async () => {
+describe("processMetrics: '평소' = 최근 4주 같은 시간대 (2026-11-02)", () => {
+  const DAY = 86400_000;
+  const ID = "air.civil_airborne";
+  /** 지난 n일 동안 같은 시간대(15시 KST)에 values 를 5분 간격으로 넣는다 */
+  const feed = async (store: MemoryStore, days: number, values: (d: number) => number[]) => {
+    for (let d = days; d >= 1; d--) {
+      const vs = values(d);
+      for (let i = 0; i < vs.length; i++) await processMetrics(store, [{ indicator: ID, value: vs[i] }], NOW - d * DAY + i * 5 * 60_000);
+    }
+  };
+  const usual = (d: number) => [30, 31, 32, 30, 31, 29];
+
+  it("7일 쌓이면 상승·이상을 판정한다 (평소 = 날마다 평균의 중앙값)", async () => {
     const store = new MemoryStore();
-    for (let i = 0; i < 12; i++) await processMetrics(store, [{ indicator: "air.civil_airborne", value: 30 + (i % 3) }], NOW + i * 60_000);
-    const before = JSON.parse((await store.getKv("baselines"))!)["air.civil_airborne|h15"];
-    const [r] = await processMetrics(store, [{ indicator: "air.civil_airborne", value: 5 }], NOW + 13 * 60_000);
+    await feed(store, 8, usual);
+    const [r] = await processMetrics(store, [{ indicator: ID, value: 5 }], NOW);
+    expect(r.days).toBe(8);
+    expect(r.baseline).toBeCloseTo(30.5, 1);
     expect(r.state).toBe("anomalous");
-    const after = JSON.parse((await store.getKv("baselines"))!)["air.civil_airborne|h15"];
-    expect(after.mean).toBeCloseTo(before.mean, 5);
-    // 시계열 표에는 15분 간격(0분)과 상태가 바뀐 순간(10분 '학습 중→정상', 13분 '이상')만 남는다 — D1 무료 쓰기 한도 절약 (2026-11-01)
-    expect((await store.getMetricHistory("air.civil_airborne", 0)).map((p) => (p.at - NOW) / 60_000)).toEqual([0, 10, 13]);
+    expect((await processMetrics(store, [{ indicator: ID, value: 30 }], NOW + 60_000))[0].state).toBe("normal");
+  });
+
+  it("2~6일만 있으면 아주 큰 변화(z≥4)만 '이상', 작은 흔들림은 학습 중 (11/2 군용기: 몇 시간 배운 평소로 '상승' 오판)", async () => {
+    const store = new MemoryStore();
+    await feed(store, 3, usual);
+    const small = (await processMetrics(store, [{ indicator: ID, value: 24 }], NOW))[0];
+    expect(small.days).toBe(3);
+    expect(small.state).toBe("learning");
+    expect((await processMetrics(store, [{ indicator: ID, value: 3 }], NOW + 60_000))[0].state).toBe("anomalous"); // 공역 폐쇄급 급감은 놓치지 않는다
+  });
+
+  it("기록이 하루뿐이면 학습 중, 오늘 값은 오늘 판정의 기준선에 들어가지 않는다", async () => {
+    const store = new MemoryStore();
+    for (let i = 0; i < 12; i++) await processMetrics(store, [{ indicator: ID, value: 30 }], NOW + i * 60_000);
+    const [r] = await processMetrics(store, [{ indicator: ID, value: 5 }], NOW + 13 * 60_000);
+    expect(r.state).toBe("learning");
+    expect(r.days).toBe(0);
+  });
+
+  it("이상한 하루가 끼어도 평소(중앙값)는 거의 움직이지 않는다", async () => {
+    const store = new MemoryStore();
+    await feed(store, 10, (d) => (d === 4 ? [2, 3, 2, 3, 2, 3] : usual(d)));
+    const [r] = await processMetrics(store, [{ indicator: ID, value: 30 }], NOW);
+    expect(r.baseline).toBeCloseTo(30.5, 1);
+    expect(r.state).toBe("normal");
+  });
+
+  it("처음 한 번은 시계열 표에 남은 지난 관측으로 기록을 되살린다 (측정 방식이 바뀐 지표는 빼고)", async () => {
+    const store = new MemoryStore();
+    const old: Reading[] = [];
+    for (let d = 9; d >= 1; d--) for (let i = 0; i < 4; i++) {
+      old.push({ indicator: ID, value: 30 + (i % 2), at: NOW - d * DAY + i * 15 * 60_000, n: 0, state: "normal" });
+      old.push({ indicator: "air.mil_airborne", value: 9, at: NOW - d * DAY + i * 15 * 60_000, n: 0, state: "normal" });
+    }
+    await store.putMetrics(old);
+    const rs = await processMetrics(store, [{ indicator: ID, value: 31 }, { indicator: "air.mil_airborne", value: 9 }], NOW);
+    expect(rs[0].days).toBe(9);
+    expect(rs[0].state).toBe("normal");
+    expect(rs[1].days).toBe(0); // 범위를 바꾼 군용기 수는 처음부터
+    expect(rs[1].state).toBe("learning");
+  });
+
+  it("시계열 표에는 15분 간격과 상태가 바뀐 순간만 남긴다 (D1 무료 쓰기 한도 절약)", async () => {
+    const store = new MemoryStore();
+    await feed(store, 7, usual);
+    const before = (await store.getMetricHistory(ID, NOW)).length;
+    for (let i = 0; i < 12; i++) await processMetrics(store, [{ indicator: ID, value: i === 11 ? 5 : 30 + (i % 3) }], NOW + i * 60_000);
+    expect(before).toBe(0);
+    expect((await store.getMetricHistory(ID, NOW)).map((p) => (p.at - NOW) / 60_000)).toEqual([0, 11]);
   });
 });
 

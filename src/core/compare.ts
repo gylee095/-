@@ -17,6 +17,7 @@ export const MODEL_CHANGES: { at: number; domains: DomainId[]; what: string }[] 
   { at: Date.parse("2026-11-01T14:31:00Z"), domains: ["military"], what: "항행경보에 일본 해상보안청·국립해양조사원 원문 추가" },
   { at: Date.parse("2026-11-01T14:39:00Z"), domains: ["military"], what: "군용기 수신망(adsb.fi) 추가 — 다음 날 0시까지 옛 기준선 탓에 가짜 '상승'" },
   { at: Date.parse("2026-11-02T00:20:00Z"), domains: ["military"], what: "군용기 기준선을 새로 배우기 시작(가짜 '상승' 제거)" },
+  { at: Date.parse("2026-11-02T05:45:00Z"), domains: ["military", "nkwords", "public"], what: "'평소'를 최근 4주 기준으로 바꿈(7일 쌓이기 전엔 아주 큰 변화만 판정) · 군용기는 한반도 주변만 셈" },
 ];
 
 /** 클로드 분석관·심층 분석이 남긴 판단 (자동 판정 기록이 시작되기 전 며칠도 메운다) */

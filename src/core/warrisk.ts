@@ -9,7 +9,7 @@
 import type { BoardRow } from "./state.js";
 import type { EventBrief } from "./brief.js";
 import type { Pattern } from "./patterns.js";
-import { INDICATOR_BY_ID } from "./indicators.js";
+import { INDICATOR_BY_ID, displayValue, shortLabel } from "./indicators.js";
 
 export type DomainId = "gov" | "elite" | "money" | "military" | "nkwords" | "public";
 export type Level = 0 | 1 | 2 | 3;
@@ -116,12 +116,11 @@ function fmtPct(x: number): string {
 }
 export { fmtPct as fmtRiskPct };
 
+/** 영역 근거 한 줄 — 징후판 카드와 같은 표기 ('북한 장마당 휘발유값 (직전 8주 대비 %) 88.4% (이상)' → '북한 장마당 휘발유값 +88% (이상)', 2026-11-02) */
+const driverLabel = (r: BoardRow) => shortLabel(r.label).replace(/\s*\(지난 30일 대비\)$/, "");
 function driverText(r: BoardRow): string {
-  const v = r.reading!.value;
   const st = r.reading!.state === "anomalous" ? "이상" : "상승";
-  if (r.id.startsWith("psych.") || r.id === "market.pm_war_prob") return `${r.label.replace(/\s*\((?:[^()]*평소 대비|지난 30일 대비)\)/, "")} 평소의 ${(v / 100).toFixed(v >= 1000 ? 0 : 1)}배 (${st})`;
-  const unit = r.unit === "%" || r.unit === "%p" ? r.unit : r.unit ? ` ${r.unit}` : "";
-  return `${r.label} ${Number.isInteger(v) ? v : v.toFixed(1)}${unit} (${r.reading!.state === "anomalous" ? "이상" : "상승"})`;
+  return `${driverLabel(r)} ${displayValue(r.id, r.reading!.value, r.reading!.meta)} (${st})`;
 }
 
 export interface WarRiskInput {
@@ -180,12 +179,12 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
       const bj = by["elite.kr_bizjets"];
       if (pts(fn) === 2) {
         score -= 1;
-        const i = drivers.findIndex((t) => t.startsWith(fn.label));
+        const i = drivers.findIndex((t) => t.startsWith(driverLabel(fn)));
         if (i >= 0) drivers[i] += " — 과거 23년 자료상 북한 사건의 예고가 못 돼 1점만";
       }
       const both = pts(fn) > 0 && pts(bj) > 0;
       if (!both && pts(bj) === 2) {
-        const i = drivers.findIndex((t) => t.startsWith(bj.label));
+        const i = drivers.findIndex((t) => t.startsWith(driverLabel(bj)));
         if (i >= 0) drivers[i] += " — 혼자서는 '주의'까지";
       }
       level = !hot.length ? 0 : !both ? 1 : score >= 3 ? 3 : 2;
@@ -195,7 +194,7 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
       const eq = by["market.kr_equity_rel_pct"];
       if (pts(eq) === 2 && (val(by["market.defense_rel_pct"]) ?? 0) < 1 && pts(by["market.pm_war_prob"]) === 0) {
         score -= 1;
-        const i = drivers.findIndex((t) => t.startsWith(eq.label));
+        const i = drivers.findIndex((t) => t.startsWith(driverLabel(eq)));
         if (i >= 0) drivers[i] += " — 방산주 동반 약세라 1점만";
       }
       level = score >= 5 ? 3 : score >= 3 ? 2 : score >= 1 ? 1 : 0;
@@ -211,7 +210,7 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
       const lights = by["nk.pyongyang_lights_pct"];
       if (pts(lights) === 2) {
         score -= 1;
-        const i = drivers.findIndex((t) => t.startsWith(lights.label));
+        const i = drivers.findIndex((t) => t.startsWith(driverLabel(lights)));
         if (i >= 0) drivers[i] += " — 전력난·날씨로도 줄어 1점만";
       }
       level = score >= 4 ? 3 : score >= 2 ? 2 : score >= 1 ? 1 : 0;

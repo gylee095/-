@@ -12,9 +12,9 @@ export const DASHBOARD_HTML = String.raw`<!doctype html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--fg:#111418;--mute:#5f6773;--line:#e2e5e9;--chip:#eef0f3;--viz:#1f5fbf;
---l1:#2e7d32;--l2:#b58105;--l3:#e0650b;--l4:#d32f2f;--l5:#8e0000;--fresh:#d32f2f;--warm:#e0650b;--old:#8a929c;--link:#1f5fbf;--learn:#8a929c;--down:#1565c0}
+--l1:#2e7d32;--l2:#b58105;--l3:#e0650b;--l4:#d32f2f;--l5:#8e0000;--on1:#fff;--on2:#111418;--on3:#111418;--on4:#fff;--on5:#fff;--fresh:#d32f2f;--warm:#e0650b;--old:#8a929c;--link:#1f5fbf;--learn:#8a929c;--down:#1565c0}
 @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#181b21;--fg:#eceef1;--mute:#9aa3ae;--line:#2a2f37;--chip:#232830;--viz:#5a96e8;
---l1:#4caf50;--l2:#f2b632;--l3:#ff8a3d;--l4:#ff5252;--l5:#ff1744;--fresh:#ff5252;--warm:#ff8a3d;--old:#8a929c;--link:#7fb0ff;--learn:#6b7380;--down:#7fb0ff}}
+--l1:#4caf50;--l2:#f2b632;--l3:#ff8a3d;--l4:#ff5252;--l5:#ff1744;--on1:#111418;--on2:#111418;--on3:#111418;--on4:#111418;--on5:#111418;--fresh:#ff5252;--warm:#ff8a3d;--old:#8a929c;--link:#7fb0ff;--learn:#6b7380;--down:#7fb0ff}}
 *{box-sizing:border-box}html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;padding:0 16px 48px;padding-top:env(safe-area-inset-top)}
 .wrap{max-width:720px;margin:0 auto}
@@ -23,7 +23,7 @@ body{background:var(--bg);color:var(--fg);font:16px/1.45 -apple-system,BlinkMacS
 .threat{border-radius:16px;padding:18px 18px 16px;color:#fff;margin-bottom:12px}
 .threat .k{font-size:13px;opacity:.9}.threat .v{font-size:34px;font-weight:800;letter-spacing:-.5px;line-height:1.1;margin:2px 0 6px}
 .threat .s{font-size:16px;font-weight:600}.threat .m{font-size:13px;opacity:.9;margin-top:8px}
-.bg1{background:var(--l1)}.bg2{background:var(--l2)}.bg3{background:var(--l3)}.bg4{background:var(--l4)}.bg5{background:var(--l5);animation:pulse 1.6s infinite}
+.bg1{background:var(--l1);color:var(--on1)}.bg2{background:var(--l2);color:var(--on2)}.bg3{background:var(--l3);color:var(--on3)}.bg4{background:var(--l4);color:var(--on4)}.bg5{background:var(--l5);color:var(--on5);animation:pulse 1.6s infinite}
 @keyframes pulse{50%{filter:brightness(1.25)}}
 .scale{display:flex;gap:4px;margin-top:12px}.scale i{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.3)}.scale i.on{background:#fff}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
@@ -34,7 +34,7 @@ body{background:var(--bg);color:var(--fg);font:16px/1.45 -apple-system,BlinkMacS
 .abs{font-size:13px;color:var(--mute);margin-left:4px;font-weight:500}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
 .chip{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--chip);color:var(--fg)}
-.chip.d1{background:var(--l1);color:#fff}.chip.d2{background:var(--l2);color:#fff}.chip.d3{background:var(--l3);color:#fff}.chip.d4{background:var(--l4);color:#fff}.chip.d5{background:var(--l5);color:#fff}
+.chip.d1{background:var(--l1);color:var(--on1)}.chip.d2{background:var(--l2);color:var(--on2)}.chip.d3{background:var(--l3);color:var(--on3)}.chip.d4{background:var(--l4);color:var(--on4)}.chip.d5{background:var(--l5);color:var(--on5)}
 .hl{font-size:21px;font-weight:800;line-height:1.3;margin:8px 0 4px;letter-spacing:-.3px}
 .facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
 .fact{background:var(--chip);border-radius:12px;padding:10px 12px}.fact .fk{font-size:12px;color:var(--mute)}.fact .fv{font-size:16px;font-weight:700;margin-top:2px}
@@ -90,6 +90,17 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .note{white-space:pre-wrap;font-size:15px}
 .bnote{font-size:13px;color:var(--mute);margin-top:4px}
 .sum .lead{font-size:13px;color:var(--mute);font-weight:700}
+.sum .gq{font-size:14px;font-weight:700;margin:14px 0 0}
+.sum .gnum{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin:2px 0 0}.sum .gnum b{font-size:44px;font-weight:800;letter-spacing:-1px;line-height:1.05}.sum .gnum .gx{font-size:20px;font-weight:800}.sum .gnum .gu{font-size:14px;color:var(--mute)}
+.gauge{position:relative;margin:30px 2px 4px;padding-bottom:4px}
+.gtrack{position:relative;height:14px;border-radius:7px;background:var(--chip);overflow:visible}
+.gfill{position:absolute;left:0;top:0;bottom:0;border-radius:7px 0 0 7px}
+.gdiv{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--card)}
+.gmark{position:absolute;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--card);border:4px solid;box-sizing:border-box}
+.gnow{position:absolute;top:-26px;transform:translateX(-50%);white-space:nowrap}.gnow span{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px}
+.gusual{position:absolute;top:18px;transform:translateX(-50%);font-size:12px;font-weight:800;color:var(--fg);white-space:nowrap}
+.gzones{display:flex;margin-top:24px}.gzones span{flex:1;text-align:center;font-size:12px;color:var(--mute);line-height:1.25}.gzones b{display:block;font-weight:600}.gzones small{font-size:11px}.gzones span.on b{color:var(--fg);font-weight:800}
+.sum .gfoot{font-size:13px;color:var(--mute);margin-top:8px}
 .sum .phase{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin:2px 0 0}.sum .phase b{font-size:30px;font-weight:800;letter-spacing:-.5px}.sum .phase span{font-size:13px;color:var(--mute)}
 .sum .hero{display:flex;align-items:baseline;gap:10px;margin:14px 0 2px}.sum .hero .n{font-size:48px;font-weight:800;letter-spacing:-1px;line-height:1}.sum .hero .u{font-size:14px;color:var(--mute);line-height:1.4}
 .sum .delta{font-size:14px;margin:8px 0 2px;display:flex;gap:6px;align-items:flex-start}.sum .delta i{font-style:normal;font-weight:800;white-space:nowrap}.sum .delta .same{color:var(--old)}.sum .delta .up{color:var(--l4)}.sum .delta .dn{color:var(--down)}
@@ -306,12 +317,29 @@ function histLine(hs){if(!hs||!hs.today)return "";var t=hs.today,d=t.d.slice(5).
   return s+'</div>'}
 function pickTop(evs){var p=evs.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});return p[0]||null}
 function pct(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<1?x.toFixed(1)+"%":Math.round(x)+"%"}
+// 온도계: 평온·긴장·위기·임박·교전 다섯 칸(같은 폭) 위에 '평소'와 '지금' 자리를 찍는다. 확률을 그대로 그리면 4%가 바닥에 붙어 짐작이 안 된다 (2026-11-02)
+function gauge(w){var names=["평온","긴장","위기","임박","교전"],rng=["1~3%","2~4%","8~25%","25~60%","교전 중"];
+  var g=w.gauge||{now:(w.phase-1+0.6)/5,usual:0.08},now=Math.max(0.01,Math.min(0.99,g.now)),us=g.usual,col="var(--l"+w.phase+")";
+  var r=w.vsUsual!=null?w.vsUsual:w.clash30d.point/w.usual.clash;
+  var times=r<1.15?"평소 수준":r<10?"평소의 "+(Math.abs(r-Math.round(r))<0.05?Math.round(r):r.toFixed(1))+"배":"평소의 "+Math.round(r)+"배";
+  var odds=w.clash30d.point>=99.5?"":"약 "+Math.max(2,Math.round(100/w.clash30d.point))+"번에 1번꼴";
+  var wp=function(x){return x>=1?Math.round(x)+"%":x.toFixed(1)+"%"},fighting=w.clash30d.point>=99.5;
+  var h='<div class="gq">앞으로 30일 안에 남북 무력 충돌이 일어날 가능성</div>';
+  h+=fighting?'<div class="gnum"><b>교전 중</b><span class="gx" style="color:'+col+'">남북이 지금 서로 쏘고 있음</span></div>':'<div class="gnum"><b>약 '+pct(w.clash30d.point)+'</b><span class="gx" style="color:'+col+'">'+times+'</span><span class="gu">평소 약 '+pct(w.usual.clash)+'</span></div>';
+  h+='<div class="gauge" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+w.clash30d.point+'" aria-label="앞으로 30일 국지 충돌 가능성 약 '+pct(w.clash30d.point)+', 평소 약 '+pct(w.usual.clash)+', '+w.phase+'단계 '+esc(w.phaseLabel)+'">';
+  h+='<div class="gnow" style="left:'+(now*100).toFixed(1)+'%"><span style="background:'+col+';color:var(--on'+w.phase+')">지금</span></div>';
+  h+='<div class="gtrack"><div class="gfill" style="width:'+(now*100).toFixed(1)+'%;background:'+col+'"></div>';
+  for(var i=1;i<5;i++)h+='<i class="gdiv" style="left:'+(i*20)+'%"></i>';
+  h+='<i class="gmark" style="left:'+(now*100).toFixed(1)+'%;border-color:'+col+'"></i></div>';
+  h+='<div class="gusual" style="left:'+(us*100).toFixed(1)+'%">▲ 평소 '+pct(w.usual.clash)+'</div>';
+  h+='<div class="gzones">'+names.map(function(n,i){return '<span class="'+(i+1===w.phase?"on":"")+'" title="'+n+': 30일 국지 충돌 '+rng[i]+'"><b>'+n+'</b><small>'+rng[i]+'</small></span>'}).join("")+'</div></div>';
+  h+='<div class="gfoot">'+(odds&&!fighting?odds+' — 한 달 동안 아무 일 없이 지나갈 가능성 약 '+pct(100-w.clash30d.point)+' · ':'')+'전면전 '+wp(w.war30d.point)+' (평소 약 '+wp(w.usual.war)+')</div>';
+  return h}
 // 첫 화면 한 장: 지금 단계 · 30일 국지 충돌 확률 · 어제와 비교 · 왜 · 오를 조건 · 마지막 도발 · 클로드 의견 · 할 일 · 데이터 상태 (2026-11-02)
 function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평온","긴장","위기","임박","교전"],LV=["평소","주의","경계","심각"];
   var h='<div class="card sum"><div class="lead">지금 한반도 · 자동 판정 · '+ago(w.at)+'</div>';
   h+='<div class="phase"><b>'+w.phase+'단계 '+esc(w.phaseLabel)+'</b><span>5단계 중 · 1953년 이후 전면전 없음</span></div>';
-  h+='<div class="ladder">';for(var i=1;i<=5;i++)h+='<div class="p'+i+(i===w.phase?' on':'')+'">'+names[i-1]+'</div>';h+='</div>';
-  h+='<div class="hero"><span class="n">약 '+pct(w.clash30d.point)+'</span><span class="u">앞으로 30일 국지 충돌<br>평소 '+pct(w.usual.clash)+' · 전면전 '+pct(w.war30d.point)+'</span></div>';
+  h+=gauge(w);
   if(c&&c.headline){var vd=c.verdict==="worse"?["up","▲ 나빠짐"]:c.verdict==="better"?["dn","▼ 나아짐"]:["same","● 비슷"];var parts=c.headline.split(" — ");
     h+='<div class="delta"><i class="'+vd[0]+'">'+vd[1]+'</i><span>'+(c.agoLabel?esc(c.agoLabel)+'와 비교'+(parts[1]?' — '+esc(parts.slice(1).join(" — ")):''):esc(c.headline))+'</span></div>'}
   var hot=w.domains.filter(function(d){return d.level>0}).sort(function(a,b){return b.level-a.level});

@@ -21,6 +21,27 @@ const brief = (hoursAgo: number, level: 1 | 2 | 3 | 4 | 5, headline: string, rea
 });
 const run = (b: BoardRow[], briefs: EventBrief[] = []) => assessWarRisk({ now: NOW, board: b, briefs, patterns: [] });
 
+describe("온도계 눈금 (2026-11-02 — '4%'만으로는 어느 정도인지 짐작이 안 된다)", () => {
+  it("평온 날: 평소 자리(평온 칸의 40%)에, 평소 수준", () => {
+    const w = run(board());
+    expect(w.gauge).toEqual({ now: 0.08, usual: 0.08 });
+    expect(w.vsUsual).toBeCloseTo(1, 2);
+  });
+  it("긴장(2단계) + 영역 압력 4 → 긴장 칸 80% 자리, 평소의 2배 (11/2 화면: 약 4%, 평소 약 2%)", () => {
+    const w = run(board({ "psych.naver_war_search": { value: 5498, state: "anomalous" }, "nk.fuel_price_change_pct": { value: 88.4, state: "anomalous" } }), [brief(40, 3, "북한, 탄도미사일 발사 (북한 매체 발표)", "탄도미사일 발사")]);
+    expect(w.phase).toBe(2);
+    const sum = w.domains.reduce((a, d) => a + d.level, 0);
+    expect(w.gauge.now).toBeCloseTo((1 + Math.min(1, 0.4 + sum / 10)) / 5, 3);
+    expect(w.gauge.now).toBeGreaterThan(0.2);
+    expect(w.gauge.now).toBeLessThanOrEqual(0.4);
+    expect(w.vsUsual).toBeCloseTo(w.clash30d.point / w.usual.clash, 2);
+  });
+  it("눈금은 단계 순서를 지킨다: 단계가 높으면 늘 더 오른쪽", () => {
+    for (const ph of [1, 2, 3, 4] as const) expect((ph - 1 + 1) / 5).toBeLessThanOrEqual((ph + 0.4) / 5);
+    expect(BANDS[5].clash[0]).toBe(100);
+  });
+});
+
 describe("전쟁 위험 모델", () => {
   it("조용한 날: 1단계(평온), 평소 확률, '모두 평소대로'", () => {
     const w = run(board());

@@ -90,6 +90,10 @@ export interface WarRisk {
   war30d: Band;
   /** 평온 단계 기준값 (평소) */
   usual: { clash: number; war: number };
+  /** 온도계 눈금 (0~1): 평온·긴장·위기·임박·교전 다섯 칸을 같은 폭으로 놓고, 단계 칸 안에서 영역 압력만큼 오른쪽 (2026-11-02 — '4%'만으로는 어느 정도인지 짐작이 안 된다) */
+  gauge: { now: number; usual: number };
+  /** 국지 충돌 확률이 평소의 몇 배인가 */
+  vsUsual: number;
   domains: DomainState[];
   /** 누가 먼저 움직였나 */
   firstMover: { kind: "warning" | "caveat" | "reassuring" | "neutral"; text: string };
@@ -268,6 +272,9 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   const clash30d = band(BANDS[phase].clash);
   const war30d = band(BANDS[phase].war);
   const usual = { clash: +(BANDS[1].clash[0] + (BANDS[1].clash[1] - BANDS[1].clash[0]) * 0.4).toFixed(2), war: +(BANDS[1].war[0] + (BANDS[1].war[1] - BANDS[1].war[0]) * 0.4).toFixed(2) };
+  // 온도계: 확률 자체(1~100%)를 그대로 그리면 4%가 바닥에 붙어 보여서, 단계 칸(같은 폭) + 칸 안 위치로 그린다. 평소 = 평온 칸의 40% 자리
+  const gauge = { now: phase === 5 ? 1 : +((phase - 1 + pos) / 5).toFixed(3), usual: 0.4 / 5 };
+  const vsUsual = +(clash30d.point / usual.clash).toFixed(2);
 
   // ── 누가 먼저 움직였나 ──
   let firstMover: WarRisk["firstMover"];
@@ -374,5 +381,5 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   const tone = phase === 1 ? "평소 수준" : phase === 2 ? "평소보다 약간 높음" : phase === 3 ? "높음" : phase === 4 ? "매우 높음" : "교전 중";
   const headline = `전쟁 위험 ${phase}단계(${PHASE_LABEL[phase]}) — 앞으로 30일 국지 충돌 약 ${fmtPct(clash30d.point)}, 전면전 ${fmtPct(war30d.point)} (${tone})`;
 
-  return { at: now, phase, phaseLabel: PHASE_LABEL[phase], phaseReasons: reasons, clash30d, war30d, usual, domains, firstMover, tripwires, restraints, market, blindSpots, headline };
+  return { at: now, phase, phaseLabel: PHASE_LABEL[phase], phaseReasons: reasons, clash30d, war30d, usual, gauge, vsUsual, domains, firstMover, tripwires, restraints, market, blindSpots, headline };
 }

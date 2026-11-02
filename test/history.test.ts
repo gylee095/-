@@ -8,7 +8,7 @@ const T = Date.UTC(2026, 10, 1, 0, 5); // 09:05 KST
 const MIN = 60_000;
 const war = (at: number, phase: 1 | 2 | 3, clash: number): WarRisk =>
   ({
-    at, phase, phaseLabel: "", phaseReasons: [`이유 ${phase}`], clash30d: { low: 0, high: 0, point: clash }, war30d: { low: 0, high: 0, point: clash / 20 }, usual: { clash: 1.8, war: 0.09 },
+    at, phase, phaseLabel: "", phaseReasons: [`이유 ${phase}`], clash30d: { low: 0, high: 0, point: clash }, war30d: { low: 0, high: 0, point: clash / 20 }, usual: { clash: 1.8, war: 0.09 }, gauge: { now: 0.3, usual: 0.08 }, vsUsual: clash / 1.8,
     domains: [{ id: "military", label: "군사 동향", level: 2, levelLabel: "경계", drivers: [], measured: 1, total: 1, why: "" }],
     firstMover: { kind: "neutral", text: "" }, tripwires: [], restraints: [], blindSpots: [], headline: "",
   }) as WarRisk;

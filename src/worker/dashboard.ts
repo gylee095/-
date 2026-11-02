@@ -320,10 +320,12 @@ function sinceNote(at,text){
   var known=function(b){return b.selfReport?b.selfReport.reportedAt:b.at};
   var md=function(ms){var d=new Date(ms+9*3600000),m=d.getUTCMonth()+1,dd=d.getUTCDate();return [m+"/"+dd,m+"월 "+dd+"일"]};
   var after=evs.filter(function(b){return known(b)>at+60000});
-  var missed=evs.filter(function(b){return b.isProvocation&&known(b)<=at&&at-b.at<7*86400000&&!md(b.at).some(function(x){return text.indexOf(x)>=0})});
+  // 분석이 나온 때 알려져 있던 가장 최근 도발 하나만 본다 (그 날짜를 분석이 한 번도 쓰지 않았으면 빠뜨린 것) — 더 오래된 것까지 보면 일부러 안 쓴 것도 걸린다
+  var lastKnown=evs.filter(function(b){return b.isProvocation&&known(b)<=at&&at-b.at<7*86400000}).sort(function(x,y){return y.at-x.at})[0];
+  var missed=lastKnown&&!md(lastKnown.at).some(function(x){return text.indexOf(x)>=0})?[lastKnown]:[];
   if(!after.length&&!missed.length)return "";
   var li=function(b){return '<li>'+esc(bwhen(b))+' · '+esc(b.headline)+'</li>'};
-  return '<div class="since"><b>이 분석 뒤 바뀐 것 (자동 확인)</b>'+(after.length?'<div>분석 뒤 새로 확인된 일</div><ul>'+after.map(li).join("")+'</ul>':'')+(missed.length?'<div>이 분석에 없는 최근 도발</div><ul>'+missed.map(li).join("")+'</ul>':'')+'</div>';
+  return '<div class="since"><b>이 분석 뒤 바뀐 것 (자동 확인)</b>'+(after.length?'<div>분석 뒤 새로 확인된 일</div><ul>'+after.map(li).join("")+'</ul>':'')+(missed.length?'<div>이 분석이 다루지 않은 가장 최근 도발</div><ul>'+missed.map(li).join("")+'</ul>':'')+'</div>';
 }
 function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f).join("")+'</ul>':''};
   var h='<div class="sec">클로드 심층 분석 · '+ago(n.at)+' <span style="font-weight:400">· 특이한 날에만 자동 실행</span></div><div class="card deep">';

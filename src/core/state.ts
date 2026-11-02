@@ -1,5 +1,6 @@
 // 대시보드·에이전트가 공유하는 상태 스냅샷
 import type { Store } from "./store.js";
+import { dataHealthOf, markFailing } from "./datahealth.js";
 import { compareWithYesterday, judgmentsFromNotes } from "./compare.js";
 import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
@@ -35,6 +36,8 @@ export interface BoardRow {
   stateLabel: string;
   /** 최근 24시간 시간별 평균 (스파크라인) */
   history: { hour: number; avg: number }[];
+  /** 이 징후를 내는 소스를 30분 넘게 못 받는 중 (값은 마지막으로 받은 것) */
+  failing?: { source: string; since: number; error?: string };
 }
 
 /** disabledSources: 꺼 둔 소스는 과거 오류 기록이 남아 있어도 상태 목록에서 뺀다 */
@@ -93,6 +96,8 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const deepReport = notes.find((n) => n.kind === "deep_report" && now - n.at < 72 * 3600_000);
   const deepRequest = notes.find((n) => n.kind === "deep_request");
   const usage = await loadMonthUsage(store, now);
+  // 소스가 계속 실패하는 징후는 '수집 실패'로 (마지막 값이 '정상'처럼 보이지 않게)
+  markFailing(board, health, now);
   const threat = currentThreat(enriched.map((e) => e.brief), now);
   // 규칙 기반 해설: 숫자 → 뜻 → 조합 힌트 (클로드 분석관은 이 위에서 추론한다)
   const interpretation = interpret({ now, threat, board, patterns: livePatterns, briefs: enriched.map((e) => e.brief) });
@@ -144,5 +149,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     notes,
     metrics: latencyMetrics(events.filter((e) => e.firstDetectedTime >= since)),
     sources: listSources().filter((s) => !disabled.has(s.id)),
+    /** 데이터를 제대로 받고 있나 — 첫 화면 한 줄 */
+    dataHealth: dataHealthOf(health.filter((h) => !disabled.has(h.source)), listSources().filter((s) => !disabled.has(s.id)), board, now),
   };
 }

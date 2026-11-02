@@ -10,6 +10,8 @@ export interface SourceHealth {
   fetchedAt: number;
   rawCount: number;
   signalCount: number;
+  /** 마지막으로 성공한 수집 시각 — 실패가 이어질 때 '언제부터 못 받나'를 보여 주려고 (2026-11-02) */
+  lastOkAt?: number;
 }
 
 export interface AgentNote {
@@ -55,7 +57,7 @@ export interface Store {
 }
 
 export function healthOf(r: CollectResult): SourceHealth {
-  return { source: r.source, ok: r.ok, error: r.error, skipped: r.skipped, fetchedAt: r.fetchedAt, rawCount: r.rawCount, signalCount: r.signals.length };
+  return { source: r.source, ok: r.ok, error: r.error, skipped: r.skipped, fetchedAt: r.fetchedAt, rawCount: r.rawCount, signalCount: r.signals.length, ...(r.ok ? { lastOkAt: r.fetchedAt } : {}) };
 }
 
 interface State {

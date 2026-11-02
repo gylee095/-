@@ -89,6 +89,22 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .lk{font-size:12px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;color:#fff}.lk.high{background:var(--l4)}.lk.medium{background:var(--l2)}.lk.low{background:var(--old)}
 .note{white-space:pre-wrap;font-size:15px}
 .bnote{font-size:13px;color:var(--mute);margin-top:4px}
+.sum .lead{font-size:13px;color:var(--mute);font-weight:700}
+.sum .phase{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin:2px 0 0}.sum .phase b{font-size:30px;font-weight:800;letter-spacing:-.5px}.sum .phase span{font-size:13px;color:var(--mute)}
+.sum .hero{display:flex;align-items:baseline;gap:10px;margin:14px 0 2px}.sum .hero .n{font-size:48px;font-weight:800;letter-spacing:-1px;line-height:1}.sum .hero .u{font-size:14px;color:var(--mute);line-height:1.4}
+.sum .delta{font-size:14px;margin:8px 0 2px;display:flex;gap:6px;align-items:flex-start}.sum .delta i{font-style:normal;font-weight:800;white-space:nowrap}.sum .delta .same{color:var(--old)}.sum .delta .up{color:var(--l4)}.sum .delta .dn{color:var(--down)}
+.sum h3{font-size:14px;margin:16px 0 6px}
+.sum .why{display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:start;font-size:14px}.sum .why .t b{display:block}.sum .why .t span{color:var(--mute);font-size:13px}
+.sum .calm{font-size:13px;color:var(--mute);margin-top:8px}
+.sum ul{margin:0;padding-left:18px;font-size:14px}
+.sum .ev{margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--chip);font-size:14px}.sum .ev span{color:var(--mute)}
+.sum .do{margin-top:12px;padding:12px;border-radius:12px;border:1px solid var(--line);font-size:14px}.sum .do b{display:block;margin-bottom:2px}
+.sum .data{margin-top:10px;font-size:12px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 10px}.sum .data .ok{color:var(--l1);font-weight:700}.sum .data.fail{color:var(--l3);font-weight:700}
+.sum .wrd{margin-top:12px}.sum .wrd>summary{font-size:13px;color:var(--link);cursor:pointer}
+.more{margin:0 0 10px}.more>summary{font-size:15px;font-weight:700;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;list-style:none;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;cursor:pointer}
+.more>summary::-webkit-details-marker{display:none}.more>summary::after{content:"펼치기 ▾";font-size:13px;color:var(--mute);font-weight:600;white-space:nowrap}.more[open]>summary::after{content:"접기 ▴"}
+.more>summary span{font-weight:400;color:var(--mute);font-size:13px;display:block;margin-top:2px}.more .gbody{padding:2px 0 4px}
+.ib.fail{color:var(--l3);font-weight:700}
 .since{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--chip);font-size:13px;line-height:1.5}.since ul{margin:2px 0 6px 18px;padding:0}.since div{margin-top:4px;color:var(--mute)}
 .btn{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--link);border-radius:10px;padding:8px 12px;font-size:14px;margin:4px 6px 4px 0;text-decoration:none}
 table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}.ok{color:var(--l1)}.bad{color:var(--l4)}
@@ -290,23 +306,43 @@ function histLine(hs){if(!hs||!hs.today)return "";var t=hs.today,d=t.d.slice(5).
   return s+'</div>'}
 function pickTop(evs){var p=evs.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});return p[0]||null}
 function pct(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<1?x.toFixed(1)+"%":Math.round(x)+"%"}
-function warRisk(w){var names=["평온","긴장","위기","임박","교전"];
-  var h='<div class="sec">전쟁 위험 <span style="font-weight:400">· 자동 판정 · 5분마다 갱신</span></div><div class="card wr">';
-  h+='<div class="wrh"><b>'+w.phase+'단계 '+esc(w.phaseLabel)+'</b><span>5단계 중 · 1953년 이후 전면전 없음</span></div>';
+// 첫 화면 한 장: 지금 단계 · 30일 국지 충돌 확률 · 어제와 비교 · 왜 · 오를 조건 · 마지막 도발 · 클로드 의견 · 할 일 · 데이터 상태 (2026-11-02)
+function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평온","긴장","위기","임박","교전"],LV=["평소","주의","경계","심각"];
+  var h='<div class="card sum"><div class="lead">지금 한반도 · 자동 판정 · '+ago(w.at)+'</div>';
+  h+='<div class="phase"><b>'+w.phase+'단계 '+esc(w.phaseLabel)+'</b><span>5단계 중 · 1953년 이후 전면전 없음</span></div>';
   h+='<div class="ladder">';for(var i=1;i<=5;i++)h+='<div class="p'+i+(i===w.phase?' on':'')+'">'+names[i-1]+'</div>';h+='</div>';
-  h+='<div class="probs"><div><div class="pk">앞으로 30일 · 국지 충돌</div><div class="pv">약 '+pct(w.clash30d.point)+'</div><div class="ps">평소 약 '+pct(w.usual.clash)+' · 범위 '+pct(w.clash30d.low)+'~'+pct(w.clash30d.high)+'</div></div>';
-  h+='<div><div class="pk">앞으로 30일 · 전면전</div><div class="pv">'+pct(w.war30d.point)+'</div><div class="ps">평소 '+pct(w.usual.war)+' · 범위 '+pct(w.war30d.low)+'~'+pct(w.war30d.high)+'</div></div></div>';
-  h+=histLine(ST&&ST.history);
-  h+=forecastLine(ST&&ST.forecast,ST&&ST.history&&ST.history.score);
-  h+='<div class="fm '+w.firstMover.kind+'"><b>누가 먼저 움직였나</b> · '+esc(w.firstMover.text)+'</div>';
+  h+='<div class="hero"><span class="n">약 '+pct(w.clash30d.point)+'</span><span class="u">앞으로 30일 국지 충돌<br>평소 '+pct(w.usual.clash)+' · 전면전 '+pct(w.war30d.point)+'</span></div>';
+  if(c&&c.headline){var vd=c.verdict==="worse"?["up","▲ 나빠짐"]:c.verdict==="better"?["dn","▼ 나아짐"]:["same","● 비슷"];var parts=c.headline.split(" — ");
+    h+='<div class="delta"><i class="'+vd[0]+'">'+vd[1]+'</i><span>'+(c.agoLabel?esc(c.agoLabel)+'와 비교'+(parts[1]?' — '+esc(parts.slice(1).join(" — ")):''):esc(c.headline))+'</span></div>'}
+  var hot=w.domains.filter(function(d){return d.level>0}).sort(function(a,b){return b.level-a.level});
+  var calm=w.domains.filter(function(d){return d.level===0}).map(function(d){return d.label});
+  if(hot.length){h+='<h3>왜 '+esc(w.phaseLabel)+'인가</h3><div class="why">'+hot.map(function(d){return '<div class="t"><b>'+esc(d.label)+'</b><span>'+esc((d.drivers[0]||"근거 확인 중").replace(/\s*\((이상|상승|주의|경계|심각|위급)\)(?=\s*(—|$))/,""))+'</span></div><span class="chip d'+(d.level+1)+'">'+LV[Math.min(3,d.level)]+'</span>'}).join("")+'</div>';
+    if(calm.length)h+='<div class="calm">✓ '+esc(calm.join("·"))+'은 평소대로'+(calm.indexOf("정부의 행동")>=0?' — 정보를 가진 쪽(정부)은 아직 움직이지 않음':'')+'</div>'}
+  else h+='<h3>여섯 영역 모두 평소대로</h3>';
+  if(w.phase<5&&w.tripwires&&w.tripwires.length)h+='<h3>이렇게 되면 단계가 오른다</h3><ul>'+w.tripwires.slice(0,3).map(function(t){return '<li>'+esc(t)+'</li>'}).join("")+'</ul>';
+  var lp=th.lastProvocation;
+  h+='<div class="ev">'+(th.level>1?'<b>'+esc(th.summary)+'</b>':'최근 24시간 북한 발사·포격 없음')+(lp?'<br><span>마지막 도발 '+(lp.dateOnly?bago({selfReport:{day:lp.dateOnly},at:lp.at}):ago(lp.at))+' · '+esc(lp.headline)+'</span>':'')+'</div>';
+  var a=st.assessment,d=st.deepReport,op=[];
+  if(a&&a.data&&a.data.overall_level!=null)op.push('분석관('+kst(a.at)+') '+(Number(a.data.overall_level)===w.phase?'같은 단계':a.data.overall_level+'단계로 봄'));
+  if(d&&d.data&&d.data.war_phase!=null)op.push('심층 분석('+kst(d.at)+') '+(Number(d.data.war_phase)===w.phase?'같은 단계':d.data.war_phase+'단계로 봄')+(d.data.p_clash_30d!=null&&Math.abs(d.data.p_clash_30d-w.clash30d.point)>=1?', 국지 충돌 '+d.data.p_clash_30d+'%로 봄':''));
+  if(op.length)h+='<div class="calm">🧑‍💻 클로드: '+esc(op.join(" · "))+' <span style="opacity:.8">(전문은 아래 \'클로드 분석 전문\')</span></div>';
+  var DO={1:"평소대로 지내면 됩니다.",2:"평소대로 지내면 됩니다. 시간이 날 때 가까운 대피소 위치만 확인해 두세요.",3:"비상용품(물·약·손전등·보조배터리)과 가족 연락 방법을 확인하고, 재난문자 수신을 켜 두세요.",4:"정부·지자체 안내를 따르고 대피소와 이동 경로를 확인하세요.",5:"재난문자·민방위 경보에 따라 바로 대피하세요."};
+  h+='<div class="do"><b>지금 할 일</b>'+(DO[w.phase]||DO[2])+' <a href="https://www.safekorea.go.kr" target="_blank" rel="noopener">국민재난안전포털 → 대피소 찾기</a></div>';
+  var dh=st.dataHealth;
+  if(dh){h+='<div class="data"><span class="'+(dh.failing.length?'':'ok')+'">수집 정상 '+dh.ok+'/'+dh.total+'</span><span>마지막 수집 '+ago(st.lastCycle?st.lastCycle.at:st.now)+'</span>'+(dh.learning?'<span>평소를 배우는 중 '+dh.learning+'개</span>':'')+'</div>';
+    if(dh.failing.length)h+='<div class="data fail">⚠ 지금 못 받는 것: '+dh.failing.map(function(f){return esc(f.name)+(f.since?' (마지막 성공 '+ago(f.since)+')':'')}).join(", ")+'</div>'}
+  h+='<details class="wrd"><summary>판정 근거 전체 — 여섯 영역 · 누가 먼저 움직였나 · 억제 요인</summary>'+warRiskDetail(w)+'</details>';
+  return h+'</div>'}
+function warRiskDetail(w){var h='<div class="fm '+w.firstMover.kind+'"><b>누가 먼저 움직였나</b> · '+esc(w.firstMover.text)+'</div>';
   h+='<div>'+w.domains.map(function(d){return '<div class="dom"><div class="dl">'+esc(d.label)+'</div><div class="dv v'+d.level+'">'+esc(d.levelLabel)+'</div><div class="dd">'+(d.drivers.length?esc(d.drivers.join(" · ")):"특이 없음")+(d.measured<d.total?' <span style="opacity:.8">('+d.measured+'/'+d.total+' 측정)</span>':'')+'</div></div>'}).join("")+'</div>';
-  h+='<details><summary>이 단계로 본 이유 · 지켜볼 신호 · 억제 요인</summary><b style="font-size:14px">이유</b><ul>'+w.phaseReasons.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
+  h+='<b style="font-size:14px;display:block;margin-top:10px">이 단계로 본 이유</b><ul>'+w.phaseReasons.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
   h+='<b style="font-size:14px;display:block;margin-top:8px">이런 신호가 나오면 단계가 바뀜</b><ul>'+w.tripwires.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
-  h+='<b style="font-size:14px;display:block;margin-top:8px">억제·완화 요인</b><ul>'+w.restraints.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
+  if(w.restraints.length)h+='<b style="font-size:14px;display:block;margin-top:8px">억제·완화 요인</b><ul>'+w.restraints.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
   if(w.blindSpots.length)h+='<b style="font-size:14px;display:block;margin-top:8px">못 보는 곳</b><ul>'+w.blindSpots.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
-  h+='<b style="font-size:14px;display:block;margin-top:8px">영역별로 왜 보나</b><ul>'+w.domains.map(function(d){return '<li><b>'+esc(d.label)+'</b> — '+esc(d.why)+'</li>'}).join("")+'</ul></details>';
+  h+='<b style="font-size:14px;display:block;margin-top:8px">영역별로 왜 보나</b><ul>'+w.domains.map(function(d){return '<li><b>'+esc(d.label)+'</b> — '+esc(d.why)+'</li>'}).join("")+'</ul>';
+  h+='<div class="mk">범위: 국지 충돌 '+pct(w.clash30d.low)+'~'+pct(w.clash30d.high)+' · 전면전 '+pct(w.war30d.low)+'~'+pct(w.war30d.high)+' (평소 '+pct(w.usual.war)+')</div>';
   if(w.market)h+='<div class="mk">예측시장 \''+esc(w.market.question)+'\' '+w.market.pct+'%'+(w.market.usualPct!=null?' (지난 한 달 평소 '+w.market.usualPct+'%)':'')+(w.market.daysLeft!=null?' · 만기 '+w.market.daysLeft+'일':'')+' — 수 % 대 가격은 실제보다 높게 매겨지는 경향이라 변화만 봅니다'+(w.market.url?' · <a href="'+esc(w.market.url)+'" target="_blank" rel="noopener">시장 보기</a>':'')+'</div>';
-  h+='<div class="mk">확률은 근거를 밝힌 판단값입니다(통계 예측 아님). 국지 충돌 = 남북 교전·영토 직접 공격.</div></div>';
+  h+='<div class="mk">확률은 근거를 밝힌 판단값입니다(통계 예측 아님). 국지 충돌 = 남북 교전·영토 직접 공격.</div>';
   return h}
 /** 카드 하나가 오류를 내도 나머지 화면은 그린다 */
 function safe(fn,arg,name){try{return fn(arg)}catch(e){return '<div class="card" style="color:var(--l3);font-size:14px">⚠ '+esc(name)+' 표시 오류: '+esc(String(e&&e.message||e))+'</div>'}}
@@ -346,69 +382,87 @@ function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+ago(st.lastCycle?st.lastCycle.at:st.now);
   var h="";
-  // 1) 지금 상황 (사건 기반 위험도와 패턴 신뢰도 중 높은 쪽)
+  // 0) 사건이나 징후 조합이 있을 때만 맨 위 띠 (사건 기반 위험도와 패턴 신뢰도 중 높은 쪽)
   var pats=st.patterns||[];var patLvl=pats.some(function(p){return p.confidence==="high"})?3:pats.some(function(p){return p.confidence==="medium"})?2:1;
   var lvl=Math.max(th.level,patLvl);var label=lvl===th.level?th.label:(lvl===3?"경계":"주의");
-  h+='<div class="threat bg'+lvl+'"><div class="k">지금 한반도 상황</div><div class="v">'+esc(label)+'</div><div class="s">'+esc(lvl>th.level?"징후 조합이 감지됨 — 아래 패턴 확인":th.summary)+'</div>';
-  if(th.lastProvocation)h+='<div class="m">마지막 북한 도발 · <b>'+(th.lastProvocation.dateOnly?bago({selfReport:{day:th.lastProvocation.dateOnly},at:th.lastProvocation.at}):ago(th.lastProvocation.at))+'</b> · '+esc(th.lastProvocation.headline)+'</div>';
-  h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>';
-  // 1a) 전쟁 위험 — 다섯 영역 → 국면 5단계 → 30일 확률 (자동, 5분마다)
-  if(st.warRisk)h+=safe(warRisk,st.warRisk,"전쟁 위험");
+  if(lvl>1){h+='<div class="threat bg'+lvl+'"><div class="k">지금 한반도 상황</div><div class="v">'+esc(label)+'</div><div class="s">'+esc(lvl>th.level?"징후 조합이 감지됨 — 아래 '자동 해설' 확인":th.summary)+'</div>';
+    h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>'}
+  // 1) 첫 화면: 지금 한반도 — 단계·확률·어제와 비교·이유·오를 조건·할 일·데이터 상태 (2026-11-02 새 화면)
+  if(st.warRisk)h+=safe(summary,st,"지금 한반도");
+  // 2) 전쟁 위험 차트 (그대로)
   if(st.warRisk)h+=safe(riskChart,st,"전쟁 위험 차트");
-  if(st.tension)h+=safe(tension,st.tension,"긴장 온도계");
-  if(st.fingerprints)h+=safe(fingerprints,st.fingerprints,"전쟁 직전 지문");
-  // 1b) 클로드 심층 분석 — 특이한 날에만 (72시간 안 보고서)
-  if(st.deepReport&&st.deepReport.data)h+=safe(deep,st.deepReport,"클로드 심층 분석");
+  // 3) 자세히 — 여섯 묶음, 접혀 있고 연 것은 기억한다
+  var an="";
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다
   if(st.assessment&&st.assessment.data){var stale=Date.now()-st.assessment.at>14*3600000;
-    h+='<div class="sec">클로드 분석관 판단 · '+ago(st.assessment.at)+(stale?' <span style="color:var(--l3)">(오래됨)</span>':'')+' · 다음 분석 08:09 / 20:09</div><div class="card as">'+assessment(st.assessment.data)+sinceNote(st.assessment.at,JSON.stringify(st.assessment.data))+'</div>'}
-  else if(st.notes&&st.notes.length){var n=st.notes[0];h+='<div class="sec">클로드 분석관 판단 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
-  // 2a) 지금 상황 해설 (규칙 기반, 5분마다 갱신)
-  var it=st.interpretation;
-  if(it){var ICON={warning:"⚠️",reassuring:"✅",caveat:"🔍",gap:"⬜"};var KIND={warning:"위험 쪽 힌트",reassuring:"안심 쪽 힌트",caveat:"해석 주의",gap:"사각지대"};
-    h+='<div class="sec">지금 상황 해설 <span style="font-weight:400">· 자동(규칙 기반) · 5분마다 갱신</span></div><div class="card ex"><div class="hd">'+esc(it.headline)+'</div>'+it.narrative.map(function(p){return '<p>'+esc(p)+'</p>'}).join("");
-    if(it.hints.length){h+='<details open><summary>힌트 '+it.hints.length+'개 — 근거와 반대 해석</summary>'+it.hints.map(function(x){return '<div class="hint '+x.kind+'"><div class="ht">'+ICON[x.kind]+' '+esc(x.title)+' <span class="chip" style="font-size:11px;padding:1px 7px">'+KIND[x.kind]+'</span></div><div class="hr">'+esc(x.reasoning)+'</div>'+(x.counter?'<div class="hc">↔ 반대 해석: '+esc(x.counter)+'</div>':'')+(x.check?'<div class="hc">🔎 확인: '+esc(x.check)+'</div>':'')+'</div>'}).join("")+'</details>'}
-    if(it.context&&it.context.length)h+='<div class="ctx">맥락: '+esc(it.context.join(" · "))+'</div>';
-    h+='</div>'}
-  // 2b) 패턴
-  if(pats.length){h+='<div class="sec" id="patterns">감지된 징후 조합 · '+ago(st.patternsAt)+'</div>';
-    h+=pats.map(function(p){return '<div class="card pat '+p.confidence+'"><div class="pn">'+esc(p.name)+' <span class="chip">'+CONF[p.confidence]+' · '+p.score+'점</span></div><div class="ps">'+esc(p.summary)+'</div>'+
-      '<details><summary>다른 설명 가능성 · 확인 방법</summary><ul>'+p.alternatives.map(function(a){return '<li>'+esc(a)+'</li>'}).join("")+'</ul><ul style="margin-top:6px">'+p.checks.map(function(c){return '<li>🔎 '+esc(c)+'</li>'}).join("")+'</ul></details></div>'}).join("")}
+    an+='<div class="sec">클로드 분석관 판단 · '+ago(st.assessment.at)+(stale?' <span style="color:var(--l3)">(오래됨)</span>':'')+' · 다음 분석 08:09 / 20:09</div><div class="card as">'+assessment(st.assessment.data)+sinceNote(st.assessment.at,JSON.stringify(st.assessment.data))+'</div>'}
+  else if(st.notes&&st.notes.length){var n=st.notes[0];an+='<div class="sec">클로드 분석관 판단 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
+  if(st.deepReport&&st.deepReport.data)an+=safe(deep,st.deepReport,"클로드 심층 분석");
+  h+=group("analysis","클로드 분석 전문","분석관 판단 · 심층 분석 · 분석 뒤 바뀐 것",an);
+  var ev="";
   // 3) 가장 최근 속보
   if(top){var b=top.brief;
-    h+='<div class="sec">가장 최근 주요 소식</div><div class="card" id="'+esc(top.id)+'">';
-    h+='<div><span class="ago '+fresh(b.at)+'"><span class="dot"></span>'+bago(b)+'</span><span class="abs">'+bwhen(b)+'</span></div>';
-    h+='<div class="chips"><span class="chip d'+b.danger.level+'">위험도 '+esc(b.danger.label)+'</span><span class="chip">'+esc(b.danger.reason)+'</span><span class="chip">'+esc(basisText(top))+'</span></div>';
-    h+='<div class="hl">'+esc(b.headline)+'</div>'+(b.note?'<div class="bnote">'+esc(b.note)+'</div>':'');
-    h+='<div class="facts">'+fact("🚀 종류",b.weapon)+fact("🔢 발수",b.count)+fact("📍 발사 지점",b.launchArea&&b.launchArea.name)+fact("🎯 낙하·방향",b.impactArea&&(b.impactArea.name+(b.impactArea.note?" ("+b.impactArea.note+")":"")))+(b.distanceKm?fact("↔ 비행거리","약 "+b.distanceKm+" km"):"")+(b.apogeeKm?fact("⤴ 최고고도","약 "+b.apogeeKm+" km"):"")+'</div>';
-    if(b.launchArea||b.impactArea)h+='<div id="map"></div><div class="legend">● 발사 지점 → ◎ 낙하·방향 (보도된 지명 기준 대략 위치)</div>';
-    if(b.latest&&b.latest.at>b.at+60000)h+='<div class="latest">최신 보도 <b>'+ago(b.latest.at)+'</b> · '+(b.latest.url?'<a href="'+esc(b.latest.url)+'" target="_blank" rel="noopener">'+esc(b.latest.title)+'</a>':esc(b.latest.title))+'</div>';
-    h+=sources(top)+'</div>';
+    ev+='<div class="sec">가장 최근 주요 소식</div><div class="card" id="'+esc(top.id)+'">';
+    ev+='<div><span class="ago '+fresh(b.at)+'"><span class="dot"></span>'+bago(b)+'</span><span class="abs">'+bwhen(b)+'</span></div>';
+    ev+='<div class="chips"><span class="chip d'+b.danger.level+'">위험도 '+esc(b.danger.label)+'</span><span class="chip">'+esc(b.danger.reason)+'</span><span class="chip">'+esc(basisText(top))+'</span></div>';
+    ev+='<div class="hl">'+esc(b.headline)+'</div>'+(b.note?'<div class="bnote">'+esc(b.note)+'</div>':'');
+    ev+='<div class="facts">'+fact("🚀 종류",b.weapon)+fact("🔢 발수",b.count)+fact("📍 발사 지점",b.launchArea&&b.launchArea.name)+fact("🎯 낙하·방향",b.impactArea&&(b.impactArea.name+(b.impactArea.note?" ("+b.impactArea.note+")":"")))+(b.distanceKm?fact("↔ 비행거리","약 "+b.distanceKm+" km"):"")+(b.apogeeKm?fact("⤴ 최고고도","약 "+b.apogeeKm+" km"):"")+'</div>';
+    if(b.launchArea||b.impactArea)ev+='<div id="map"></div><div class="legend">● 발사 지점 → ◎ 낙하·방향 (보도된 지명 기준 대략 위치)</div>';
+    if(b.latest&&b.latest.at>b.at+60000)ev+='<div class="latest">최신 보도 <b>'+ago(b.latest.at)+'</b> · '+(b.latest.url?'<a href="'+esc(b.latest.url)+'" target="_blank" rel="noopener">'+esc(b.latest.title)+'</a>':esc(b.latest.title))+'</div>';
+    ev+=sources(top)+'</div>';
   }
-  // 4) 징후판
-  h+='<div class="sec" id="board">징후판 — 숫자 (항목을 누르면 뜻풀이)</div><div class="card">'+board(st.board||[])+'</div>';
   // 6) 이전 소식
   var rest=evs.filter(function(e){return e!==top&&Date.now()-e.brief.at<30*86400000});
   var main=rest.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});
   var ref=rest.filter(function(e){return !(e.brief.isProvocation||e.brief.danger.level>=2)});
-  if(main.length){h+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,8).map(row).join("")+'</div>'}
-  if(ref.length)h+='<details class="card"><summary>참고 기사 '+ref.length+'건 (논평·분석, 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
+  if(main.length){ev+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,8).map(row).join("")+'</div>'}
+  if(ref.length)ev+='<details class="card"><summary>참고 기사 '+ref.length+'건 (논평·분석, 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
+  h+=group("events","사건","가장 최근 소식 · 이전 30일 · 참고 기사",ev,lvl>1);
+  var bd=st.board||[];var abn=bd.filter(function(r){return r.reading&&(r.reading.state==="anomalous"||r.reading.state==="elevated")&&r.stateLabel!=="측정 불가"}).length;var fl=bd.filter(function(r){return r.failing}).length;
+  h+=group("board","징후판 — 숫자","평소와 다른 것 "+abn+"개"+(fl?" · 못 받는 것 "+fl+"개":"")+" · 전체 "+bd.length+"개",'<div class="card">'+board(bd)+'</div>');
+  var ys="";if(st.tension)ys+=safe(tension,st.tension,"긴장 온도계");if(st.fingerprints)ys+=safe(fingerprints,st.fingerprints,"전쟁 직전 지문");
+  ys+='<div class="sec">앞으로 30일 큰 도발 예측</div><div class="card">'+forecastLine(st.forecast,st.history&&st.history.score)+histLine(st.history)+'</div>';
+  h+=group("yard","다른 잣대","긴장 온도계 · 전쟁 직전 지문 · 30일 큰 도발 예측",ys);
+  var au="";
+  // 2a) 지금 상황 해설 (규칙 기반, 5분마다 갱신)
+  var it=st.interpretation;
+  if(it){var ICON={warning:"⚠️",reassuring:"✅",caveat:"🔍",gap:"⬜"};var KIND={warning:"위험 쪽 힌트",reassuring:"안심 쪽 힌트",caveat:"해석 주의",gap:"사각지대"};
+    au+='<div class="sec">지금 상황 해설 <span style="font-weight:400">· 자동(규칙 기반) · 5분마다 갱신</span></div><div class="card ex"><div class="hd">'+esc(it.headline)+'</div>'+it.narrative.map(function(p){return '<p>'+esc(p)+'</p>'}).join("");
+    if(it.hints.length){au+='<details open><summary>힌트 '+it.hints.length+'개 — 근거와 반대 해석</summary>'+it.hints.map(function(x){return '<div class="hint '+x.kind+'"><div class="ht">'+ICON[x.kind]+' '+esc(x.title)+' <span class="chip" style="font-size:11px;padding:1px 7px">'+KIND[x.kind]+'</span></div><div class="hr">'+esc(x.reasoning)+'</div>'+(x.counter?'<div class="hc">↔ 반대 해석: '+esc(x.counter)+'</div>':'')+(x.check?'<div class="hc">🔎 확인: '+esc(x.check)+'</div>':'')+'</div>'}).join("")+'</details>'}
+    if(it.context&&it.context.length)au+='<div class="ctx">맥락: '+esc(it.context.join(" · "))+'</div>';
+    au+='</div>'}
+  // 2b) 패턴
+  if(pats.length){au+='<div class="sec" id="patterns">감지된 징후 조합 · '+ago(st.patternsAt)+'</div>';
+    au+=pats.map(function(p){return '<div class="card pat '+p.confidence+'"><div class="pn">'+esc(p.name)+' <span class="chip">'+CONF[p.confidence]+' · '+p.score+'점</span></div><div class="ps">'+esc(p.summary)+'</div>'+
+      '<details><summary>다른 설명 가능성 · 확인 방법</summary><ul>'+p.alternatives.map(function(a){return '<li>'+esc(a)+'</li>'}).join("")+'</ul><ul style="margin-top:6px">'+p.checks.map(function(c){return '<li>🔎 '+esc(c)+'</li>'}).join("")+'</ul></details></div>'}).join("")}
+  h+=group("auto","자동 해설","규칙 기반 힌트 · 징후 조합"+(pats.length?" "+pats.length+"개":""),au,patLvl>1);
+  var sy="";
   // 7) 시스템
-  h+=safe(usagePanel,st.usage,"Claude 사용량");
-  h+='<details class="card"><summary>시스템 상태 · 데이터 출처</summary>'+health(st)+'</details>';
+  sy+=safe(usagePanel,st.usage,"Claude 사용량");
+  sy+='<details class="card"><summary>시스템 상태 · 데이터 출처</summary>'+health(st)+'</details>';
   // 지금 쓰는 채널의 실패만 경고한다 (예전 ntfy 실패가 Bark 로 바꾼 뒤에도 남아 있던 문제)
   var chans=((st.setup&&st.setup.pushChannels)||[]).map(function(c){return c.split("(")[0]});
   var mine=(st.alerts||[]).filter(function(a){return !chans.length||chans.indexOf(a.channel)>=0});
   var lastFail=mine.find(function(a){return !a.ok});var lastOk=mine.find(function(a){return a.ok});
   var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패('+esc(lastFail.channel||"")+') '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+(lastFail.channel==="ntfy"&&chans.indexOf("bark")<0?'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).':'')+'</p>':"";
   var ntfyUi=chans.indexOf("ntfy")>=0&&st.setup?'<p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button>':'';
-  h+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+(st.setup?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
+  sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+(st.setup?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
+  h+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
-  if(top)drawMap(top.brief);
-  try{drawTension(st.tension)}catch(e){}
+  bindGroups(top);
   try{drawRiskChart(st)}catch(e){}
 }
+// 접힌 묶음: 연 것은 이 기기에 기억한다 (5분마다 다시 그려도 그대로)
+var OPEN={};try{OPEN=JSON.parse(localStorage.getItem("kew:open")||"{}")||{}}catch(e){OPEN={}}
+function group(id,title,sub,inner,force){if(!inner)return "";
+  return '<details class="more" data-g="'+id+'"'+(OPEN[id]||force?' open':'')+'><summary><div>'+esc(title)+'<span>'+esc(sub)+'</span></div></summary><div class="gbody">'+inner+'</div></details>'}
+function bindGroups(top){document.querySelectorAll("details.more").forEach(function(d){
+  var draw=function(){if(!d.open)return;var g=d.getAttribute("data-g");
+    if(g==="events"&&top&&!d.getAttribute("data-drawn")){d.setAttribute("data-drawn","1");drawMap(top.brief)}
+    if(g==="yard"){try{drawTension(ST.tension)}catch(e){}}};
+  draw();
+  d.addEventListener("toggle",function(){var g=d.getAttribute("data-g");if(d.open)OPEN[g]=1;else delete OPEN[g];try{localStorage.setItem("kew:open",JSON.stringify(OPEN))}catch(e){}draw()})})}
 function fact(k,v){return '<div class="fact'+(v?"":" na")+'"><div class="fk">'+k+'</div><div class="fv">'+(v?esc(v):"보도 없음")+'</div></div>'}
 function sgn(x){return (x>0?"+":"")+Math.round(x)+"%"}
 function fmtVal(r){var v=r.reading.value,m=r.reading.meta||{};if(m.learning)return m.departures!=null?"어제 "+m.departures+"대":"기록 중";if(r.id==="sea.gfw_cn_change_pct"||r.id.indexOf("nk.")===0)return sgn(v);if(r.id==="elite.foreign_net_kospi"&&m.net5dEok!=null)return "5일 "+(m.net5dEok>=0?"+":"−")+(Math.abs(m.net5dEok)/10000).toFixed(1)+"조";if(r.id.indexOf("psych.")===0||r.id==="market.pm_war_prob")return "평소의 "+(v>=1000?Math.round(v/100):(v/100).toFixed(1))+"배";if(r.unit==="%")return v.toFixed(2)+"%";return (Number.isInteger(v)?v:v.toFixed(1))+(r.unit||"")}
@@ -418,7 +472,9 @@ function spark(hist){if(!hist||hist.length<2)return "";var vs=hist.map(function(
 function board(rows){var groups={};rows.forEach(function(r){(groups[r.groupLabel]=groups[r.groupLabel]||[]).push(r)});
   var order=["정부 공식","엘리트·큰손","접경 사건","시장","사람들의 관심","항공","항행경보","북한 수사","북한 내부 (장마당·불빛)","언론 템포","해상","지진","GPS 교란","위성 열점","SNS","인터넷"];
   var abn=rows.filter(function(r){return r.reading&&(r.reading.state==="anomalous"||r.reading.state==="elevated")&&r.stateLabel!=="측정 불가"});
+  var fl=rows.filter(function(r){return r.failing});
   var h="";
+  if(fl.length)h+='<div class="grp" style="color:var(--l3)">⚠ 지금 못 받는 징후 '+fl.length+'개 — 마지막으로 받은 값을 보여 줍니다</div><div class="board">'+fl.map(ind).join("")+'</div>';
   if(abn.length)h+='<div class="grp" style="color:var(--l3)">⚠ 평소와 다른 징후 '+abn.length+'개</div><div class="board">'+abn.map(ind).join("")+'</div>';
   else h+='<div class="grp" style="color:var(--l1)">✓ 측정 가능한 징후가 모두 평소 범위 안</div>';
   order.forEach(function(g){if(!groups[g])return;h+='<div class="grp">'+g+'</div><div class="board">'+groups[g].map(ind).join("")+'</div>'});
@@ -435,10 +491,11 @@ function ind(r){var rd=r.reading,unavail=!rd||r.stateLabel==="측정 불가";var
   var base=unavail?"측정 불가":rd&&rd.state==="learning"&&rd.meta&&rd.meta.learningDays!=null?"평소 학습 중 "+rd.meta.learningDays+"/"+(rd.meta.need||8)+"일":r.absolute?thr(r):rd&&rd.days!=null&&rd.state==="learning"?"평소 기준 "+rd.days+"/7일째"+(rd.days>=2?" · 아주 큰 변화만 판정":""):rd&&rd.baseline!=null&&rd.state!=="learning"?"평소 "+bv(rd.baseline)+(rd.days!=null?" (최근 "+rd.days+"일)":"")+(rd.z!=null?" · z "+rd.z.toFixed(1):""):"기준선 학습 중 "+(rd?rd.n:0)+"/10";
   var extra="";if(rd&&rd.meta){var m=rd.meta;if(m.aircraft&&m.aircraft.length)extra=m.aircraft.slice(0,3).map(function(a){return a.what.split("(")[0]}).join(", ");else if(m.titles&&m.titles.length)extra=m.titles[0];else if(m.note)extra=m.note;else if(m.signedPct!=null)extra=(m.signedPct>0?"+":"")+m.signedPct+"% · "+m.price+"원"}
   if(rd&&rd.meta&&rd.meta.cnChangePct!=null)base="중국 "+sgn(rd.meta.cnChangePct)+(rd.meta.otherChangePct!=null?" · 다른 배 "+sgn(rd.meta.otherChangePct):"")+" (직전 2주 대비)";
+  if(r.failing){stc="unavailable";base="⚠ 수집 실패 · 마지막 성공 "+ago(r.failing.since)+" — 아래 값은 그때 것"}
   var attr=rd&&rd.meta&&rd.meta.attribution&&/Global Fishing Watch/.test(rd.meta.attribution)?'<div class="ib" style="margin-top:2px"><a href="https://globalfishingwatch.org" target="_blank" rel="noopener" onclick="event.stopPropagation()">Powered by Global Fishing Watch</a></div>':"";
   var meaning=ST&&ST.interpretation&&ST.interpretation.perIndicator?ST.interpretation.perIndicator[r.id]:"";
   var narrow=r.coverage&&rd&&!unavail&&rd.value===0?'<span class="chip" style="font-size:11px;padding:1px 7px;background:var(--l2);color:#fff;vertical-align:2px">범위 제한</span>':'';
-  return '<div class="ind" onclick="this.classList.toggle(\'open\')"><span class="st '+stc+'"></span><div class="il">'+esc(r.label)+'</div><div class="iv">'+(unavail?"—":fmtVal(r))+' '+narrow+'</div><div class="ib">'+esc(base)+'</div>'+spark(r.history)+(extra?'<div class="ib" style="margin-top:2px">'+esc(extra).slice(0,70)+'</div>':"")+attr+'<div class="why">'+(meaning?'<b>뜻:</b> '+esc(meaning)+'<br>':'')+'<b>왜 보나:</b> '+esc(r.why)+'<br><b>지연:</b> '+esc(r.latency)+'<br><b>주의:</b> '+esc(r.caveats)+(r.coverage?'<br><b>범위 제한:</b> '+esc(r.coverage):'')+(rd?'<br><b>관측:</b> '+kst(rd.at):'')+'</div></div>'}
+  return '<div class="ind" onclick="this.classList.toggle(\'open\')"><span class="st '+stc+'"></span><div class="il">'+esc(r.label)+'</div><div class="iv">'+(unavail?"—":fmtVal(r))+' '+narrow+'</div><div class="ib'+(r.failing?' fail':'')+'">'+esc(base)+'</div>'+spark(r.history)+(extra?'<div class="ib" style="margin-top:2px">'+esc(extra).slice(0,70)+'</div>':"")+attr+'<div class="why">'+(meaning?'<b>뜻:</b> '+esc(meaning)+'<br>':'')+'<b>왜 보나:</b> '+esc(r.why)+'<br><b>지연:</b> '+esc(r.latency)+'<br><b>주의:</b> '+esc(r.caveats)+(r.coverage?'<br><b>범위 제한:</b> '+esc(r.coverage):'')+(rd?'<br><b>관측:</b> '+kst(rd.at):'')+'</div></div>'}
 function assessment(a){var LK={high:"가능성 높음",medium:"가능성 보통",low:"가능성 낮음"};
   var h='<div class="ov"><span class="lv lv'+a.overall_level+'"></span>'+a.overall_level+'단계 · '+esc(a.overall)+'</div>';
   var hy=a.hypotheses||[];

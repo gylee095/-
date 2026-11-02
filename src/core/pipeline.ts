@@ -133,6 +133,7 @@ export async function processMetrics(store: Store, metrics: Metric[], now: numbe
     // 기준선이 필요한 지표는 최근 4주 기록으로 판정한다 (절대 임계값 지표는 기준선 없이 판정)
     const days = def.absolute ? undefined : dayBaseline(dayHist[key], today) ?? null;
     const reading = evaluate(def, m.value, now, prev, m.meta, days);
+    if (m.source) reading.source = m.source;
     // 수집기가 '아직 평소를 모른다'고 알려 온 값(예: 기업 제트기 기록 1주일 미만)은 판정하지 않고 학습 중으로 둔다
     const learningOnly = !!(m.meta as { learning?: boolean } | undefined)?.learning;
     if (!def.absolute && !learningOnly) dayHist[key] = addToDay(dayHist[key], m.value, now);
@@ -187,13 +188,22 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
   const results = opts.collect ? await opts.collect() : await runCollectors(env, opts.only, now, store);
 
   // 징후 관측값 → 기준선 비교
-  const readings = await processMetrics(store, results.flatMap((r) => r.metrics ?? []), now);
+  const readings = await processMetrics(store, results.flatMap((r) => (r.metrics ?? []).map((m) => ({ ...m, source: r.source }))), now);
   const air = airspaceSignal(readings, now);
   const incoming = results.flatMap((r) => r.signals);
   if (air) incoming.push(air);
 
   const newSignals = await store.putSignals(incoming);
-  await store.putHealth(results.map(healthOf));
+  // 실패한 소스는 '마지막으로 성공한 시각'을 이어 받는다 (실패가 있을 때만 이전 상태를 읽는다 — 저장소 읽기 절약)
+  const healths = results.map(healthOf);
+  if (healths.some((h) => !h.ok)) {
+    const prev = new Map((await store.getHealth()).map((h) => [h.source, h]));
+    for (const h of healths) {
+      const p = prev.get(h.source);
+      if (!h.ok && p) h.lastOkAt = p.ok ? p.fetchedAt : p.lastOkAt;
+    }
+  }
+  await store.putHealth(healths);
 
   const sources = results.map((r) => ({ source: r.source, ok: r.ok, raw: r.rawCount, signals: r.signals.length, error: r.error, skipped: r.skipped }));
   if (opts.quietSkip && newSignals === 0) {

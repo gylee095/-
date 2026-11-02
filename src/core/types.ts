@@ -99,6 +99,8 @@ export interface Metric {
   indicator: string;
   value: number;
   meta?: Record<string, unknown>;
+  /** 이 값을 낸 소스 (파이프라인이 붙인다) */
+  source?: string;
 }
 
 export type IndicatorState = "normal" | "elevated" | "anomalous" | "learning" | "unavailable";
@@ -115,6 +117,8 @@ export interface Reading {
   n: number;
   /** '평소'를 정한 날 수 (최근 4주 기록 기준 지표만, 2026-11-02~) */
   days?: number;
+  /** 이 값을 낸 소스 — 소스가 계속 실패하면 화면에 '수집 실패'로 보인다 */
+  source?: string;
   state: IndicatorState;
   meta?: Record<string, unknown>;
   /** 시계열 표(metrics)에 마지막으로 기록한 시각 — 1분 주기 지표를 5분에 한 번만 기록해 저장소 쓰기를 줄인다 */

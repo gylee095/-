@@ -97,7 +97,7 @@ export async function processMetrics(store: Store, metrics: Metric[], now: numbe
   for (const m of metrics) {
     const def = INDICATOR_BY_ID[m.indicator];
     if (!def) continue;
-    const key = `${def.id}|${slotKey(def, now)}`;
+    const key = `${def.id}${def.baselineVersion ? `#${def.baselineVersion}` : ""}|${slotKey(def, now)}`;
     const prev = baselines[key];
     const reading = evaluate(def, m.value, now, prev, m.meta);
     // 수집기가 '아직 평소를 모른다'고 알려 온 값(예: 기업 제트기 기록 1주일 미만)은 판정하지 않고 학습 중으로 둔다

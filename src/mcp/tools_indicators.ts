@@ -97,6 +97,12 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
             ...st.forecast,
             score: st.history?.score,
           },
+          vsYesterday: {
+            note: "어제 이맘때(24시간 전 시간별 판정 기록)와 비교: 위기 쪽인가(worse)·나아졌나(better)·비슷한가(same), 무엇이 바뀌었나. 대시보드 '전쟁 위험 차트'와 같은 값.",
+            ...st.vsYesterday,
+            agoAt: st.vsYesterday.agoAt ? fmtKst(st.vsYesterday.agoAt) : undefined,
+            newEvents: st.vsYesterday.newEvents.map((e) => ({ ...e, at: fmtKst(e.at) })),
+          },
           preWarFingerprints: {
             note: "다른 전쟁 직전(우크라이나 2022·걸프 1990·한국 1950 등)에 공개적으로 보였던 것 중 지금 켜진 것. 1950년·10·7 처럼 지문 없이 오는 기습도 있다.",
             on: st.fingerprints.on, watched: st.fingerprints.watched,

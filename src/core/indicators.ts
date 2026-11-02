@@ -26,6 +26,8 @@ export interface IndicatorDef {
   minN?: number;
   /** z 계산의 표준편차 바닥값 (잡음이 큰 지표가 작은 흔들림에 '이상'이 되지 않게) */
   sdFloor?: number;
+  /** 측정 방식이 바뀌어 예전 기준선을 버려야 할 때 올린다 (기준선 저장 이름에 붙는다) */
+  baselineVersion?: number;
   /** 수집 범위가 좁아 0이 '없음'을 뜻하지 않는 경우 그 이유 (화면에 '범위 제한' 표시) */
   coverage?: string;
 }
@@ -39,6 +41,8 @@ export const INDICATORS: IndicatorDef[] = [
   },
   {
     id: "air.mil_airborne", label: "동북아 군용기 수 (ADS-B 노출)", group: "air", unit: "대", direction: "high", slots: 4,
+    // 2026-11-02: adsb.fi 수신망을 더해 같은 시각에 보이는 대수가 늘었다 → adsb.lol 만으로 배운 기준선을 버린다 (안 그러면 가짜 '상승')
+    baselineVersion: 2,
     why: "증원 전력 전개·장거리 폭격기 비행·대규모 공중 급유는 작전 준비의 가시적 징후다.",
     measure: "adsb.lol /v2/mil 에서 위도 28~47°, 경도 117~147° 안의 군용 표시 항공기 수",
     latency: "수 초~수십 초", caveats: "군용기 다수는 트랜스폰더를 끈다. 보이는 건 '공개하기로 한 것'뿐이며, 한미 연합훈련(3월·8월) 기간엔 정상적으로 늘어난다.",

@@ -1,5 +1,7 @@
 // 대시보드·에이전트가 공유하는 상태 스냅샷
 import type { Store } from "./store.js";
+import { compareWithYesterday } from "./compare.js";
+import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { listSources } from "./sources.js";
@@ -114,6 +116,9 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const fingerprints = checkFingerprints(warRisk, board, enriched.map((e) => e.brief), now);
   // 스스로 채점하는 예측: 앞으로 30일·7일 큰 도발 확률 (최근 180일 빈도, 과거 10년으로 보정)
   const forecast = forecastMajor(await loadMajorDays(store), now);
+  // 주식 차트처럼: 시간별 판정 기록(30일)과 어제 이맘때와의 비교
+  const riskSeries = await loadSeries(store, now).catch(() => []);
+  const vsYesterday = compareWithYesterday(riskSeries, warRisk, board, enriched.map((e) => e.brief), now, tension.pct);
 
   return {
     now,
@@ -122,6 +127,10 @@ export async function buildState(store: Store, since: number, disabledSources = 
     tension,
     fingerprints,
     forecast,
+    /** 시간별 판정 기록 (차트용, 30일) */
+    riskSeries,
+    /** 어제 이맘때와 비교 */
+    vsYesterday,
     interpretation,
     posture: posture(events.filter((e) => e.firstDetectedTime >= since), now),
     lastCycle: lastCycle ? JSON.parse(lastCycle) : null,

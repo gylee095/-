@@ -52,6 +52,54 @@ export interface RiskSummary {
 
 export const kstDay = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
 
+/** 차트용 시간별 점 (주식 차트처럼) — KV 하나에 30일(720점)만 가볍게. 영역 수준은 정부·엘리트·돈·군사·북한·사람들 순서의 숫자 6자리 */
+export interface RiskPoint {
+  /** 정시 (ms) */
+  t: number;
+  ph: Phase;
+  /** 30일 국지 충돌 % */
+  c: number;
+  /** 30일 전면전 % */
+  w: number;
+  lv: string;
+  /** 긴장 온도계 백분위 */
+  tp?: number;
+  /** 30일 큰 도발 확률 % */
+  p?: number;
+}
+export const DOMAIN_ORDER: DomainId[] = ["gov", "elite", "money", "military", "nkwords", "public"];
+export const SERIES_KEY = "risk:series";
+export const SERIES_DAYS = 30;
+
+export function pointOf(s: RiskSnapshot): RiskPoint {
+  return {
+    t: Math.floor(s.at / 3600_000) * 3600_000,
+    ph: s.phase,
+    c: +s.clash.toFixed(2),
+    w: +s.war.toFixed(2),
+    lv: DOMAIN_ORDER.map((d) => s.levels[d] ?? 0).join(""),
+    ...(s.tension ? { tp: s.tension.pct } : {}),
+    ...(s.p30 !== undefined ? { p: s.p30 } : {}),
+  };
+}
+
+/** 차트 점 읽기 — KV 가 비어 있으면(처음) 시간별 판정 기록 표에서 30일치를 만든다 */
+export async function loadSeries(store: Store, now: number): Promise<RiskPoint[]> {
+  const raw = await store.getKv(SERIES_KEY);
+  if (raw) return JSON.parse(raw) as RiskPoint[];
+  return (await store.getRiskHourly(now - SERIES_DAYS * 86400_000)).map(pointOf);
+}
+
+/** 한 시간에 한 번: 차트 점을 더하고 30일 넘은 점은 뺀다 */
+export async function appendSeries(store: Store, s: RiskSnapshot): Promise<RiskPoint[]> {
+  const p = pointOf(s);
+  const pts = (await loadSeries(store, s.at)).filter((x) => x.t !== p.t && x.t >= p.t - SERIES_DAYS * 86400_000);
+  pts.push(p);
+  pts.sort((a, b) => a.t - b.t);
+  await store.setKv(SERIES_KEY, JSON.stringify(pts));
+  return pts;
+}
+
 export function snapshotOf(w: WarRisk, tension?: { raw: number; pct: number }, p30?: number): RiskSnapshot {
   const levels: Partial<Record<DomainId, Level>> = {};
   for (const d of w.domains) levels[d.id] = d.level;
@@ -109,6 +157,7 @@ export async function recordRisk(store: Store, w: WarRisk, tension?: { raw: numb
   const lastHour = Number((await store.getKv("risk:lastHour")) ?? 0);
   if (hour === lastHour) return { hourly: false };
   await store.putRiskHourly(s);
+  await appendSeries(store, s);
   await store.setKv("risk:lastHour", String(hour));
   const days = await store.getRiskDays(kstDay(s.at - 400 * 86400_000));
   const { loadMajorDays, scoreForecasts } = await import("./forecast.js");

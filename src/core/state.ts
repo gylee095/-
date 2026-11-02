@@ -5,7 +5,7 @@ import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { listSources } from "./sources.js";
-import { briefEvent, currentThreat } from "./brief.js";
+import { briefEvent, mergeFollowUps, currentThreat } from "./brief.js";
 import type { Reading, Signal } from "./types.js";
 import { GROUP_LABEL, INDICATORS, STATE_LABEL } from "./indicators.js";
 import type { Pattern } from "./patterns.js";
@@ -72,18 +72,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     })
     .sort((a, b) => b.brief.at - a.brief.at);
   const hourly: HourlyAgg = hourlyRaw ? JSON.parse(hourlyRaw) : {};
-  // 같은 도발을 뒤늦게 다룬 언론 단독 묶음은 앞선(근거가 더 강한) 사건의 후속 보도로 합친다
-  for (const later of [...enriched]) {
-    if (later.basis !== "media" || !later.brief.isProvocation) continue;
-    const origin = enriched.find(
-      (e) => e !== later && e.basis !== "media" && e.brief.isProvocation && later.brief.at - e.brief.at >= 0 && later.brief.at - e.brief.at < 18 * 3600_000 &&
-        (!later.brief.weapon || !e.brief.weapon || later.brief.weapon === e.brief.weapon),
-    );
-    if (!origin) continue;
-    origin.signals = [...origin.signals, ...later.signals];
-    if (later.brief.latest && (!origin.brief.latest || later.brief.latest.at > origin.brief.latest.at)) origin.brief.latest = later.brief.latest;
-    enriched.splice(enriched.indexOf(later), 1);
-  }
+  mergeFollowUps(enriched);
 
   const readings: Record<string, Reading> = readingsRaw ? JSON.parse(readingsRaw) : {};
   const board: BoardRow[] = INDICATORS.map((d) => {

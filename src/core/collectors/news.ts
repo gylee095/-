@@ -1,6 +1,6 @@
 // 언론(GDELT, RSS) — 알림 트리거가 아니라 교차검증과 '뉴스 대비 리드타임' 측정용
 import type { CollectResult, Metric, Signal } from "../types.js";
-import { classifyText, isKoreaRelevant } from "../classify.js";
+import { OFFICIAL_QUOTE_RE, classifyText, isKoreaRelevant, launchTitleKind } from "../classify.js";
 import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 
 const GDELT_QUERY =
@@ -131,10 +131,6 @@ export function parseRss(xml: string): { title: string; link: string; pubDate?: 
   return items;
 }
 
-// 공식 기관 발표를 인용한 제목 (예: "[속보] 合참 …", "日방위성 …", "…: JCS", "… ROK military")
-const OFFICIAL_QUOTE_RE =
-  /합참|합동참모본부|국방부|日\s*방위성|일본\s*방위성|방위성|대통령실|행안부|\bJCS\b|Joint Chiefs|Defense Ministry|Ministry of Defense|ROK military|South Korean military|:\s*(Seoul|Tokyo|JCS)\s*$/i;
-
 function outletOf(url: string, fallback: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, "");
@@ -154,7 +150,10 @@ function mediaSignal(source: string, url: string, title: string, published: numb
   if (cls.category !== "evacuation" && cls.category !== "posture" && !isKoreaRelevant(title)) return [];
   // 경보 단어 중 군·정부의 태세 변화는 그 자체가 공식 조치다 (돈·사람이 빠지는 행동은 기업 발표라 언론 단독으로 둔다)
   const officialPosture = cls.category === "posture" && !/airlines_suspend|war_insurance|firms_evacuate/.test(cls.tripwire ?? "");
-  const citesOfficial = OFFICIAL_QUOTE_RE.test(title) || (cls.category === "evacuation" && EVAC_OFFICIAL_RE.test(title)) || officialPosture;
+  // 지난 발사를 두고 하는 후속·해설·반응 기사(합참 "北발사체 모두 공지하진 않아…")는 합참을 인용해도 '공식 발사 발표'가 아니다 —
+  // 그대로 두면 [속보] 꼬리표 하나로 '발사' 푸시가 나갈 수 있다 (2026-11-02)
+  const meta = (cls.category === "missile" || cls.category === "artillery") && launchTitleKind(title) === "meta";
+  const citesOfficial = !meta && (OFFICIAL_QUOTE_RE.test(title) || (cls.category === "evacuation" && EVAC_OFFICIAL_RE.test(title)) || officialPosture);
   const breaking = /\[속보\]|\[1보\]|BREAKING|FLASH/i.test(title);
   const outlet = domain ?? outletOf(url, source);
   return [
@@ -164,7 +163,7 @@ function mediaSignal(source: string, url: string, title: string, published: numb
       sourceKind: "media",
       category: cls.category,
       title: title.slice(0, 120),
-      summary: `${outlet}${citesOfficial ? " · 공식발표 인용" : ""}`,
+      summary: `${outlet}${citesOfficial ? " · 공식발표 인용" : meta ? " · 후속·해설" : ""}`,
       url,
       eventTime: undefined,
       publishedTime: published,

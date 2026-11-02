@@ -1,0 +1,207 @@
+{
+ "note": "실제 수집 신호 (연합뉴스·NK News RSS, 2026-09~11). 합참이 공지하지 않은 10/31 발사, 그 발사를 북한 매체가 밝힌 11/1 보도, 그리고 11/2 '왜 공지하지 않았나' 기사. 북한 매체의 다음 날 보도가 이미 잡힌 발사에 합쳐지는지 보는 짝(9/20·9/22, 10/3·10/4, 10/29·10/30)도 함께.",
+ "retrospective_20261102": [
+  {
+   "id": "rss_breaking:2neuvb",
+   "source": "rss_breaking",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "합참 \"北발사체 모두 공지하진 않아…보안 등 고려 군사적 판단\"",
+   "summary": "yna.co.kr · 공식발표 인용",
+   "url": "https://www.yna.co.kr/view/AKR20261102078400504",
+   "publishedTime": 1793586585000,
+   "detectedTime": 1793586778208,
+   "severity": 75,
+   "citesOfficial": true,
+   "breaking": false
+  }
+ ],
+ "kcna_20261101": [
+  {
+   "id": "rss_breaking:139d63m",
+   "source": "rss_breaking",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "北, 전술탄도미사일 집속탄두 위력시험…\"13ha 초토화\"",
+   "summary": "yna.co.kr",
+   "url": "https://www.yna.co.kr/view/AKR20261101005600504",
+   "publishedTime": 1793482440000,
+   "detectedTime": 1793491198208,
+   "severity": 20,
+   "citesOfficial": false,
+   "breaking": false
+  },
+  {
+   "id": "rss_breaking:b19x0k",
+   "source": "rss_breaking",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "北, 전술탄도미사일 집속탄두 위력시험…\"13㏊ 초토화\"(종합)",
+   "summary": "yna.co.kr",
+   "url": "https://www.yna.co.kr/view/AKR20261101005651504",
+   "publishedTime": 1793490895000,
+   "detectedTime": 1793491378208,
+   "severity": 20,
+   "citesOfficial": false,
+   "breaking": false
+  }
+ ],
+ "jcs_20261029": [
+  {
+   "id": "rss_news:1r7v8rl",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "[속보] 日방위성 \"北, 탄도미사일 가능성 물체 발사\"",
+   "summary": "yna.co.kr · 공식발표 인용",
+   "url": "https://www.yna.co.kr/view/AKR20261029106500073",
+   "publishedTime": 1793245719000,
+   "detectedTime": 1793369486679,
+   "severity": 75,
+   "citesOfficial": true
+  },
+  {
+   "id": "rss_breaking:1r7v8rl",
+   "source": "rss_breaking",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "[속보] 日방위성 \"北, 탄도미사일 가능성 물체 발사\"",
+   "summary": "yna.co.kr · 공식발표 인용",
+   "url": "https://www.yna.co.kr/view/AKR20261029106500073",
+   "publishedTime": 1793245719000,
+   "detectedTime": 1793371891151,
+   "severity": 75,
+   "citesOfficial": true,
+   "breaking": true
+  },
+  {
+   "id": "rss_news:1wyq2yy",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "North Korea fires salvo of around 10 ballistic missiles toward sea: Seoul",
+   "summary": "nknews.org · 공식발표 인용",
+   "url": "https://www.nknews.org/2026/10/north-korea-fires-unidentified-projectile-toward-sea-rok-military/",
+   "publishedTime": 1793245913000,
+   "detectedTime": 1793369486679,
+   "severity": 75,
+   "citesOfficial": true
+  },
+  {
+   "id": "rss_news:r65fgj",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "日방위성 \"北, 탄도미사일 가능성 물체 발사…日EEZ 밖 낙하\"",
+   "summary": "yna.co.kr · 공식발표 인용",
+   "url": "https://www.yna.co.kr/view/AKR20261029106551073",
+   "publishedTime": 1793247449000,
+   "detectedTime": 1793369486679,
+   "severity": 75,
+   "citesOfficial": true
+  },
+  {
+   "id": "rss_breaking:r65fgj",
+   "source": "rss_breaking",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "日방위성 \"北, 탄도미사일 가능성 물체 발사…日EEZ 밖 낙하\"",
+   "summary": "yna.co.kr · 공식발표 인용",
+   "url": "https://www.yna.co.kr/view/AKR20261029106551073",
+   "publishedTime": 1793247449000,
+   "detectedTime": 1793371891151,
+   "severity": 75,
+   "citesOfficial": true,
+   "breaking": false
+  }
+ ],
+ "kcna_20261030": [
+  {
+   "id": "rss_news:1me06h8",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "artillery",
+   "title": "北, '저격수' 초정밀 600㎜ 방사포 사격…김정은 \"힘이 곧 평화\"(종합)",
+   "summary": "yna.co.kr",
+   "url": "https://www.yna.co.kr/view/AKR20261030013051504",
+   "publishedTime": 1793314103000,
+   "detectedTime": 1793369486679,
+   "severity": 20,
+   "citesOfficial": false
+  },
+  {
+   "id": "rss_breaking:1me06h8",
+   "source": "rss_breaking",
+   "sourceKind": "media",
+   "category": "artillery",
+   "title": "北, '저격수' 초정밀 600㎜ 방사포 사격…김정은 \"힘이 곧 평화\"(종합)",
+   "summary": "yna.co.kr",
+   "url": "https://www.yna.co.kr/view/AKR20261030013051504",
+   "publishedTime": 1793314103000,
+   "detectedTime": 1793371891151,
+   "severity": 20,
+   "citesOfficial": false,
+   "breaking": false
+  }
+ ],
+ "jcs_20260920": [
+  {
+   "id": "rss_news:1mmt07v",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "North Korea launches suspected ballistic missiles toward East Sea: JCS",
+   "summary": "nknews.org · 공식발표 인용",
+   "url": "https://www.nknews.org/2026/09/north-korea-launches-unidentified-projectile-toward-east-sea-jcs-2/",
+   "publishedTime": 1789885503000,
+   "detectedTime": 1793369486679,
+   "severity": 75,
+   "citesOfficial": true
+  }
+ ],
+ "kcna_20260922": [
+  {
+   "id": "rss_news:1r1sy7z",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "North Korea tested ‘new’ hypersonic missile on Sunday: State media",
+   "summary": "nknews.org",
+   "url": "https://www.nknews.org/2026/09/north-korea-tested-new-hypersonic-missile-on-sunday-state-media/",
+   "publishedTime": 1790030604000,
+   "detectedTime": 1793369486679,
+   "severity": 20,
+   "citesOfficial": false
+  }
+ ],
+ "media_20261003": [
+  {
+   "id": "rss_news:pjzc21",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "North Korea fires ballistic missile toward East Sea",
+   "summary": "nknews.org",
+   "url": "https://www.nknews.org/2026/10/north-korea-fires-ballistic-missile-toward-east-sea/",
+   "publishedTime": 1790985858000,
+   "detectedTime": 1793369486679,
+   "severity": 20,
+   "citesOfficial": false
+  }
+ ],
+ "kcna_20261004": [
+  {
+   "id": "rss_news:pq7swf",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "North Korea says hypersonic missile flew 1,000km, exceeding Seoul, Tokyo reports",
+   "summary": "nknews.org",
+   "url": "https://www.nknews.org/2026/10/north-korea-says-hypersonic-missile-flew-1000km-exceeding-seoul-tokyo-reports/",
+   "publishedTime": 1791079575000,
+   "detectedTime": 1793369486679,
+   "severity": 20,
+   "citesOfficial": false
+  }
+ ]
+}

@@ -88,6 +88,7 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .as .ev{font-size:13px;margin-top:4px}.as .ev span{display:inline-block;width:38px;color:var(--mute)}
 .lk{font-size:12px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;color:#fff}.lk.high{background:var(--l4)}.lk.medium{background:var(--l2)}.lk.low{background:var(--old)}
 .note{white-space:pre-wrap;font-size:15px}
+.bnote{font-size:13px;color:var(--mute);margin-top:4px}
 .btn{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--link);border-radius:10px;padding:8px 12px;font-size:14px;margin:4px 6px 4px 0;text-decoration:none}
 table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}.ok{color:var(--l1)}.bad{color:var(--l4)}
 #login{display:none}#login input{width:100%;padding:12px;font-size:16px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);margin:8px 0}
@@ -105,6 +106,9 @@ var ST=null, map=null, LAST=0;
 function ago(ms){var d=Math.max(0,Date.now()-ms),m=Math.floor(d/60000);if(m<1)return "방금";if(m<60)return m+"분 전";var h=Math.floor(m/60);if(h<3)return h+"시간 "+(m%60)+"분 전";if(h<24)return h+"시간 전";var dd=Math.floor(h/24);return dd<2?dd+"일 "+(h%24)+"시간 전":dd+"일 전"}
 function fresh(ms){var h=(Date.now()-ms)/3600000;return h<1?"f":h<24?"w":"o"}
 function kst(ms){if(!ms)return "—";var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()+" "+String(d.getUTCHours()).padStart(2,"0")+":"+String(d.getUTCMinutes()).padStart(2,"0")}
+function kday(ms){var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()}
+function bwhen(b){return b.selfReport?kday(b.selfReport.day)+" (시각 미상)":kst(b.at)+" KST"}
+function bago(b){if(!b.selfReport)return ago(b.at);var n=Math.round((Date.now()-b.selfReport.day)/86400000-0.5);return n<=0?"오늘":n===1?"어제":n+"일 전"}
 function tok(){try{var q=new URLSearchParams(location.search).get("key");if(q){localStorage.setItem("kew_token",q);history.replaceState(null,"",location.pathname+location.hash)}return localStorage.getItem("kew_token")}catch(e){return null}}
 function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch(e){}load()}
 var STATUS={CONFIRMED:"정부 공식확인",CORROBORATED:"복수 출처 교차확인",UNVERIFIED:"단일 출처"};
@@ -331,7 +335,7 @@ function render(){
   var pats=st.patterns||[];var patLvl=pats.some(function(p){return p.confidence==="high"})?3:pats.some(function(p){return p.confidence==="medium"})?2:1;
   var lvl=Math.max(th.level,patLvl);var label=lvl===th.level?th.label:(lvl===3?"경계":"주의");
   h+='<div class="threat bg'+lvl+'"><div class="k">지금 한반도 상황</div><div class="v">'+esc(label)+'</div><div class="s">'+esc(lvl>th.level?"징후 조합이 감지됨 — 아래 패턴 확인":th.summary)+'</div>';
-  if(th.lastProvocation)h+='<div class="m">마지막 북한 도발 · <b>'+ago(th.lastProvocation.at)+'</b> · '+esc(th.lastProvocation.headline)+'</div>';
+  if(th.lastProvocation)h+='<div class="m">마지막 북한 도발 · <b>'+(th.lastProvocation.dateOnly?bago({selfReport:{day:th.lastProvocation.dateOnly},at:th.lastProvocation.at}):ago(th.lastProvocation.at))+'</b> · '+esc(th.lastProvocation.headline)+'</div>';
   h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>';
   // 1a) 전쟁 위험 — 다섯 영역 → 국면 5단계 → 30일 확률 (자동, 5분마다)
   if(st.warRisk)h+=safe(warRisk,st.warRisk,"전쟁 위험");
@@ -358,9 +362,9 @@ function render(){
   // 3) 가장 최근 속보
   if(top){var b=top.brief;
     h+='<div class="sec">가장 최근 주요 소식</div><div class="card" id="'+esc(top.id)+'">';
-    h+='<div><span class="ago '+fresh(b.at)+'"><span class="dot"></span>'+ago(b.at)+'</span><span class="abs">'+kst(b.at)+' KST</span></div>';
+    h+='<div><span class="ago '+fresh(b.at)+'"><span class="dot"></span>'+bago(b)+'</span><span class="abs">'+bwhen(b)+'</span></div>';
     h+='<div class="chips"><span class="chip d'+b.danger.level+'">위험도 '+esc(b.danger.label)+'</span><span class="chip">'+esc(b.danger.reason)+'</span><span class="chip">'+esc(basisText(top))+'</span></div>';
-    h+='<div class="hl">'+esc(b.headline)+'</div>';
+    h+='<div class="hl">'+esc(b.headline)+'</div>'+(b.note?'<div class="bnote">'+esc(b.note)+'</div>':'');
     h+='<div class="facts">'+fact("🚀 종류",b.weapon)+fact("🔢 발수",b.count)+fact("📍 발사 지점",b.launchArea&&b.launchArea.name)+fact("🎯 낙하·방향",b.impactArea&&(b.impactArea.name+(b.impactArea.note?" ("+b.impactArea.note+")":"")))+(b.distanceKm?fact("↔ 비행거리","약 "+b.distanceKm+" km"):"")+(b.apogeeKm?fact("⤴ 최고고도","약 "+b.apogeeKm+" km"):"")+'</div>';
     if(b.launchArea||b.impactArea)h+='<div id="map"></div><div class="legend">● 발사 지점 → ◎ 낙하·방향 (보도된 지명 기준 대략 위치)</div>';
     if(b.latest&&b.latest.at>b.at+60000)h+='<div class="latest">최신 보도 <b>'+ago(b.latest.at)+'</b> · '+(b.latest.url?'<a href="'+esc(b.latest.url)+'" target="_blank" rel="noopener">'+esc(b.latest.title)+'</a>':esc(b.latest.title))+'</div>';
@@ -433,7 +437,7 @@ function assessment(a){var LK={high:"가능성 높음",medium:"가능성 보통"
   if(a.anomalies&&a.anomalies.length)h+='<div class="hy"><b>새로 눈에 띈 것</b><div class="ev">'+esc(a.anomalies.join(" · "))+'</div></div>';
   if(a.gaps&&a.gaps.length)h+='<details class="hy"><summary style="margin:0;font-size:14px;color:var(--mute)">지금 못 보고 있는 것 '+a.gaps.length+'개</summary><div class="ev">'+esc(a.gaps.join(" · "))+'</div></details>';
   return h}
-function row(e){var b=e.brief;return '<div class="row" onclick="this.querySelector(\'.more\').hidden=!this.querySelector(\'.more\').hidden"><div class="t '+fresh(b.at)+'">'+ago(b.at)+'</div><div class="b"><div class="h"><span class="lv lv'+b.danger.level+'"></span>'+esc(b.headline)+'</div><div class="x">'+kst(b.at)+' · 위험도 '+esc(b.danger.label)+' · '+esc(basisText(e))+'</div><div class="more" hidden>'+sources(e,true)+'</div></div></div>'}
+function row(e){var b=e.brief;return '<div class="row" onclick="this.querySelector(\'.more\').hidden=!this.querySelector(\'.more\').hidden"><div class="t '+fresh(b.at)+'">'+bago(b)+'</div><div class="b"><div class="h"><span class="lv lv'+b.danger.level+'"></span>'+esc(b.headline)+'</div><div class="x">'+bwhen(b)+' · 위험도 '+esc(b.danger.label)+' · '+esc(basisText(e))+'</div>'+(b.note?'<div class="x">'+esc(b.note)+'</div>':'')+'<div class="more" hidden>'+sources(e,true)+'</div></div></div>'}
 function sources(e,open){var s=e.signals.slice().sort(function(a,b){return (b.publishedTime||b.detectedTime)-(a.publishedTime||a.detectedTime)});
   var inner=s.map(function(x){return '<div class="src"><small>'+ago(x.publishedTime||x.detectedTime)+' · '+esc(x.summary||x.source)+'</small><br>'+(x.url?'<a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.title)+'</a>':esc(x.title))+'</div>'}).join("");
   return open?inner:'<details><summary>근거 기사·데이터 '+s.length+'건 보기</summary>'+inner+'</details>'}

@@ -39,7 +39,7 @@ describe("단계 알림 판단", () => {
     // 두 번 이어지면 알림
     const r2 = decidePhaseAlert(r1.state, w(3), NOW + 5 * MIN);
     expect(r2.message?.direction).toBe("up");
-    expect(r2.message?.title).toBe("[전쟁 위험 올라감] 2단계 긴장 → 3단계 위기");
+    expect(r2.message?.title).toBe("3단계 위기 (약 15%) 나빠짐 · 2단계 긴장에서");
     expect(r2.message?.body).toMatch(/약 15% \(평소의 8\.3배, 평소 약 2%\)/);
     expect(r2.message?.priority).toBe(4);
     expect(r2.state.phase).toBe(3);
@@ -50,7 +50,7 @@ describe("단계 알림 판단", () => {
     let st = decidePhaseAlert(s0, w(2), NOW).state;
     expect(decidePhaseAlert(st, w(2), NOW + DOWN_HOLD_MS - MIN).message).toBeUndefined();
     const down = decidePhaseAlert(st, w(2), NOW + DOWN_HOLD_MS);
-    expect(down.message?.title).toBe("[전쟁 위험 내려감] 3단계 위기 → 2단계 긴장");
+    expect(down.message?.title).toBe("2단계 긴장 (약 4%) 좋아짐 · 3단계 위기에서");
     expect(down.message?.priority).toBe(2);
     // 4시간 뒤 다시 3단계 → 알림 없이 3단계 그대로
     st = decidePhaseAlert(s0, w(2), NOW).state;
@@ -81,7 +81,7 @@ describe("5분 주기에서 보내기", () => {
     const r = await notifyPhaseChange(store, env, w(3), NOW + 10 * MIN, ok);
     expect(r.ok).toBe(true);
     expect(r.sent?.direction).toBe("up");
-    expect((await store.getAlerts(0)).map((a) => a.title)).toEqual(["[전쟁 위험 올라감] 2단계 긴장 → 3단계 위기"]);
+    expect((await store.getAlerts(0)).map((a) => a.title)).toEqual(["3단계 위기 (약 15%) 나빠짐 · 2단계 긴장에서"]);
     // 같은 단계가 이어지면 더 보내지 않는다
     expect((await notifyPhaseChange(store, env, w(3), NOW + 15 * MIN, ok)).sent).toBeUndefined();
   });
@@ -108,5 +108,15 @@ describe("심층 분석 보고서는 결론이 바뀌었을 때만 알린다", (
     expect(deepPushDecision({ war_phase: 3, p_clash_30d: 12 }, { war_phase: 3, p_clash_30d: 12 }, 2).why).toMatch(/자동 판정\(2단계\)과 다른 3단계/);
     expect(deepPushDecision({ war_phase: 2, p_clash_30d: 2 }, { war_phase: 2, p_clash_30d: 4 }, 2).push).toBe(true);
     expect(deepPushDecision({ war_phase: 2, p_clash_30d: 4 }, undefined, 2).push).toBe(false);
+  });
+});
+
+describe("알림 제목은 중요한 것부터 (2026-11-03)", () => {
+  it("사건 알림: 위험도 · 무슨 일 · [확인 상태]", async () => {
+    const { formatAlert } = await import("../src/core/policy.js");
+    const e: any = { id: "e1", status: "UNVERIFIED", basis: "official_quote", severity: 75, title: '[속보] 日방위성 "北, 탄도미사일 가능성 물체 발사"', sources: ["yna.co.kr"], categories: ["missile"] };
+    const brief: any = { headline: "북한, 탄도미사일 약 10 발 발사 → 동해", isProvocation: true, danger: { level: 3, label: "경계", reason: "탄도미사일 발사" }, at: 0 };
+    expect(formatAlert({ event: e, kind: "new", reason: "" }, undefined, brief).title).toBe("경계 · 북한, 탄도미사일 약 10 발 발사 → 동해 [속보·공식발표 인용]");
+    expect(formatAlert({ event: e, kind: "correction", reason: "" }, undefined, brief).title).toMatch(/^\[정정\] /);
   });
 });

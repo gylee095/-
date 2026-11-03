@@ -60,14 +60,13 @@ export function decidePhaseAlert(prev: PhaseNotifyState | undefined, w: Pick<War
 export function phaseMessage(from: Phase, w: Pick<WarRisk, "phase" | "phaseLabel" | "clash30d" | "usual" | "phaseReasons" | "tripwires"> & { vsUsual?: number }, up: boolean): PhaseMessage {
   const ratio = w.vsUsual ?? w.clash30d.point / w.usual.clash;
   const times = ratio < 1.15 ? "평소 수준" : `평소의 ${ratio < 10 ? (Math.abs(ratio - Math.round(ratio)) < 0.05 ? Math.round(ratio) : ratio.toFixed(1)) : Math.round(ratio)}배`;
-  const title = up
-    ? `[전쟁 위험 올라감] ${from}단계 ${NAMES[from]} → ${w.phase}단계 ${w.phaseLabel}`
-    : `[전쟁 위험 내려감] ${from}단계 ${NAMES[from]} → ${w.phase}단계 ${w.phaseLabel}`;
+  // 제목은 중요한 것부터: 지금 단계 · 확률 · 방향 (예: "3단계 위기 (약 15%) 나빠짐 · 2단계에서")
+  const title = `${w.phase}단계 ${w.phaseLabel} (약 ${fmtRiskPct(w.clash30d.point)}) ${up ? "나빠짐" : "좋아짐"} · ${from}단계 ${NAMES[from]}에서`;
   const lines = [
     `앞으로 30일 남북 무력 충돌 가능성 약 ${fmtRiskPct(w.clash30d.point)} (${times}, 평소 약 ${fmtRiskPct(w.usual.clash)})`,
     w.phaseReasons.length ? `이유: ${w.phaseReasons.slice(0, 2).join(" / ")}` : "",
     up && w.tripwires.length ? `다음에 볼 것: ${w.tripwires[0]}` : "",
-    up ? "" : "6시간 넘게 낮은 단계가 이어져 알립니다.",
+    up ? "전쟁 위험 단계가 올라갔습니다." : "6시간 넘게 낮은 단계가 이어져 알립니다.",
   ];
   return { title, body: lines.filter(Boolean).join("\n"), priority: up ? (w.phase >= 4 ? 5 : w.phase >= 3 ? 4 : 3) : 2, direction: up ? "up" : "down" };
 }

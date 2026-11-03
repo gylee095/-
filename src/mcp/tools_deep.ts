@@ -106,7 +106,7 @@ export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Sto
         if (a.notify && !decision.push) push = { skipped: decision.why };
         if (a.notify && decision.push) {
           push = await sendPush(env, {
-            title: `[심층 분석] ${a.title}`.slice(0, 120),
+            title: `${a.war_phase}단계 ${["", "평온", "긴장", "위기", "임박", "교전"][a.war_phase] ?? ""} (약 ${a.p_clash_30d}%) · ${decision.why} · ${a.title}`.slice(0, 120),
             body: `${a.summary.slice(0, 220)}\n30일 국지 충돌 ${a.p_clash_30d}% · 전면전 ${a.p_war_30d}%`,
             priority: a.war_phase >= 4 ? 5 : a.war_phase >= 3 ? 4 : 3,
             url: env.DASHBOARD_URL,

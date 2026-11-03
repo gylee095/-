@@ -93,7 +93,10 @@ export function formatAlert(
   const label =
     e.basis === "official_quote" && e.status === "UNVERIFIED" ? "속보·공식발표 인용" : STATUS_LABEL[e.status] + (e.basis === "official_quote" ? "·언론인용" : "");
   const prefix = d.kind === "correction" ? "[정정]" : d.kind === "upgrade" ? `[갱신·${label}]` : `[${label}]`;
-  const title = `${prefix} ${brief?.isProvocation ? brief.headline : e.title}`.slice(0, 120);
+  // 제목은 중요한 것부터: 위험도 · 무슨 일 · [확인 상태] (2026-11-03 — 확인 상태 꼬리표가 앞에 와서 핵심이 뒤로 밀렸다)
+  const what = brief?.isProvocation ? brief.headline : e.title;
+  const danger = brief && brief.danger.level > 1 ? `${brief.danger.label} · ` : "";
+  const title = (d.kind === "correction" ? `${prefix} ${what}` : `${danger}${what} ${prefix}`).slice(0, 120);
   const body = [
     d.kind === "correction" ? "앞서 알린 사건이 정정·해제되었습니다." : brief ? `위험도 ${brief.danger.label} (${brief.danger.reason}) · 출처 ${e.sources.join(", ")}` : `심각도 ${e.severity}/100 · 출처 ${e.sources.join(", ")}`,
     brief?.isProvocation && brief.headline !== e.title ? `원문: ${e.title}` : "",

@@ -20,7 +20,7 @@ export interface PushResult {
   error?: string;
 }
 
-interface PushEnv extends Env {
+export interface PushEnv extends Env {
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
   DISCORD_WEBHOOK_URL?: string;

@@ -48,7 +48,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const modelSince = Math.min(since, now - 14 * 24 * 3600_000);
   // 저장소(D1) 무료 한도: 신호 표 전체·시계열 표 전체를 훑지 않는다. 사건은 근거 신호 사본(evidence)을 함께 갖고 있고,
   // 스파크라인은 KV 'hourly' 한 줄에서 읽는다.
-  const [events, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourlyRaw, d1Raw, historyRaw] = await Promise.all([
+  const [events, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourlyRaw, d1Raw, historyRaw, phaseNotifyRaw] = await Promise.all([
     store.getEvents(modelSince),
     store.getHealth(),
     store.getAlerts(since),
@@ -59,6 +59,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     store.getKv("hourly"),
     store.getKv(`d1:${new Date(now).toISOString().slice(0, 10)}`),
     store.getKv("risk:summary"),
+    store.getKv("risk:phase_notify"),
   ]);
   // 근거 사본이 없는 옛 사건(이 변경 전에 저장된 것)만 신호를 ID로 찾아 채우고, 한 번 다시 저장한다
   const missing = events.filter((e) => !e.evidence);
@@ -156,6 +157,8 @@ export async function buildState(store: Store, since: number, disabledSources = 
     notes,
     metrics: latencyMetrics(events.filter((e) => e.firstDetectedTime >= since)),
     sources: active,
+    /** 단계 알림 — 마지막으로 알린(기억한) 단계와 확인 중인 변화 (2026-11-03: 알림은 단계가 바뀔 때만) */
+    phaseNotify: phaseNotifyRaw ? (JSON.parse(phaseNotifyRaw) as { phase: number; at: number; pending?: { phase: number; since: number; seen: number } }) : null,
     /** 화면 설명 문장 — 규칙과 같은 곳에서 (규칙을 바꿔도 설명이 남지 않게) */
     rules: { learning: LEARNING_RULE },
     /** 데이터를 제대로 받고 있나 — 첫 화면 한 줄 */

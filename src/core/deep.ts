@@ -57,6 +57,8 @@ export interface MonthUsage {
 
 const H = 3600_000;
 const DAY = 24 * H;
+/** 같은 이유로 심층 분석을 다시 깨우는 간격 */
+export const REPEAT_MS = 3 * DAY;
 const kstDay = (ms: number) => new Date(ms + 9 * H).toISOString().slice(0, 10);
 const kstMonth = (ms: number) => new Date(ms + 9 * H).toISOString().slice(0, 7);
 const emptyTotals = (): UsageTotals => ({ runs: 0, input_tokens: 0, output_tokens: 0, cache_read_tokens: 0, cache_write_tokens: 0, cost_usd: 0 });
@@ -105,9 +107,24 @@ export interface DeepState {
   daily: Record<string, number>;
 }
 
+/**
+ * 심층 분석 보고서를 휴대폰으로 알릴까 (2026-11-03) — 결론이 지난 보고서·지금 자동 판정과 같으면 알리지 않는다(대시보드에는 그대로).
+ * 10/31~11/3 다섯 번 모두 '2단계·국지 충돌 4~5%'였는데 매번 알림이 갔다.
+ */
+export function deepPushDecision(cur: { war_phase: number; p_clash_30d: number }, prev: { war_phase: number; p_clash_30d: number } | undefined, autoPhase: number | undefined): { push: boolean; why: string } {
+  if (autoPhase !== undefined && cur.war_phase !== autoPhase) return { push: true, why: `자동 판정(${autoPhase}단계)과 다른 ${cur.war_phase}단계로 봄` };
+  if (!prev) return { push: false, why: "지난 보고서가 없어 비교할 것이 없음 — 단계가 자동 판정과 같아 알리지 않음" };
+  if (cur.war_phase !== prev.war_phase) return { push: true, why: `지난 보고서 ${prev.war_phase}단계 → ${cur.war_phase}단계` };
+  const r = prev.p_clash_30d > 0 ? cur.p_clash_30d / prev.p_clash_30d : 1;
+  if (r >= 1.5 || r <= 1 / 1.5) return { push: true, why: `국지 충돌 ${prev.p_clash_30d}% → ${cur.p_clash_30d}%` };
+  return { push: false, why: "결론이 지난 보고서·자동 판정과 같아 알리지 않음 (대시보드에만)" };
+}
+
 export function decideDeep(reasons: DeepReason[], st: DeepState, monthRuns: number, env: DeepEnv, now: number, opts: { force?: boolean; external?: boolean } = {}): DeepDecision {
-  const fresh = reasons.filter((r) => !(st.handled[r.key] && now - st.handled[r.key] < DAY));
-  if (!opts.force && !fresh.length) return { fire: false, fresh, reasons, skipped: reasons.length ? "이미 24시간 안에 조사한 이유뿐" : "특이 사항 없음" };
+  // 같은 이유(같은 영역·같은 수준)는 3일에 한 번만 다시 깊게 본다 — 오래 이어지는 '경계'가 매일 같은 결론의 분석을 깨웠다(2026-11-03).
+  // 수준이 오르면 이유 열쇠(예: domain:public:3)가 새로 생겨 바로 깨운다.
+  const fresh = reasons.filter((r) => !(st.handled[r.key] && now - st.handled[r.key] < REPEAT_MS));
+  if (!opts.force && !fresh.length) return { fire: false, fresh, reasons, skipped: reasons.length ? "이미 3일 안에 조사한 이유뿐 (더 나빠지면 바로 다시 조사)" : "특이 사항 없음" };
   if (!opts.external && (!env.CLAUDE_ROUTINE_URL || !env.CLAUDE_ROUTINE_TOKEN)) return { fire: false, fresh, reasons, skipped: "CLAUDE_ROUTINE_URL/TOKEN 미설정" };
   const dailyMax = Number(env.DEEP_DAILY_MAX ?? 2);
   const monthMax = Number(env.DEEP_MONTHLY_MAX_RUNS ?? 30);

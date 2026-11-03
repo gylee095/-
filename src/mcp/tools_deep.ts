@@ -5,7 +5,8 @@ import type { Env } from "../core/types.js";
 import type { Store } from "../core/store.js";
 import { buildState } from "../core/state.js";
 import { sendPush } from "../core/notify.js";
-import { addUsage, loadMonthUsage, type DeepRequestNote } from "../core/deep.js";
+import { addUsage, deepPushDecision, loadMonthUsage, type DeepRequestNote } from "../core/deep.js";
+import { loadSeries } from "../core/history.js";
 import { fmtKst } from "../core/util.js";
 
 const out = (data: unknown) => ({ content: [{ type: "text" as const, text: typeof data === "string" ? data : JSON.stringify(data, null, 2) }] });
@@ -62,7 +63,7 @@ export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Sto
     {
       title: "심층 분석 보고서 기록 (대시보드 '클로드 심층 분석' + 아이폰 알림)",
       description:
-        "심층 조사 결과를 남긴다. 대시보드에 그대로 보이고, notify=true 면 아이폰으로 한 번 알린다. 사실(출처 있는 것)과 추론을 구분하고, " +
+        "심층 조사 결과를 남긴다. 대시보드에 그대로 보이고, notify=true 면 아이폰으로 한 번 알린다 — 단 결론(단계·국지 충돌 확률)이 지난 보고서·지금 자동 판정과 같으면 서버가 알리지 않는다. 사실(출처 있는 것)과 추론을 구분하고, " +
         "확률은 숫자로, 자동 판정과 다르면 이유를 쓴다. usage 에는 끝나기 직전 get_session(자기 자신)의 사용량을 넣는다 — 대시보드 '사용량'에 쌓인다.",
       inputSchema: {
         request_id: z.string().max(40).optional().describe("get_deep_request 의 request.id"),
@@ -98,7 +99,12 @@ export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Sto
         let month;
         if (a.usage) month = await addUsage(store, "deep", a.usage, now, a.session_id);
         let push: unknown;
-        if (a.notify) {
+        // 결론이 지난 보고서·지금 자동 판정과 같으면 알리지 않는다 (대시보드에는 그대로 보인다)
+        const prevReport = (await store.getNotes(now - 30 * 86400_000)).filter((n) => n.kind === "deep_report" && n.at < now).sort((p, q) => q.at - p.at)[0]?.data as { war_phase: number; p_clash_30d: number } | undefined;
+        const series = await loadSeries(store, now).catch(() => []);
+        const decision = deepPushDecision(a, prevReport, series.length ? series[series.length - 1].ph : undefined);
+        if (a.notify && !decision.push) push = { skipped: decision.why };
+        if (a.notify && decision.push) {
           push = await sendPush(env, {
             title: `[심층 분석] ${a.title}`.slice(0, 120),
             body: `${a.summary.slice(0, 220)}\n30일 국지 충돌 ${a.p_clash_30d}% · 전면전 ${a.p_war_30d}%`,

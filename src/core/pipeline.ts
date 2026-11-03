@@ -13,7 +13,6 @@ import { hash } from "./util.js";
 
 export const LOOKBACK_MS = 72 * 3600_000;
 /** 같은 패턴은 이 간격 안에서 한 번만 알린다 (신뢰도가 올라가면 다시 알림) */
-const PATTERN_ALERT_INTERVAL = 6 * 3600_000;
 
 export interface CycleOptions {
   only?: string[];
@@ -257,33 +256,8 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
   const latest: Record<string, Reading> = latestRaw ? JSON.parse(latestRaw) : {};
   const patterns = detectPatterns(latest, events, now);
   await store.setKv("patterns", JSON.stringify({ at: now, patterns }));
-  for (const p of patterns) {
-    if (p.confidence === "low") continue;
-    const key = `pattern_alert:${p.id}`;
-    const prevRaw = await store.getKv(key);
-    const prev = prevRaw ? (JSON.parse(prevRaw) as { at: number; confidence: string; ok?: boolean; failures?: number }) : undefined;
-    const upgraded = prev && prev.confidence === "medium" && p.confidence === "high";
-    // 성공 후 6시간 억제. 실패했으면 30분 뒤 재시도하되 3회까지만 (푸시 설정 오류로 매 분 재시도하지 않도록)
-    const failures = prev?.ok === false ? (prev.failures ?? 1) : 0;
-    const retryAfter = prev?.ok === false ? 30 * 60_000 : PATTERN_ALERT_INTERVAL;
-    if (prev && !upgraded && (now - prev.at < retryAfter || failures >= 3)) continue;
-    const title = `[패턴 감지·미확인] ${p.name}`;
-    const body = [
-      `신뢰도 ${p.confidence === "high" ? "높음" : "보통"} (점수 ${p.score}) · 근거: ${p.summary}`,
-      `다른 설명 가능: ${p.alternatives[0]}`,
-      "자동 탐지된 징후 조합입니다. 사건이 확인된 것이 아니며, 클로드 분석과 공식 발표를 확인하세요.",
-      env.DASHBOARD_URL ? `${env.DASHBOARD_URL}#patterns` : "",
-    ].filter(Boolean).join("\n");
-    let ok = true;
-    if (!opts.dryRun) {
-      const res = await sendPush(env, { title, body, priority: p.confidence === "high" ? 4 : 3, url: env.DASHBOARD_URL }, opts.fetchImpl);
-      ok = res.some((r) => r.ok);
-      const error = res.filter((r) => !r.ok).map((r) => `${r.channel}: ${r.error}`).join("; ") || undefined;
-      await store.logAlert({ eventId: `pattern:${p.id}`, sentAt: now, status: "UNVERIFIED", severity: p.score, title, body, channel: res.map((r) => r.channel).join(","), ok, error });
-      await store.setKv(key, JSON.stringify({ at: now, confidence: p.confidence, ok, failures: ok ? 0 : failures + 1 }));
-    }
-    alerts.push({ eventId: `pattern:${p.id}`, kind: "pattern", title, sent: ok && !opts.dryRun, reason: `패턴 신뢰도 ${p.confidence}` });
-  }
+  // 징후 조합(패턴)은 따로 알리지 않는다 (2026-11-03) — 패턴은 전쟁 위험 판정의 군사 영역에 들어가고,
+  // 그 결과 단계가 실제로 바뀌면 단계 알림(phasealert.ts)이 간다. 사건 자체(발사 속보·민방위 경보)는 위에서 바로 알린다.
 
   return {
     at: now,

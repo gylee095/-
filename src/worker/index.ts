@@ -1,5 +1,6 @@
 // Cloudflare Worker: 5분 크론 감시 사이클 + 원격 MCP 커넥터 + 모바일 대시보드
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { notifyPhaseChange } from "../core/phasealert.js";
 import { SCHEDULE } from "../core/sources.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { Env as CoreEnv } from "../core/types.js";
@@ -119,6 +120,10 @@ export default {
           await recordMajorDays(store, st.events.map((e) => e.brief), report.at).catch(() => 0);
           await recordRisk(store, { ...st.warRisk, at: report.at }, { raw: st.tension.raw, pct: st.tension.pct }, st.forecast.p30).catch(async (e) => {
             await store.setKv("risk:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
+          });
+          // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
+          await notifyPhaseChange(store, env, st.warRisk, report.at).catch(async (e) => {
+            await store.setKv("phase_notify:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
             await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: env.DASHBOARD_URL });

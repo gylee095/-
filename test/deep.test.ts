@@ -38,10 +38,13 @@ describe("심층 분석: 특이한 날 판단", () => {
     expect(keys.some((k) => k.startsWith("event:"))).toBe(true);
     expect(keys).toContain("pattern:launch_prep");
   });
-  it("같은 이유는 24시간 안에 다시 깨우지 않고, 하루 최대 횟수·3시간 간격·한 달 상한을 지킨다", () => {
+  it("같은 이유는 3일 안에 다시 깨우지 않고(11/3: 오래 이어진 '경계'가 매일 같은 결론의 분석을 깨웠다), 하루 최대 횟수·3시간 간격·한 달 상한을 지킨다", () => {
     const r = deepReasons(war(), [], [], NOW);
-    expect(decideDeep(r, { handled: { "domain:public:2": NOW - 5 * H }, daily: {} }, 0, ENV, NOW)).toMatchObject({ fire: false, skipped: "이미 24시간 안에 조사한 이유뿐" });
-    expect(decideDeep(r, { handled: { "domain:public:2": NOW - 25 * H }, daily: {} }, 0, ENV, NOW).fire).toBe(true);
+    expect(decideDeep(r, { handled: { "domain:public:2": NOW - 5 * H }, daily: {} }, 0, ENV, NOW)).toMatchObject({ fire: false, skipped: "이미 3일 안에 조사한 이유뿐 (더 나빠지면 바로 다시 조사)" });
+    expect(decideDeep(r, { handled: { "domain:public:2": NOW - 25 * H }, daily: {} }, 0, ENV, NOW).fire).toBe(false);
+    expect(decideDeep(r, { handled: { "domain:public:2": NOW - 73 * H }, daily: {} }, 0, ENV, NOW).fire).toBe(true);
+    // 더 나빠지면(같은 영역이 '심각') 열쇠가 달라 바로 깨운다
+    expect(decideDeep([{ key: "domain:public:3", text: "사람들의 불안 '심각'" }], { handled: { "domain:public:2": NOW - 5 * H }, daily: {} }, 0, ENV, NOW).fire).toBe(true);
     expect(decideDeep(r, { handled: {}, daily: { "2026-10-31": 2 } }, 0, ENV, NOW).skipped).toMatch(/오늘 자동 실행 2회/);
     expect(decideDeep(r, { handled: {}, daily: {}, lastFiredAt: NOW - H }, 0, ENV, NOW).skipped).toMatch(/3시간/);
     expect(decideDeep(r, st0(), 30, ENV, NOW).skipped).toMatch(/이번 달 심층 분석 30회 다 씀/);

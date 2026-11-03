@@ -60,7 +60,7 @@ description: 한반도 조기감지 — '특이한 날' 심층 조사 1회 (서�
 10. **확률을 정한다**: 단계(1~5), 30일 국지 충돌 %, 30일 전면전 %. 자동 판정과 같으면 같다고, 다르면 무엇 때문에 몇 배 다르게 보는지 쓴다. 기저율을 잊지 않는다: 국지 충돌은 1999~2020년 8번(약 3년에 1번), 전면전은 1953년 이후 0번.
 11. **지켜볼 것**을 날짜와 함께 적는다. 예: "김여정 확성기 시한 10/31 — 실제 가동 여부".
 12. 끝내기 직전 위 '자기 기록 합산' 스크립트로 사용량(토큰)을 구한다. `get_session` 이 보이면 그쪽 값을 써도 된다.
-13. `record_deep_report` 로 기록한다. title, summary, findings(출처 URL), timeline, hypotheses, analogs, war_phase, p_clash_30d, p_war_30d, reasoning, watch, open_questions, wished_data, usage(model 포함), session_id(= get_deep_request 의 요청 번호), notify=true 를 채운다.
+13. `record_deep_report` 로 기록한다. title, summary, findings(출처 URL), timeline, hypotheses, analogs, war_phase, p_clash_30d, p_war_30d, reasoning, watch, open_questions, wished_data, usage(model 포함), session_id(= get_deep_request 의 요청 번호), notify=true 를 채운다. 알림은 서버가 결론(단계·국지 충돌 확률)이 지난 보고서·자동 판정과 다를 때만 보낸다 — 같은 결론이면 대시보드에만 남는다.
 
 ## 최종 응답 (3줄)
 ① 무엇이 이상했고 원인은 무엇인가 ② 전쟁 위험 단계와 30일 확률 ③ 이번 사용량(출력·입력 토큰 수)

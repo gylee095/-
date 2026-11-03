@@ -262,8 +262,8 @@ describe("패턴 탐지", () => {
   });
 });
 
-describe("사이클: 관측값 → 징후판 → 패턴 알림 (6시간 1회)", () => {
-  it("패턴 medium 이상이면 푸시 1회, 반복 사이클에서는 억제", async () => {
+describe("사이클: 관측값 → 징후판 → 패턴 (2026-11-03부터 패턴은 따로 알리지 않는다)", () => {
+  it("패턴은 잡아서 판정·화면에 넘기지만 휴대폰 알림은 보내지 않는다 — 단계가 바뀌면 단계 알림이 간다", async () => {
     const store = new MemoryStore();
     const calls: string[] = [];
     const f = (async (url: string, init: RequestInit) => {
@@ -276,9 +276,10 @@ describe("사이클: 관측값 → 징후판 → 패턴 알림 (6시간 1회)", 
     ];
     const r1 = await runCycle({ NTFY_TOPIC: "t" }, store, { now: NOW, collect, fetchImpl: f });
     expect(r1.patterns.find((p) => p.id === "launch_prep")!.confidence).toMatch(/medium|high/);
-    expect(r1.alerts.filter((a) => a.kind === "pattern")).toHaveLength(1);
+    expect(r1.alerts.filter((a) => a.kind === "pattern")).toHaveLength(0);
     const r2 = await runCycle({ NTFY_TOPIC: "t" }, store, { now: NOW + 5 * 60_000, collect, fetchImpl: f });
-    expect(r2.alerts.filter((a) => a.kind === "pattern")).toHaveLength(0);
-    expect(calls).toHaveLength(1);
+    expect(r2.patterns.find((p) => p.id === "launch_prep")).toBeTruthy();
+    expect(calls).toHaveLength(0);
+    expect(JSON.parse((await store.getKv("patterns"))!).patterns.length).toBeGreaterThan(0);
   });
 });

@@ -40,7 +40,8 @@ describe("단계 알림 판단", () => {
     const r2 = decidePhaseAlert(r1.state, w(3), NOW + 5 * MIN);
     expect(r2.message?.direction).toBe("up");
     expect(r2.message?.title).toBe("3단계 위기 (약 15%) 나빠짐 · 2단계 긴장에서");
-    expect(r2.message?.body).toMatch(/^지금 한반도 상황 : 3단계 위기 \(나빠짐 : 30일 국지 충돌 약 15%\)\n/);
+    expect(r2.message?.body.split("\n")[0]).toBe("⬆ 나빠짐: 2단계 긴장 → 3단계 위기");
+    expect(r2.message?.body).toMatch(/\n지금 한반도 상황 : 3단계 위기 \(나빠짐 : 30일 국지 충돌 약 15%\)\n/);
     expect(r2.message?.body).toMatch(/평소 약 2%의 8\.3배/);
     expect(r2.message?.priority).toBe(4);
     expect(r2.state.phase).toBe(3);
@@ -128,8 +129,9 @@ describe("알림 본문은 셋 다 같은 모양: 상황(어제 대비) · 무�
     const e: any = { id: "e1", status: "UNVERIFIED", basis: "official_quote", severity: 75, title: '[속보] 합참 "북한, 동해상으로 미상 발사체 발사"', sources: ["yna.co.kr"], categories: ["missile"] };
     const brief: any = { headline: "북한, 미상 발사체 발사 → 동해상", isProvocation: true, danger: { level: 2, label: "주의", reason: "미사일·방사포 발사" }, at: 0 };
     const m = formatAlert({ event: e, kind: "new", reason: "" }, "https://kew.example", brief, { label: "긴장", clash: 3.8, clashAgo: 3.6, phase: 2, phaseAgo: 2 });
-    expect(m.body.split("\n")[0]).toBe("지금 한반도 상황 : 주의 (나빠짐 : 30일 국지 충돌 3.6% → 3.8%)");
+    expect(m.body.split("\n")[0]).toBe("⬆ 나빠짐: 30일 국지 충돌 3.6% → 3.8%");
     expect(m.body.split("\n")[1]).toBe("북한, 미상 발사체 발사 → 동해상");
+    expect(m.body.split("\n")[2]).toBe("지금 한반도 상황 : 주의 (나빠짐 : 30일 국지 충돌 3.6% → 3.8%)");
     expect(m.body.split("\n").at(-1)).toBe("대시보드 : https://kew.example");
     // 판정 기록이 없어도 주소는 들어간다
     expect(formatAlert({ event: e, kind: "new", reason: "" }, "https://kew.example", brief).body).toMatch(/\n대시보드 : https:\/\/kew\.example$/);
@@ -153,5 +155,36 @@ describe("알림 본문은 셋 다 같은 모양: 상황(어제 대비) · 무�
     expect(calls).toHaveLength(1);
     expect(calls[0].body).toMatch(/\n대시보드 : https:\/\/kew\.example$/);
     expect(calls[0].url).toBe("https://kew.example");
+  });
+});
+
+
+describe("테스트와 실제는 첫 글자부터 다르고, 실제 첫 줄은 '바뀐 것'이다 (2026-11-04 #36)", () => {
+  it("바뀐 것 한 줄: 단계 > 확률 > 변화 없음", async () => {
+    const { changeLine } = await import("../src/core/pushtext.js");
+    expect(changeLine({ label: "위기", clash: 15, clashAgo: 3.8, phase: 3, phaseAgo: 2 })).toBe("⬆ 나빠짐: 2단계 긴장 → 3단계 위기");
+    expect(changeLine({ label: "긴장", clash: 3.8, clashAgo: 15, phase: 2, phaseAgo: 3 })).toBe("⬇ 좋아짐: 3단계 위기 → 2단계 긴장");
+    expect(changeLine({ label: "주의", clash: 3.8, clashAgo: 3.6, phase: 2, phaseAgo: 2 })).toBe("⬆ 나빠짐: 30일 국지 충돌 3.6% → 3.8%");
+    expect(changeLine({ label: "긴장", clash: 3.6, clashAgo: 3.62, phase: 2, phaseAgo: 2 })).toBe("● 단계 변화 없음 (긴장, 30일 국지 충돌 약 4%)");
+  });
+  it("실제 알림의 첫 줄은 상황이 아니라 변화다 — 세 경로 모두 같은 함수", async () => {
+    const { pushBody } = await import("../src/core/pushtext.js");
+    const b = pushBody({ label: "주의", clash: 3.8, clashAgo: 3.6, phase: 2, phaseAgo: 2 }, "북한, 미상 발사체 발사", "https://kew.example");
+    expect(b.split("\n")[0]).toMatch(/^[⬆⬇●] /);
+    expect(b.split("\n")[0]).not.toMatch(/^지금 한반도 상황/);
+    expect(b).toMatch(/\n지금 한반도 상황 : /);
+  });
+  it("테스트 알림은 첫 글자부터 테스트이고 실제 알림 틀을 쓰지 않는다 (코드 검사)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync(new URL("../src/worker/index.ts", import.meta.url), "utf8");
+    const block = src.slice(src.indexOf('"/api/test-push"'), src.indexOf('"/api/test-push"') + 1200);
+    expect(block).toMatch(/title: "🧪 테스트 — 실제 상황 아님"/);
+    expect(block).toMatch(/🧪 테스트 알림 — 실제 상황 아님/);
+    expect(block).toMatch(/tag: "kew-test"/);
+    // 테스트 본문은 pushBody(실제 틀)로 만들지 않는다
+    const sendLine = block.slice(block.indexOf("sendPush(env, { title: \"🧪"));
+    expect(sendLine).not.toMatch(/pushBody\(/);
+    // 실제 알림 제목은 '테스트'로 시작하지 않는다 (테스트와 첫 글자부터 구분)
+    expect("주의 · 북한, 미상 발사체 발사 → 동해상 [속보·공식발표 인용]").not.toMatch(/^🧪/);
   });
 });

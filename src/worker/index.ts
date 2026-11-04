@@ -332,7 +332,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const body = sit
       ? pushBody({ ...sit, label }, `[테스트] ${st.threat.level > 1 ? st.threat.summary : "최근 24시간 북한 발사·포격 없음"}`, env.DASHBOARD_URL)
       : `지금 한반도 상황 : ${label}\n[테스트] 연결 확인\n대시보드 : ${env.DASHBOARD_URL ?? ""}`;
-    return json(await sendPush(env, { title: `${label} (약 ${fmtRiskPct(st.warRisk.clash30d.point)}) 테스트`, body, priority: 3, url: env.DASHBOARD_URL }, fetch, store));
+    // 테스트는 첫 글자부터 테스트여야 한다 (2026-11-04: '주의 (약 4%) 테스트' 는 잘리면 실제 악화로 읽혔다). 실제 알림 틀(pushBody)을 쓰지 않는다
+    const testBody = [`🧪 테스트 알림 — 실제 상황 아님`, `연결 확인용입니다. 지금 상황은 평소와 같이 ${label}입니다.`, env.DASHBOARD_URL ? `대시보드 : ${env.DASHBOARD_URL}` : ""].filter(Boolean).join("\n");
+    void body;
+    return json(await sendPush(env, { title: "🧪 테스트 — 실제 상황 아님", body: testBody, priority: 2, url: env.DASHBOARD_URL, tag: "kew-test" }, fetch, store));
   }
   return json({ error: "not found" }, 404);
 }

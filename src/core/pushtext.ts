@@ -37,9 +37,20 @@ export function situationLine(s: Situation): string {
   return `지금 한반도 상황 : ${s.label} (${t} : ${cmp})`;
 }
 
-/** 알림 본문 세 줄: 상황 · 무슨 일 · 대시보드 주소 */
+const NAMES = ["", "평온", "긴장", "위기", "임박", "교전"] as const;
+
+/** 첫 줄: 바뀐 것 하나만. 단계가 바뀌었으면 단계, 아니면 확률, 그것도 없으면 '변화 없음' */
+export function changeLine(s: Situation): string {
+  const t = trendOf(s);
+  if (s.phase !== undefined && s.phaseAgo !== undefined && s.phase !== s.phaseAgo)
+    return `${t === "나빠짐" ? "⬆" : "⬇"} ${t}: ${s.phaseAgo}단계 ${NAMES[s.phaseAgo] ?? ""} → ${s.phase}단계 ${NAMES[s.phase] ?? ""}`;
+  if (s.clashAgo !== undefined && t !== "비슷") return `${t === "나빠짐" ? "⬆" : "⬇"} ${t}: 30일 국지 충돌 ${pct1(s.clashAgo)} → ${pct1(s.clash)}`;
+  return `● 단계 변화 없음 (${s.label}, 30일 국지 충돌 약 ${fmtRiskPct(s.clash)})`;
+}
+
+/** 알림 본문: 바뀐 것 · 무슨 일 · 지금 상황 · 대시보드 주소 — 잠금화면에서 첫 줄만 보여도 무엇이 달라졌는지 읽히게 */
 export function pushBody(s: Situation, what: string, dashboardUrl?: string, extra: string[] = []): string {
-  return [situationLine(s), what, ...extra, dashboardUrl ? `대시보드 : ${dashboardUrl}` : ""].filter(Boolean).join("\n");
+  return [changeLine(s), what, situationLine(s), ...extra, dashboardUrl ? `대시보드 : ${dashboardUrl}` : ""].filter(Boolean).join("\n");
 }
 
 /** 기록된 판정에서 지금·어제 값을 읽는다 (파이프라인은 전쟁 위험을 계산하지 않으므로 5분마다 남긴 기록을 쓴다) */

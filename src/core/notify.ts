@@ -13,6 +13,8 @@ export type Audience = "owner" | "all";
 
 export interface PushMessage {
   audience?: Audience;
+  /** 알림 묶음 — 테스트는 'kew-test' 로 따로 묶여 실제 알림을 덮어쓰지 않는다 */
+  tag?: string;
   title: string;
   body: string;
   /** 1(최저)~5(긴급) */

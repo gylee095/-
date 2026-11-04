@@ -387,6 +387,8 @@ function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평�
   var DO={1:"평소대로 지내면 됩니다.",2:"평소대로 지내면 됩니다. 시간이 날 때 가까운 대피소 위치만 확인해 두세요.",3:"비상용품(물·약·손전등·보조배터리)과 가족 연락 방법을 확인하고, 재난문자 수신을 켜 두세요.",4:"정부·지자체 안내를 따르고 대피소와 이동 경로를 확인하세요.",5:"재난문자·민방위 경보에 따라 바로 대피하세요."};
   h+='<div class="do"><b>지금 할 일</b>'+(DO[w.phase]||DO[2])+' <a href="https://www.safekorea.go.kr" target="_blank" rel="noopener">국민재난안전포털 → 대피소 찾기</a></div>';
   h+=pushCard();
+  var la=(st.alerts||[]).filter(function(a){return a.ok})[0];
+  if(la)h+='<div class="calm">🔔 마지막 알림 '+esc(when(la.sentAt))+' · '+(/테스트/.test(la.title)?'<b>테스트</b>':'<b>실제</b>')+' · '+esc(la.title.slice(0,60))+'</div>';
   var dh=st.dataHealth;
   if(dh){h+='<div class="data"><span class="'+(dh.failing.length?'':'ok')+'">수집 정상 '+dh.ok+'/'+dh.total+'</span><span>마지막 수집 '+ago(st.lastCycle?st.lastCycle.at:st.now)+'</span>'+(dh.learning?'<span>평소를 배우는 중 '+dh.learning+'개</span>':'')+'</div>';
     if(dh.failing.length)h+='<div class="data fail">⚠ 지금 못 받는 것: '+dh.failing.map(function(f){return esc(f.name)+(f.since?' (마지막 성공 '+ago(f.since)+')':'')}).join(", ")+'</div>'}

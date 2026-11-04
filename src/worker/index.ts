@@ -195,6 +195,14 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     return handleMcp(req, env, store);
   }
 
+  // 공개 대시보드 (2026-11-04): 사람들에게 보여 줄 화면은 비밀값 없이 읽는다. 비밀값·연결 주소(setup)와 운영 기록(알림 이력·노트·사용량)만 뺀다.
+  // 5분 주기 데이터라 60초 캐시 — 많은 사람이 열어도 저장소 읽기는 그대로
+  if (url.pathname === "/api/public-state" && req.method === "GET") {
+    const st = await buildState(store, Date.now() - 168 * 3600_000, env.DISABLED_SOURCES);
+    const { alerts: _a, notes: _n, usage: _u, ...pub } = st as typeof st & { setup?: unknown };
+    return new Response(JSON.stringify({ ...pub, public: true }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=60" } });
+  }
+
   const authed = safeEq(req.headers.get("authorization")?.replace(/^Bearer\s+/i, ""), env.KEW_SECRET);
   if (!authed) return json({ error: "unauthorized" }, 401);
 

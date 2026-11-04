@@ -125,8 +125,8 @@ table{width:100%;max-width:100%;table-layout:fixed;border-collapse:collapse;font
 .leaflet-container{background:var(--chip);font:inherit}.leaflet-tooltip{font-weight:700;font-size:12px}.leaflet-control-attribution{font-size:9px!important;line-height:1.2}
 </style></head><body><div class="wrap">
 <div class="top"><b>🇰🇷 한반도 조기경보</b><span id="upd"></span></div>
-<div id="login" class="card"><b>접속 비밀값을 입력하세요</b><input id="tok" type="password" autocomplete="current-password"><button class="btn" onclick="saveTok()">확인</button></div>
 <div id="app"></div>
+<details id="login" class="card" style="display:none"><summary>운영자 로그인</summary><p style="font-size:13px;color:var(--mute)">운영자만 씁니다. 보는 데는 필요 없어요.</p><input id="tok" type="password" autocomplete="current-password" placeholder="접속 비밀값"><button class="btn" onclick="saveTok()">확인</button></details>
 </div>
 <script>
 var $=function(s){return document.querySelector(s)};
@@ -171,14 +171,14 @@ async function testMyPush(){var r=await fetch("/api/test-push",{method:"POST",he
 if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});
 async function load(){
   var st=window.__KEW_STATE__;
-  if(!st){var t=tok();if(!t){$("#login").style.display="block";return}
+  if(!st){var t=tok();
     var r,body=null;
-    try{r=await fetch("/api/state?hours=168",{headers:{authorization:"Bearer "+t}})}catch(e){showErr("서버에 연결하지 못했습니다. 인터넷 연결을 확인하세요.",false);return}
-    if(r.status===401){$("#login").style.display="block";return}
+    try{r=t?await fetch("/api/state?hours=168",{headers:{authorization:"Bearer "+t}}):await fetch("/api/public-state")}catch(e){showErr("서버에 연결하지 못했습니다. 인터넷 연결을 확인하세요.",false);return}
+    if(r.status===401){try{localStorage.removeItem("kew_token")}catch(e){}alert("접속 비밀값이 맞지 않아요. 공개 화면으로 엽니다.");load();return}
     try{body=await r.json()}catch(e){}
     if(!r.ok||!body||body.error){showErr(body&&body.message?body.message:"서버 오류 ("+r.status+") — 잠시 뒤 다시 열어 보세요.",!!body&&body.error==="storage_limit");return}
     st=body}
-  LAST=Date.now();$("#login").style.display="none";ST=st;render()}
+  LAST=Date.now();$("#login").style.display=tok()?"none":"";ST=st;render()}
 // 불러오기 실패: 이미 화면이 있으면 그대로 두고 위에 알리고, 처음이면 이유를 크게 보여 준다 (빈 화면 금지)
 function showErr(msg,limit){$("#login").style.display="none";
   var box='<div class="card" id="err" style="border-left:4px solid #d33"><b>'+(limit?"서버 저장소 하루 한도 초과":"불러오기 실패")+'</b><div style="font-size:14px;margin-top:6px">'+esc(msg)+'</div>'+
@@ -494,7 +494,7 @@ function render(){
   h+=group("auto","자동 해설","규칙 기반 힌트 · 징후 조합"+(pats.length?" "+pats.length+"개":""),au,patLvl>1);
   var sy="";
   // 7) 시스템
-  sy+=safe(usagePanel,st.usage,"Claude 사용량");
+  if(st.usage)sy+=safe(usagePanel,st.usage,"Claude 사용량");
   sy+='<details class="card"><summary>시스템 상태 · 데이터 출처</summary>'+health(st)+'</details>';
   // 지금 쓰는 채널의 실패만 경고한다 (예전 ntfy 실패가 Bark 로 바꾼 뒤에도 남아 있던 문제)
   var chans=((st.setup&&st.setup.pushChannels)||[]).map(function(c){return c.split("(")[0]});
@@ -502,7 +502,7 @@ function render(){
   var lastFail=mine.find(function(a){return !a.ok});var lastOk=mine.find(function(a){return a.ok});
   var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패('+esc(lastFail.channel||"")+') '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+(lastFail.channel==="ntfy"&&chans.indexOf("bark")<0?'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).':'')+'</p>':"";
   var ntfyUi=chans.indexOf("ntfy")>=0&&st.setup?'<p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button>':'';
-  sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+'<p style="font-size:13px">휴대폰 알림은 <b>전쟁 위험 단계가 실제로 바뀔 때</b>(올라가면 5분 주기 두 번 확인 뒤, 내려가면 6시간 이어진 뒤)와 <b>실제 사건</b>(발사 속보·민방위 경보·철수 권고)일 때만 갑니다. 확률 숫자의 작은 흔들림, 징후 조합, 결론이 같은 심층 분석은 화면에만 남깁니다. <b>테스트 푸시와 시스템 경고는 운영자 기기(Bark·운영자 구독)에만</b> 가고, 다른 구독자에게는 실제 알림(단계 변화·사건·심층 분석)만 갑니다. 이 휴대폰: <b id="pushst">확인 중</b></p>'+pushCard()+'<p style="font-size:13px">'+(st.phaseNotify?' 지금 기억한 단계: <b>'+st.phaseNotify.phase+'단계</b> ('+esc(kst(st.phaseNotify.at))+'부터)'+(st.phaseNotify.pending?' · 확인 중: '+st.phaseNotify.pending.phase+'단계':''):'')+'</p>'+(st.setup?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
+  sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+'<p style="font-size:13px">휴대폰 알림은 <b>전쟁 위험 단계가 실제로 바뀔 때</b>(올라가면 5분 주기 두 번 확인 뒤, 내려가면 6시간 이어진 뒤)와 <b>실제 사건</b>(발사 속보·민방위 경보·철수 권고)일 때만 갑니다. 확률 숫자의 작은 흔들림, 징후 조합, 결론이 같은 심층 분석은 화면에만 남깁니다. <b>테스트 푸시와 시스템 경고는 운영자 기기(Bark·운영자 구독)에만</b> 가고, 다른 구독자에게는 실제 알림(단계 변화·사건·심층 분석)만 갑니다. 이 휴대폰: <b id="pushst">확인 중</b></p>'+pushCard()+'<p style="font-size:13px">'+(st.phaseNotify?' 지금 기억한 단계: <b>'+st.phaseNotify.phase+'단계</b> ('+esc(kst(st.phaseNotify.at))+'부터)'+(st.phaseNotify.pending?' · 확인 중: '+st.phaseNotify.pending.phase+'단계':''):'')+'</p>'+(st.setup&&tok()?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
   h+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
@@ -574,7 +574,7 @@ function sources(e,open){var s=e.signals.slice().sort(function(a,b){return (b.pu
 function storage(st){var u=st.storage;if(!u)return "";var m=function(n){return n>=10000?Math.round(n/10000)+"만":String(n)};
   var pr=Math.round(u.read/u.limitRead*100),pw=Math.round(u.written/u.limitWritten*100);
   return '<p style="font-size:13px">서버 저장소 오늘 사용 (무료 한도, 오전 9시 초기화): 읽기 '+m(u.read)+'/500만 행 ('+pr+'%) · 쓰기 '+m(u.written)+'/10만 행 ('+pw+'%)'+(Math.max(pr,pw)>=70?' <b class="bad">한도 주의</b>':'')+'</p>'}
-function health(st){return storage(st)+'<p style="font-size:13px">마지막 수집 '+(st.lastCycle?ago(st.lastCycle.at):"없음")+' <button class="btn" id="runbtn" onclick="runNow()">지금 수집</button></p><table>'+st.sources.map(function(s){var h=st.health.find(function(x){return x.source===s.id});
+function health(st){return storage(st)+'<p style="font-size:13px">마지막 수집 '+(st.lastCycle?ago(st.lastCycle.at):"없음")+' '+(tok()?'<button class="btn" id="runbtn" onclick="runNow()">지금 수집</button>':'')+'</p><table>'+st.sources.map(function(s){var h=st.health.find(function(x){return x.source===s.id});
   var stt=!h?'<span>대기</span>':h.skipped?'<span>꺼짐 <small>'+esc(h.skipped).slice(0,40)+'</small></span>':h.ok?'<span class="ok">정상</span>'+(h.error?' <small class="bad">'+esc(h.error).slice(0,50)+'</small>':''):'<span class="bad">오류</span> <small>'+esc(h.error||"").slice(0,60)+'</small>';
   return '<tr><td>'+esc(s.name)+'<br><small>'+esc(s.latency)+'</small></td><td>'+stt+'<br><small>'+(h?ago(h.fetchedAt):"")+'</small></td></tr>'}).join("")+'</table>'}
 function drawMap(b){var el=$("#map");if(!el||!window.L)return;if(map){map.remove();map=null}

@@ -1,6 +1,8 @@
 // Cloudflare Worker: 5분 크론 감시 사이클 + 원격 MCP 커넥터 + 모바일 대시보드
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
+import { pushBody, situationFromRecords } from "../core/pushtext.js";
+import { fmtRiskPct } from "../core/warrisk.js";
 import { SCHEDULE } from "../core/sources.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { Env as CoreEnv } from "../core/types.js";
@@ -285,7 +287,14 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     }
   }
   if (url.pathname === "/api/test-push" && req.method === "POST") {
-    return json(await sendPush(env, { title: "[테스트] Korea Early Warning", body: "아이폰 푸시 연결 테스트입니다.", priority: 3, url: env.DASHBOARD_URL }));
+    // 테스트 푸시도 실제 알림과 같은 모양으로 — 지금 상황·어제 대비·대시보드 주소 (2026-11-04)
+    const st = await buildState(store, Date.now() - 24 * 3600_000, env.DISABLED_SOURCES);
+    const sit = await situationFromRecords(store, Date.now(), `${st.warRisk.phase}단계 ${st.warRisk.phaseLabel}`);
+    const label = st.threat.level > 1 ? st.threat.label : `${st.warRisk.phase}단계 ${st.warRisk.phaseLabel}`;
+    const body = sit
+      ? pushBody({ ...sit, label }, `[테스트] ${st.threat.level > 1 ? st.threat.summary : "최근 24시간 북한 발사·포격 없음"}`, env.DASHBOARD_URL)
+      : `지금 한반도 상황 : ${label}\n[테스트] 연결 확인\n대시보드 : ${env.DASHBOARD_URL ?? ""}`;
+    return json(await sendPush(env, { title: `${label} (약 ${fmtRiskPct(st.warRisk.clash30d.point)}) 테스트`, body, priority: 3, url: env.DASHBOARD_URL }));
   }
   return json({ error: "not found" }, 404);
 }

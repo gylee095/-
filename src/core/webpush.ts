@@ -157,13 +157,17 @@ export async function loadSubs(store: Pick<Store, "getKv">): Promise<StoredSub[]
 }
 
 /** 구독 추가 (같은 주소는 하나만) */
-export async function addSub(store: Pick<Store, "getKv" | "setKv">, sub: PushSubscriptionJson, who: string, now: number): Promise<{ count: number }> {
+export async function addSub(store: Pick<Store, "getKv" | "setKv">, sub: PushSubscriptionJson, who: string, now: number): Promise<{ count: number; who: string }> {
   if (!sub?.endpoint?.startsWith("https://") || !sub.keys?.p256dh || !sub.keys?.auth) throw new Error("구독 정보 형식 오류");
-  const subs = (await loadSubs(store)).filter((s) => s.endpoint !== sub.endpoint);
-  subs.push({ endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth }, at: now, who });
+  const all = await loadSubs(store);
+  const prev = all.find((s) => s.endpoint === sub.endpoint);
+  const subs = all.filter((s) => s.endpoint !== sub.endpoint);
+  // 같은 기기가 로그인 뒤 다시 등록하면 owner 로 올린다. owner 였던 것을 public 으로 내리지는 않는다 (로그아웃 상태로 다시 눌러도)
+  const finalWho = prev?.who === "owner" ? "owner" : who;
+  subs.push({ endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth }, at: prev?.at ?? now, who: finalWho });
   if (subs.length > MAX_SUBS) subs.splice(0, subs.length - MAX_SUBS);
   await store.setKv(SUBS_KEY, JSON.stringify(subs));
-  return { count: subs.length };
+  return { count: subs.length, who: finalWho };
 }
 
 export async function removeSub(store: Pick<Store, "getKv" | "setKv">, endpoint: string): Promise<{ count: number }> {

@@ -1,7 +1,7 @@
 // Cloudflare Worker: 5분 크론 감시 사이클 + 원격 MCP 커넥터 + 모바일 대시보드
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
-import { addSub, loadVapid, removeSub, type PushSubscriptionJson } from "../core/webpush.js";
+import { addSub, loadSubs, loadVapid, removeSub, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
 import { fmtRiskPct } from "../core/warrisk.js";
@@ -217,6 +217,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
         pushChannels: pushChannels(env),
       },
     });
+  }
+  if (url.pathname === "/api/push/subs" && req.method === "GET") {
+    const subs = await loadSubs(store);
+    return json({ total: subs.length, owner: subs.filter((s) => s.who === "owner").length, public: subs.filter((s) => s.who !== "owner").length });
   }
   if (url.pathname === "/api/run" && req.method === "POST") {
     const body = (await req.json().catch(() => ({}))) as { only?: string[]; dryRun?: boolean };

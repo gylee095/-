@@ -145,3 +145,16 @@ describe("받는 사람 범위: 테스트·시스템 경고는 절대 공개 구
     for (const p of ["worker/index.ts", "mcp/tools.ts"]) expect(src(p), p).not.toMatch(/audience: "all"/);
   });
 });
+
+describe("같은 기기가 다시 등록하면 운영자로 올라간다 (11/4: 알림 켜기 → 로그인 순서라 public 으로 남았다)", () => {
+  it("public → owner 로 올라가고, owner 는 public 으로 내려가지 않는다; 등록 시각은 처음 것", async () => {
+    const store = new MemoryStore();
+    const a = await fakeBrowser();
+    expect((await addSub(store, a.sub, "public", 1)).who).toBe("public");
+    expect((await addSub(store, a.sub, "owner", 2)).who).toBe("owner");
+    expect((await addSub(store, a.sub, "public", 3)).who).toBe("owner");
+    const [s] = await loadSubs(store);
+    expect(s).toMatchObject({ who: "owner", at: 1 });
+    expect(await loadSubs(store)).toHaveLength(1);
+  });
+});

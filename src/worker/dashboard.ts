@@ -140,7 +140,10 @@ function kday(ms){var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.
 function bwhen(b){return b.selfReport?kday(b.selfReport.day)+" (시각 미상)":kst(b.at)+" KST"}
 function bago(b){if(!b.selfReport)return ago(b.at);var n=Math.round((Date.now()-b.selfReport.day)/86400000-0.5);return n<=0?"오늘":n===1?"어제":n+"일 전"}
 function tok(){try{var q=new URLSearchParams(location.search).get("key");if(q){localStorage.setItem("kew_token",q);history.replaceState(null,"",location.pathname+location.hash)}return localStorage.getItem("kew_token")}catch(e){return null}}
-function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch(e){}load()}
+function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch(e){}resyncPush();load()}
+// 로그인 뒤: 이미 켜 둔 알림 구독을 토큰과 함께 다시 등록해 운영자 구독으로 올린다 (켜기 → 로그인 순서여도 되게)
+async function resyncPush(){try{var t=tok();if(!t||!pushSupport().ok)return;var reg=await navigator.serviceWorker.getRegistration();var sub=reg&&await reg.pushManager.getSubscription();if(!sub)return;
+  await fetch("/api/push/subscribe",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+t},body:JSON.stringify({subscription:sub.toJSON()})})}catch(e){}}
 var STATUS={CONFIRMED:"정부 공식확인",CORROBORATED:"복수 출처 교차확인",UNVERIFIED:"단일 출처"};
 var CONF={high:"신뢰도 높음",medium:"신뢰도 보통",low:"신뢰도 낮음"};
 function basisText(e){if(e.brief&&e.brief.sourceLabel)return e.brief.sourceLabel;if(e.basis==="official_quote")return e.status==="CORROBORATED"?"언론 "+e.sources.length+"곳이 공식발표 인용":"속보 1곳 (교차확인 전)";if(e.basis==="media")return "언론 보도만";return STATUS[e.status]}
@@ -178,7 +181,7 @@ async function load(){
     try{body=await r.json()}catch(e){}
     if(!r.ok||!body||body.error){showErr(body&&body.message?body.message:"서버 오류 ("+r.status+") — 잠시 뒤 다시 열어 보세요.",!!body&&body.error==="storage_limit");return}
     st=body}
-  LAST=Date.now();$("#login").style.display=tok()?"none":"";ST=st;render()}
+  LAST=Date.now();$("#login").style.display=tok()?"none":"";ST=st;render();if(tok()&&!window.__pushSynced){window.__pushSynced=1;resyncPush()}}
 // 불러오기 실패: 이미 화면이 있으면 그대로 두고 위에 알리고, 처음이면 이유를 크게 보여 준다 (빈 화면 금지)
 function showErr(msg,limit){$("#login").style.display="none";
   var box='<div class="card" id="err" style="border-left:4px solid #d33"><b>'+(limit?"서버 저장소 하루 한도 초과":"불러오기 실패")+'</b><div style="font-size:14px;margin-top:6px">'+esc(msg)+'</div>'+

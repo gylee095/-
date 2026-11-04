@@ -90,7 +90,7 @@ export async function notifyPhaseChange(
     await store.setKv(PHASE_STATE_KEY, JSON.stringify(state));
     return { state };
   }
-  const res = await sendPush(env, { title: message.title, body: message.body, priority: message.priority, url: env.DASHBOARD_URL }, fetchImpl, store);
+  const res = await sendPush(env, { audience: "all", title: message.title, body: message.body, priority: message.priority, url: env.DASHBOARD_URL }, fetchImpl, store);
   const ok = res.some((r) => r.ok);
   const error = res.filter((r) => !r.ok).map((r) => `${r.channel}: ${r.error}`).join("; ") || undefined;
   await store.logAlert({ eventId: `phase:${w.phase}`, sentAt: now, status: "CONFIRMED", severity: w.phase * 20, title: message.title, body: message.body, channel: res.map((r) => r.channel).join(","), ok, ...(error ? { error } : {}) });

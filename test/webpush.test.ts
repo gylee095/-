@@ -114,3 +114,34 @@ describe("구독 저장과 묶음 발송", () => {
     await expect(addSub(store, { endpoint: "http://x", keys: { p256dh: "a", auth: "b" } }, "public", 1)).rejects.toThrow(/형식/);
   });
 });
+
+describe("받는 사람 범위: 테스트·시스템 경고는 절대 공개 구독자에게 가지 않는다 (2026-11-04)", () => {
+  async function twoSubs() {
+    const store = new MemoryStore();
+    const owner = await fakeBrowser(), pub = await fakeBrowser();
+    pub.sub.endpoint = "https://push.example/send/public-1";
+    await addSub(store, owner.sub, "owner", 1);
+    await addSub(store, pub.sub, "public", 2);
+    const hit: string[] = [];
+    const f = (async (u: string) => { hit.push(u); return new Response("{}", { status: 201 }); }) as unknown as typeof fetch;
+    return { store, owner, pub, hit, f };
+  }
+  it("audience 를 안 적으면(테스트 푸시·시스템 경고) 운영자 구독에만 간다", async () => {
+    const { store, owner, pub, hit, f } = await twoSubs();
+    await sendPush({ DASHBOARD_URL: "https://kew.example" } as any, { title: "테스트", body: "b", priority: 3 }, f, store);
+    expect(hit).toContain(owner.sub.endpoint);
+    expect(hit).not.toContain(pub.sub.endpoint);
+  });
+  it("audience: all 인 실제 알림만 공개 구독자에게 간다", async () => {
+    const { store, owner, pub, hit, f } = await twoSubs();
+    await sendPush({ DASHBOARD_URL: "https://kew.example" } as any, { audience: "all", title: "3단계 위기", body: "b", priority: 4 }, f, store);
+    expect(hit).toContain(owner.sub.endpoint);
+    expect(hit).toContain(pub.sub.endpoint);
+  });
+  it("실제 알림 경로(사건·단계·심층 분석)만 all 을 쓴다 — 코드 검사", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = (p: string) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
+    for (const p of ["core/pipeline.ts", "core/phasealert.ts", "mcp/tools_deep.ts"]) expect(src(p), p).toMatch(/audience: "all"/);
+    for (const p of ["worker/index.ts", "mcp/tools.ts"]) expect(src(p), p).not.toMatch(/audience: "all"/);
+  });
+});

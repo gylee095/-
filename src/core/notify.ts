@@ -8,7 +8,11 @@ import type { Store } from "./store.js";
 import { broadcastWebPush } from "./webpush.js";
 import type { Env } from "./types.js";
 
+/** 누구에게 가나. owner = 운영자(Bark·운영자 웹 푸시)만, all = 공개 구독자까지. 기본 owner — 테스트·시스템 경고가 사람들에게 가는 사고를 구조로 막는다 (2026-11-04) */
+export type Audience = "owner" | "all";
+
 export interface PushMessage {
+  audience?: Audience;
   title: string;
   body: string;
   /** 1(최저)~5(긴급) */
@@ -66,7 +70,8 @@ export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof
     tasks.push(
       (async () => {
         try {
-          const r = await broadcastWebPush(store, env.DASHBOARD_URL ?? "https://korea-early-warning.gylee-30d.workers.dev", { title: msg.title, body: msg.body, url: msg.url, tag: "kew" }, fetchImpl);
+          const aud: Audience = msg.audience ?? "owner";
+          const r = await broadcastWebPush(store, env.DASHBOARD_URL ?? "https://korea-early-warning.gylee-30d.workers.dev", { title: msg.title, body: msg.body, url: msg.url, tag: "kew" }, fetchImpl, aud === "all" ? undefined : (s) => s.who === "owner");
           if (!r.total) return { channel: "webpush", ok: false, error: "구독자 없음", skipped: true } as PushResult;
           return { channel: "webpush", ok: r.sent > 0, error: r.sent ? undefined : `${r.failed}건 실패` };
         } catch (e) {

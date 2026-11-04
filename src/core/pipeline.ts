@@ -230,7 +230,7 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
     let error: string | undefined;
     let channel = "dry-run";
     if (!opts.dryRun) {
-      const res = await sendPush(env, { ...msg, url: env.DASHBOARD_URL ? `${env.DASHBOARD_URL}#${d.event.id}` : undefined }, opts.fetchImpl, store);
+      const res = await sendPush(env, { ...msg, audience: "all", url: env.DASHBOARD_URL ? `${env.DASHBOARD_URL}#${d.event.id}` : undefined }, opts.fetchImpl, store);
       ok = res.some((r) => r.ok);
       error = res.filter((r) => !r.ok).map((r) => `${r.channel}: ${r.error}`).join("; ") || undefined;
       channel = res.map((r) => r.channel).join(",");

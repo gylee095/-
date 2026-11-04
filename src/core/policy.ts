@@ -2,6 +2,7 @@
 import type { EventBrief } from "./brief.js";
 import type { AlertRecord, CrisisEvent, EventStatus } from "./types.js";
 import { statusRank } from "./correlate.js";
+import { pushBody, type Situation } from "./pushtext.js";
 
 export const THRESHOLDS: Record<EventStatus, number> = {
   CONFIRMED: 60,
@@ -88,6 +89,7 @@ export function formatAlert(
   d: AlertDecision,
   dashboardUrl?: string,
   brief?: EventBrief,
+  situation?: Situation,
 ): { title: string; body: string; priority: number } {
   const e = d.event;
   const label =
@@ -97,16 +99,19 @@ export function formatAlert(
   const what = brief?.isProvocation ? brief.headline : e.title;
   const danger = brief && brief.danger.level > 1 ? `${brief.danger.label} · ` : "";
   const title = (d.kind === "correction" ? `${prefix} ${what}` : `${danger}${what} ${prefix}`).slice(0, 120);
-  const body = [
-    d.kind === "correction" ? "앞서 알린 사건이 정정·해제되었습니다." : brief ? `위험도 ${brief.danger.label} (${brief.danger.reason}) · 출처 ${e.sources.join(", ")}` : `심각도 ${e.severity}/100 · 출처 ${e.sources.join(", ")}`,
+  const detail = [
+    d.kind === "correction" ? "앞서 알린 사건이 정정·해제되었습니다." : "",
     brief?.isProvocation && brief.headline !== e.title ? `원문: ${e.title}` : "",
+    `출처 ${e.sources.join(", ")}`,
     e.status === "UNVERIFIED" && e.basis !== "official_quote" ? "⚠ 단일 출처 미확인 신호입니다. 공식 발표를 확인하세요." : "",
     e.status === "UNVERIFIED" && e.basis === "official_quote" ? "언론사 1곳의 속보 기준이며 아직 교차확인 전입니다." : "",
     e.basis === "official_quote" && e.status !== "UNVERIFIED" ? "공식 발표를 인용한 복수 언론 보도 기준입니다 (원문 직접 확인 아님)." : "",
-    dashboardUrl ? `${dashboardUrl}#${e.id}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  ].filter(Boolean);
+  // 본문: 지금 상황(어제 대비) · 무슨 일 · 대시보드 주소 (2026-11-04). 판정 기록이 없으면 사건 위험도만 쓴다
+  const sitLabel = brief && brief.danger.level > 1 ? brief.danger.label : situation?.label ?? "확인 중";
+  const body = situation
+    ? pushBody({ ...situation, label: sitLabel }, what, dashboardUrl, detail)
+    : [`지금 한반도 상황 : ${sitLabel}`, what, ...detail, dashboardUrl ? `대시보드 : ${dashboardUrl}` : ""].filter(Boolean).join("\n");
   const priority = d.kind === "correction" ? 4 : e.severity >= 85 ? 5 : e.severity >= 70 ? 4 : 3;
   return { title, body, priority };
 }

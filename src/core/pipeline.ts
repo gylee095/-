@@ -10,6 +10,7 @@ import { sendPush } from "./notify.js";
 import { INDICATORS, INDICATOR_BY_ID, addToDay, dayBaseline, evaluate, kstDay, slotKey, updateBaseline, type Baseline, type DayHistory } from "./indicators.js";
 import { detectPatterns, type Pattern } from "./patterns.js";
 import { hash } from "./util.js";
+import { situationFromRecords } from "./pushtext.js";
 
 export const LOOKBACK_MS = 72 * 3600_000;
 /** 같은 패턴은 이 간격 안에서 한 번만 알린다 (신뢰도가 올라가면 다시 알림) */
@@ -221,9 +222,10 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
   const { send, suppressed } = decideAlerts(events, history, now);
 
   const alerts: CycleReport["alerts"] = [];
+  const situation = send.length ? await situationFromRecords(store, now, "확인 중").catch(() => undefined) : undefined;
   for (const d of send) {
     const ids = new Set(d.event.signalIds);
-    const msg = formatAlert(d, env.DASHBOARD_URL, briefEvent(d.event, signals.filter((s) => ids.has(s.id))));
+    const msg = formatAlert(d, env.DASHBOARD_URL, briefEvent(d.event, signals.filter((s) => ids.has(s.id))), situation);
     let ok = true;
     let error: string | undefined;
     let channel = "dry-run";

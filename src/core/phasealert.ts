@@ -8,6 +8,7 @@ import type { Phase, WarRisk } from "./warrisk.js";
 import { fmtRiskPct } from "./warrisk.js";
 import type { Store } from "./store.js";
 import { sendPush, type PushEnv } from "./notify.js";
+import { pushBody, situationFromRecords } from "./pushtext.js";
 
 /** 올라간 단계는 이만큼 이어져야 알린다 (5분 주기 두 번 — 한 번 튄 값으로 울리지 않게). 사건 자체는 사건 알림이 바로 간다 */
 export const UP_CONFIRM_CHECKS = 2;
@@ -37,7 +38,7 @@ const NAMES = ["", "평온", "긴장", "위기", "임박", "교전"] as const;
 const kstDay = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
 
 /** 지금 단계를 보고 알릴지 정한다 — 상태를 바꾼 새 값과(있으면) 보낼 알림을 돌려준다 */
-export function decidePhaseAlert(prev: PhaseNotifyState | undefined, w: Pick<WarRisk, "phase" | "phaseLabel" | "clash30d" | "usual" | "phaseReasons" | "tripwires"> & { vsUsual?: number }, now: number): { state: PhaseNotifyState; message?: PhaseMessage } {
+export function decidePhaseAlert(prev: PhaseNotifyState | undefined, w: Pick<WarRisk, "phase" | "phaseLabel" | "clash30d" | "usual" | "phaseReasons" | "tripwires"> & { vsUsual?: number }, now: number, opts?: { dashboardUrl?: string; clashAgo?: number }): { state: PhaseNotifyState; message?: PhaseMessage } {
   // 처음: 지금 단계를 기억만 한다 (배포하자마자 '바뀜' 알림이 나가지 않게)
   if (!prev) return { state: { phase: w.phase, at: now } };
   const base: PhaseNotifyState = { ...prev, sent: { ...(prev.sent ?? {}) } };
@@ -54,28 +55,28 @@ export function decidePhaseAlert(prev: PhaseNotifyState | undefined, w: Pick<War
   // 단계는 바꿔 기억하되, 하루 한도를 넘으면 알림은 보내지 않는다
   const state: PhaseNotifyState = { phase: w.phase, at: now, sent: { ...Object.fromEntries(Object.entries(base.sent!).filter(([d]) => d >= kstDay(now - 7 * 86400_000))), [day]: sentToday + 1 } };
   if (sentToday >= PHASE_ALERTS_PER_DAY) return { state: { ...state, sent: { ...state.sent, [day]: sentToday } } };
-  return { state, message: phaseMessage(prev.phase, w, up) };
+  return { state, message: phaseMessage(prev.phase, w, up, opts) };
 }
 
-export function phaseMessage(from: Phase, w: Pick<WarRisk, "phase" | "phaseLabel" | "clash30d" | "usual" | "phaseReasons" | "tripwires"> & { vsUsual?: number }, up: boolean): PhaseMessage {
+export function phaseMessage(from: Phase, w: Pick<WarRisk, "phase" | "phaseLabel" | "clash30d" | "usual" | "phaseReasons" | "tripwires"> & { vsUsual?: number }, up: boolean, opts?: { dashboardUrl?: string; clashAgo?: number }): PhaseMessage {
   const ratio = w.vsUsual ?? w.clash30d.point / w.usual.clash;
   const times = ratio < 1.15 ? "평소 수준" : `평소의 ${ratio < 10 ? (Math.abs(ratio - Math.round(ratio)) < 0.05 ? Math.round(ratio) : ratio.toFixed(1)) : Math.round(ratio)}배`;
   // 제목은 중요한 것부터: 지금 단계 · 확률 · 방향 (예: "3단계 위기 (약 15%) 나빠짐 · 2단계에서")
   const title = `${w.phase}단계 ${w.phaseLabel} (약 ${fmtRiskPct(w.clash30d.point)}) ${up ? "나빠짐" : "좋아짐"} · ${from}단계 ${NAMES[from]}에서`;
-  const lines = [
-    `앞으로 30일 남북 무력 충돌 가능성 약 ${fmtRiskPct(w.clash30d.point)} (${times}, 평소 약 ${fmtRiskPct(w.usual.clash)})`,
-    w.phaseReasons.length ? `이유: ${w.phaseReasons.slice(0, 2).join(" / ")}` : "",
+  const what = w.phaseReasons.length ? w.phaseReasons[0] : up ? "전쟁 위험 단계가 올라갔습니다." : "6시간 넘게 낮은 단계가 이어졌습니다.";
+  const extra = [
+    `평소 약 ${fmtRiskPct(w.usual.clash)}의 ${times.replace("평소의 ", "")}`,
     up && w.tripwires.length ? `다음에 볼 것: ${w.tripwires[0]}` : "",
-    up ? "전쟁 위험 단계가 올라갔습니다." : "6시간 넘게 낮은 단계가 이어져 알립니다.",
   ];
-  return { title, body: lines.filter(Boolean).join("\n"), priority: up ? (w.phase >= 4 ? 5 : w.phase >= 3 ? 4 : 3) : 2, direction: up ? "up" : "down" };
+  const body = pushBody({ label: `${w.phase}단계 ${w.phaseLabel}`, clash: w.clash30d.point, clashAgo: opts?.clashAgo, phase: w.phase, phaseAgo: from }, what, opts?.dashboardUrl, extra);
+  return { title, body, priority: up ? (w.phase >= 4 ? 5 : w.phase >= 3 ? 4 : 3) : 2, direction: up ? "up" : "down" };
 }
 
 export const PHASE_STATE_KEY = "risk:phase_notify";
 
 /** 5분마다: 단계가 실제로 바뀌었으면 알린다. 보내기 실패는 다음 주기에 다시 (세 번까지) */
 export async function notifyPhaseChange(
-  store: Pick<Store, "getKv" | "setKv" | "logAlert">,
+  store: Store,
   env: PushEnv & { DASHBOARD_URL?: string },
   w: WarRisk,
   now: number,
@@ -83,7 +84,8 @@ export async function notifyPhaseChange(
 ): Promise<{ sent?: PhaseMessage; ok?: boolean; state: PhaseNotifyState }> {
   const raw = await store.getKv(PHASE_STATE_KEY);
   const prev = raw ? (JSON.parse(raw) as PhaseNotifyState & { fails?: number }) : undefined;
-  const { state, message } = decidePhaseAlert(prev, w, now);
+  const ago = await situationFromRecords(store as Store, now, "").catch(() => undefined);
+  const { state, message } = decidePhaseAlert(prev, w, now, { dashboardUrl: env.DASHBOARD_URL, clashAgo: ago?.clashAgo });
   if (!message) {
     await store.setKv(PHASE_STATE_KEY, JSON.stringify(state));
     return { state };

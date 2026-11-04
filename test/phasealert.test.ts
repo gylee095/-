@@ -40,7 +40,8 @@ describe("단계 알림 판단", () => {
     const r2 = decidePhaseAlert(r1.state, w(3), NOW + 5 * MIN);
     expect(r2.message?.direction).toBe("up");
     expect(r2.message?.title).toBe("3단계 위기 (약 15%) 나빠짐 · 2단계 긴장에서");
-    expect(r2.message?.body).toMatch(/약 15% \(평소의 8\.3배, 평소 약 2%\)/);
+    expect(r2.message?.body).toMatch(/^지금 한반도 상황 : 3단계 위기 \(나빠짐 : 30일 국지 충돌 약 15%\)\n/);
+    expect(r2.message?.body).toMatch(/평소 약 2%의 8\.3배/);
     expect(r2.message?.priority).toBe(4);
     expect(r2.state.phase).toBe(3);
   });
@@ -118,5 +119,39 @@ describe("알림 제목은 중요한 것부터 (2026-11-03)", () => {
     const brief: any = { headline: "북한, 탄도미사일 약 10 발 발사 → 동해", isProvocation: true, danger: { level: 3, label: "경계", reason: "탄도미사일 발사" }, at: 0 };
     expect(formatAlert({ event: e, kind: "new", reason: "" }, undefined, brief).title).toBe("경계 · 북한, 탄도미사일 약 10 발 발사 → 동해 [속보·공식발표 인용]");
     expect(formatAlert({ event: e, kind: "correction", reason: "" }, undefined, brief).title).toMatch(/^\[정정\] /);
+  });
+});
+
+describe("알림 본문은 셋 다 같은 모양: 상황(어제 대비) · 무슨 일 · 대시보드 주소 (2026-11-04)", () => {
+  it("사건 알림 — 11/4 발사 속보처럼", async () => {
+    const { formatAlert } = await import("../src/core/policy.js");
+    const e: any = { id: "e1", status: "UNVERIFIED", basis: "official_quote", severity: 75, title: '[속보] 합참 "북한, 동해상으로 미상 발사체 발사"', sources: ["yna.co.kr"], categories: ["missile"] };
+    const brief: any = { headline: "북한, 미상 발사체 발사 → 동해상", isProvocation: true, danger: { level: 2, label: "주의", reason: "미사일·방사포 발사" }, at: 0 };
+    const m = formatAlert({ event: e, kind: "new", reason: "" }, "https://kew.example", brief, { label: "긴장", clash: 3.8, clashAgo: 3.6, phase: 2, phaseAgo: 2 });
+    expect(m.body.split("\n")[0]).toBe("지금 한반도 상황 : 주의 (나빠짐 : 30일 국지 충돌 3.6% → 3.8%)");
+    expect(m.body.split("\n")[1]).toBe("북한, 미상 발사체 발사 → 동해상");
+    expect(m.body.split("\n").at(-1)).toBe("대시보드 : https://kew.example");
+    // 판정 기록이 없어도 주소는 들어간다
+    expect(formatAlert({ event: e, kind: "new", reason: "" }, "https://kew.example", brief).body).toMatch(/\n대시보드 : https:\/\/kew\.example$/);
+  });
+  it("나빠짐·좋아짐·비슷 판정", async () => {
+    const { trendOf, situationLine } = await import("../src/core/pushtext.js");
+    expect(trendOf({ label: "", clash: 3.8, clashAgo: 3.6 })).toBe("나빠짐");
+    expect(trendOf({ label: "", clash: 3.6, clashAgo: 3.8 })).toBe("좋아짐");
+    expect(trendOf({ label: "", clash: 3.62, clashAgo: 3.6 })).toBe("비슷");
+    expect(trendOf({ label: "", clash: 15, clashAgo: 3.8, phase: 3, phaseAgo: 2 })).toBe("나빠짐");
+    expect(situationLine({ label: "긴장", clash: 3.6 })).toBe("지금 한반도 상황 : 긴장 (비슷 : 30일 국지 충돌 약 4%)");
+  });
+  it("5분 주기 단계 알림 본문에도 대시보드 주소가 들어간다", async () => {
+    const store = new MemoryStore();
+    const env2 = { BARK_KEY: "k", DASHBOARD_URL: "https://kew.example" } as any;
+    const calls: any[] = [];
+    const f = (async (_u: string, init: any) => { calls.push(JSON.parse(init.body)); return new Response("{}", { status: 200 }); }) as unknown as typeof fetch;
+    await notifyPhaseChange(store, env2, w(2), NOW, f);
+    await notifyPhaseChange(store, env2, w(3), NOW + 5 * MIN, f);
+    await notifyPhaseChange(store, env2, w(3), NOW + 10 * MIN, f);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].body).toMatch(/\n대시보드 : https:\/\/kew\.example$/);
+    expect(calls[0].url).toBe("https://kew.example");
   });
 });

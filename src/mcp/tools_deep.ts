@@ -7,6 +7,7 @@ import { buildState } from "../core/state.js";
 import { sendPush } from "../core/notify.js";
 import { addUsage, deepPushDecision, loadMonthUsage, type DeepRequestNote } from "../core/deep.js";
 import { loadSeries } from "../core/history.js";
+import { pushBody } from "../core/pushtext.js";
 import { fmtKst } from "../core/util.js";
 
 const out = (data: unknown) => ({ content: [{ type: "text" as const, text: typeof data === "string" ? data : JSON.stringify(data, null, 2) }] });
@@ -107,7 +108,7 @@ export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Sto
         if (a.notify && decision.push) {
           push = await sendPush(env, {
             title: `${a.war_phase}단계 ${["", "평온", "긴장", "위기", "임박", "교전"][a.war_phase] ?? ""} (약 ${a.p_clash_30d}%) · ${decision.why} · ${a.title}`.slice(0, 120),
-            body: `${a.summary.slice(0, 220)}\n30일 국지 충돌 ${a.p_clash_30d}% · 전면전 ${a.p_war_30d}%`,
+            body: pushBody({ label: `${a.war_phase}단계 ${["", "평온", "긴장", "위기", "임박", "교전"][a.war_phase] ?? ""}`, clash: a.p_clash_30d, clashAgo: prevReport?.p_clash_30d, phase: a.war_phase, phaseAgo: prevReport?.war_phase }, a.summary.slice(0, 220), env.DASHBOARD_URL, [`전면전 ${a.p_war_30d}%`]),
             priority: a.war_phase >= 4 ? 5 : a.war_phase >= 3 ? 4 : 3,
             url: env.DASHBOARD_URL,
           });

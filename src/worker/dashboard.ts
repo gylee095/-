@@ -134,6 +134,7 @@ var ST=null, map=null, LAST=0;
 function ago(ms){var d=Math.max(0,Date.now()-ms),m=Math.floor(d/60000);if(m<1)return "방금";if(m<60)return m+"분 전";var h=Math.floor(m/60);if(h<3)return h+"시간 "+(m%60)+"분 전";if(h<24)return h+"시간 전";var dd=Math.floor(h/24);return dd<2?dd+"일 "+(h%24)+"시간 전":dd+"일 전"}
 function fresh(ms){var h=(Date.now()-ms)/3600000;return h<1?"f":h<24?"w":"o"}
 function kst(ms){if(!ms)return "—";var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()+" "+String(d.getUTCHours()).padStart(2,"0")+":"+String(d.getUTCMinutes()).padStart(2,"0")}
+function when(ms){if(!ms)return "—";return kst(ms)+" · "+ago(ms)}
 function kday(ms){var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()}
 function bwhen(b){return b.selfReport?kday(b.selfReport.day)+" (시각 미상)":kst(b.at)+" KST"}
 function bago(b){if(!b.selfReport)return ago(b.at);var n=Math.round((Date.now()-b.selfReport.day)/86400000-0.5);return n<=0?"오늘":n===1?"어제":n+"일 전"}
@@ -337,7 +338,7 @@ function gauge(w){var names=["평온","긴장","위기","임박","교전"],rng=[
   return h}
 // 첫 화면 한 장: 지금 단계 · 30일 국지 충돌 확률 · 어제와 비교 · 왜 · 오를 조건 · 마지막 도발 · 클로드 의견 · 할 일 · 데이터 상태 (2026-11-02)
 function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평온","긴장","위기","임박","교전"],LV=["평소","주의","경계","심각"];
-  var h='<div class="card sum"><div class="lead">지금 한반도 · 자동 판정 · '+ago(w.at)+'</div>';
+  var h='<div class="card sum"><div class="lead">지금 한반도 · 자동 판정 '+esc(when(w.at))+'</div>';
   h+='<div class="phase"><b>'+w.phase+'단계 '+esc(w.phaseLabel)+'</b><span>5단계 중 · 1953년 이후 전면전 없음</span></div>';
   h+=gauge(w);
   if(c&&c.headline){var vd=c.verdict==="worse"?["up","▲ 나빠짐"]:c.verdict==="better"?["dn","▼ 나아짐"]:["same","● 비슷"];var parts=c.headline.split(" — ");
@@ -392,7 +393,7 @@ function sinceNote(at,text){
   return '<div class="since"><b>이 분석 뒤 바뀐 것 (자동 확인)</b>'+(after.length?'<div>분석 뒤 새로 확인된 일</div><ul>'+after.map(li).join("")+'</ul>':'')+(missed.length?'<div>이 분석이 다루지 않은 가장 최근 도발</div><ul>'+missed.map(li).join("")+'</ul>':'')+'</div>';
 }
 function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f).join("")+'</ul>':''};
-  var h='<div class="sec">클로드 심층 분석 · '+ago(n.at)+' <span style="font-weight:400">· 특이한 날에만 자동 실행</span></div><div class="card deep">';
+  var h='<div class="sec">클로드 심층 분석 · '+esc(when(n.at))+' <span style="font-weight:400">· 특이한 날에만 자동 실행</span></div><div class="card deep">';
   h+='<div class="dt">'+esc(d.title)+'</div><p>'+esc(d.summary)+'</p>';
   h+='<div class="pr">전쟁 위험 '+d.war_phase+'단계 · 30일 국지 충돌 '+d.p_clash_30d+'% · 전면전 '+d.p_war_30d+'%</div><p style="color:var(--mute);font-size:14px">'+esc(d.reasoning)+'</p>';
   h+='<details open><summary>확인한 사실 · 지켜볼 것</summary>'+L(d.findings,function(f){return '<li>'+esc(f.fact)+(f.source?(/^https?:/.test(f.source)?' <a href="'+esc(f.source)+'" target="_blank" rel="noopener">출처</a>':' <span style="color:var(--mute)">('+esc(f.source)+')</span>'):'')+'</li>'})+'<b style="font-size:14px;display:block;margin-top:8px">지켜볼 것</b>'+L(d.watch,function(x){return '<li>'+esc(x)+'</li>'})+'</details>';
@@ -408,7 +409,7 @@ function usagePanel(u){if(!u)return "";var b=u.budget;
   return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석 '+u.deep.runs+'회</td><td>'+tokTotals(u.deep)+'</td></tr><tr><td>정기 분석(아침·저녁) '+u.scheduled.runs+'회</td><td>'+tokTotals(u.scheduled,true)+'</td></tr></table><p style="margin:10px 0 0">토큰 수입니다. Claude 구독의 사용 한도에서 차감되며, 조직에 추가 사용 크레딧이 켜져 있지 않으면 따로 결제되지 않습니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회, 한 달 최대 '+(b?b.monthlyMax:30)+'회이고, 다 쓰면 자동으로 멈춥니다.</p></details>'}
 function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
-  $("#upd").textContent="업데이트 "+ago(st.lastCycle?st.lastCycle.at:st.now);
+  $("#upd").textContent="업데이트 "+when(st.lastCycle?st.lastCycle.at:st.now);
   var h="";
   // 0) 사건이나 징후 조합이 있을 때만 맨 위 띠 (사건 기반 위험도와 패턴 신뢰도 중 높은 쪽)
   var pats=st.patterns||[];var patLvl=pats.some(function(p){return p.confidence==="high"})?3:pats.some(function(p){return p.confidence==="medium"})?2:1;
@@ -423,8 +424,8 @@ function render(){
   var an="";
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다
   if(st.assessment&&st.assessment.data){var stale=Date.now()-st.assessment.at>14*3600000;
-    an+='<div class="sec">클로드 분석관 판단 · '+ago(st.assessment.at)+(stale?' <span style="color:var(--l3)">(오래됨)</span>':'')+' · 다음 분석 08:09 / 20:09</div><div class="card as">'+assessment(st.assessment.data)+sinceNote(st.assessment.at,JSON.stringify(st.assessment.data))+'</div>'}
-  else if(st.notes&&st.notes.length){var n=st.notes[0];an+='<div class="sec">클로드 분석관 판단 · '+ago(n.at)+'</div><div class="card note">'+esc(n.text)+'</div>'}
+    an+='<div class="sec">클로드 분석관 판단 · '+esc(when(st.assessment.at))+(stale?' <span style="color:var(--l3)">(오래됨)</span>':'')+' · 다음 분석 08:09 / 20:09</div><div class="card as">'+assessment(st.assessment.data)+sinceNote(st.assessment.at,JSON.stringify(st.assessment.data))+'</div>'}
+  else if(st.notes&&st.notes.length){var n=st.notes[0];an+='<div class="sec">클로드 분석관 판단 · '+esc(when(n.at))+'</div><div class="card note">'+esc(n.text)+'</div>'}
   if(st.deepReport&&st.deepReport.data)an+=safe(deep,st.deepReport,"클로드 심층 분석");
   h+=group("analysis","클로드 분석 전문","분석관 판단 · 심층 분석 · 분석 뒤 바뀐 것",an);
   var ev="";

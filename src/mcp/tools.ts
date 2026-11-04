@@ -293,7 +293,7 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
     async ({ title, body, priority, dedupe_key }) => {
       const key = `agent_push:${dedupe_key}`;
       if (await store.getKv(key)) return out({ ok: true, suppressed: "이미 같은 dedupe_key로 발송됨" });
-      const res = await sendPush(env, { title, body, priority, url: env.DASHBOARD_URL });
+      const res = await sendPush(env, { title, body, priority, url: env.DASHBOARD_URL }, fetch, store);
       const ok = res.some((r) => r.ok);
       if (ok) await store.setKv(key, String(Date.now()));
       await store.logAlert({ eventId: `agent:${dedupe_key}`, sentAt: Date.now(), status: "UNVERIFIED", severity: priority * 20, title, body, channel: res.map((r) => r.channel).join(","), ok });

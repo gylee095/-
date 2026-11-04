@@ -4,6 +4,8 @@
 //  - Discord   : 웹훅 URL. 무료
 //  - Bark      : 무료 iOS 앱(계정 불필요). 앱이 주는 키 하나로 전송, 긴급 알림(무음 돌파) 지원. ntfy 대체로 권장
 //  - Pushover  : 유료(1회 구매). iOS 긴급 알림(무음 돌파) 가능
+import type { Store } from "./store.js";
+import { broadcastWebPush } from "./webpush.js";
 import type { Env } from "./types.js";
 
 export interface PushMessage {
@@ -18,6 +20,8 @@ export interface PushResult {
   channel: string;
   ok: boolean;
   error?: string;
+  /** 보낼 대상이 없어 건너뜀 — 성공으로도 실패로도 세지 않는다 (결과 목록에서 뺀다) */
+  skipped?: boolean;
 }
 
 export interface PushEnv extends Env {
@@ -54,8 +58,23 @@ export function useNtfy(env: PushEnv): boolean {
   return !others;
 }
 
-export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof fetch = fetch): Promise<PushResult[]> {
+export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof fetch = fetch, store?: Pick<Store, "getKv" | "setKv">): Promise<PushResult[]> {
   const tasks: Promise<PushResult>[] = [];
+
+  // 웹 푸시 — 브라우저 구독자 전원 (앱 설치·건당 비용 없음, 2026-11-04). 구독자가 없으면 아무 것도 하지 않는다
+  if (store) {
+    tasks.push(
+      (async () => {
+        try {
+          const r = await broadcastWebPush(store, env.DASHBOARD_URL ?? "https://korea-early-warning.gylee-30d.workers.dev", { title: msg.title, body: msg.body, url: msg.url, tag: "kew" }, fetchImpl);
+          if (!r.total) return { channel: "webpush", ok: false, error: "구독자 없음", skipped: true } as PushResult;
+          return { channel: "webpush", ok: r.sent > 0, error: r.sent ? undefined : `${r.failed}건 실패` };
+        } catch (e) {
+          return { channel: "webpush", ok: false, error: String(e).slice(0, 160) };
+        }
+      })(),
+    );
+  }
 
   if (useNtfy(env)) {
     tasks.push(
@@ -167,7 +186,7 @@ export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof
   }
 
   if (!tasks.length) return [{ channel: "none", ok: false, error: "푸시 채널 미설정 (NTFY_TOPIC / BARK_KEY / TELEGRAM_* / DISCORD_WEBHOOK_URL / PUSHOVER_*)" }];
-  return Promise.all(tasks);
+  return (await Promise.all(tasks)).filter((r) => !r.skipped);
 }
 
 /** 설정된 채널 목록 (대시보드 표시용) */

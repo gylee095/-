@@ -1,6 +1,8 @@
 // Cloudflare Worker: 5분 크론 감시 사이클 + 원격 MCP 커넥터 + 모바일 대시보드
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
+import { addSub, loadVapid, removeSub, type PushSubscriptionJson } from "../core/webpush.js";
+import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
 import { fmtRiskPct } from "../core/warrisk.js";
 import { SCHEDULE } from "../core/sources.js";
@@ -162,6 +164,30 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     return new Response(DASHBOARD_HTML, { headers: { "content-type": "text/html; charset=utf-8" } });
   }
   if (url.pathname === "/health") return json({ ok: true, configured: !!env.KEW_SECRET });
+  // 웹 푸시 (2026-11-04): 브라우저가 직접 알림을 띄운다 — 앱·건당 비용 없음
+  if (url.pathname === "/sw.js") return new Response(SERVICE_WORKER_JS, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-cache" } });
+  if (url.pathname === "/manifest.webmanifest") return new Response(JSON.stringify(WEB_MANIFEST), { headers: { "content-type": "application/manifest+json; charset=utf-8" } });
+  if (url.pathname === "/icon.svg") return new Response(ICON_SVG, { headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" } });
+  if (url.pathname === "/api/push/key" && req.method === "GET") {
+    const k = await loadVapid(store, env.DASHBOARD_URL ?? url.origin);
+    return json({ publicKey: k.publicKey });
+  }
+  if (url.pathname === "/api/push/subscribe" && req.method === "POST") {
+    const body = (await req.json().catch(() => null)) as { subscription?: PushSubscriptionJson; who?: string } | null;
+    if (!body?.subscription) return json({ error: "subscription 필요" }, 400);
+    const authed = safeEq(req.headers.get("authorization")?.replace(/^Bearer\s+/i, ""), env.KEW_SECRET);
+    try {
+      const r = await addSub(store, body.subscription, authed ? "owner" : "public", Date.now());
+      return json({ ok: true, ...r });
+    } catch (e) {
+      return json({ error: String((e as Error)?.message ?? e) }, 400);
+    }
+  }
+  if (url.pathname === "/api/push/unsubscribe" && req.method === "POST") {
+    const body = (await req.json().catch(() => null)) as { endpoint?: string } | null;
+    if (!body?.endpoint) return json({ error: "endpoint 필요" }, 400);
+    return json({ ok: true, ...(await removeSub(store, body.endpoint)) });
+  }
 
   // 원격 MCP 커넥터: claude.ai 설정 → 커넥터 → 사용자 지정 커넥터 추가 에 이 URL 을 등록
   if (url.pathname.startsWith("/mcp/")) {
@@ -294,7 +320,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const body = sit
       ? pushBody({ ...sit, label }, `[테스트] ${st.threat.level > 1 ? st.threat.summary : "최근 24시간 북한 발사·포격 없음"}`, env.DASHBOARD_URL)
       : `지금 한반도 상황 : ${label}\n[테스트] 연결 확인\n대시보드 : ${env.DASHBOARD_URL ?? ""}`;
-    return json(await sendPush(env, { title: `${label} (약 ${fmtRiskPct(st.warRisk.clash30d.point)}) 테스트`, body, priority: 3, url: env.DASHBOARD_URL }));
+    return json(await sendPush(env, { title: `${label} (약 ${fmtRiskPct(st.warRisk.clash30d.point)}) 테스트`, body, priority: 3, url: env.DASHBOARD_URL }, fetch, store));
   }
   return json({ error: "not found" }, 404);
 }

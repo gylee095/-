@@ -111,7 +111,7 @@ export function registerDeepTools(server: McpServer, ctx: { env: Env; store: Sto
             body: pushBody({ label: `${a.war_phase}단계 ${["", "평온", "긴장", "위기", "임박", "교전"][a.war_phase] ?? ""}`, clash: a.p_clash_30d, clashAgo: prevReport?.p_clash_30d, phase: a.war_phase, phaseAgo: prevReport?.war_phase }, a.summary.slice(0, 220), env.DASHBOARD_URL, [`전면전 ${a.p_war_30d}%`]),
             priority: a.war_phase >= 4 ? 5 : a.war_phase >= 3 ? 4 : 3,
             url: env.DASHBOARD_URL,
-          });
+          }, fetch, store);
         }
         return out({ ok: true, monthUsage: month, push });
       } catch (e) {

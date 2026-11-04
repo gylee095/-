@@ -8,6 +8,7 @@ export const DASHBOARD_HTML = String.raw`<!doctype html>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="한반도 경보">
 <meta name="theme-color" content="#0f1115">
 <title>한반도 조기경보</title>
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/icon.svg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -143,6 +144,31 @@ function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch(e
 var STATUS={CONFIRMED:"정부 공식확인",CORROBORATED:"복수 출처 교차확인",UNVERIFIED:"단일 출처"};
 var CONF={high:"신뢰도 높음",medium:"신뢰도 보통",low:"신뢰도 낮음"};
 function basisText(e){if(e.brief&&e.brief.sourceLabel)return e.brief.sourceLabel;if(e.basis==="official_quote")return e.status==="CORROBORATED"?"언론 "+e.sources.length+"곳이 공식발표 인용":"속보 1곳 (교차확인 전)";if(e.basis==="media")return "언론 보도만";return STATUS[e.status]}
+// ── 웹 푸시: 브라우저가 직접 알림을 띄운다 (앱·건당 비용 없음, 2026-11-04) ──
+function pushSupport(){var ios=/iPhone|iPad|iPod/.test(navigator.userAgent);var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var ok="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;return {ios:ios,standalone:standalone,ok:ok}}
+function pushCard(){var s=pushSupport();var h='<div class="do" id="pushcard"><b>휴대폰 알림 받기 · 무료</b>';
+  if(!s.ok&&s.ios&&!s.standalone)h+='아이폰은 홈 화면에 추가해야 알림을 받을 수 있어요.<ol style="margin:6px 0 0;padding-left:20px"><li>아래 <b>공유</b> 버튼(네모에 화살표)을 누르고</li><li><b>홈 화면에 추가</b>를 누른 뒤</li><li>홈 화면의 <b>조기경보</b> 아이콘을 열어 "알림 켜기"를 누르세요</li></ol>';
+  else if(!s.ok)h+='이 브라우저는 알림을 지원하지 않아요. 크롬(안드로이드)이나 사파리(아이폰, 홈 화면에 추가)에서 열어 주세요.';
+  else if(Notification.permission==="denied")h+='알림이 꺼져 있어요. 휴대폰 설정 → 알림에서 이 앱(조기경보)의 알림을 켜 주세요.';
+  else h+='<span id="pushmsg">단계가 바뀌거나 실제 발사·경보가 있을 때만 옵니다. 평소엔 조용해요.</span><div style="margin-top:8px"><button class="btn" id="pushbtn" onclick="enablePush()">알림 켜기</button> <button class="btn" id="pushtest" onclick="testMyPush()" style="display:none">내 휴대폰으로 테스트</button></div>';
+  return h+'</div>'}
+function b64uToU8(s){var p=s.replace(/-/g,"+").replace(/_/g,"/");p+="=".repeat((4-p.length%4)%4);var b=atob(p),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+async function pushState(){try{if(!pushSupport().ok)return "unsupported";var reg=await navigator.serviceWorker.getRegistration();var sub=reg&&await reg.pushManager.getSubscription();return sub?"on":"off"}catch(e){return "off"}}
+async function refreshPushUi(){var st=await pushState();var el=$("#pushst");if(el)el.textContent=st==="on"?"알림 켜짐":st==="off"?"알림 꺼짐":"지원 안 함";var b=$("#pushbtn"),t=$("#pushtest"),m=$("#pushmsg");if(b&&st==="on"){b.textContent="알림 끄기";b.onclick=disablePush;if(t)t.style.display="";if(m)m.textContent="이 휴대폰으로 알림이 옵니다. 단계가 바뀌거나 실제 발사·경보가 있을 때만."}}
+async function enablePush(){var b=$("#pushbtn");try{b.disabled=true;b.textContent="켜는 중…";
+  var perm=await Notification.requestPermission();if(perm!=="granted"){alert("알림이 허용되지 않았어요. 휴대폰 설정에서 허용해 주세요.");b.disabled=false;b.textContent="알림 켜기";return}
+  var reg=await navigator.serviceWorker.register("/sw.js");await navigator.serviceWorker.ready;
+  var key=(await (await fetch("/api/push/key")).json()).publicKey;
+  var sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToU8(key)});
+  var hd={"content-type":"application/json"};var t=tok();if(t)hd.authorization="Bearer "+t;
+  var r=await fetch("/api/push/subscribe",{method:"POST",headers:hd,body:JSON.stringify({subscription:sub.toJSON()})});
+  if(!r.ok)throw new Error("등록 실패 "+r.status);
+  b.disabled=false;await refreshPushUi();
+  if(t)testMyPush();else alert("알림이 켜졌어요.")}
+  catch(e){alert("알림을 켜지 못했어요: "+(e&&e.message||e));b.disabled=false;b.textContent="알림 켜기"}}
+async function disablePush(){try{var reg=await navigator.serviceWorker.getRegistration();var sub=reg&&await reg.pushManager.getSubscription();if(sub){await fetch("/api/push/unsubscribe",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({endpoint:sub.endpoint})});await sub.unsubscribe()}}catch(e){}var b=$("#pushbtn");if(b){b.textContent="알림 켜기";b.onclick=enablePush}var t=$("#pushtest");if(t)t.style.display="none";refreshPushUi()}
+async function testMyPush(){var r=await fetch("/api/test-push",{method:"POST",headers:{authorization:"Bearer "+tok()}});var j=await r.json();var w=j.find&&j.find(function(x){return x.channel==="webpush"});alert(w&&w.ok?"보냈어요. 잠시 뒤 잠금화면을 확인하세요.":"실패: "+JSON.stringify(j))}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});
 async function load(){
   var st=window.__KEW_STATE__;
   if(!st){var t=tok();if(!t){$("#login").style.display="block";return}
@@ -357,6 +383,7 @@ function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평�
   if(op.length)h+='<div class="calm">🧑‍💻 클로드: '+esc(op.join(" · "))+' <span style="opacity:.8">(전문은 아래 \'클로드 분석 전문\')</span></div>';
   var DO={1:"평소대로 지내면 됩니다.",2:"평소대로 지내면 됩니다. 시간이 날 때 가까운 대피소 위치만 확인해 두세요.",3:"비상용품(물·약·손전등·보조배터리)과 가족 연락 방법을 확인하고, 재난문자 수신을 켜 두세요.",4:"정부·지자체 안내를 따르고 대피소와 이동 경로를 확인하세요.",5:"재난문자·민방위 경보에 따라 바로 대피하세요."};
   h+='<div class="do"><b>지금 할 일</b>'+(DO[w.phase]||DO[2])+' <a href="https://www.safekorea.go.kr" target="_blank" rel="noopener">국민재난안전포털 → 대피소 찾기</a></div>';
+  h+=pushCard();
   var dh=st.dataHealth;
   if(dh){h+='<div class="data"><span class="'+(dh.failing.length?'':'ok')+'">수집 정상 '+dh.ok+'/'+dh.total+'</span><span>마지막 수집 '+ago(st.lastCycle?st.lastCycle.at:st.now)+'</span>'+(dh.learning?'<span>평소를 배우는 중 '+dh.learning+'개</span>':'')+'</div>';
     if(dh.failing.length)h+='<div class="data fail">⚠ 지금 못 받는 것: '+dh.failing.map(function(f){return esc(f.name)+(f.since?' (마지막 성공 '+ago(f.since)+')':'')}).join(", ")+'</div>'}
@@ -475,11 +502,12 @@ function render(){
   var lastFail=mine.find(function(a){return !a.ok});var lastOk=mine.find(function(a){return a.ok});
   var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패('+esc(lastFail.channel||"")+') '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+(lastFail.channel==="ntfy"&&chans.indexOf("bark")<0?'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).':'')+'</p>':"";
   var ntfyUi=chans.indexOf("ntfy")>=0&&st.setup?'<p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button>':'';
-  sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+'<p style="font-size:13px">휴대폰 알림은 <b>전쟁 위험 단계가 실제로 바뀔 때</b>(올라가면 5분 주기 두 번 확인 뒤, 내려가면 6시간 이어진 뒤)와 <b>실제 사건</b>(발사 속보·민방위 경보·철수 권고)일 때만 갑니다. 확률 숫자의 작은 흔들림, 징후 조합, 결론이 같은 심층 분석은 화면에만 남깁니다.'+(st.phaseNotify?' 지금 기억한 단계: <b>'+st.phaseNotify.phase+'단계</b> ('+esc(kst(st.phaseNotify.at))+'부터)'+(st.phaseNotify.pending?' · 확인 중: '+st.phaseNotify.pending.phase+'단계':''):'')+'</p>'+(st.setup?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
+  sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+'<p style="font-size:13px">휴대폰 알림은 <b>전쟁 위험 단계가 실제로 바뀔 때</b>(올라가면 5분 주기 두 번 확인 뒤, 내려가면 6시간 이어진 뒤)와 <b>실제 사건</b>(발사 속보·민방위 경보·철수 권고)일 때만 갑니다. 확률 숫자의 작은 흔들림, 징후 조합, 결론이 같은 심층 분석은 화면에만 남깁니다. 이 휴대폰: <b id="pushst">확인 중</b></p>'+pushCard()+'<p style="font-size:13px">'+(st.phaseNotify?' 지금 기억한 단계: <b>'+st.phaseNotify.phase+'단계</b> ('+esc(kst(st.phaseNotify.at))+'부터)'+(st.phaseNotify.pending?' · 확인 중: '+st.phaseNotify.pending.phase+'단계':''):'')+'</p>'+(st.setup?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
   h+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
   bindGroups(top);
+  refreshPushUi();
   try{drawRiskChart(st)}catch(e){}
 }
 // 접힌 묶음: 연 것은 이 기기에 기억한다 (5분마다 다시 그려도 그대로)

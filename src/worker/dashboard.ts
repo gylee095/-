@@ -181,7 +181,7 @@ async function load(){
     try{body=await r.json()}catch(e){}
     if(!r.ok||!body||body.error){showErr(body&&body.message?body.message:"서버 오류 ("+r.status+") — 잠시 뒤 다시 열어 보세요.",!!body&&body.error==="storage_limit");return}
     st=body}
-  LAST=Date.now();var lg=$("#login");lg.style.display=st.public?"":"none";lg.open=!!st.public;ST=st;render();if(!st.public)resyncPush()}
+  LAST=Date.now();var lg=$("#login");lg.style.display=st.public?"block":"none";lg.open=!!st.public;ST=st;render();if(!st.public)resyncPush()}
 // 불러오기 실패: 이미 화면이 있으면 그대로 두고 위에 알리고, 처음이면 이유를 크게 보여 준다 (빈 화면 금지)
 function showErr(msg,limit){$("#login").style.display="none";
   var box='<div class="card" id="err" style="border-left:4px solid #d33"><b>'+(limit?"서버 저장소 하루 한도 초과":"불러오기 실패")+'</b><div style="font-size:14px;margin-top:6px">'+esc(msg)+'</div>'+

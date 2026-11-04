@@ -73,7 +73,7 @@ export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof
       (async () => {
         try {
           const aud: Audience = msg.audience ?? "owner";
-          const r = await broadcastWebPush(store, env.DASHBOARD_URL ?? "https://korea-early-warning.gylee-30d.workers.dev", { title: msg.title, body: msg.body, url: msg.url, tag: "kew" }, fetchImpl, aud === "all" ? undefined : (s) => s.who === "owner");
+          const r = await broadcastWebPush(store, env.DASHBOARD_URL ?? "https://korea-early-warning.gylee-30d.workers.dev", { title: msg.title, body: msg.body, url: msg.url, tag: "kew" }, fetchImpl, aud === "all" ? (s) => s.who === "owner" || s.who === "paid" : (s) => s.who === "owner");
           if (!r.total) return { channel: "webpush", ok: false, error: "구독자 없음", skipped: true } as PushResult;
           return { channel: "webpush", ok: r.sent > 0, error: r.sent ? undefined : `${r.failed}건 실패` };
         } catch (e) {

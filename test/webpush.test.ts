@@ -132,11 +132,39 @@ describe("받는 사람 범위: 테스트·시스템 경고는 절대 공개 구
     expect(hit).toContain(owner.sub.endpoint);
     expect(hit).not.toContain(pub.sub.endpoint);
   });
-  it("audience: all 인 실제 알림만 공개 구독자에게 간다", async () => {
+  it("audience: all 인 실제 알림은 유료(paid)·운영자에게만 — 무료 공개 구독은 받지 않는다 (11/4 무료 없음)", async () => {
     const { store, owner, pub, hit, f } = await twoSubs();
+    const paid = await fakeBrowser();
+    paid.sub.endpoint = "https://push.example/send/paid-1";
+    await addSub(store, paid.sub, "paid", 3);
     await sendPush({ DASHBOARD_URL: "https://kew.example" } as any, { audience: "all", title: "3단계 위기", body: "b", priority: 4 }, f, store);
     expect(hit).toContain(owner.sub.endpoint);
-    expect(hit).toContain(pub.sub.endpoint);
+    expect(hit).toContain(paid.sub.endpoint);
+    expect(hit).not.toContain(pub.sub.endpoint);
+  });
+  it("테스트(기본 owner)는 유료 구독자에게도 가지 않는다", async () => {
+    const { store, hit, f } = await twoSubs();
+    const paid = await fakeBrowser();
+    paid.sub.endpoint = "https://push.example/send/paid-2";
+    await addSub(store, paid.sub, "paid", 3);
+    await sendPush({ DASHBOARD_URL: "https://kew.example" } as any, { title: "🧪 테스트", body: "b", priority: 2 }, f, store);
+    expect(hit).not.toContain(paid.sub.endpoint);
+  });
+  it("유료 등급은 public 재등록으로 내려가지 않는다", async () => {
+    const store = new MemoryStore();
+    const a = await fakeBrowser();
+    await addSub(store, a.sub, "paid", 1);
+    expect((await addSub(store, a.sub, "public", 2)).who).toBe("paid");
+  });
+  it("VAPID 서명은 푸시 서버마다 한 번 (구독자 수만큼 서명하지 않는다 — Workers 10ms CPU)", async () => {
+    const store = new MemoryStore();
+    const auths = new Set<string>();
+    const f = (async (_u: string, init: any) => { auths.add(init.headers.Authorization); return new Response("", { status: 201 }); }) as unknown as typeof fetch;
+    for (let i = 0; i < 5; i++) { const b = await fakeBrowser(); b.sub.endpoint = `https://web.push.apple.com/s${i}`; await addSub(store, b.sub, "paid", i); }
+    const g = await fakeBrowser(); g.sub.endpoint = "https://fcm.googleapis.com/fcm/send/x"; await addSub(store, g.sub, "paid", 9);
+    const r = await broadcastWebPush(store, "https://kew.example", { title: "t", body: "b" }, f, (s) => s.who === "paid");
+    expect(r.sent).toBe(6);
+    expect(auths.size).toBe(2); // 애플 한 번, 구글 한 번
   });
   it("실제 알림 경로(사건·단계·심층 분석)만 all 을 쓴다 — 코드 검사", async () => {
     const { readFileSync } = await import("node:fs");

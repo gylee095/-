@@ -79,10 +79,12 @@ jobs:
           CLAUDE_ROUTINE_URL: ${{ secrets.CLAUDE_ROUTINE_URL }}
           CLAUDE_ROUTINE_TOKEN: ${{ secrets.CLAUDE_ROUTINE_TOKEN }}
           ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
+          TOSS_CLIENT_KEY: ${{ secrets.TOSS_CLIENT_KEY }}
+          TOSS_SECRET_KEY: ${{ secrets.TOSS_SECRET_KEY }}
         run: |
           # 값이 있는 것만 JSON 으로 묶어 한 번에 등록 (로그에 값이 찍히지 않음)
           node -e '
-            const keys=["KEW_SECRET","SAFETYDATA_API_KEY","NTFY_TOPIC","NTFY_TOKEN","PUSHOVER_TOKEN","PUSHOVER_USER","OPENSKY_CLIENT_ID","OPENSKY_CLIENT_SECRET","AISSTREAM_API_KEY","FIRMS_MAP_KEY","TELEGRAM_BOT_TOKEN","TELEGRAM_CHAT_ID","DISCORD_WEBHOOK_URL","BARK_KEY","GFW_API_TOKEN","NAVER_CLIENT_ID","NAVER_CLIENT_SECRET","CLAUDE_ROUTINE_URL","CLAUDE_ROUTINE_TOKEN","ECOS_API_KEY"];
+            const keys=["KEW_SECRET","SAFETYDATA_API_KEY","NTFY_TOPIC","NTFY_TOKEN","PUSHOVER_TOKEN","PUSHOVER_USER","OPENSKY_CLIENT_ID","OPENSKY_CLIENT_SECRET","AISSTREAM_API_KEY","FIRMS_MAP_KEY","TELEGRAM_BOT_TOKEN","TELEGRAM_CHAT_ID","DISCORD_WEBHOOK_URL","BARK_KEY","GFW_API_TOKEN","NAVER_CLIENT_ID","NAVER_CLIENT_SECRET","CLAUDE_ROUTINE_URL","CLAUDE_ROUTINE_TOKEN","ECOS_API_KEY","TOSS_CLIENT_KEY","TOSS_SECRET_KEY"];
             const o={}; for (const k of keys) if (process.env[k]) o[k]=process.env[k];
             require("fs").writeFileSync("/tmp/secrets.json", JSON.stringify(o));
             console.log("등록할 비밀값:", Object.keys(o).join(", "));'

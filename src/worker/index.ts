@@ -3,6 +3,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
+import { DEVICES_PER_CODE, PRODUCT_NAME, billingSummary, confirmWithToss, createOrder, loadOrders, markPaid, redeemCode, refundOrder } from "../core/billing.js";
+import { buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
 import { fmtRiskPct } from "../core/warrisk.js";
 import { SCHEDULE } from "../core/sources.js";
@@ -166,8 +168,45 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   if (url.pathname === "/health") return json({ ok: true, configured: !!env.KEW_SECRET });
   // 웹 푸시 (2026-11-04): 브라우저가 직접 알림을 띄운다 — 앱·건당 비용 없음
   if (url.pathname === "/sw.js") return new Response(SERVICE_WORKER_JS, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-cache" } });
-  if (url.pathname === "/manifest.webmanifest") return new Response(JSON.stringify(WEB_MANIFEST), { headers: { "content-type": "application/manifest+json; charset=utf-8" } });
+  if (url.pathname === "/manifest.webmanifest") {
+    const code = url.searchParams.get("code") ?? "";
+    const m = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code) ? { ...WEB_MANIFEST, start_url: `/?code=${code}` } : WEB_MANIFEST;
+    return new Response(JSON.stringify(m), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "no-cache" } });
+  }
   if (url.pathname === "/icon.svg") return new Response(ICON_SVG, { headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" } });
+  // ── 유료 알림 (2026-11-04): 4,900원 1회 → 활성화 코드 → 휴대폰에서 코드로 켜기 ──
+  if (url.pathname === "/buy") return new Response(buyPage(env.TOSS_CLIENT_KEY, url.origin), { headers: { "content-type": "text/html; charset=utf-8" } });
+  if (url.pathname === "/buy/success") return new Response(successPage(url.origin), { headers: { "content-type": "text/html; charset=utf-8" } });
+  if (url.pathname === "/buy/fail") return new Response(failPage(url.searchParams.get("message") ?? ""), { headers: { "content-type": "text/html; charset=utf-8" } });
+  if (url.pathname === "/terms") return new Response(termsPage(), { headers: { "content-type": "text/html; charset=utf-8" } });
+  if (url.pathname === "/api/billing/order" && req.method === "POST") {
+    const o = await createOrder(store, Date.now());
+    return json({ orderId: o.orderId, amount: o.amount, orderName: PRODUCT_NAME });
+  }
+  if (url.pathname === "/api/billing/confirm" && req.method === "POST") {
+    // 브라우저가 토스에서 돌려받은 값을 넘기면, 서버가 비밀키로 확정하고 그제야 코드를 만든다. 금액은 우리 주문의 것으로만 확정한다
+    const body = (await req.json().catch(() => null)) as { paymentKey?: string; orderId?: string; amount?: number } | null;
+    if (!body?.paymentKey || !body.orderId) return json({ error: "paymentKey·orderId 필요" }, 400);
+    if (!env.TOSS_SECRET_KEY) return json({ error: "결제 설정이 아직 안 됐어요 (TOSS_SECRET_KEY)" }, 503);
+    const orders = await loadOrders(store);
+    const o = orders.find((x) => x.orderId === body.orderId);
+    if (!o) return json({ error: "주문을 찾을 수 없어요" }, 404);
+    if (o.status === "paid" && o.code) return json({ ok: true, code: o.code, receiptUrl: o.receiptUrl, devices: DEVICES_PER_CODE });
+    if (body.amount !== undefined && body.amount !== o.amount) return json({ error: "금액이 주문과 달라요" }, 400);
+    const r = await confirmWithToss(env.TOSS_SECRET_KEY, body.paymentKey, o.orderId, o.amount);
+    if (!r.ok) return json({ error: `결제 확정 실패: ${r.error ?? ""}` }, 402);
+    const paid = await markPaid(store, o.orderId, body.paymentKey, r.receiptUrl, Date.now());
+    return json({ ok: true, code: paid.code, receiptUrl: paid.receiptUrl, devices: DEVICES_PER_CODE });
+  }
+  if (url.pathname === "/api/billing/activate" && req.method === "POST") {
+    // 코드 + 이 기기의 푸시 구독 → paid 구독. 코드가 문지기라 인증은 필요 없다
+    const body = (await req.json().catch(() => null)) as { code?: string; subscription?: PushSubscriptionJson } | null;
+    if (!body?.code || !body.subscription?.endpoint) return json({ error: "code·subscription 필요" }, 400);
+    const r = await redeemCode(store, body.code, body.subscription.endpoint);
+    if (!r.ok) return json({ error: r.reason }, 403);
+    const s = await addSub(store, body.subscription, "paid", Date.now());
+    return json({ ok: true, who: s.who, devicesUsed: r.order.devices.length, devicesMax: DEVICES_PER_CODE });
+  }
   if (url.pathname === "/api/push/key" && req.method === "GET") {
     const k = await loadVapid(store, env.DASHBOARD_URL ?? url.origin);
     return json({ publicKey: k.publicKey });
@@ -176,8 +215,9 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const body = (await req.json().catch(() => null)) as { subscription?: PushSubscriptionJson; who?: string } | null;
     if (!body?.subscription) return json({ error: "subscription 필요" }, 400);
     const authed = safeEq(req.headers.get("authorization")?.replace(/^Bearer\s+/i, ""), env.KEW_SECRET);
+    if (!authed) return json({ error: "알림은 결제 뒤 받은 활성화 코드로 켤 수 있어요", buy: "/buy" }, 402);
     try {
-      const r = await addSub(store, body.subscription, authed ? "owner" : "public", Date.now());
+      const r = await addSub(store, body.subscription, "owner", Date.now());
       return json({ ok: true, ...r });
     } catch (e) {
       return json({ error: String((e as Error)?.message ?? e) }, 400);
@@ -217,6 +257,16 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
         pushChannels: pushChannels(env),
       },
     });
+  }
+  if (url.pathname === "/api/billing/summary" && req.method === "GET") return json(await billingSummary(store, Date.now()));
+  if (url.pathname === "/api/billing/refund" && req.method === "POST") {
+    const body = (await req.json().catch(() => null)) as { orderId?: string; code?: string; reason?: string } | null;
+    if (!body?.orderId && !body?.code) return json({ error: "orderId 또는 code 필요" }, 400);
+    if (!env.TOSS_SECRET_KEY) return json({ error: "TOSS_SECRET_KEY 없음" }, 503);
+    const r = await refundOrder(store, env.TOSS_SECRET_KEY, { orderId: body.orderId, code: body.code }, body.reason ?? "고객 요청 환불", Date.now());
+    if (!r.ok) return json({ error: r.error }, 400);
+    for (const ep of r.devices) await removeSub(store, ep);
+    return json({ ok: true, orderId: r.orderId, devicesRemoved: r.devices.length });
   }
   if (url.pathname === "/api/push/subs" && req.method === "GET") {
     const subs = await loadSubs(store);

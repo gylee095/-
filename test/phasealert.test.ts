@@ -40,6 +40,10 @@ describe("단계 알림 판단", () => {
     const r2 = decidePhaseAlert(r1.state, w(3), NOW + 5 * MIN);
     expect(r2.message?.direction).toBe("up");
     expect(r2.message?.title).toBe("3단계 위기 (약 15%) 나빠짐 · 2단계 긴장에서");
+    // 이전 값이 있으면 제목에도 '몇 % → 몇 %'
+    const withAgo = decidePhaseAlert(r1.state, w(3), NOW + 5 * MIN, { clashAgo: 3.8, agoLabel: "어제 이맘때" });
+    expect(withAgo.message?.title).toBe("3단계 위기 (3.8% → 15%) 나빠짐 · 2단계 긴장에서");
+    expect(withAgo.message?.body.split("\n")[0]).toBe("⬆ 나빠짐: 2단계 긴장 → 3단계 위기 · 30일 국지 충돌 3.8%(어제 이맘때) → 15%(지금)");
     expect(r2.message?.body.split("\n")[0]).toBe("⬆ 나빠짐: 2단계 긴장 → 3단계 위기");
     expect(r2.message?.body).toMatch(/\n지금 한반도 상황 : 3단계 위기 \(나빠짐 : 30일 국지 충돌 약 15%\)\n/);
     expect(r2.message?.body).toMatch(/평소 약 2%의 8\.3배/);
@@ -128,8 +132,8 @@ describe("알림 본문은 셋 다 같은 모양: 상황(어제 대비) · 무�
     const { formatAlert } = await import("../src/core/policy.js");
     const e: any = { id: "e1", status: "UNVERIFIED", basis: "official_quote", severity: 75, title: '[속보] 합참 "북한, 동해상으로 미상 발사체 발사"', sources: ["yna.co.kr"], categories: ["missile"] };
     const brief: any = { headline: "북한, 미상 발사체 발사 → 동해상", isProvocation: true, danger: { level: 2, label: "주의", reason: "미사일·방사포 발사" }, at: 0 };
-    const m = formatAlert({ event: e, kind: "new", reason: "" }, "https://kew.example", brief, { label: "긴장", clash: 3.8, clashAgo: 3.6, phase: 2, phaseAgo: 2 });
-    expect(m.body.split("\n")[0]).toBe("⬆ 나빠짐: 30일 국지 충돌 3.6% → 3.8%");
+    const m = formatAlert({ event: e, kind: "new", reason: "" }, "https://kew.example", brief, { label: "긴장", clash: 3.8, clashAgo: 3.6, agoLabel: "어제 이맘때", phase: 2, phaseAgo: 2 });
+    expect(m.body.split("\n")[0]).toBe("⬆ 나빠짐: 30일 국지 충돌 3.6%(어제 이맘때) → 3.8%(지금)");
     expect(m.body.split("\n")[1]).toBe("북한, 미상 발사체 발사 → 동해상");
     expect(m.body.split("\n")[2]).toBe("지금 한반도 상황 : 주의 (나빠짐 : 30일 국지 충돌 3.6% → 3.8%)");
     expect(m.body.split("\n").at(-1)).toBe("대시보드 : https://kew.example");
@@ -162,10 +166,12 @@ describe("알림 본문은 셋 다 같은 모양: 상황(어제 대비) · 무�
 describe("테스트와 실제는 첫 글자부터 다르고, 실제 첫 줄은 '바뀐 것'이다 (2026-11-04 #36)", () => {
   it("바뀐 것 한 줄: 단계 > 확률 > 변화 없음", async () => {
     const { changeLine } = await import("../src/core/pushtext.js");
-    expect(changeLine({ label: "위기", clash: 15, clashAgo: 3.8, phase: 3, phaseAgo: 2 })).toBe("⬆ 나빠짐: 2단계 긴장 → 3단계 위기");
-    expect(changeLine({ label: "긴장", clash: 3.8, clashAgo: 15, phase: 2, phaseAgo: 3 })).toBe("⬇ 좋아짐: 3단계 위기 → 2단계 긴장");
-    expect(changeLine({ label: "주의", clash: 3.8, clashAgo: 3.6, phase: 2, phaseAgo: 2 })).toBe("⬆ 나빠짐: 30일 국지 충돌 3.6% → 3.8%");
-    expect(changeLine({ label: "긴장", clash: 3.6, clashAgo: 3.62, phase: 2, phaseAgo: 2 })).toBe("● 단계 변화 없음 (긴장, 30일 국지 충돌 약 4%)");
+    expect(changeLine({ label: "위기", clash: 15, clashAgo: 3.8, agoLabel: "어제 이맘때", phase: 3, phaseAgo: 2 })).toBe("⬆ 나빠짐: 2단계 긴장 → 3단계 위기 · 30일 국지 충돌 3.8%(어제 이맘때) → 15%(지금)");
+    expect(changeLine({ label: "긴장", clash: 3.8, clashAgo: 15, agoLabel: "어제 이맘때", phase: 2, phaseAgo: 3 })).toBe("⬇ 좋아짐: 3단계 위기 → 2단계 긴장 · 30일 국지 충돌 15%(어제 이맘때) → 3.8%(지금)");
+    expect(changeLine({ label: "주의", clash: 3.8, clashAgo: 3.6, agoLabel: "어제 이맘때", phase: 2, phaseAgo: 2 })).toBe("⬆ 나빠짐: 30일 국지 충돌 3.6%(어제 이맘때) → 3.8%(지금)");
+    // 변화가 없어도 '몇 %에서 몇 %'를 적는다 — "전에도 4%였나?" 가 안 헷갈리게 (2026-11-04 저녁)
+    expect(changeLine({ label: "긴장", clash: 3.6, clashAgo: 3.62, agoLabel: "11/3 14시 (30시간 전)", phase: 2, phaseAgo: 2 })).toBe("● 변화 없음: 30일 국지 충돌 3.6%(11/3 14시 (30시간 전)) → 3.6%(지금) · 긴장");
+    expect(changeLine({ label: "긴장", clash: 3.6, phase: 2 })).toBe("● 긴장 · 30일 국지 충돌 약 4% — 비교할 이전 기록 없음");
   });
   it("실제 알림의 첫 줄은 상황이 아니라 변화다 — 세 경로 모두 같은 함수", async () => {
     const { pushBody } = await import("../src/core/pushtext.js");
@@ -186,5 +192,26 @@ describe("테스트와 실제는 첫 글자부터 다르고, 실제 첫 줄은 '
     expect(sendLine).not.toMatch(/pushBody\(/);
     // 실제 알림 제목은 '테스트'로 시작하지 않는다 (테스트와 첫 글자부터 구분)
     expect("주의 · 북한, 미상 발사체 발사 → 동해상 [속보·공식발표 인용]").not.toMatch(/^🧪/);
+  });
+});
+
+describe("알림의 '이전 값'은 언제 것인지 함께 적는다 (2026-11-04 저녁)", () => {
+  it("어제 이맘때 기록이 있으면 '어제 이맘때', 없으면 가장 가까운 과거 기록의 시각", async () => {
+    const { situationFromRecords } = await import("../src/core/pushtext.js");
+    const { appendSeries } = await import("../src/core/history.js");
+    const store = new MemoryStore();
+    const snap = (at: number, clash: number) => ({ at, phase: 2 as const, clash, war: 0.2, levels: {}, why: [] });
+    await appendSeries(store, snap(NOW - 24 * H, 3.6));
+    await appendSeries(store, snap(NOW, 3.8));
+    const s = await situationFromRecords(store, NOW, "긴장");
+    expect(s).toMatchObject({ clash: 3.8, clashAgo: 3.6, agoLabel: "어제 이맘때", agoAt: NOW - 24 * H });
+    // 어제 이맘때 점이 없고 30시간 전 점만 있으면 그 시각을 이름으로
+    const store2 = new MemoryStore();
+    await appendSeries(store2, snap(NOW - 30 * H, 3.4));
+    await appendSeries(store2, snap(NOW, 3.4));
+    const s2 = await situationFromRecords(store2, NOW, "긴장");
+    expect(s2).toMatchObject({ clashAgo: 3.4, agoLabel: "11/2 6시 (30시간 전)" });
+    const { changeLine } = await import("../src/core/pushtext.js");
+    expect(changeLine(s2!)).toBe("● 변화 없음: 30일 국지 충돌 3.4%(11/2 6시 (30시간 전)) → 3.4%(지금) · 긴장");
   });
 });

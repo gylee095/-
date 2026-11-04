@@ -104,7 +104,14 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .sum .gfoot{font-size:13px;color:var(--mute);margin-top:8px}
 .sum .phase{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin:2px 0 0}.sum .phase b{font-size:30px;font-weight:800;letter-spacing:-.5px}.sum .phase span{font-size:13px;color:var(--mute)}
 .sum .hero{display:flex;align-items:baseline;gap:10px;margin:14px 0 2px}.sum .hero .n{font-size:48px;font-weight:800;letter-spacing:-1px;line-height:1}.sum .hero .u{font-size:14px;color:var(--mute);line-height:1.4}
-.sum .delta{font-size:14px;margin:8px 0 2px;display:flex;gap:6px;align-items:flex-start}.sum .delta i{font-style:normal;font-weight:800;white-space:nowrap}.sum .delta .same{color:var(--old)}.sum .delta .up{color:var(--l4)}.sum .delta .dn{color:var(--down)}
+.sum .ba{display:flex;align-items:flex-end;flex-wrap:wrap;gap:4px 10px;margin:4px 0 0}.sum .ba .bb,.sum .ba .bn{display:flex;flex-direction:column}.sum .ba small{font-size:12px;color:var(--mute);line-height:1.2}.sum .ba b{font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1.1}.sum .ba .bb b{color:var(--mute);font-weight:700}.sum .ba .bn b{font-size:44px;letter-spacing:-1px}.sum .ba .arr{font-size:26px;color:var(--mute);line-height:1.3}
+.sum .ba .dlt{margin-bottom:6px}.sum .gu{font-size:14px;color:var(--mute);margin-top:2px}
+.gago{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--card);border:3px dashed var(--mute);box-sizing:border-box}
+.gprev{position:absolute;top:-26px;transform:translateX(-50%);white-space:nowrap}.gprev span{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--mute)}
+.sum .chgbox{margin:14px 0 0;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:5px solid var(--old);font-size:14px}.sum .chgbox.up{border-left-color:var(--l4)}.sum .chgbox.dn{border-left-color:var(--down)}
+.sum .chgbox .ch{font-size:15px;font-weight:800;line-height:1.35}.sum .chgbox .ch.up{color:var(--l4)}.sum .chgbox .ch.dn{color:var(--down)}.sum .chgbox .ch.same{color:var(--fg)}
+.sum .chgbox ul{margin:6px 0 0;padding:0;list-style:none}.sum .chgbox li{padding:2px 0}.sum .chgbox li span{display:inline-block;width:18px;font-weight:700}.sum .chgbox .ps{font-size:13px;color:var(--mute);margin-top:4px}
+.sum .pwhy{font-size:13px;color:var(--mute);margin-top:8px}
 .sum h3{font-size:14px;margin:16px 0 6px}
 .sum .why{display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:start;font-size:14px}.sum .why .t b{display:block}.sum .why .t span{color:var(--mute);font-size:13px}
 .sum .calm{font-size:13px;color:var(--mute);margin-top:8px}
@@ -347,31 +354,71 @@ function histLine(hs){if(!hs||!hs.today)return "";var t=hs.today,d=t.d.slice(5).
   return s+'</div>'}
 function pickTop(evs){var p=evs.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});return p[0]||null}
 function pct(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<1?x.toFixed(1)+"%":Math.round(x)+"%"}
-// 온도계: 평온·긴장·위기·임박·교전 다섯 칸(같은 폭) 위에 '평소'와 '지금' 자리를 찍는다. 확률을 그대로 그리면 4%가 바닥에 붙어 짐작이 안 된다 (2026-11-02)
-function gauge(w){var names=["평온","긴장","위기","임박","교전"],rng=["1~3%","2~4%","8~25%","25~60%","교전 중"];
+// 이전↔지금을 견줄 때는 소수 한 자리 — '약 4%'로 둘 다 반올림하면 3.6→3.8 이 '전에도 4%' 로 읽힌다 (2026-11-04)
+function pctD(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<10?x.toFixed(1)+"%":Math.round(x)+"%"}
+// 단계별 30일 국지 충돌 범위 (warrisk.ts BANDS 와 같다) — 이전 기록의 눈금 위치를 같은 규칙으로 되짚는다
+var BANDS=[[1,3],[2,4],[8,25],[25,60],[100,100]];
+function gpos(ph,c){if(ph>=5)return 1;var b=BANDS[ph-1]||BANDS[0],p=b[1]>b[0]?(c-b[0])/(b[1]-b[0]):0.5;return Math.max(0.01,Math.min(0.99,(ph-1+Math.max(0,Math.min(1,p)))/5))}
+// 온도계: 평온·긴장·위기·임박·교전 다섯 칸(같은 폭) 위에 '평소'·'이전'·'지금' 자리를 찍는다. 확률을 그대로 그리면 4%가 바닥에 붙어 짐작이 안 된다 (2026-11-02)
+// 이전(비교 기준 시각) 자리는 속 빈 점선 점 — "원래 몇 %였다가 지금 몇 %인지" 가 막대에서 바로 보이게 (2026-11-04)
+function gauge(w,c){var names=["평온","긴장","위기","임박","교전"],rng=["1~3%","2~4%","8~25%","25~60%","교전 중"];
   var g=w.gauge||{now:(w.phase-1+0.6)/5,usual:0.08},now=Math.max(0.01,Math.min(0.99,g.now)),us=g.usual,col="var(--l"+w.phase+")";
   var r=w.vsUsual!=null?w.vsUsual:w.clash30d.point/w.usual.clash;
   var times=r<1.15?"평소 수준":r<10?"평소의 "+(Math.abs(r-Math.round(r))<0.05?Math.round(r):r.toFixed(1))+"배":"평소의 "+Math.round(r)+"배";
   var odds=w.clash30d.point>=99.5?"":"약 "+Math.max(2,Math.round(100/w.clash30d.point))+"번에 1번꼴";
-  var fighting=w.clash30d.point>=99.5;
+  var fighting=w.clash30d.point>=99.5,cur=w.clash30d.point;
+  var ago=c&&c.ago?c.ago:null,d=ago?cur-ago.clash:null,dir=d==null?"none":d>=0.05?"up":d<=-0.05?"down":"flat";
+  var sys=!!(c&&(c.changes||[]).some(function(x){return x.dir===0&&/^30일 국지 충돌/.test(x.text)}));
+  var agoName=ago?(c.agoLabel||"어제 이맘때")+(c.agoAt?" · "+kst(c.agoAt):""):"";
   var h='<div class="gq">앞으로 30일 안에 남북 무력 충돌이 일어날 가능성</div>';
-  h+=fighting?'<div class="gnum"><b>교전 중</b><span class="gx" style="color:'+col+'">남북이 지금 서로 쏘고 있음</span></div>':'<div class="gnum"><b>약 '+pct(w.clash30d.point)+'</b><span class="gx" style="color:'+col+'">'+times+'</span><span class="gu">평소 약 '+pct(w.usual.clash)+'</span></div>';
-  h+='<div class="gauge" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+w.clash30d.point+'" aria-label="앞으로 30일 국지 충돌 가능성 약 '+pct(w.clash30d.point)+', 평소 약 '+pct(w.usual.clash)+', '+w.phase+'단계 '+esc(w.phaseLabel)+'">';
-  h+='<div class="gnow" style="left:'+(now*100).toFixed(1)+'%"><span style="background:'+col+';color:var(--on'+w.phase+')">지금</span></div>';
+  if(fighting)h+='<div class="gnum"><b>교전 중</b><span class="gx" style="color:'+col+'">남북이 지금 서로 쏘고 있음</span></div>';
+  else if(ago){
+    var badge=dir==="flat"?'<span class="dlt flat">– 변화 없음</span>':sys?'<span class="dlt flat">'+(d>0?"+":"−")+Math.abs(d).toFixed(1)+'%p · 측정 변경 포함</span>':'<span class="dlt '+dir+'">'+(dir==="up"?"▲ +":"▼ −")+Math.abs(d).toFixed(1)+'%p '+(dir==="up"?"나빠짐":"나아짐")+'</span>';
+    h+='<div class="ba"><div class="bb"><small>'+esc(agoName)+'</small><b>'+pctD(ago.clash)+'</b></div><span class="arr">→</span><div class="bn"><small>지금</small><b style="color:'+col+'">'+pctD(cur)+'</b></div>'+badge+'</div>';
+    h+='<div class="gu"><span style="color:'+col+';font-weight:800">'+times+'</span> · 평소 약 '+pct(w.usual.clash)+'</div>'}
+  else h+='<div class="gnum"><b>약 '+pctD(cur)+'</b><span class="gx" style="color:'+col+'">'+times+'</span><span class="gu">평소 약 '+pct(w.usual.clash)+'</span></div>';
+  var ap=ago?gpos(ago.phase,ago.clash):null,near=ap!=null&&Math.abs(ap-now)<0.14;
+  h+='<div class="gauge" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+cur+'" aria-label="앞으로 30일 국지 충돌 가능성 '+pctD(cur)+(ago?', '+esc(c.agoLabel||"어제 이맘때")+' '+pctD(ago.clash):'')+', 평소 약 '+pct(w.usual.clash)+', '+w.phase+'단계 '+esc(w.phaseLabel)+'">';
+  if(ago&&!near)h+='<div class="gprev" style="left:'+(ap*100).toFixed(1)+'%"><span>이전 '+pctD(ago.clash)+'</span></div>';
+  h+='<div class="gnow" style="left:'+(now*100).toFixed(1)+'%"><span style="background:'+col+';color:var(--on'+w.phase+')">'+(ago&&near?(dir==="flat"?'지금 '+pctD(cur)+' (이전과 같음)':'이전 '+pctD(ago.clash)+' → 지금 '+pctD(cur)):'지금'+(fighting?'':' '+pctD(cur)))+'</span></div>';
   h+='<div class="gtrack"><div class="gfill" style="width:'+(now*100).toFixed(1)+'%;background:'+col+'"></div>';
   for(var i=1;i<5;i++)h+='<i class="gdiv" style="left:'+(i*20)+'%"></i>';
+  if(ago&&dir!=="flat")h+='<i class="gago" style="left:'+(ap*100).toFixed(1)+'%" title="이전 '+pctD(ago.clash)+'"></i>';
   h+='<i class="gmark" style="left:'+(now*100).toFixed(1)+'%;border-color:'+col+'"></i></div>';
   h+='<div class="gusual" style="left:'+(us*100).toFixed(1)+'%">▲ 평소 '+pct(w.usual.clash)+'</div>';
   h+='<div class="gzones">'+names.map(function(n,i){return '<span class="'+(i+1===w.phase?"on":"")+'" title="'+n+': 30일 국지 충돌 '+rng[i]+'"><b>'+n+'</b><small>'+rng[i]+'</small></span>'}).join("")+'</div></div>';
-  h+='<div class="gfoot">'+(odds&&!fighting?odds+' — 한 달 동안 아무 일 없이 지나갈 가능성 약 '+pct(100-w.clash30d.point)+' · ':'')+'전면전 '+pct(w.war30d.point)+' (평소 '+pct(w.usual.war)+')</div>';
+  h+='<div class="gfoot">'+(odds&&!fighting?odds+' — 한 달 동안 아무 일 없이 지나갈 가능성 약 '+pct(100-cur)+' · ':'')+'전면전 '+pct(w.war30d.point)+' (평소 '+pct(w.usual.war)+')</div>';
   return h}
+// 왜 이 숫자인가 — 단계 범위(2~4%) 안의 어디쯤인지, 무엇이 밀어 올렸는지 (2026-11-04: "왜 4%가 됐는지 봐서는 모르겠다")
+function whyPct(w){var b=BANDS[w.phase-1]||BANDS[0],cur=w.clash30d.point;if(cur>=99.5)return "";
+  var f=b[1]>b[0]?(cur-b[0])/(b[1]-b[0]):0.5,where=f<0.2?"아래쪽 끝":f<0.4?"아래쪽":f<0.6?"가운데":f<0.8?"위쪽":"위쪽 끝";
+  var hot=w.domains.filter(function(d){return d.level>0}).sort(function(a,b){return b.level-a.level});
+  var push=hot.length?"평소와 다른 영역 "+hot.length+"개("+hot.map(function(d){return d.label+" "+d.levelLabel}).join(", ")+")가 밀어 올려 ":"모든 영역이 평소라 ";
+  return '<div class="pwhy">왜 '+pctD(cur)+'인가: '+w.phase+'단계('+esc(w.phaseLabel)+')의 범위 '+b[0]+'~'+b[1]+'% 안에서 '+esc(push)+where+'. 평소(평온)는 약 '+pct(w.usual.clash)+'.</div>'}
+// 왜 바뀌었나 — 비교 기준 시각 이후 바뀐 영역 수준·징후·새 사건을 숫자 바로 아래 둔다 (2026-11-04: 차트 아래에만 있어서 맨 위에서는 오른 이유를 알 수 없었다)
+function whyChanged(w,c){if(!c)return "";
+  if(!c.ago)return '<div class="chgbox"><div class="ch same">● 비교할 이전 기록이 아직 없습니다</div><div class="ps">자동 판정 기록이 6시간 넘게 쌓이면 이전 값과 비교합니다.</div></div>';
+  var cur=w.clash30d.point,d=cur-c.ago.clash,sys=(c.changes||[]).some(function(x){return x.dir===0&&/^30일 국지 충돌/.test(x.text)});
+  var cls=c.verdict==="worse"?"up":c.verdict==="better"?"dn":"same",mark=cls==="up"?"▲":cls==="dn"?"▼":"●";
+  var agoName=(c.agoLabel||"어제 이맘때")+(c.agoAt?"("+kst(c.agoAt)+")":"");
+  var head=mark+" "+agoName+(cls==="up"?"보다 나빠짐":cls==="dn"?"보다 나아짐":"과 비슷")+" — "+pctD(c.ago.clash)+" → "+pctD(cur)+(Math.abs(d)>=0.05?" ("+(d>0?"+":"−")+Math.abs(d).toFixed(1)+"%p"+(sys?", 측정 변경 포함":"")+")":" (같음)")+(c.ago.phase!==w.phase?" · "+c.ago.phase+"단계 → "+w.phase+"단계":"");
+  var items=(c.changes||[]).filter(function(x){return !/^30일 (국지 충돌|전면전)/.test(x.text)}).map(function(x){var k=x.dir>0?"up":x.dir<0?"down":"flat";return '<li><span class="'+k+'">'+(x.dir>0?"▲":x.dir<0?"▼":"–")+'</span>'+esc(x.text)+'</li>'});
+  (c.movers||[]).forEach(function(m){items.push('<li><span class="'+(m.dir>0?"up":"down")+'">'+(m.dir>0?"▲":"▼")+'</span>징후 '+esc(m.label)+': '+esc(m.from)+' → '+esc(m.to)+'</li>')});
+  (c.newEvents||[]).forEach(function(e){items.push('<li><span class="flat">●</span>새 사건 '+esc(kst(e.at))+' '+esc(e.headline)+'</li>')});
+  var h='<div class="chgbox '+cls+'"><div class="ch '+cls+'">'+esc(head)+'</div>';
+  if(items.length)h+='<div class="ps" style="margin-top:6px;color:var(--fg);font-weight:700">왜: 그 사이 바뀐 것</div><ul>'+items.join("")+'</ul>';
+  else if(c.basis==="judgment")h+='<div class="ps">비교 기준이 클로드 분석관 판단이라 영역별 내역은 없습니다.</div>';
+  else if(Math.abs(d)>=0.05)h+='<div class="ps">영역 수준은 같은데 확률만 달라졌습니다 — 그 사이 판정 방식이 바뀐 영향일 수 있습니다.</div>';
+  else h+='<div class="ps">여섯 영역의 수준과 징후 상태가 그때와 같아서 확률도 그대로입니다. 확률은 영역 수준에서 나옵니다.</div>';
+  if(c.modelChanges&&c.modelChanges.length&&!items.some(function(t){return /측정 변경/.test(t)}))h+='<div class="ps">그 사이 측정 방식 변경: '+esc(c.modelChanges.join(" · "))+'</div>';
+  return h+'</div>'}
 // 첫 화면 한 장: 지금 단계 · 30일 국지 충돌 확률 · 어제와 비교 · 왜 · 오를 조건 · 마지막 도발 · 클로드 의견 · 할 일 · 데이터 상태 (2026-11-02)
 function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평온","긴장","위기","임박","교전"],LV=["평소","주의","경계","심각"];
   var h='<div class="card sum"><div class="lead">지금 한반도 · 자동 판정 '+esc(when(w.at))+'</div>';
   h+='<div class="phase"><b>'+w.phase+'단계 '+esc(w.phaseLabel)+'</b><span>5단계 중 · 1953년 이후 전면전 없음</span></div>';
-  h+=gauge(w);
-  if(c&&c.headline){var vd=c.verdict==="worse"?["up","▲ 나빠짐"]:c.verdict==="better"?["dn","▼ 나아짐"]:["same","● 비슷"];var parts=c.headline.split(" — ");
-    h+='<div class="delta"><i class="'+vd[0]+'">'+vd[1]+'</i><span>'+(c.agoLabel?esc(c.agoLabel)+'와 비교'+(parts[1]?' — '+esc(parts.slice(1).join(" — ")):''):esc(c.headline))+'</span></div>'}
+  h+=gauge(w,c);
+  h+=whyPct(w);
+  h+=whyChanged(w,c);
   var hot=w.domains.filter(function(d){return d.level>0}).sort(function(a,b){return b.level-a.level});
   var calm=w.domains.filter(function(d){return d.level===0}).map(function(d){return d.label});
   if(hot.length){h+='<h3>왜 '+esc(w.phaseLabel)+'인가</h3><div class="why">'+hot.map(function(d){return '<div class="t"><b>'+esc(d.label)+'</b><span>'+esc((d.drivers[0]||"근거 확인 중").replace(/\s*\((이상|상승|주의|경계|심각|위급)\)(?=\s*(—|$))/,""))+'</span></div><span class="chip d'+(d.level+1)+'">'+LV[Math.min(3,d.level)]+'</span>'}).join("")+'</div>';

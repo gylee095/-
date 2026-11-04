@@ -126,7 +126,7 @@ table{width:100%;max-width:100%;table-layout:fixed;border-collapse:collapse;font
 </style></head><body><div class="wrap">
 <div class="top"><b>🇰🇷 한반도 조기경보</b><span id="upd"></span></div>
 <div id="app"></div>
-<details id="login" class="card" style="display:none"><summary>운영자 로그인</summary><p style="font-size:13px;color:var(--mute)">운영자만 씁니다. 보는 데는 필요 없어요.</p><input id="tok" type="password" autocomplete="current-password" placeholder="접속 비밀값"><button class="btn" onclick="saveTok()">확인</button></details>
+<details id="login" class="card" style="display:none"><summary>운영자 로그인 — 지금은 공개 화면으로 열려 있어요</summary><p style="font-size:13px;color:var(--mute)">운영자만 씁니다. 보는 데는 필요 없어요. 비밀값을 넣으면 이 휴대폰의 알림이 운영자용으로 올라가요.</p><input id="tok" type="password" autocomplete="current-password" placeholder="접속 비밀값"><button class="btn" onclick="saveTok()">확인</button></details>
 </div>
 <script>
 var $=function(s){return document.querySelector(s)};
@@ -181,7 +181,7 @@ async function load(){
     try{body=await r.json()}catch(e){}
     if(!r.ok||!body||body.error){showErr(body&&body.message?body.message:"서버 오류 ("+r.status+") — 잠시 뒤 다시 열어 보세요.",!!body&&body.error==="storage_limit");return}
     st=body}
-  LAST=Date.now();$("#login").style.display=st.public?"":"none";ST=st;render();if(!st.public&&!window.__pushSynced){window.__pushSynced=1;resyncPush()}}
+  LAST=Date.now();var lg=$("#login");lg.style.display=st.public?"":"none";lg.open=!!st.public;ST=st;render();if(!st.public)resyncPush()}
 // 불러오기 실패: 이미 화면이 있으면 그대로 두고 위에 알리고, 처음이면 이유를 크게 보여 준다 (빈 화면 금지)
 function showErr(msg,limit){$("#login").style.display="none";
   var box='<div class="card" id="err" style="border-left:4px solid #d33"><b>'+(limit?"서버 저장소 하루 한도 초과":"불러오기 실패")+'</b><div style="font-size:14px;margin-top:6px">'+esc(msg)+'</div>'+

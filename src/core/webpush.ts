@@ -104,13 +104,13 @@ export interface WebPushResult {
 }
 
 /** 구독 하나에 알림 보내기. 본문은 JSON(title·body·url) 문자열 */
-export async function sendWebPush(keys: VapidKeys, sub: PushSubscriptionJson, payload: { title: string; body: string; url?: string; tag?: string }, fetchImpl: typeof fetch = fetch, ttlSec = 24 * 3600): Promise<WebPushResult> {
+export async function sendWebPush(keys: VapidKeys, sub: PushSubscriptionJson, payload: { title: string; body: string; url?: string; tag?: string }, fetchImpl: typeof fetch = fetch, ttlSec = 24 * 3600, authHeader?: string): Promise<WebPushResult> {
   try {
     const body = await encryptPayload(sub, JSON.stringify(payload));
     const res = await fetchImpl(sub.endpoint, {
       method: "POST",
       headers: {
-        Authorization: await vapidAuthorization(keys, sub.endpoint),
+        Authorization: authHeader ?? (await vapidAuthorization(keys, sub.endpoint)),
         "Content-Encoding": "aes128gcm",
         "Content-Type": "application/octet-stream",
         TTL: String(ttlSec),
@@ -163,7 +163,8 @@ export async function addSub(store: Pick<Store, "getKv" | "setKv">, sub: PushSub
   const prev = all.find((s) => s.endpoint === sub.endpoint);
   const subs = all.filter((s) => s.endpoint !== sub.endpoint);
   // 같은 기기가 로그인 뒤 다시 등록하면 owner 로 올린다. owner 였던 것을 public 으로 내리지는 않는다 (로그아웃 상태로 다시 눌러도)
-  const finalWho = prev?.who === "owner" ? "owner" : who;
+  // 올라간 등급은 내려가지 않는다: owner 는 늘 owner, paid 는 public 으로 떨어지지 않는다
+  const finalWho = prev?.who === "owner" ? "owner" : prev?.who === "paid" && who === "public" ? "paid" : who;
   subs.push({ endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth }, at: prev?.at ?? now, who: finalWho });
   if (subs.length > MAX_SUBS) subs.splice(0, subs.length - MAX_SUBS);
   await store.setKv(SUBS_KEY, JSON.stringify(subs));
@@ -188,7 +189,13 @@ export async function broadcastWebPush(
   if (!subs.length) return { sent: 0, failed: 0, removed: 0, total: 0 };
   const keys = await loadVapid(store, subject);
   const targets = only ? subs.filter(only) : subs;
-  const results = await Promise.all(targets.map((s) => sendWebPush(keys, s, payload, fetchImpl)));
+  const auth = new Map<string, Promise<string>>();
+  const authFor = (endpoint: string) => {
+    const o = new URL(endpoint).origin;
+    if (!auth.has(o)) auth.set(o, vapidAuthorization(keys, endpoint));
+    return auth.get(o)!;
+  };
+  const results = await Promise.all(targets.map(async (s) => sendWebPush(keys, s, payload, fetchImpl, 24 * 3600, await authFor(s.endpoint))));
   let sent = 0, failed = 0, removed = 0;
   const keep: StoredSub[] = [];
   const byEndpoint = new Map(targets.map((s, i) => [s.endpoint, results[i]]));

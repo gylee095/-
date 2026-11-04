@@ -176,4 +176,7 @@ export interface Env {
   DEEP_DAILY_MAX?: string;
   /** 한 달 최대 심층 분석 수 (기본 30) */
   DEEP_MONTHLY_MAX_RUNS?: string;
+  /** 토스페이먼츠 결제위젯 클라이언트 키(공개 가능)와 비밀키(서버 전용, 승인 API) — 2026-11-04 유료 알림 */
+  TOSS_CLIENT_KEY?: string;
+  TOSS_SECRET_KEY?: string;
 }

@@ -117,7 +117,7 @@ details summary{cursor:pointer;color:var(--link);font-size:14px;margin-top:10px;
 .sum .calm{font-size:13px;color:var(--mute);margin-top:8px}
 .sum ul{margin:0;padding-left:18px;font-size:14px}
 .sum .ev{margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--chip);font-size:14px}.sum .ev span{color:var(--mute)}
-.sum .do{margin-top:12px;padding:12px;border-radius:12px;border:1px solid var(--line);font-size:14px}.sum .do b{display:block;margin-bottom:2px}
+.sum .do{margin-top:12px;padding:12px;border-radius:12px;border:1px solid var(--line);font-size:14px}.sum .do>b{display:block;margin-bottom:2px}
 .sum .data{margin-top:10px;font-size:12px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 10px}.sum .data .ok{color:var(--l1);font-weight:700}.sum .data.fail{color:var(--l3);font-weight:700}
 .sum .wrd{margin-top:12px}.sum .wrd>summary{font-size:13px;color:var(--link);cursor:pointer}
 .more{margin:0 0 10px}.more>summary{font-size:15px;font-weight:700;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;list-style:none;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;cursor:pointer}
@@ -146,6 +146,11 @@ function when(ms){if(!ms)return "—";return kst(ms)+" · "+ago(ms)}
 function kday(ms){var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()}
 function bwhen(b){return b.selfReport?kday(b.selfReport.day)+" (시각 미상)":kst(b.at)+" KST"}
 function bago(b){if(!b.selfReport)return ago(b.at);var n=Math.round((Date.now()-b.selfReport.day)/86400000-0.5);return n<=0?"오늘":n===1?"어제":n+"일 전"}
+var CODE_RE=/^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/;
+function normCode(c){c=String(c||"").toUpperCase().replace(/[^A-Z2-9]/g,"");return c.length===12?c.slice(0,4)+"-"+c.slice(4,8)+"-"+c.slice(8):""}
+function actCode(){try{var q=normCode(new URLSearchParams(location.search).get("code"));if(q){localStorage.setItem("kew_code",q);var s=pushSupport();if(!(s.ios&&!s.standalone))history.replaceState(null,"",location.pathname+location.hash)}var c=localStorage.getItem("kew_code");return CODE_RE.test(c||"")?c:null}catch(e){return null}}
+function codeManifest(){var c=actCode();if(!c)return;var l=document.querySelector('link[rel="manifest"]');if(l)l.href="/manifest.webmanifest?code="+encodeURIComponent(c)}
+function saveCode(){var v=normCode($("#codein")&&$("#codein").value);if(!v){alert("코드 12자리를 확인해 주세요. 예: ABCD-EFGH-JKLM");return}try{localStorage.setItem("kew_code",v)}catch(e){}codeManifest();render()}
 function tok(){try{var q=new URLSearchParams(location.search).get("key");if(q){localStorage.setItem("kew_token",q);history.replaceState(null,"",location.pathname+location.hash)}return localStorage.getItem("kew_token")}catch(e){return null}}
 function saveTok(){try{localStorage.setItem("kew_token",$("#tok").value)}catch(e){}resyncPush();load()}
 // 로그인 뒤: 이미 켜 둔 알림 구독을 토큰과 함께 다시 등록해 운영자 구독으로 올린다 (켜기 → 로그인 순서여도 되게)
@@ -156,12 +161,18 @@ var CONF={high:"신뢰도 높음",medium:"신뢰도 보통",low:"신뢰도 낮�
 function basisText(e){if(e.brief&&e.brief.sourceLabel)return e.brief.sourceLabel;if(e.basis==="official_quote")return e.status==="CORROBORATED"?"언론 "+e.sources.length+"곳이 공식발표 인용":"속보 1곳 (교차확인 전)";if(e.basis==="media")return "언론 보도만";return STATUS[e.status]}
 // ── 웹 푸시: 브라우저가 직접 알림을 띄운다 (앱·건당 비용 없음, 2026-11-04) ──
 function pushSupport(){var ios=/iPhone|iPad|iPod/.test(navigator.userAgent);var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var ok="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;return {ios:ios,standalone:standalone,ok:ok}}
-function pushCard(){var s=pushSupport();var h='<div class="do" id="pushcard"><b>휴대폰 알림 받기 · 무료</b>';
-  if(!s.ok&&s.ios&&!s.standalone)h+='아이폰은 홈 화면에 추가해야 알림을 받을 수 있어요.<ol style="margin:6px 0 0;padding-left:20px"><li>아래 <b>공유</b> 버튼(네모에 화살표)을 누르고</li><li><b>홈 화면에 추가</b>를 누른 뒤</li><li>홈 화면의 <b>조기경보</b> 아이콘을 열어 "알림 켜기"를 누르세요</li></ol>';
+function pushCard(){var s=pushSupport();var code=actCode(),owner=!!tok();var h='<div class="do" id="pushcard"><b>휴대폰 알림 받기</b>';
+  if(!code&&!owner){
+    h+='<span id="pushmsg">전쟁 위험 단계가 바뀌는 순간 휴대폰이 울립니다. <b>4,900원 한 번, 평생.</b> 앱 설치·문자 요금 없음.</span><div style="margin-top:8px"><a class="btn" href="/buy" style="display:inline-block;text-decoration:none">알림 받기 · 4,900원</a></div>';
+    h+='<details style="margin-top:8px"><summary>이미 결제했어요 (활성화 코드 입력)</summary><input id="codein" placeholder="ABCD-EFGH-JKLM" autocapitalize="characters" autocomplete="one-time-code" style="width:100%;padding:12px;font-size:17px;letter-spacing:1px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);margin:8px 0"><button class="btn" onclick="saveCode()">확인</button></details>';
+    return h+'</div>'}
+  if(code)h+='<div style="margin:4px 0 6px;font-size:13px;color:var(--mute)">결제 확인됨 · 활성화 코드 <b style="letter-spacing:1px">'+esc(code)+'</b></div>';
+  if(!s.ok&&s.ios&&!s.standalone)h+='아이폰은 <strong>한 단계만 더</strong> 하면 끝나요.<ol style="margin:6px 0 0;padding-left:20px"><li>화면 아래 <b>공유</b> 버튼(네모에 위쪽 화살표)</li><li><b>홈 화면에 추가</b> → 추가</li><li>홈 화면에 생긴 <b>조기경보</b> 아이콘을 열고 <b>알림 켜기</b></li></ol><p style="font-size:12px;color:var(--mute);margin:6px 0 0">애플 규칙상 홈 화면에 추가한 앱만 알림을 받을 수 있어요. 코드는 자동으로 함께 옮겨져요.</p>';
   else if(!s.ok)h+='이 브라우저는 알림을 지원하지 않아요. 크롬(안드로이드)이나 사파리(아이폰, 홈 화면에 추가)에서 열어 주세요.';
   else if(Notification.permission==="denied")h+='알림이 꺼져 있어요. 휴대폰 설정 → 알림에서 이 앱(조기경보)의 알림을 켜 주세요.';
   else h+='<span id="pushmsg">단계가 바뀌거나 실제 발사·경보가 있을 때만 옵니다. 평소엔 조용해요.</span><div style="margin-top:8px"><button class="btn" id="pushbtn" onclick="enablePush()">알림 켜기</button> <button class="btn" id="pushtest" onclick="testMyPush()" style="display:none">내 휴대폰으로 테스트</button></div>';
   return h+'</div>'}
+function goPush(){var c=document.getElementById("pushcard");if(c)c.scrollIntoView({behavior:"smooth",block:"center"});return false}
 function b64uToU8(s){var p=s.replace(/-/g,"+").replace(/_/g,"/");p+="=".repeat((4-p.length%4)%4);var b=atob(p),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
 async function pushState(){try{if(!pushSupport().ok)return "unsupported";var reg=await navigator.serviceWorker.getRegistration();var sub=reg&&await reg.pushManager.getSubscription();return sub?"on":"off"}catch(e){return "off"}}
 async function refreshPushUi(){var st=await pushState();var el=$("#pushst");if(el)el.textContent=st==="on"?"알림 켜짐":st==="off"?"알림 꺼짐":"지원 안 함";var b=$("#pushbtn"),t=$("#pushtest"),m=$("#pushmsg");if(b&&st==="on"){b.textContent="알림 끄기";b.onclick=disablePush;if(t)t.style.display="";if(m)m.textContent="이 휴대폰으로 알림이 옵니다. 단계가 바뀌거나 실제 발사·경보가 있을 때만."}}
@@ -171,14 +182,17 @@ async function enablePush(){var b=$("#pushbtn");try{b.disabled=true;b.textConten
   var key=(await (await fetch("/api/push/key")).json()).publicKey;
   var sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToU8(key)});
   var hd={"content-type":"application/json"};var t=tok();if(t)hd.authorization="Bearer "+t;
-  var r=await fetch("/api/push/subscribe",{method:"POST",headers:hd,body:JSON.stringify({subscription:sub.toJSON()})});
-  if(!r.ok)throw new Error("등록 실패 "+r.status);
+  var code=actCode(),r,j={};
+  if(code){r=await fetch("/api/billing/activate",{method:"POST",headers:hd,body:JSON.stringify({code:code,subscription:sub.toJSON()})});j=await r.json().catch(function(){return {}});
+    if(!r.ok){try{await sub.unsubscribe()}catch(e){}throw new Error(j.error||("활성화 실패 "+r.status))}}
+  else{r=await fetch("/api/push/subscribe",{method:"POST",headers:hd,body:JSON.stringify({subscription:sub.toJSON()})});if(!r.ok)throw new Error("등록 실패 "+r.status)}
   b.disabled=false;await refreshPushUi();
-  if(t)testMyPush();else alert("알림이 켜졌어요.")}
+  if(t)testMyPush();else alert("알림이 켜졌어요. 단계가 바뀌면 이 휴대폰이 울립니다."+(j.devicesMax?"\n(이 코드로 켠 기기 "+j.devicesUsed+"/"+j.devicesMax+"대)":""))}
   catch(e){alert("알림을 켜지 못했어요: "+(e&&e.message||e));b.disabled=false;b.textContent="알림 켜기"}}
 async function disablePush(){try{var reg=await navigator.serviceWorker.getRegistration();var sub=reg&&await reg.pushManager.getSubscription();if(sub){await fetch("/api/push/unsubscribe",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({endpoint:sub.endpoint})});await sub.unsubscribe()}}catch(e){}var b=$("#pushbtn");if(b){b.textContent="알림 켜기";b.onclick=enablePush}var t=$("#pushtest");if(t)t.style.display="none";refreshPushUi()}
 async function testMyPush(){var r=await fetch("/api/test-push",{method:"POST",headers:{authorization:"Bearer "+tok()}});var j=await r.json();var w=j.find&&j.find(function(x){return x.channel==="webpush"});alert(w&&w.ok?"보냈어요. 잠시 뒤 잠금화면을 확인하세요.":"실패: "+JSON.stringify(j))}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});
+codeManifest();
 async function load(){
   var st=window.__KEW_STATE__;
   if(!st){var t=tok();
@@ -554,7 +568,7 @@ function render(){
   var lastFail=mine.find(function(a){return !a.ok});var lastOk=mine.find(function(a){return a.ok});
   var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패('+esc(lastFail.channel||"")+') '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+(lastFail.channel==="ntfy"&&chans.indexOf("bark")<0?'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).':'')+'</p>':"";
   var ntfyUi=chans.indexOf("ntfy")>=0&&st.setup?'<p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button>':'';
-  sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+'<p style="font-size:13px">휴대폰 알림은 <b>전쟁 위험 단계가 실제로 바뀔 때</b>(올라가면 5분 주기 두 번 확인 뒤, 내려가면 6시간 이어진 뒤)와 <b>실제 사건</b>(발사 속보·민방위 경보·철수 권고)일 때만 갑니다. 확률 숫자의 작은 흔들림, 징후 조합, 결론이 같은 심층 분석은 화면에만 남깁니다. <b>테스트 푸시와 시스템 경고는 운영자 기기(Bark·운영자 구독)에만</b> 가고, 다른 구독자에게는 실제 알림(단계 변화·사건·심층 분석)만 갑니다. 이 휴대폰: <b id="pushst">확인 중</b> · 로그인: <b>'+(st.public?"안 됨 (공개 화면)":"운영자")+'</b></p>'+pushCard()+'<p style="font-size:13px">'+(st.phaseNotify?' 지금 기억한 단계: <b>'+st.phaseNotify.phase+'단계</b> ('+esc(kst(st.phaseNotify.at))+'부터)'+(st.phaseNotify.pending?' · 확인 중: '+st.phaseNotify.pending.phase+'단계':''):'')+'</p>'+(st.setup&&tok()?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
+  sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+'<p style="font-size:13px">휴대폰 알림은 <b>전쟁 위험 단계가 실제로 바뀔 때</b>(올라가면 5분 주기 두 번 확인 뒤, 내려가면 6시간 이어진 뒤)와 <b>실제 사건</b>(발사 속보·민방위 경보·철수 권고)일 때만 갑니다. 확률 숫자의 작은 흔들림, 징후 조합, 결론이 같은 심층 분석은 화면에만 남깁니다. <b>테스트 푸시와 시스템 경고는 운영자 기기(Bark·운영자 구독)에만</b> 가고, 다른 구독자에게는 실제 알림(단계 변화·사건·심층 분석)만 갑니다. 이 휴대폰: <b id="pushst">확인 중</b> · 로그인: <b>'+(st.public?"안 됨 (공개 화면)":"운영자")+'</b> <a href="#pushcard" onclick="return goPush()">알림 켜기·끄기는 첫 화면 카드에서 ↑</a></p><p style="font-size:13px">'+(st.phaseNotify?' 지금 기억한 단계: <b>'+st.phaseNotify.phase+'단계</b> ('+esc(kst(st.phaseNotify.at))+'부터)'+(st.phaseNotify.pending?' · 확인 중: '+st.phaseNotify.pending.phase+'단계':''):'')+'</p>'+(st.setup&&tok()?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
   h+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;

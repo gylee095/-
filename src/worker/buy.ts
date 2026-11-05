@@ -1,4 +1,5 @@
-// 유료 알림 상품 페이지 (2026-11-04). 휴대폰 우선. 토스 결제위젯 → 서버 확정 → 활성화 코드 → QR/링크로 폰에서 켜기.
+// 유료 알림 상품 페이지 (2026-11-04, 결제사 페이앱 11-05). 휴대폰 우선. 페이앱 결제창 → 페이앱이 우리 서버에 결제완료 통보 → 활성화 코드 → QR/링크로 폰에서 켜기.
+// 브라우저는 결제 성공을 '주장'하지 않는다: 결제 완료 화면은 서버에 상태를 물어보기만 한다(결제완료 통보가 와야 코드가 생긴다).
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
@@ -24,10 +25,10 @@ ul{padding-left:20px;margin:6px 0}li{margin:4px 0}.mute{color:var(--mute);font-s
 </style>`;
 
 /** 상품 페이지: 무엇을 주는지 · 가격 · 결제 */
-export function buyPage(clientKey: string | undefined, origin: string): string {
-  const ready = !!clientKey;
+export function buyPage(payappUserid: string | undefined, origin: string): string {
+  const ready = !!payappUserid;
   return String.raw`${SHELL_HEAD}<title>한반도 조기경보 알림 — 4,900원</title>
-<script src="https://js.tosspayments.com/v2/standard"></script></head><body><div class="wrap">
+<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script></head><body><div class="wrap">
 <div class="top"><b>🇰🇷 한반도 조기경보</b> · <a href="/">지금 상황 보기</a></div>
 <h1>전쟁 위험이 한 단계 올라가는 순간,<br>휴대폰이 울립니다.</h1>
 <a class="live" id="live" href="/" style="text-decoration:none;color:var(--fg)"><i></i><span>지금 상황 확인 중…</span></a>
@@ -43,7 +44,7 @@ export function buyPage(clientKey: string | undefined, origin: string): string {
 </ul>
 <p class="mute">알림 첫 줄에 무엇이 달라졌는지 적힙니다. 예: <i>⬆ 나빠짐: 2단계 긴장 → 3단계 위기</i></p>
 ${ready
-  ? String.raw`<button class="btn" id="pay" onclick="pay()">4,900원 결제하고 알림 켜기</button>`
+  ? String.raw`<button class="btn" id="pay" onclick="pay()">4,900원 결제하고 알림 켜기</button><p class="mute" id="paywait" style="display:none;margin-top:10px">결제창에서 결제를 마치면 이 화면이 자동으로 넘어가요. 카드·카카오페이·네이버페이·토스페이·휴대폰 결제를 쓸 수 있어요.</p>`
   : String.raw`<button class="btn" disabled>결제 준비 중</button><p class="mute">결제 연결이 아직 설정되지 않았어요. 곧 열립니다.</p>`}
 <p class="mute" style="margin-top:10px">결제 즉시 알림 서비스가 시작되며(활성화 코드 발급), 시작 뒤에는 환불이 제한됩니다. 결제 후 7일 안에 요청하시면 환불해 드립니다. <a href="/terms">이용약관·환불</a></p>
 </div>
@@ -62,12 +63,22 @@ ${ready
 <div class="foot">공개 정보만 사용합니다. 위험도는 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. <a href="/terms">이용약관</a></div>
 </div>
 <script>
-var CK=${JSON.stringify(clientKey ?? "")},ORIGIN=${JSON.stringify(origin)};
+var ORIGIN=${JSON.stringify(origin)};
 fetch("/api/public-state").then(function(r){return r.json()}).then(function(j){var w=j.warRisk;if(!w)return;var c=["","#2e7d32","#b58105","#e65100","#c62828","#7b1fa2"][w.phase]||"#888";var el=document.getElementById("live");el.querySelector("i").style.background=c;el.querySelector("span").textContent="지금 "+w.phase+"단계 "+w.phaseLabel+" · 5분마다 갱신 →"}).catch(function(){});
+// 주문은 서버가 만든다(금액도 서버가 정함). 결제창을 띄운 뒤에는 서버에 상태를 물어 결제완료 통보가 왔는지 본다
+function waitPaid(o,t){var n=0;var iv=setInterval(async function(){n++;if(n>400){clearInterval(iv);return}
+  try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
+    if(j.status==="paid"){clearInterval(iv);location.href="/buy/success?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t)}}catch(e){}},2500)}
 async function pay(){var b=document.getElementById("pay");b.disabled=true;b.textContent="결제창 여는 중…";
-  try{var o=await (await fetch("/api/billing/order",{method:"POST"})).json();
-    var toss=TossPayments(CK);var payment=toss.payment({customerKey:TossPayments.ANONYMOUS});
-    await payment.requestPayment({method:"CARD",amount:{currency:"KRW",value:o.amount},orderId:o.orderId,orderName:o.orderName,successUrl:ORIGIN+"/buy/success",failUrl:ORIGIN+"/buy/fail",card:{useEscrow:false,flowMode:"DEFAULT",useCardPoint:false,useAppCardOnly:false}});
+  try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
+    try{localStorage.setItem("kew_order",JSON.stringify({o:o.orderId,t:o.claim,at:Date.now()}))}catch(e){}
+    var p=o.payapp;
+    // 같은 탭에서 결제창을 연다 — 휴대폰은 탭 직후가 아닌 팝업(주문을 만든 뒤 여는 창)을 막는다. 결제를 마치면 페이앱이 결제 완료 화면(returnurl)으로 돌려보낸다
+    PayApp.setTarget("_self");
+    PayApp.setDefault({userid:p.userid,shopname:p.shopname});
+    PayApp.setParam({goodname:p.goodname,price:p.price,var1:p.var1,feedbackurl:p.feedbackurl,returnurl:p.returnurl,smsuse:p.smsuse,checkretry:p.checkretry,openpaytype:p.openpaytype}).payrequest();
+    b.textContent="결제창에서 결제를 마쳐 주세요";document.getElementById("paywait").style.display="";
+    waitPaid(o.orderId,o.claim);
   }catch(e){alert("결제를 시작하지 못했어요: "+(e&&e.message||e));b.disabled=false;b.textContent="4,900원 결제하고 알림 켜기"}}
 </script></body></html>`;
 }
@@ -77,7 +88,7 @@ export function successPage(origin: string): string {
   return String.raw`${SHELL_HEAD}<title>결제 완료 — 알림 켜기</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head><body><div class="wrap">
 <div class="top"><b>🇰🇷 한반도 조기경보</b></div>
-<div id="wait" class="card"><b>결제를 확인하는 중…</b><p class="mute">몇 초 걸립니다. 창을 닫지 마세요.</p></div>
+<div id="wait" class="card"><b>결제를 확인하는 중…</b><p class="mute" id="waitmsg">보통 몇 초 걸립니다. 창을 닫지 마세요.</p><button class="btn ghost" id="again" style="display:none;margin-top:10px" onclick="location.reload()">다시 확인</button></div>
 <div id="done" class="card" style="display:none">
 <h1 style="margin-top:0;font-size:24px">결제 완료 ✓</h1>
 <p>이제 <b>휴대폰에서 알림을 켜면</b> 끝입니다. 기기 <span id="dev"></span>대까지 쓸 수 있어요.</p>
@@ -89,21 +100,31 @@ export function successPage(origin: string): string {
 <button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('go').href).then(function(){alert('링크를 복사했어요. 다른 휴대폰에 보내세요.')})">링크 복사 (다른 휴대폰에 보내기)</button>
 <p class="mute" id="rc"></p>
 </div>
-<div id="fail" class="card" style="display:none"><b class="err">결제 확인에 실패했어요</b><p id="failmsg" class="mute"></p><p class="mute">카드가 승인됐다면 돈은 빠져나가지 않거나 자동 취소됩니다. 다시 시도하거나 문의해 주세요.</p><a class="btn ghost" href="/buy">다시 시도</a></div>
+<div id="fail" class="card" style="display:none"><b class="err">결제가 완료되지 않았어요</b><p id="failmsg" class="mute"></p><p class="mute">결제가 취소됐거나 승인되지 않았어요. 돈은 빠져나가지 않았습니다.</p><a class="btn ghost" href="/buy">다시 시도</a></div>
 <div class="foot"><a href="/terms">이용약관·환불</a></div>
 </div>
 <script>
 var ORIGIN=${JSON.stringify(origin)};
-(async function(){var q=new URLSearchParams(location.search);
-  try{var r=await fetch("/api/billing/confirm",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({paymentKey:q.get("paymentKey"),orderId:q.get("orderId"),amount:Number(q.get("amount"))})});
-    var j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||("오류 "+r.status));
+function show(j){var link=ORIGIN+"/?code="+encodeURIComponent(j.code);
     history.replaceState(null,"",location.pathname);
-    var link=ORIGIN+"/?code="+encodeURIComponent(j.code);
     document.getElementById("code").textContent=j.code;document.getElementById("dev").textContent=j.devices;document.getElementById("go").href=link;
-    if(j.receiptUrl)document.getElementById("rc").innerHTML='<a href="'+j.receiptUrl+'" target="_blank" rel="noopener">영수증 보기</a>';
+    if(j.receiptUrl&&/^https:\/\//.test(j.receiptUrl))document.getElementById("rc").innerHTML='<a href="'+j.receiptUrl.replace(/"/g,"")+'" target="_blank" rel="noopener">영수증 보기</a>';
     new QRCode(document.getElementById("qr"),{text:link,width:184,height:184,correctLevel:QRCode.CorrectLevel.M});
-    document.getElementById("wait").style.display="none";document.getElementById("done").style.display="";
-  }catch(e){document.getElementById("wait").style.display="none";document.getElementById("failmsg").textContent=String(e&&e.message||e);document.getElementById("fail").style.display=""}})();
+    document.getElementById("wait").style.display="none";document.getElementById("done").style.display="";}
+(async function(){var q=new URLSearchParams(location.search),o=q.get("o"),t=q.get("t");
+  if(!o||!t){try{var s=JSON.parse(localStorage.getItem("kew_order")||"null");if(s){o=s.o;t=s.t}}catch(e){}}
+  if(!o||!t){document.getElementById("wait").style.display="none";document.getElementById("failmsg").textContent="주문 정보를 찾지 못했어요.";document.getElementById("fail").style.display="";return}
+  // 결제완료 통보는 보통 몇 초 안에 온다. 3분까지 기다린다
+  for(var i=0;i<90;i++){
+    try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
+      if(r.ok&&j.status==="paid"&&j.code){show(j);return}
+      if(r.ok&&(j.status==="failed"||j.status==="refunded")){document.getElementById("wait").style.display="none";document.getElementById("failmsg").textContent=j.status==="refunded"?"이 결제는 취소(환불)되었어요.":"";document.getElementById("fail").style.display="";return}
+      if(r.status===404){break}}catch(e){}
+    if(i===10)document.getElementById("waitmsg").textContent="조금 더 걸리고 있어요. 결제를 마쳤다면 그대로 기다려 주세요.";
+    await new Promise(function(res){setTimeout(res,2000)})}
+  document.getElementById("waitmsg").textContent="아직 결제가 확인되지 않았어요. 결제를 마쳤다면 잠시 뒤 '다시 확인'을 눌러 주세요. 활성화 코드는 결제가 확인되면 이 화면에 나옵니다.";
+  document.getElementById("again").style.display="";
+})();
 </script></body></html>`;
 }
 
@@ -126,7 +147,7 @@ export function termsPage(): string {
 <h2>환불</h2>
 <p>결제 즉시 활성화 코드가 발급되어 서비스 제공이 시작됩니다. 전자상거래법상 제공이 시작된 서비스는 청약철회가 제한될 수 있으나, 결제일로부터 <b>7일 안에</b> 요청하시면 이유를 묻지 않고 전액 환불해 드립니다. 7일이 지난 뒤에는 서비스 장애 등 당사 귀책 사유가 있을 때 환불합니다. 환불 요청은 아래 연락처로 결제 주문번호와 함께 보내 주세요.</p>
 <h2>개인정보</h2>
-<p>결제 정보는 토스페이먼츠가 처리하며 당사는 카드 정보를 저장하지 않습니다. 당사가 보관하는 것은 주문번호, 결제 시각, 활성화 코드, 알림을 받을 브라우저의 푸시 주소뿐입니다. 이름·전화번호·이메일을 요구하지 않습니다. 알림을 끄면(브라우저에서 구독 해제) 푸시 주소는 삭제됩니다.</p>
+<p>결제 정보는 결제대행사 페이앱(PayApp)이 처리하며 당사는 카드 정보를 저장하지 않습니다. 당사가 보관하는 것은 주문번호, 결제 시각, 활성화 코드, 알림을 받을 브라우저의 푸시 주소뿐입니다. 이름·전화번호·이메일을 요구하지 않습니다. 알림을 끄면(브라우저에서 구독 해제) 푸시 주소는 삭제됩니다.</p>
 <h2>사업자 정보·연락처</h2>
 <p>상호·대표자·사업자등록번호·통신판매업신고번호·연락처: <i>(등록 뒤 기재)</i></p>
 </div>

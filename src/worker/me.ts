@@ -96,6 +96,7 @@ async function openReport(id){var el=document.getElementById("r_"+id);if(!el)ret
 ${ORDERS_JS}
 var PENDING=null,WATCH=null;
 function noCode(msg){
+  if(ENV.ios&&!ENV.standalone&&!ENV.inapp){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+'<div class="state main"><h2>📲 먼저 앱을 설치하세요 (무료, 30초)</h2><ol class="g big"><li>화면 아래 가운데 '+SHARE_SVG+' <b>공유</b> 버튼</li><li>목록을 내려서 <b>홈 화면에 추가</b> → <b>추가</b></li><li>홈 화면의 <b>조기경보</b> 앱을 열고 그 안에서 <b>결제</b> → <b>알림 켜기</b></li></ol><p class="mute">아이폰은 홈 화면에 추가한 앱만 알림을 받을 수 있어요. 앱 안에서 결제하면 코드를 넣을 필요 없이 바로 이어져요.</p></div><div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';return}
   var h='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
   '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀔 때만 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+
   '<label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="prep()"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>'+

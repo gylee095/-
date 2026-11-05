@@ -30,7 +30,9 @@ body{color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased
 
 main{position:relative;z-index:3}
 section{position:relative;min-height:135svh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 24px 9svh}
-.band{position:absolute;left:0;right:0;bottom:0;height:60%;background:linear-gradient(to top,var(--bg) 0%,rgba(10,11,11,.97) 62%,rgba(10,11,11,.6) 84%,rgba(10,11,11,0));pointer-events:none;z-index:-1}
+/* 세로 화면: 글 뒤 검은 띠. 위·아래 모두 흐려져야 장면 사이가 뚝 끊기지 않는다 (11/5) — 띠를 섹션 아래로 14svh 더 내려 그 구간에서 흐려지게 */
+.band{position:absolute;left:0;right:0;bottom:-14svh;height:calc(60% + 14svh);background:linear-gradient(to top,rgba(10,11,11,0) 0%,rgba(10,11,11,.75) 7%,var(--bg) 15%,rgba(10,11,11,.97) 64%,rgba(10,11,11,.6) 85%,rgba(10,11,11,0));pointer-events:none;z-index:-1}
+#buy .band{bottom:0;height:60%;background:linear-gradient(to top,var(--bg) 0%,rgba(10,11,11,.97) 62%,rgba(10,11,11,.6) 84%,rgba(10,11,11,0))}
 .card{max-width:560px}
 .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--red);margin:0 0 14px;display:flex;gap:10px;align-items:center}
 .k:before{content:"";width:18px;height:1px;background:var(--red)}
@@ -52,7 +54,7 @@ p.lead b{color:var(--ink);font-weight:600}
 .cta:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .meta{margin-top:14px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--faint);display:flex;gap:10px;flex-wrap:wrap}
 #hero{min-height:100svh;padding-bottom:calc(32px + env(safe-area-inset-bottom))}
-#hero .band{height:52%}
+#hero .band{height:calc(52% + 14svh)}
 .hero-fade{opacity:0;animation:fade .9s var(--ease) forwards}
 @keyframes fade{to{opacity:1}}
 .scrollhint{margin-top:22px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--faint);display:flex;align-items:center;gap:8px}
@@ -89,7 +91,7 @@ footer{position:relative;z-index:3;padding:24px 24px calc(40px + env(safe-area-i
 footer a{color:var(--dim)}
 @media (min-aspect-ratio:23/20) and (min-width:640px){
   section{padding:0 6vw;justify-content:center;min-height:150vh}
-  .band{top:0;bottom:0;height:auto;right:auto;width:50%;background:linear-gradient(90deg,var(--bg) 0%,rgba(10,11,11,.92) 62%,rgba(10,11,11,0))}
+  .band,#buy .band{top:0;bottom:0;height:auto;right:auto;width:50%;background:linear-gradient(90deg,var(--bg) 0%,rgba(10,11,11,.92) 62%,rgba(10,11,11,0))}
   .card{max-width:min(470px,38vw)}
   #hero{justify-content:flex-end;padding-bottom:12vh;min-height:100vh}
   #hero .card{max-width:min(620px,42vw)}

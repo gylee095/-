@@ -217,7 +217,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
         var1: o.orderId,
         feedbackurl: `${url.origin}/api/billing/payapp-notify`,
         returnurl: `${url.origin}/buy/success?o=${encodeURIComponent(o.orderId)}&t=${o.claim}`,
-        smsuse: "n",
+        smsuse: "y", // 번호는 페이앱 화면에서 받고, 페이앱이 결제 링크를 문자로 보낸다 (11/5)
         checkretry: "y",
         openpaytype: PAYAPP_PAYTYPES,
       },

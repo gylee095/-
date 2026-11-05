@@ -223,8 +223,9 @@ describe("경로 규칙 (코드 검사)", () => {
     const buy = readFileSync(new URL("../src/worker/buy.ts", import.meta.url), "utf8");
     expect(buy).toMatch(/lite\.payapp\.kr\/public\/api\/v2\/payapp-lite\.js/);
     expect(buy).not.toMatch(/tosspayments|TossPayments/);
-    // 11/5 실제 결제 시도: 번호가 없으면 페이앱이 '결제 요청 문자'를 보내는 화면이 된다 → 번호 + redirectpay=1 로 결제 화면으로 바로
-    expect(buy).toMatch(/recvphone:ph,redirectpay:"1"/);
-    expect(buy).toMatch(/id="phone" type="tel"/);
+    // 11/5: 번호는 우리 사이트가 아니라 페이앱 화면에서 받는다(믿음) → 페이앱이 결제 링크 문자를 보내야 하므로 문자 발송은 켠다
+    expect(buy).not.toMatch(/id="phone"|recvphone/);
+    const orderRoute = src.slice(src.indexOf('"/api/billing/order"'), src.indexOf('"/api/billing/payapp-notify"'));
+    expect(orderRoute).toMatch(/smsuse: "y"/);
   });
 });

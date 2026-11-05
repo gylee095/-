@@ -3,6 +3,35 @@
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
+/** 기기·브라우저별 '알림을 받기까지 할 일' 안내 — 상품 페이지·알림함이 같이 쓰는 정본 (11/5) */
+export const INSTALL_JS = String.raw`// 어떤 기기·브라우저로 열었나 → 알림을 받기까지 무엇을 해야 하나 (11/5). 상품 페이지·알림함이 같이 쓰는 정본.
+//  컴퓨터: 결제하지 않고 QR 로 폰에 넘긴다 (알림은 폰으로 오고 결제 링크도 카톡으로 폰에 온다 — 컴퓨터 결제는 코드를 옮기는 단계만 늘린다)
+//  아이폰: 홈 화면 앱을 먼저 설치하고 앱 안에서 결제 (앱과 브라우저의 저장 공간이 따로). 설치 버튼 위치가 브라우저마다 다르다
+//  앱 안 화면(카톡·네이버·인스타 등): 홈 화면 추가·알림이 안 된다 → 바깥 브라우저로
+//  안드로이드 크롬·삼성 인터넷: 브라우저와 설치한 앱이 저장 공간을 같이 써서 그대로 결제해도 된다 (안내 없음)
+function kewEnv(){var ua=navigator.userAgent;
+  var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
+  var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  var kakao=/KAKAOTALK/i.test(ua);
+  var inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER|Line\/|DaumApps|BAND\/|everytimeApp|DaumDevice|SamsungBrowser.*CrossApp/i.test(ua);
+  var iosBrowser=!ios?"":inapp?"inapp":/CriOS/.test(ua)?"chrome":/EdgiOS/.test(ua)?"edge":/FxiOS/.test(ua)?"firefox":/Whale\//.test(ua)?"inapp":/Safari\//.test(ua)?"safari":"inapp";
+  return {ios:ios,android:android,desktop:!ios&&!android,standalone:standalone,kakao:kakao,inapp:inapp,iosBrowser:iosBrowser}}
+var KEW_SHARE='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+function kewCopy(u){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){alert("주소를 복사했어요. 사파리를 열고 주소창에 붙여 넣으세요.")},function(){prompt("이 주소를 복사하세요",u)});else prompt("이 주소를 복사하세요",u)}
+// path: 열린 주소 그대로 넘길 경로 (예: "/", "/me?code=...")
+function kewGuide(E,path){var url=location.origin+path;
+  var card=function(t,inner){return '<div class="card kew-guide" style="border:2px solid var(--brand)"><b style="font-size:18px">'+t+'</b>'+inner+'</div>'};
+  var steps=function(first){return '<ol style="margin:10px 0 6px;padding-left:22px;font-size:16px;line-height:1.6"><li>'+first+'</li><li>목록에서 <b>홈 화면에 추가</b> → <b>추가</b></li><li>홈 화면의 <b>조기경보</b> 앱을 열고 그 안에서 <b>결제</b> → <b>알림 켜기</b></li></ol><p class="mute" style="margin:0">아이폰은 홈 화면에 추가한 앱만 알림을 받을 수 있어요. 앱 안에서 결제하면 코드를 넣을 필요 없이 바로 이어져요.</p>'};
+  if(E.standalone)return "";
+  if(E.desktop)return card("📱 휴대폰으로 여세요",'<p class="mute" style="margin:6px 0 4px">알림은 휴대폰으로 와요. 휴대폰 <b>카메라로 아래 QR을 찍으면</b> 이 페이지가 열려요. 결제와 알림 켜기는 휴대폰에서 해요.</p><div id="kewqr" style="width:200px;height:200px;margin:12px auto;background:#fff;padding:8px;border-radius:12px"></div><p class="mute" style="text-align:center;margin:0;word-break:break-all">'+url.replace(/[<>"]/g,"")+'</p>');
+  if(E.inapp&&E.android)return card("크롬에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 알림을 켤 수 없어요.</p><a class="btn" href="intent://'+location.host+path+'#Intent;scheme=https;package=com.android.chrome;end">크롬으로 열기</a>');
+  if(!E.ios)return "";
+  if(E.iosBrowser==="safari")return card("📲 먼저 앱을 설치하세요 (무료, 30초)",steps('화면 아래 가운데 '+KEW_SHARE+' <b>공유</b> 버튼'));
+  if(E.iosBrowser==="chrome")return card("📲 먼저 앱을 설치하세요 (무료, 30초)",steps('주소창 오른쪽 '+KEW_SHARE+' <b>공유</b> 버튼 (안 보이면 아래 <b>⋯</b> → 공유)'));
+  if(E.iosBrowser==="edge"||E.iosBrowser==="firefox")return card("📲 먼저 앱을 설치하세요 (무료, 30초)",steps('메뉴(<b>⋯</b> 또는 <b>≡</b>) → '+KEW_SHARE+' <b>공유</b>')+'<p class="mute" style="margin:6px 0 0">홈 화면에 추가가 안 보이면 <a href="x-safari-'+url+'">사파리로 열어</a> 주세요.</p>');
+  return card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 홈 화면에 앱을 추가할 수 없어요.</p><a class="btn" href="'+(E.kakao?"kakaotalk://web/openExternal?url="+encodeURIComponent(url):"x-safari-"+url)+'">사파리로 열기</a><button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button>')}
+function kewDrawQr(path){var el=document.getElementById("kewqr");if(!el||!window.QRCode)return;new QRCode(el,{text:location.origin+path,width:184,height:184,correctLevel:QRCode.CorrectLevel.M})}`;
+
 /** 이 브라우저(또는 홈 화면 앱)가 시작한 주문 목록 — 상품 페이지·결제 완료 화면·알림함이 같이 쓰는 정본 (11/5: 두 곳에 복사돼 있었다) */
 export const ORDERS_JS = String.raw`// 이 브라우저에서 시작한 주문 전부 (최근 8개·7일). 그중 결제된 것이 있으면 어느 화면에서든 그 코드로 간다
 function orders(){try{var a=JSON.parse(localStorage.getItem("kew_orders")||"[]");var one=JSON.parse(localStorage.getItem("kew_order")||"null");if(one&&!a.some(function(x){return x.o===one.o}))a.push(one);return a.filter(function(x){return x&&x.o&&x.t&&Date.now()-x.at<7*86400000})}catch(e){return []}}
@@ -35,7 +64,7 @@ ul{padding-left:20px;margin:6px 0}li{margin:4px 0}.mute{color:var(--mute);font-s
 export function buyPage(payappUserid: string | undefined, origin: string): string {
   const ready = !!payappUserid;
   return String.raw`${SHELL_HEAD}<title>한반도 조기경보 알림 — 4,900원</title>
-<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script></head><body><div class="wrap">
+<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head><body><div class="wrap">
 <div class="top"><b>🇰🇷 한반도 조기경보</b> · <a href="/me">이미 결제했어요 (알림함)</a></div>
 <h1>전쟁 위험 단계가 바뀌는 순간,<br>휴대폰이 울립니다.</h1>
 <p class="mute">공개 정보 39가지를 5분마다 읽어 한반도 전쟁 위험을 5단계로 판정합니다. 평소엔 조용하고, <b>단계가 실제로 바뀔 때만</b> 알려 드려요. 그때마다 "무엇이, 왜 바뀌었는지" 리포트가 함께 옵니다.</p>
@@ -68,9 +97,10 @@ ${ready
 
 <h2>시작하는 법</h2>
 <ol class="steps">
-<li><b>아이폰</b>: 사파리 <b>공유 → 홈 화면에 추가</b> → 홈 화면의 <b>조기경보</b> 앱에서 결제 → <b>알림 켜기</b>. 코드를 넣을 필요가 없어요</li>
-<li><b>안드로이드</b>: 크롬에서 결제 → <b>알림 켜기</b> (원하면 앱으로 설치)</li>
-<li><b>컴퓨터</b>: 결제 → 화면의 <b>QR을 휴대폰 카메라로</b> 찍어 알림 켜기</li>
+<li><b>아이폰</b>: <b>공유 → 홈 화면에 추가</b> (사파리는 화면 아래, 크롬은 주소창 오른쪽) → 홈 화면의 <b>조기경보</b> 앱에서 결제 → <b>알림 켜기</b>. 코드를 넣을 필요가 없어요</li>
+<li><b>안드로이드</b>: 크롬·삼성 인터넷에서 결제 → <b>알림 켜기</b> (원하면 앱으로 설치)</li>
+<li><b>컴퓨터</b>: 화면의 <b>QR을 휴대폰 카메라로</b> 찍어 휴대폰에서 시작 (알림은 휴대폰으로 와요)</li>
+<li><b>카카오톡·네이버 앱 안</b>에서 열었다면: 화면의 <b>사파리(크롬)로 열기</b>를 눌러 주세요</li>
 </ol>
 <p class="mute">결제 화면에서 휴대폰 번호를 넣으면 페이앱이 카카오톡으로 결제 링크를 보내요. 알림이 켜지면 바로 "✅ 알림이 켜졌어요"가 오고, 첫 리포트가 앱에 들어 있어요.</p>
 <div class="foot">공개 정보만 사용합니다. 위험도는 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. <a href="/terms">이용약관</a></div>
@@ -89,21 +119,11 @@ async function resume(){
   var w=document.getElementById("paywait");if(w)w.style.display="none";
   var f=await findPaid(orders());if(f)location.replace("/buy/success?o="+encodeURIComponent(f.x.o)+"&t="+encodeURIComponent(f.x.t));}
 window.addEventListener("pageshow",function(){resume()});
-(function(){var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
-  var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
-  var inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua);
-  var pay=document.getElementById("pay");if(!pay||standalone)return;
-  var box=null;
-  if(inapp&&(ios||android)){var url=location.origin+"/";
-    box='<div class="card" style="border:2px solid var(--brand)"><b>사파리·크롬에서 열어 주세요</b><p class="mute" style="margin:6px 0 10px">지금은 '+(/KAKAOTALK/i.test(ua)?"카카오톡":"앱")+' 안의 화면이라 알림 앱을 설치할 수 없어요.</p>'+
-      (android?'<a class="btn" href="intent://'+location.host+'/#Intent;scheme=https;package=com.android.chrome;end">크롬으로 열기</a>':(/KAKAOTALK/i.test(ua)?'<a class="btn" href="kakaotalk://web/openExternal?url='+encodeURIComponent(url)+'">사파리로 열기</a>':'<p class="mute">오른쪽 위 메뉴 → "다른 브라우저로 열기"</p>'))+'</div>'}
-  else if(ios){
-    // 아이폰: 홈 화면 앱과 사파리는 저장 공간이 따로라 사파리에서 결제하면 앱이 코드를 모른다 → 앱을 먼저 설치하고 앱 안에서 결제
-    box='<div class="card" style="border:2px solid var(--brand)"><b style="font-size:18px">📲 먼저 앱을 설치하세요 (무료, 30초)</b><ol class="steps" style="margin:10px 0 6px;padding-left:22px;font-size:16px"><li>화면 아래 가운데 <b>공유</b> 버튼 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></li><li>목록을 내려서 <b>홈 화면에 추가</b> → <b>추가</b></li><li>홈 화면의 <b>조기경보</b> 앱을 열고 그 안에서 <b>결제</b> → <b>알림 켜기</b></li></ol><p class="mute" style="margin:0">아이폰은 홈 화면에 추가한 앱만 알림을 받을 수 있어요. 앱 안에서 결제하면 코드를 넣을 필요 없이 바로 이어져요.</p></div>'}
-  if(!box)return;
+${INSTALL_JS}
+(function(){var pay=document.getElementById("pay");if(!pay)return;var E=kewEnv();var box=kewGuide(E,"/");if(!box)return;
   var lab=document.getElementById("agree");if(lab&&lab.closest("label"))lab.closest("label").style.display="none";
   pay.style.display="none";var w=document.getElementById("paywait");if(w)w.style.display="none";
-  pay.insertAdjacentHTML("afterend",box)})();
+  pay.insertAdjacentHTML("afterend",box);kewDrawQr("/")})();
 async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 제한 안내를 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
   try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
     remember(o.orderId,o.claim);

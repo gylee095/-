@@ -5,12 +5,12 @@
 //  - 카카오톡·인스타그램 등 앱 안 브라우저: 웹 푸시가 안 된다 → 바깥 브라우저로 열기(안드로이드 카카오톡은 바로 넘긴다).
 //  - 알림 거절: 설정에서 다시 켜는 법.
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
-import { ORDERS_JS, SHELL_HEAD } from "./buy.js";
+import { INSTALL_JS, ORDERS_JS, SHELL_HEAD } from "./buy.js";
 
 export function mePage(): string {
   return String.raw`${SHELL_HEAD}<title>내 알림함 — 한반도 조기경보</title>
 <meta name="robots" content="noindex">
-<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script>
+<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 .state{border-radius:14px;padding:16px;margin:12px 0;background:var(--card);border:1px solid var(--line)}
 .state.main{border:2px solid var(--brand)}
@@ -57,14 +57,8 @@ var SHARE_SVG='<svg class="share" viewBox="0 0 24 24" fill="none" stroke="curren
 function stepCard(c,me,on){
   if(on)return '<div class="state"><div class="okline">✓ 이 휴대폰으로 알림이 와요</div><div class="mute">단계가 올라가거나 내려갈 때만 울립니다. 평소엔 조용해요. 기기 '+me.devicesUsed+'/'+me.devicesMax+'대 사용 중</div>'+(me.devicesUsed<me.devicesMax?'<button class="btn ghost" style="margin-top:10px" onclick="shareFamily()">가족 휴대폰에도 켜기 ('+(me.devicesMax-me.devicesUsed)+'대 남음)</button>':'')+'</div>';
   var h='<div class="state main"><h2>마지막 한 단계: 이 폰에서 알림 켜기</h2>';
-  if(ENV.inapp){
-    h+='<p class="big">지금 <b>'+(ENV.kakao?'카카오톡':'앱')+' 안의 브라우저</b>로 열려 있어서 알림을 켤 수 없어요.</p>';
-    if(ENV.android)h+='<a class="btn" href="intent://'+location.host+'/me?code='+encodeURIComponent(c)+'#Intent;scheme=https;package=com.android.chrome;end">크롬으로 열기</a>';
-    else if(ENV.kakao)h+='<a class="btn" href="kakaotalk://web/openExternal?url='+encodeURIComponent(location.origin+"/me?code="+c)+'">사파리로 열기</a>';
-    else h+='<p class="big">오른쪽 위(또는 아래) <b>⋯ 메뉴 → "다른 브라우저로 열기" / "Safari로 열기"</b>를 눌러 주세요.</p>';
-    return h+'<p class="mute" style="margin-top:8px">활성화 코드 <b>'+esc(c)+'</b> — 링크에 들어 있어 따로 입력할 필요는 없어요.</p></div>'}
-  if(ENV.ios&&!ENV.standalone){
-    return h+'<p class="big">아이폰은 애플 규칙상 <b>홈 화면에 추가한 앱</b>만 알림을 받을 수 있어요. 30초면 돼요.</p><ol class="g big"><li>화면 아래 가운데 '+SHARE_SVG+' <b>공유</b> 버튼</li><li>목록을 내려서 <b>홈 화면에 추가</b> → 오른쪽 위 <b>추가</b></li><li>홈 화면에 생긴 <b>조기경보</b> 아이콘을 열고 <b>알림 켜기</b></li></ol><p class="mute">결제 코드는 자동으로 함께 옮겨져요. 사파리가 아니라면 이 주소를 사파리에서 열어 주세요.</p></div>'}
+  var g=kewGuide(kewEnv(),"/me?code="+encodeURIComponent(c));
+  if(g){setTimeout(function(){kewDrawQr("/me?code="+encodeURIComponent(c))},0);return h.replace('<div class="state main">','<div>')+g+'<p class="mute">활성화 코드 <b>'+esc(c)+'</b> — 주소에 들어 있어 따로 넣을 필요는 없어요.</p></div>'}
   if(!ENV.ok)return h+'<p class="big">이 브라우저는 알림을 지원하지 않아요. 안드로이드는 <b>크롬</b>, 아이폰은 <b>사파리</b>에서 열어 주세요.</p></div>';
   if(Notification.permission==="denied")return h+'<p class="big">이 사이트의 알림이 <b>꺼져</b> 있어요. 휴대폰 <b>설정 → 알림</b>'+(ENV.ios?' → 조기경보':' (크롬: 주소창 왼쪽 자물쇠 → 권한 → 알림)')+'에서 켠 뒤 이 화면을 새로고침해 주세요.</p></div>';
   return h+'<p class="big">버튼을 누르고 휴대폰이 묻는 창에서 <b>허용</b>을 눌러 주세요.</p><button class="btn" id="enable" onclick="enable()">알림 켜기</button></div>'}
@@ -94,9 +88,10 @@ async function openReport(id){var el=document.getElementById("r_"+id);if(!el)ret
 // 코드가 없으면 앱 안에서 결제한다 (11/5 사용자: 사파리에서 결제하면 홈 화면 앱이 코드를 몰라 다시 넣으라 한다 — 아이폰은 둘의 저장 공간이 따로).
 // 앱 안에서 주문을 만들고 결제가 끝나는 걸 앱이 스스로 알아채므로 코드를 넣을 일이 없다. 코드 입력은 다른 기기에서 결제한 사람만.
 ${ORDERS_JS}
+${INSTALL_JS}
 var PENDING=null,WATCH=null;
 function noCode(msg){
-  if(ENV.ios&&!ENV.standalone&&!ENV.inapp){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+'<div class="state main"><h2>📲 먼저 앱을 설치하세요 (무료, 30초)</h2><ol class="g big"><li>화면 아래 가운데 '+SHARE_SVG+' <b>공유</b> 버튼</li><li>목록을 내려서 <b>홈 화면에 추가</b> → <b>추가</b></li><li>홈 화면의 <b>조기경보</b> 앱을 열고 그 안에서 <b>결제</b> → <b>알림 켜기</b></li></ol><p class="mute">아이폰은 홈 화면에 추가한 앱만 알림을 받을 수 있어요. 앱 안에서 결제하면 코드를 넣을 필요 없이 바로 이어져요.</p></div><div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';return}
+  var g=kewGuide(kewEnv(),"/");if(g){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+g+'<div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';kewDrawQr("/");return}
   var h='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
   '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀔 때만 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+
   '<label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="prep()"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>'+

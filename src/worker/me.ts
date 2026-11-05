@@ -90,7 +90,7 @@ async function openReport(id){var el=document.getElementById("r_"+id);if(!el)ret
   box.innerHTML='<div class="mute" style="margin-top:8px">불러오는 중…</div>';
   try{var r=await fetch("/api/report?code="+encodeURIComponent(CODE)+"&id="+encodeURIComponent(id),{cache:"no-store"});var j=await r.json();if(!r.ok)throw new Error(j.error);box.innerHTML=reportHtml(j)}catch(e){box.innerHTML='<div class="mute">리포트를 불러오지 못했어요.</div>'}}
 
-function noCode(msg){$("#app").innerHTML='<div class="state main"><h2>활성화 코드를 넣어 주세요</h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+'<p class="mute">결제 완료 화면에 나온 12자리 코드예요. 예: ABCD-EFGH-JKLM</p><input class="code-in" id="codein" placeholder="ABCD-EFGH-JKLM" autocapitalize="characters" autocomplete="one-time-code"><button class="btn" onclick="saveCode()">확인</button></div><div class="state"><b>아직 결제하지 않으셨나요?</b><p class="mute">단계가 바뀌는 순간 휴대폰이 울리고, 그때마다 리포트가 이 알림함에 쌓여요. 4,900원 한 번, 평생.</p><a class="btn ghost" href="/">상품 보기</a></div>'}
+function noCode(msg){$("#app").innerHTML='<div class="state main"><h2>활성화 코드를 넣어 주세요</h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+'<p class="mute">결제 완료 화면에 나온 12자리 코드예요. 예: ABCD-EFGH-JKLM</p><input class="code-in" id="codein" placeholder="ABCD-EFGH-JKLM" autocapitalize="characters" autocomplete="one-time-code"><button class="btn" onclick="saveCode()">확인</button></div><div class="state"><b>아직 결제하지 않으셨나요?</b><p class="mute">단계가 바뀌는 순간 휴대폰이 울리고, 그때마다 리포트가 이 알림함에 쌓여요. 4,900원 한 번, 평생.</p><a class="btn ghost" href="/?p=1">상품 보기</a></div>'}
 function saveCode(){var v=normCode($("#codein").value);if(!v){alert("코드 12자리를 확인해 주세요.");return}try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 
 var CODE=code(),OPEN=new URLSearchParams(location.search).get("r");

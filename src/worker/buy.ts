@@ -74,6 +74,7 @@ var ORIGIN=${JSON.stringify(origin)};
 function waitPaid(o,t){var n=0;var iv=setInterval(async function(){n++;if(n>400){clearInterval(iv);return}
   try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
     if(j.status==="paid"){clearInterval(iv);location.href="/buy/success?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t)}}catch(e){}},2500)}
+(function(){try{var c=localStorage.getItem("kew_code");if(/^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(c||"")&&!/[?&]p=1/.test(location.search))location.replace("/me")}catch(e){}})();
 // 진행 중인 결제 확인: 결제됐으면 결제 완료 화면으로, 기다리는 중이면 안내 띠. 뒤로 가기로 되살아난 화면(bfcache)도 같은 처리
 async function resume(){var s=null;try{s=JSON.parse(localStorage.getItem("kew_order")||"null")}catch(e){}
   var b=document.getElementById("pay");if(b){b.disabled=!(document.getElementById("agree")||{}).checked;b.textContent="4,900원 결제하기"}

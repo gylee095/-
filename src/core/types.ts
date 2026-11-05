@@ -156,6 +156,8 @@ export interface Env {
   BARK_KEY?: string;
   BARK_SERVER?: string;
   DASHBOARD_URL?: string;
+  /** 손님이 쓰는 주소 (2026-11-05 koreasiren.com). 있으면 알림 링크·결제 주소가 모두 이 주소로 간다 */
+  PUBLIC_URL?: string;
   /** 쉼표로 구분된 비활성화 소스 목록 */
   DISABLED_SOURCES?: string;
   /** aisstream.io 무료 키 — 서해 선박(AIS) 관측 */

@@ -25,3 +25,20 @@ describe("상품 소개 화면", () => {
     expect(html).toMatch(/og:image" content="https:\/\/example\.test\/og\.jpg"/);
   });
 });
+
+describe("공개 주소 koreasiren.com (11/5)", async () => {
+  const { publicRedirect } = await import("../src/worker/index.js");
+  const PUB = "https://koreasiren.com";
+  const go = (u: string, method = "GET") => publicRedirect(new Request(u, { method }), new URL(u), PUB);
+  it("예전 주소·www 로 온 손님 화면은 공개 주소로 (주소 뒤 내용 그대로)", () => {
+    expect(go("https://korea-early-warning.gylee-30d.workers.dev/me?code=ABCD-EFGH-JKMN")?.headers.get("location")).toBe("https://koreasiren.com/me?code=ABCD-EFGH-JKMN");
+    expect(go("https://korea-early-warning.gylee-30d.workers.dev/")?.status).toBe(301);
+    expect(go("https://www.koreasiren.com/api/me?code=x")?.headers.get("location")).toBe("https://koreasiren.com/api/me?code=x");
+  });
+  it("API·결제 통보·MCP·운영자 화면·공개 주소 자체는 그대로", () => {
+    for (const p of ["/api/billing/payapp-notify", "/api/billing/status?o=1&t=2", "/mcp/x", "/ops", "/sw.js", "/manifest.webmanifest"]) expect(go("https://korea-early-warning.gylee-30d.workers.dev" + p), p).toBeUndefined();
+    expect(go("https://korea-early-warning.gylee-30d.workers.dev/", "POST")).toBeUndefined();
+    expect(go("https://koreasiren.com/")).toBeUndefined();
+    expect(publicRedirect(new Request("https://x.dev/"), new URL("https://x.dev/"), undefined)).toBeUndefined();
+  });
+});

@@ -42,8 +42,22 @@ async function sha256Hex(s: string): Promise<string> {
 async function resolveEnv(env: Env, origin?: string): Promise<Env> {
   const e = { ...env };
   if (!e.NTFY_TOPIC && e.KEW_SECRET) e.NTFY_TOPIC = `kew-${(await sha256Hex(`ntfy:${e.KEW_SECRET}`)).slice(0, 24)}`;
-  if (!e.DASHBOARD_URL && origin) e.DASHBOARD_URL = origin;
+  if (e.PUBLIC_URL) e.DASHBOARD_URL = e.PUBLIC_URL; // 정해 둔 공개 주소가 최우선 — 크론(요청 없음)에서 보내는 알림 링크도 이 주소로
+  else if (!e.DASHBOARD_URL && origin) e.DASHBOARD_URL = origin;
   return e;
+}
+
+/**
+ * 공개 주소로 옮기기 (2026-11-05): www 와 예전 주소(workers.dev)로 들어온 손님 화면은 공개 주소로 보낸다.
+ * API·결제 통보·MCP·운영자 화면(/ops)은 옮기지 않는다 — 진행 중인 결제와 분석관 연결이 끊기지 않게.
+ */
+export function publicRedirect(req: Request, url: URL, publicUrl?: string): Response | undefined {
+  if (!publicUrl || req.method !== "GET") return undefined;
+  const pub = new URL(publicUrl);
+  if (url.host === pub.host) return undefined;
+  const page = ["/", "/index.html", "/buy", "/buy/success", "/buy/fail", "/terms", "/me"].includes(url.pathname) || url.pathname.startsWith("/r/");
+  if (!page && url.host !== `www.${pub.host}`) return undefined;
+  return Response.redirect(`${pub.origin}${url.pathname}${url.search}`, 301);
 }
 
 function safeEq(a: string | undefined, b: string | undefined): boolean {
@@ -151,6 +165,8 @@ export default {
 
   async fetch(req: Request, rawEnv: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(req.url);
+    const moved = publicRedirect(req, url, rawEnv.PUBLIC_URL);
+    if (moved) return moved;
     const env = await resolveEnv(rawEnv, url.origin);
     const store = new D1Store(env.DB);
     try {

@@ -9,6 +9,13 @@ compatibility_flags = ["nodejs_compat"]
 #  - 15분: 항행경보·SNS·환율
 #  - 1시간: 여행경보·국방부 보도자료·북한 인터넷·AIS·위성 열점
 #  - 하루 1회(11:41 KST): GPS 교란 전일 집계·서해 중국 선박(위성 AIS)
+# 공개 주소 (2026-11-05 구입, Cloudflare Registrar). workers.dev 도 계속 켜 둔다 — MCP·진행 중 결제 통보·운영자용
+workers_dev = true
+routes = [
+  { pattern = "koreasiren.com", custom_domain = true },
+  { pattern = "www.koreasiren.com", custom_domain = true },
+]
+
 [triggers]
 crons = ["* * * * *", "*/5 * * * *", "3-59/15 * * * *", "11 * * * *", "41 2 * * *"]
 
@@ -19,6 +26,7 @@ database_id = "REPLACE_WITH_D1_ID"   # 배포 워크플로가 자동으로 채�
 migrations_dir = "migrations"
 
 [vars]
+PUBLIC_URL = "https://koreasiren.com"   # 손님 화면·알림 링크·결제 주소 (예전 주소로 온 손님 화면은 여기로 301)
 NTFY_SERVER = "https://ntfy.sh"
 DISABLED_SOURCES = "opensky,gdelt,bluesky"   # Cloudflare 서버에서 opensky 무응답, gdelt 429, bluesky 403 (2026-10-30 실측)
 # 심층 분석(Claude Code 예약 작업 API 트리거) 사용량 안전장치 — 바꾸려면 이 값만 고쳐 다시 배포

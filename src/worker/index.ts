@@ -8,6 +8,10 @@ import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, report
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
 import { readOnlyD1 } from "./readonly.js";
+import { OPSNAP_PREFIX, setOpsSnapshotMaker, snapSig } from "../core/opsnap.js";
+
+// 운영자 알림을 보낼 때 그 순간의 대시보드 전체를 얼린다 (손님 리포트와 같은 freezeState) — notify.ts 가 부른다
+setOpsSnapshotMaker(async (store, env) => freezeState((await buildState(store as D1Store, Date.now() - 72 * 3600_000, (env as Env).DISABLED_SOURCES)) as unknown as Record<string, unknown>));
 import { ICON_PNG_BASE64 } from "./icons.js";
 import { mePage } from "./me.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
@@ -243,6 +247,19 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   }
   if (url.pathname === "/ops") return new Response(DASHBOARD_HTML, { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
   if (url.pathname === "/me") return new Response(mePage(), { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
+  if (url.pathname.startsWith("/ops/r/") && req.method === "GET") {
+    // 운영자 알림의 '그때 화면' (11/6): 서명이 맞으면 그 순간에 얼린 대시보드를 시계를 그 시각에 고정해 보여 준다. 실시간은 /ops
+    const id = decodeURIComponent(url.pathname.slice(7));
+    const sig = url.searchParams.get("s") ?? "";
+    if (!env.KEW_SECRET || !safeEq(sig, await snapSig(env.KEW_SECRET, id))) return Response.redirect(`${url.origin}/ops`, 302);
+    const full = await loadFull(store, id);
+    if (!full) return Response.redirect(`${url.origin}/ops`, 302);
+    const metaRaw = await store.getKv(OPSNAP_PREFIX + id);
+    const rep = metaRaw ? undefined : (await loadReports(store)).find((x) => x.id === id);
+    const meta = metaRaw ? (JSON.parse(metaRaw) as { at: number; title: string }) : rep ? { at: rep.at, title: rep.headline } : { at: Date.now(), title: "" };
+    const inject = `<script>window.__KEW_REPORT__=${JSON.stringify({ id, at: meta.at, headline: meta.title, kind: "ops", phase: rep?.phase }).replace(/</g, "\\u003c")};Date.now=(function(t){return function(){return t}})(${meta.at});window.__KEW_STATE__=${JSON.stringify(full).replace(/</g, "\\u003c")};</script>`;
+    return new Response(DASHBOARD_HTML.replace("<head>", "<head>" + inject), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-store", "x-robots-tag": "noindex" } });
+  }
   if (url.pathname.startsWith("/r/") && req.method === "GET") {
     const id = decodeURIComponent(url.pathname.slice(3));
     const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
@@ -402,6 +419,11 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
         pushChannels: pushChannels(env),
       },
     });
+  }
+  if (url.pathname === "/api/ops/report-link" && req.method === "GET") {
+    const id = url.searchParams.get("id") ?? "";
+    if (!id || !(await loadFull(store, id))) return json({ error: "없는 리포트" }, 404);
+    return json({ url: `${url.origin}/ops/r/${encodeURIComponent(id)}?s=${await snapSig(env.KEW_SECRET!, id)}` });
   }
   if (url.pathname === "/api/billing/summary" && req.method === "GET") return json(await billingSummary(store, Date.now()));
   if (url.pathname === "/api/billing/orders" && req.method === "GET") {

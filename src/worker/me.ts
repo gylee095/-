@@ -141,6 +141,8 @@ window.addEventListener("appinstalled",function(){var b=document.getElementById(
 function install(){if(!INSTALL)return;INSTALL.prompt();INSTALL.userChoice.finally(function(){INSTALL=null;var b=document.getElementById("install");if(b)b.style.display="none"})}
 async function render(){
   try{if(localStorage.getItem("kew_token"))$("#ops").innerHTML=' · <a href="/ops">운영자 화면</a>'}catch(e){}
+  // 운영자 폰에서 단계 알림을 누른 경우(결제 코드 없음 + 운영자 열쇠 있음): 같은 리포트의 '그때 화면'으로 (11/6)
+  if(!CODE&&OPEN){try{var ot=localStorage.getItem("kew_token");if(ot){var rr=await fetch("/api/ops/report-link?id="+encodeURIComponent(OPEN),{headers:{authorization:"Bearer "+ot}});if(rr.ok){var jj=await rr.json();if(jj.url){location.replace(jj.url);return}}}}catch(e){}}
   if(!CODE){if(orders().length&&await checkPaid(false))return;return noCode()}
   manifestWithCode(CODE);clearBadge();
   // 알림을 눌러 들어왔으면 바로 그 리포트(대시보드 전체)로

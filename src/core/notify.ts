@@ -6,6 +6,7 @@
 //  - Pushover  : 유료(1회 구매). iOS 긴급 알림(무음 돌파) 가능
 import type { Store } from "./store.js";
 import { broadcastWebPush } from "./webpush.js";
+import { makeOpsSnapshot, pointToSnapshot } from "./opsnap.js";
 import type { Env } from "./types.js";
 
 /** 누구에게 가나. owner = 운영자(Bark·운영자 웹 푸시)만, all = 공개 구독자까지. 기본 owner — 테스트·시스템 경고가 사람들에게 가는 사고를 구조로 막는다 (2026-11-04) */
@@ -66,6 +67,15 @@ export function useNtfy(env: PushEnv): boolean {
 
 export async function sendPush(env: PushEnv, msg: PushMessage, fetchImpl: typeof fetch = fetch, store?: Pick<Store, "getKv" | "setKv">): Promise<PushResult[]> {
   const tasks: Promise<PushResult>[] = [];
+  // 운영자 알림은 실시간 대시보드가 아니라 '보낸 그 순간의 화면'으로 연결한다 (11/6) — 고객 단계 알림(all)은 리포트로 이미 그렇다
+  if ((msg.audience ?? "owner") === "owner" && store && env.DASHBOARD_URL && msg.url && /\/ops(?:$|[#?])/.test(msg.url)) {
+    try {
+      const snap = await makeOpsSnapshot(store, env, msg.title, Date.now());
+      if (snap) msg = pointToSnapshot(msg, env.DASHBOARD_URL, snap);
+    } catch {
+      /* 화면을 얼리지 못해도 알림은 보낸다 (실시간 링크 그대로) */
+    }
+  }
 
   // 웹 푸시 — 브라우저 구독자 전원 (앱 설치·건당 비용 없음, 2026-11-04). 구독자가 없으면 아무 것도 하지 않는다
   if (store) {

@@ -43,7 +43,8 @@ export function buyPage(payappUserid: string | undefined, origin: string): strin
 <li>앱 설치 없음 · 문자 요금 없음 · 월 요금 없음</li>
 </ul>
 ${ready
-  ? String.raw`<label style="display:flex;gap:10px;align-items:flex-start;margin:14px 0 10px;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="document.getElementById('pay').disabled=!this.checked"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>
+  ? String.raw`<label for="phone" style="display:block;margin:16px 0 4px;font-weight:700">휴대폰 번호</label><input id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="010-1234-5678" style="width:100%;padding:14px;font-size:18px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg)"><p class="mute" style="margin:4px 0 0">결제 화면에 쓰여요. 결제대행사(페이앱)에만 전달되고 저장하지 않아요.</p>
+<label style="display:flex;gap:10px;align-items:flex-start;margin:14px 0 10px;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="document.getElementById('pay').disabled=!this.checked"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>
 <button class="btn" id="pay" onclick="pay()" disabled>4,900원 결제하기</button><p class="mute" id="paywait" style="display:none;margin-top:10px">결제 화면으로 넘어가요. 카드·카카오페이·네이버페이·토스페이·휴대폰 결제를 쓸 수 있어요.</p>`
   : String.raw`<button class="btn" disabled>결제 준비 중</button><p class="mute">결제 연결이 아직 설정되지 않았어요. 곧 열립니다.</p>`}
 </div>
@@ -73,14 +74,15 @@ var ORIGIN=${JSON.stringify(origin)};
 function waitPaid(o,t){var n=0;var iv=setInterval(async function(){n++;if(n>400){clearInterval(iv);return}
   try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
     if(j.status==="paid"){clearInterval(iv);location.href="/buy/success?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t)}}catch(e){}},2500)}
-async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 제한 안내를 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
+async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 제한 안내를 확인하고 체크해 주세요.");return}
+  var ph=(document.getElementById("phone").value||"").replace(/[^0-9]/g,"");if(!/^01[016789][0-9]{7,8}$/.test(ph)){alert("휴대폰 번호를 확인해 주세요. 예: 010-1234-5678");document.getElementById("phone").focus();return}b.disabled=true;b.textContent="결제창 여는 중…";
   try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
     try{localStorage.setItem("kew_order",JSON.stringify({o:o.orderId,t:o.claim,at:Date.now()}))}catch(e){}
     var p=o.payapp;
     // 같은 탭에서 결제창을 연다 — 휴대폰은 탭 직후가 아닌 팝업(주문을 만든 뒤 여는 창)을 막는다. 결제를 마치면 페이앱이 결제 완료 화면(returnurl)으로 돌려보낸다
     PayApp.setTarget("_self");
     PayApp.setDefault({userid:p.userid,shopname:p.shopname});
-    PayApp.setParam({goodname:p.goodname,price:p.price,var1:p.var1,feedbackurl:p.feedbackurl,returnurl:p.returnurl,smsuse:p.smsuse,checkretry:p.checkretry,openpaytype:p.openpaytype}).payrequest();
+    PayApp.setParam({goodname:p.goodname,price:p.price,recvphone:ph,redirectpay:"1",var1:p.var1,feedbackurl:p.feedbackurl,returnurl:p.returnurl,smsuse:p.smsuse,checkretry:p.checkretry,openpaytype:p.openpaytype}).payrequest();
     b.textContent="결제창에서 결제를 마쳐 주세요";document.getElementById("paywait").style.display="";
     waitPaid(o.orderId,o.claim);
   }catch(e){alert("결제를 시작하지 못했어요: "+(e&&e.message||e));b.disabled=false;b.textContent="4,900원 결제하기"}}
@@ -159,7 +161,7 @@ export function termsPage(): string {
 <h2>환불</h2>
 <p>결제가 완료되면 즉시 활성화 코드가 발급되고 현재 상황 리포트가 알림함에 제공되어 디지털콘텐츠의 제공이 시작됩니다. 전자상거래법 제17조 제2항에 따라 제공이 시작된 디지털콘텐츠는 청약철회가 제한되며, 이용자는 결제 전에 이 내용을 확인하고 동의합니다. 다만 서비스 장애 등 당사 귀책 사유로 알림이나 리포트가 정상적으로 제공되지 않는 경우에는 환불해 드립니다. 환불 요청은 아래 연락처로 활성화 코드와 함께 보내 주세요.</p>
 <h2>개인정보</h2>
-<p>결제 정보는 결제대행사 페이앱(PayApp)이 처리하며 당사는 카드 정보를 저장하지 않습니다. 당사가 보관하는 것은 주문번호, 결제 시각, 활성화 코드, 알림을 받을 브라우저의 푸시 주소뿐입니다. 이름·전화번호·이메일을 요구하지 않습니다. 알림을 끄면(브라우저에서 구독 해제) 푸시 주소는 삭제됩니다.</p>
+<p>결제 정보는 결제대행사 페이앱(PayApp)이 처리하며 당사는 카드 정보를 저장하지 않습니다. 당사가 보관하는 것은 주문번호, 결제 시각, 활성화 코드, 알림을 받을 브라우저의 푸시 주소뿐입니다. 이름·이메일을 요구하지 않으며, 결제할 때 입력하는 휴대폰 번호는 결제를 위해 결제대행사(페이앱)에만 전달되고 당사는 저장하지 않습니다. 알림을 끄면(브라우저에서 구독 해제) 푸시 주소는 삭제됩니다.</p>
 <h2>사업자 정보·연락처</h2>
 <p>상호·대표자·사업자등록번호·통신판매업신고번호·연락처: <i>(등록 뒤 기재)</i></p>
 </div>

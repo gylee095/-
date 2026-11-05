@@ -14,6 +14,8 @@ describe("상품 소개 화면", () => {
     expect(html).toMatch(/function kewGuide\(/); // 컴퓨터 QR·앱 안 화면 안내(INSTALL_JS)
     expect(html).toMatch(/location\.replace\("\/me"\)/); // 결제한 기기·홈 화면 앱은 알림함으로
     expect(buyPage(undefined, "https://example.test")).toContain("결제 준비 중");
+    expect(html).toMatch(/kewDrawQr\("\/\?go=buy"\)/); // 컴퓨터 QR 은 결제 칸으로 바로
+    expect(html).toContain("#buy .card"); // 넘어오면 결제 칸으로 스크롤
   });
   it("지금 상황은 보여 주지 않는다 (무료 현재 상황 없음) — 장면은 연출이라고 밝힌다", () => {
     expect(html).not.toMatch(/\/api\/state|public-state|\/api\/me/);

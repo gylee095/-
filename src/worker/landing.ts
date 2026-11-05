@@ -311,7 +311,7 @@ size();
 var DIST=13, EX=1.15, cam={x:0,y:0,S:1}, cosY,sinY,cosT,sinT, o={x:0,y:0,s:1}, CX,CY;
 function proj(x,y,z){var dx=x-cam.x,dy=y-cam.y,xr=dx*cosY-dy*sinY,yr=dx*sinY+dy*cosY,u=yr*cosT+z*sinT,d=yr*sinT-z*cosT,s=cam.S*DIST/(DIST+d);o.x=CX+xr*s;o.y=CY-u*s;o.s=s;return o}
 
-var secs=[].slice.call(document.querySelectorAll('main section')), pos=0, sm=0;
+var secs=[].slice.call(document.querySelectorAll('main section')), pos=0, sm=-1;
 function scrollPos(){var y=scrollY, c=secs.map(function(s){return s.offsetTop+s.offsetHeight/2-Ht/2});
   if(y<=c[0])return 0;for(var i=0;i<c.length-1;i++)if(y<c[i+1])return i+(y-c[i])/(c[i+1]-c[i]);return c.length-1}
 function near(k,w){return ss(1-Math.abs(sm-k)*(w||1.5))}
@@ -327,7 +327,8 @@ function frame(now){
   var t=reduce?60000:now-T0, dt=Math.min(.25,Math.max(0,(now-lastNow)/1000));lastNow=now;
   // 느린 폰: 한 장면 그리는 데 오래 걸리면 점을 절반만 그린다 (한 번 내리면 유지)
   if(dt>0&&t>2500){slow=slow*.95+dt*.05;if(lod===1&&slow>.034){lod=2;dprCap=1.25;size()}}
-  pos=reduce?0:scrollPos(); sm+=(pos-sm)*(reduce?1:1-Math.exp(-dt/.22));
+  pos=reduce?0:scrollPos(); if(sm<0)sm=pos; // 중간(예: 결제 칸)에서 열면 그 장면에서 바로 시작
+  sm+=(pos-sm)*(reduce?1:1-Math.exp(-dt/.22));
   var i0=Math.min(SC.length-2,Math.floor(sm)), f=ss(sm-i0), a=SC[i0], b=SC[i0+1];
   cam.x=wx(a.lon+(b.lon-a.lon)*f);cam.y=wy(a.lat+(b.lat-a.lat)*f);cam.S=Math.exp(Math.log(a.S)+(Math.log(b.S)-Math.log(a.S))*f);
   var tilt=(a.tilt+(b.tilt-a.tilt)*f)*Math.PI/180, yaw=a.yaw+(b.yaw-a.yaw)*f+Math.sin(t/9000)*.04+pyaw;

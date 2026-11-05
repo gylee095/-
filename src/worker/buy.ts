@@ -144,11 +144,15 @@ async function resume(){
 window.addEventListener("pageshow",function(){resume()});
 ${INSTALL_JS}
 // 컴퓨터·앱 안 화면: 결제 대신 폰으로 넘기는 안내(QR·바깥 브라우저). 첫 화면 버튼도 그 안내로 데려간다
-(function(){var pay=document.getElementById("pay");if(!pay)return;var E=kewEnv();if(!E.desktop&&!E.inapp)return;var box=kewGuide(E,"/");if(!box)return;
+(function(){var pay=document.getElementById("pay");if(!pay)return;var E=kewEnv();if(!E.desktop&&!E.inapp)return;var box=kewGuide(E,"/?go=buy");if(!box)return;
   var lab=document.getElementById("agree");if(lab&&lab.closest("label"))lab.closest("label").style.display="none";
   pay.style.display="none";var w=document.getElementById("paywait");if(w)w.style.display="none";
-  pay.insertAdjacentHTML("afterend",box);kewDrawQr("/");
+  pay.insertAdjacentHTML("afterend",box);kewDrawQr("/?go=buy");
   var hc=document.querySelector("#hero .cta");if(hc)hc.innerHTML=E.desktop?'휴대폰으로 시작하기 <small>QR</small>':'바깥 브라우저로 열기 <small>4,900원</small>'})();
+// 컴퓨터 QR·바깥 브라우저로 넘어온 경우(?go=buy): 소개를 건너뛰고 바로 결제 칸(동의 + 결제 버튼)으로 (11/5)
+(function(){if(!/[?&]go=buy/.test(location.search))return;try{history.replaceState(null,"",location.pathname)}catch(e){}
+  var c=document.querySelector("#buy .card");if(!c)return;var go=function(){c.classList.add("in");c.scrollIntoView({block:"center"})};
+  go();addEventListener("load",go);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go)})();
 async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 규정을 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
   try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
     remember(o.orderId,o.claim);

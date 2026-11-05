@@ -310,6 +310,11 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 19).replace("T", " ") : null);
     return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, startReport: !!o.startReportId })));
   }
+  if (url.pathname === "/api/billing/find" && req.method === "GET") {
+    const q = url.searchParams.get("q") ?? "";
+    const o = (await loadOrders(store)).find((x) => x.status === "paid" && (x.orderId === q || x.mulNo === q));
+    return o ? json({ order: o.orderId, inbox: `${url.origin}/me?code=${o.code}`, devices: o.devices.length }) : json({ error: "결제된 주문 없음" }, 404);
+  }
   if (url.pathname === "/api/billing/last-reject" && req.method === "GET") return json(JSON.parse((await store.getKv("billing:last_reject")) ?? "null"));
   if (url.pathname === "/api/billing/refund" && req.method === "POST") {
     const body = (await req.json().catch(() => null)) as { orderId?: string; code?: string; reason?: string } | null;

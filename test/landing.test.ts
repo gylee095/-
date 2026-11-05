@@ -44,3 +44,25 @@ describe("공개 주소 koreasiren.com (11/5)", async () => {
     expect(publicRedirect(new Request("https://x.dev/"), new URL("https://x.dev/"), undefined)).toBeUndefined();
   });
 });
+
+describe("시험 서버 표시 (11/6)", async () => {
+  const { markStaging } = await import("../src/worker/index.js");
+  it("화면에 시험 띠, 검색 제외, 홈 화면 앱 이름에 (시험)", async () => {
+    const page = await markStaging(new Response("<html><body>x</body></html>", { headers: { "content-type": "text/html; charset=utf-8" } }), new URL("https://staging.koreasiren.com/"));
+    expect(await page.text()).toContain("STAGING · 시험 서버");
+    expect(page.headers.get("x-robots-tag")).toMatch(/noindex/);
+    const man = await markStaging(new Response(JSON.stringify({ name: "한반도 조기경보", short_name: "조기경보" }), { headers: { "content-type": "application/manifest+json" } }), new URL("https://staging.koreasiren.com/manifest.webmanifest"));
+    expect(await man.json()).toMatchObject({ name: "한반도 조기경보 (시험)", short_name: "시험 조기경보" });
+  });
+  it("시험 서버 설정: 따로 된 데이터베이스·주소, 알림·결제·루틴 비밀값은 올리지 않는다", async () => {
+    const { readFileSync } = await import("node:fs");
+    const toml = readFileSync(new URL("../wrangler.toml", import.meta.url), "utf8");
+    const st = toml.slice(toml.indexOf("[env.staging]"));
+    expect(st).toMatch(/database_name = "kew-staging"/);
+    expect(st).toMatch(/PUBLIC_URL = "https:\/\/staging\.koreasiren\.com"/);
+    expect(st).toMatch(/STAGING = "1"/);
+    const yml = readFileSync(new URL("../.github/workflows/deploy.yml", import.meta.url), "utf8");
+    for (const k of ["BARK_KEY", "PAYAPP_LINKKEY", "CLAUDE_ROUTINE_TOKEN", "TELEGRAM_BOT_TOKEN"]) expect(yml).toMatch(new RegExp(`notStaging=\\[[^\\]]*"${k}"`));
+    expect(yml).toMatch(/github\.ref_name == 'main' && 'production' \|\| 'staging'/);
+  });
+});

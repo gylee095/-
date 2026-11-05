@@ -5,12 +5,21 @@
 #                 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, DISCORD_WEBHOOK_URL, BARK_KEY, GFW_API_TOKEN, NAVER_CLIENT_ID, NAVER_CLIENT_SECRET, CLAUDE_ROUTINE_URL, CLAUDE_ROUTINE_TOKEN, ECOS_API_KEY
 name: Deploy Worker
 
+# 두 서버 (2026-11-06):
+#   main                        → 본 서버  koreasiren.com          (데이터베이스 kew)        — 사용자가 시험 서버를 보고 "본섭에 올려" 한 뒤에만
+#   claude/korea-early-warning  → 시험 서버 staging.koreasiren.com  (데이터베이스 kew-staging) — 작업할 때마다
 on:
   workflow_dispatch:
+    inputs:
+      target:
+        description: "배포할 곳"
+        type: choice
+        options: [staging, production]
+        default: staging
   push:
     branches: [main, claude/korea-early-warning]
 
-concurrency: deploy
+concurrency: deploy-${{ github.event.inputs.target || (github.ref_name == 'main' && 'production' || 'staging') }}
 
 jobs:
   deploy:
@@ -18,6 +27,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      TARGET: ${{ github.event.inputs.target || (github.ref_name == 'main' && 'production' || 'staging') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,19 +53,30 @@ jobs:
             echo "CLOUDFLARE_ACCOUNT_ID=$acc" >> $GITHUB_ENV
           fi
 
+      - name: Pick target
+        run: |
+          if [ "$TARGET" = "production" ]; then
+            echo "DB_NAME=kew" >> $GITHUB_ENV; echo "DB_SLOT=REPLACE_WITH_D1_ID" >> $GITHUB_ENV; echo "WENV=" >> $GITHUB_ENV; echo "WORKER=korea-early-warning" >> $GITHUB_ENV; echo "SITE=https://koreasiren.com" >> $GITHUB_ENV
+          else
+            echo "DB_NAME=kew-staging" >> $GITHUB_ENV; echo "DB_SLOT=REPLACE_WITH_STAGING_D1_ID" >> $GITHUB_ENV; echo "WENV=--env staging" >> $GITHUB_ENV; echo "WORKER=korea-early-warning-staging" >> $GITHUB_ENV; echo "SITE=https://staging.koreasiren.com" >> $GITHUB_ENV
+          fi
+          echo "### 배포 대상: $TARGET" >> $GITHUB_STEP_SUMMARY
+
       - name: Ensure D1 database
         run: |
-          id=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const db=JSON.parse(s).find(x=>x.name==="kew");process.stdout.write(db?db.uuid:"")})')
+          id=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const db=JSON.parse(s).find(x=>x.name===process.env.DB_NAME);process.stdout.write(db?db.uuid:"")})')
           if [ -z "$id" ]; then
-            npx wrangler d1 create kew
-            id=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).find(x=>x.name==="kew").uuid))')
+            npx wrangler d1 create "$DB_NAME"
+            id=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).find(x=>x.name===process.env.DB_NAME).uuid))')
           fi
-          sed -i "s/REPLACE_WITH_D1_ID/$id/" wrangler.toml
+          sed -i "s/$DB_SLOT/$id/" wrangler.toml
+          # 다른 서버 칸은 이번 배포에 쓰이지 않는다 — 형식만 맞춰 둔다
+          sed -i "s/REPLACE_WITH_STAGING_D1_ID/00000000-0000-0000-0000-000000000000/; s/REPLACE_WITH_D1_ID/00000000-0000-0000-0000-000000000000/" wrangler.toml
           # 저장소 하루 한도를 넘은 날에도 코드는 배포되게 한다 (코드는 새 인덱스 없이도 맞게 동작한다). 다음 배포 때 다시 적용된다.
-          npx wrangler d1 migrations apply kew --remote || echo "::warning::D1 마이그레이션 실패 (하루 한도 초과일 수 있음) — 코드는 배포하고 다음 배포 때 다시 적용"
+          npx wrangler d1 migrations apply "$DB_NAME" --remote $WENV || echo "::warning::D1 마이그레이션 실패 (하루 한도 초과일 수 있음) — 코드는 배포하고 다음 배포 때 다시 적용"
 
       - name: Deploy
-        run: npx wrangler deploy
+        run: npx wrangler deploy $WENV
 
       - name: Upload secrets
         env:
@@ -87,19 +108,21 @@ jobs:
           # 값이 있는 것만 JSON 으로 묶어 한 번에 등록 (로그에 값이 찍히지 않음)
           node -e '
             const keys=["KEW_SECRET","SAFETYDATA_API_KEY","NTFY_TOPIC","NTFY_TOKEN","PUSHOVER_TOKEN","PUSHOVER_USER","OPENSKY_CLIENT_ID","OPENSKY_CLIENT_SECRET","AISSTREAM_API_KEY","FIRMS_MAP_KEY","TELEGRAM_BOT_TOKEN","TELEGRAM_CHAT_ID","DISCORD_WEBHOOK_URL","BARK_KEY","GFW_API_TOKEN","NAVER_CLIENT_ID","NAVER_CLIENT_SECRET","CLAUDE_ROUTINE_URL","CLAUDE_ROUTINE_TOKEN","ECOS_API_KEY","PAYAPP_USERID","PAYAPP_LINKKEY","PAYAPP_LINKVAL","PAYAPP_REQUESTKEY"];
-            const o={}; for (const k of keys) if (process.env[k]) o[k]=process.env[k];
+            // 시험 서버에는 알림 채널·결제·Claude 루틴 비밀값을 넣지 않는다 — 시험 중 운영자 폰이 울리거나 돈이 오가거나 분석 비용이 나가지 않게
+            const notStaging=["NTFY_TOPIC","NTFY_TOKEN","PUSHOVER_TOKEN","PUSHOVER_USER","TELEGRAM_BOT_TOKEN","TELEGRAM_CHAT_ID","DISCORD_WEBHOOK_URL","BARK_KEY","CLAUDE_ROUTINE_URL","CLAUDE_ROUTINE_TOKEN","PAYAPP_USERID","PAYAPP_LINKKEY","PAYAPP_LINKVAL","PAYAPP_REQUESTKEY"];
+            const o={}; for (const k of keys) if (process.env[k] && !(process.env.TARGET==="staging" && notStaging.includes(k))) o[k]=process.env[k];
             require("fs").writeFileSync("/tmp/secrets.json", JSON.stringify(o));
             console.log("등록할 비밀값:", Object.keys(o).join(", "));'
-          npx wrangler secret bulk /tmp/secrets.json
+          npx wrangler secret bulk /tmp/secrets.json $WENV
           rm -f /tmp/secrets.json
 
       - name: Smoke test
         run: |
           sub=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).result?.subdomain??""))')
-          base="https://korea-early-warning.$sub.workers.dev"
+          base="https://$WORKER.$sub.workers.dev"
           sleep 5
           curl -sf "$base/health"
           echo
-          echo "### 배포 완료" >> $GITHUB_STEP_SUMMARY
+          echo "### 배포 완료 ($TARGET): $SITE" >> $GITHUB_STEP_SUMMARY
           echo "- 대시보드: $base (처음 열 때 KEW_SECRET 입력)" >> $GITHUB_STEP_SUMMARY
           echo "- 커넥터 URL: $base/mcp/<KEW_SECRET> — 대시보드의 '커넥터 URL 복사' 버튼 사용" >> $GITHUB_STEP_SUMMARY

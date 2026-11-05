@@ -41,7 +41,8 @@ async function sha256Hex(s: string): Promise<string> {
 /** NTFY_TOPIC 을 따로 정하지 않으면 KEW_SECRET 에서 추측 불가능한 토픽을 만든다 */
 async function resolveEnv(env: Env, origin?: string): Promise<Env> {
   const e = { ...env };
-  if (!e.NTFY_TOPIC && e.KEW_SECRET) e.NTFY_TOPIC = `kew-${(await sha256Hex(`ntfy:${e.KEW_SECRET}`)).slice(0, 24)}`;
+  // 시험 서버는 본 서버와 다른 토픽 — 같은 비밀값을 써도 시험 알림이 운영자 폰(본 서버 토픽)으로 가지 않게
+  if (!e.NTFY_TOPIC && e.KEW_SECRET) e.NTFY_TOPIC = `kew-${(await sha256Hex(`${e.STAGING ? "ntfy:staging:" : "ntfy:"}${e.KEW_SECRET}`)).slice(0, 24)}`;
   if (e.PUBLIC_URL) e.DASHBOARD_URL = e.PUBLIC_URL; // 정해 둔 공개 주소가 최우선 — 크론(요청 없음)에서 보내는 알림 링크도 이 주소로
   else if (!e.DASHBOARD_URL && origin) e.DASHBOARD_URL = origin;
   return e;
@@ -58,6 +59,24 @@ export function publicRedirect(req: Request, url: URL, publicUrl?: string): Resp
   const page = ["/", "/index.html", "/buy", "/buy/success", "/buy/fail", "/terms", "/me"].includes(url.pathname) || url.pathname.startsWith("/r/");
   if (!page && url.host !== `www.${pub.host}`) return undefined;
   return Response.redirect(`${pub.origin}${url.pathname}${url.search}`, 301);
+}
+
+/**
+ * 시험 서버 표시 (2026-11-06): 화면 맨 위에 빨간 띠, 검색 제외, 홈 화면 앱 이름에 '(시험)' — 본 서버와 헷갈리지 않게.
+ * 시험 서버는 데이터베이스가 따로라 손님 구독·결제가 없고, 운영자 알림·결제·Claude 루틴 비밀값도 넣지 않는다(deploy.yml).
+ */
+export async function markStaging(res: Response, url: URL): Promise<Response> {
+  const type = res.headers.get("content-type") ?? "";
+  const headers = new Headers(res.headers);
+  headers.set("x-robots-tag", "noindex, nofollow");
+  if (url.pathname === "/manifest.webmanifest") {
+    const m = (await res.json()) as { name: string; short_name: string };
+    return new Response(JSON.stringify({ ...m, name: `${m.name} (시험)`, short_name: `시험 ${m.short_name}` }), { status: res.status, headers });
+  }
+  if (!type.includes("text/html")) return new Response(res.body, { status: res.status, headers });
+  const ribbon = '<div style="position:fixed;left:0;right:0;top:0;z-index:2147483647;background:#ffd400;color:#000;font:700 12px/1 -apple-system,sans-serif;text-align:center;padding:4px 0;pointer-events:none;letter-spacing:.04em">STAGING · 시험 서버 — 손님에게 보이지 않아요</div>';
+  const html = (await res.text()).replace(/<\/body>/i, `${ribbon}</body>`);
+  return new Response(html, { status: res.status, headers });
 }
 
 function safeEq(a: string | undefined, b: string | undefined): boolean {
@@ -170,7 +189,8 @@ export default {
     const env = await resolveEnv(rawEnv, url.origin);
     const store = new D1Store(env.DB);
     try {
-      return await route(req, url, env, store);
+      const res = await route(req, url, env, store);
+      return env.STAGING ? markStaging(res, url) : res;
     } catch (e) {
       // 저장소 한도 초과는 화면에 그대로 알린다 (예전에는 1101 오류로 빈 화면이 됐다)
       if (isD1Limit(e))

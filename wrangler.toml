@@ -36,3 +36,28 @@ DEEP_MONTHLY_MAX_RUNS = "30"         # 한 달 최대 심층 분석 수 (수동 
 # 비밀값은 여기 적지 않는다. GitHub Actions(.github/workflows/deploy.yml)가 GitHub Secrets 에서
 # `wrangler secret put` 으로 등록한다: KEW_SECRET(필수), SAFETYDATA_API_KEY, NTFY_TOPIC, NTFY_TOKEN,
 # PUSHOVER_TOKEN, PUSHOVER_USER, OPENSKY_CLIENT_ID, OPENSKY_CLIENT_SECRET
+
+# ── 시험 서버 (2026-11-06): staging.koreasiren.com · 데이터베이스 kew-staging (본 서버와 완전히 따로)
+# 작업 브랜치(claude/korea-early-warning)에 올리면 여기로만 배포된다. 본 서버(main)는 사용자가 확인한 뒤에만.
+# 바깥 무료 API 사용량을 아끼려고 1분마다 도는 속보 크론은 뺐다(5분마다 뉴스는 돈다).
+[env.staging]
+name = "korea-early-warning-staging"
+workers_dev = true
+routes = [{ pattern = "staging.koreasiren.com", custom_domain = true }]
+
+[env.staging.triggers]
+crons = ["*/5 * * * *", "3-59/15 * * * *", "11 * * * *", "41 2 * * *"]
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "kew-staging"
+database_id = "REPLACE_WITH_STAGING_D1_ID"   # 배포 워크플로가 자동으로 채움
+migrations_dir = "migrations"
+
+[env.staging.vars]
+PUBLIC_URL = "https://staging.koreasiren.com"
+STAGING = "1"
+NTFY_SERVER = "https://ntfy.sh"
+DISABLED_SOURCES = "opensky,gdelt,bluesky"
+DEEP_DAILY_MAX = "0"
+DEEP_MONTHLY_MAX_RUNS = "0"

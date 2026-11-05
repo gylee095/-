@@ -8,7 +8,7 @@ import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, report
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
 import { readOnlyD1 } from "./readonly.js";
-import { OPSNAP_PREFIX, setOpsSnapshotMaker, snapSig } from "../core/opsnap.js";
+import { OPSNAP_PREFIX, loadOpsSnaps, setOpsSnapshotMaker, snapSig } from "../core/opsnap.js";
 
 // 운영자 알림을 보낼 때 그 순간의 대시보드 전체를 얼린다 (손님 리포트와 같은 freezeState) — notify.ts 가 부른다
 setOpsSnapshotMaker(async (store, env) => freezeState((await buildState(store as D1Store, Date.now() - 72 * 3600_000, (env as Env).DISABLED_SOURCES)) as unknown as Record<string, unknown>));
@@ -419,6 +419,14 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
         pushChannels: pushChannels(env),
       },
     });
+  }
+  if (url.pathname === "/api/ops/inbox" && req.method === "GET") {
+    // 운영자 알림 목록 (11/6): 운영자 알림(그때 화면) + 단계 변화 리포트, 최신이 위. 실시간 대시보드는 목록 화면의 운영자 전용 버튼으로
+    const sign = async (id: string) => `${url.origin}/ops/r/${encodeURIComponent(id)}?s=${await snapSig(env.KEW_SECRET!, id)}`;
+    const ops = (await loadOpsSnaps(store)).map((x) => ({ id: x.id, at: x.at, headline: x.title, kind: "ops" as const }));
+    const phase = (await loadReports(store)).filter((r) => r.kind === "change").map((r) => ({ id: r.id, at: r.at, headline: r.headline, kind: "change" as const, phase: r.phase, direction: r.direction }));
+    const items = [...ops, ...phase].sort((a, b) => b.at - a.at).slice(0, 200);
+    return json({ items: await Promise.all(items.map(async (x) => ({ ...x, url: await sign(x.id) }))) });
   }
   if (url.pathname === "/api/ops/report-link" && req.method === "GET") {
     const id = url.searchParams.get("id") ?? "";

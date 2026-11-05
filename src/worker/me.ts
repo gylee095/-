@@ -129,7 +129,7 @@ async function pasteCode(){var t="";try{t=await navigator.clipboard.readText()}c
   try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 function saveCode(){var v=normCode($("#codein").value);if(!v){alert("코드 12자리를 확인해 주세요.");return}try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 
-var Q=new URLSearchParams(location.search),CODE=code(),OPEN=Q.get("r"),SUMMARY=Q.get("summary")==="1",PAGE=0;
+var Q=new URLSearchParams(location.search),CODE=code(),OPEN=Q.get("r"),SIGN=Q.get("s"),SUMMARY=Q.get("summary")==="1",PAGE=0;
 // 앱처럼 (11/5): 목록을 누르면 그 순간의 '대시보드 전체'(/r/번호). 안 본 알림은 '새 알림'. 앱 아이콘 배지는 열면 지운다
 function seen(){try{return JSON.parse(localStorage.getItem("kew_seen")||"[]")}catch(e){return []}}
 function markSeen(id){var a=seen();if(a.indexOf(id)<0){a.push(id);try{localStorage.setItem("kew_seen",JSON.stringify(a.slice(-500)))}catch(e){}}}
@@ -141,8 +141,10 @@ window.addEventListener("appinstalled",function(){var b=document.getElementById(
 function install(){if(!INSTALL)return;INSTALL.prompt();INSTALL.userChoice.finally(function(){INSTALL=null;var b=document.getElementById("install");if(b)b.style.display="none"})}
 async function render(){
   try{if(localStorage.getItem("kew_token"))$("#ops").innerHTML=' · <a href="/ops">운영자 화면</a>'}catch(e){}
-  // 운영자 폰에서 단계 알림을 누른 경우(결제 코드 없음 + 운영자 열쇠 있음): 같은 리포트의 '그때 화면'으로 (11/6)
-  if(!CODE&&OPEN){try{var ot=localStorage.getItem("kew_token");if(ot){var rr=await fetch("/api/ops/report-link?id="+encodeURIComponent(OPEN),{headers:{authorization:"Bearer "+ot}});if(rr.ok){var jj=await rr.json();if(jj.url){location.replace(jj.url);return}}}}catch(e){}}
+  // 운영자 (11/6): 운영자 알림 링크(?r=번호&s=서명)는 바로 그 알림의 그때 화면으로. 결제 코드 없이 운영자 열쇠만 있으면 운영자 알림 목록
+  if(OPEN&&SIGN){markSeen(OPEN);location.replace("/ops/r/"+encodeURIComponent(OPEN)+"?s="+encodeURIComponent(SIGN));return}
+  var OT=null;try{OT=localStorage.getItem("kew_token")}catch(e){}
+  if(!CODE&&OT)return renderOps(OT);
   if(!CODE){if(orders().length&&await checkPaid(false))return;return noCode()}
   manifestWithCode(CODE);clearBadge();
   // 알림을 눌러 들어왔으면 바로 그 리포트(대시보드 전체)로
@@ -171,6 +173,20 @@ async function render(){
   // 예전(요약만 있던) 리포트를 열 때
   if(SUMMARY&&OPEN){var id2=OPEN;OPEN=null;markSeen(id2);openReport(id2);var el=document.getElementById("r_"+id2);if(el)el.scrollIntoView({block:"start"})}
 }
+// 운영자 알림 목록 (11/6): 손님 알림함과 같은 모양 + 운영자 전용 '실시간 대시보드' 버튼
+async function renderOps(t){clearBadge();
+  if(OPEN){try{var rr=await fetch("/api/ops/report-link?id="+encodeURIComponent(OPEN),{headers:{authorization:"Bearer "+t}});if(rr.ok){var jj=await rr.json();if(jj.url){markSeen(OPEN);location.replace(jj.url);return}}}catch(e){}OPEN=null}
+  var r=await fetch("/api/ops/inbox",{headers:{authorization:"Bearer "+t},cache:"no-store"}).catch(function(){return null});
+  if(!r||!r.ok){$("#app").innerHTML='<div class="state">운영자 열쇠가 맞지 않거나 연결이 안 돼요. <a href="/ops">운영자 화면</a>에서 다시 로그인해 주세요.</div>';return}
+  var items=(await r.json()).items||[],sn=seen(),fresh=items.filter(function(x){return sn.indexOf(x.id)<0}).length;
+  var h='<a class="btn" href="/ops" style="margin:14px 0 6px;background:#1d2020;color:#fff;border:2px solid var(--brand)">📊 실시간 대시보드 보기 <span style="font-weight:400;font-size:13px;opacity:.75">운영자 전용</span></a>';
+  h+='<h2 style="margin-top:18px">운영자 알림 '+items.length+'개'+(fresh?' · <span style="color:var(--brand)">새 알림 '+fresh+'개</span>':'')+'</h2>';
+  if(!items.length)h+='<div class="state mute">아직 그때 화면이 저장된 알림이 없어요. 다음 알림부터 여기에 쌓여요.</div>';
+  var PER=4,pages=Math.max(1,Math.ceil(items.length/PER));if(PAGE>=pages)PAGE=pages-1;var shown=items.slice(PAGE*PER,PAGE*PER+PER);
+  shown.forEach(function(x){var isNew=sn.indexOf(x.id)<0;
+    h+='<a class="item" href="'+esc(x.url)+'" onclick="markSeen(\''+esc(x.id)+'\')" style="display:block;color:inherit;text-decoration:none;'+(isNew?'border:2px solid var(--brand)':'')+'"><div class="when">'+(isNew?'<b style="color:var(--brand)">● 새 알림</b> · ':'')+esc(kst(x.at))+' · '+(x.kind==="ops"?'운영자 알림':'단계 변화 (손님도 받음)')+'</div><div style="font-weight:700;margin-top:4px">'+esc(x.headline||"")+'</div><div class="mute" style="font-size:13px;margin-top:4px">눌러서 그때의 대시보드 전체 보기 ›</div></a>'});
+  if(pages>1)h+='<div style="display:flex;gap:8px;align-items:center;margin:10px 0"><button class="btn ghost" style="flex:1;padding:12px" '+(PAGE===0?'disabled':'')+' onclick="PAGE--;renderOps(localStorage.getItem(\'kew_token\'));window.scrollTo(0,0)">◀ 최근 알림</button><span class="mute">'+(PAGE*PER+1)+'–'+Math.min(items.length,PAGE*PER+PER)+' / '+items.length+'</span><button class="btn ghost" style="flex:1;padding:12px" '+(PAGE>=pages-1?'disabled':'')+' onclick="PAGE++;renderOps(localStorage.getItem(\'kew_token\'));window.scrollTo(0,0)">지난 알림 ▶</button></div>';
+  $("#app").innerHTML=h}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});
 render();
 </script></body></html>`;

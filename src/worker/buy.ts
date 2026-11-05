@@ -75,19 +75,19 @@ function waitPaid(o,t){var n=0;var iv=setInterval(async function(){n++;if(n>400)
   try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
     if(j.status==="paid"){clearInterval(iv);location.href="/buy/success?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t)}}catch(e){}},2500)}
 (function(){try{var c=localStorage.getItem("kew_code");if(/^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(c||"")&&!/[?&]p=1/.test(location.search))location.replace("/me")}catch(e){}})();
-// 진행 중인 결제 확인: 결제됐으면 결제 완료 화면으로, 기다리는 중이면 안내 띠. 뒤로 가기로 되살아난 화면(bfcache)도 같은 처리
-async function resume(){var s=null;try{s=JSON.parse(localStorage.getItem("kew_order")||"null")}catch(e){}
+// 이 브라우저에서 시작한 주문 전부 (최근 8개·7일). 그중 결제된 것이 있으면 어느 화면에서든 그 코드로 간다
+function orders(){try{var a=JSON.parse(localStorage.getItem("kew_orders")||"[]");var one=JSON.parse(localStorage.getItem("kew_order")||"null");if(one&&!a.some(function(x){return x.o===one.o}))a.push(one);return a.filter(function(x){return x&&x.o&&x.t&&Date.now()-x.at<7*86400000})}catch(e){return []}}
+function remember(o,t){var a=orders().filter(function(x){return x.o!==o});a.push({o:o,t:t,at:Date.now()});a=a.slice(-8);try{localStorage.setItem("kew_orders",JSON.stringify(a));localStorage.removeItem("kew_order")}catch(e){}}
+async function statusOf(x){try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(x.o)+"&t="+encodeURIComponent(x.t),{cache:"no-store"});if(!r.ok)return {status:"missing"};return await r.json()}catch(e){return {status:"error"}}}
+async function findPaid(list){for(var i=list.length-1;i>=0;i--){var j=await statusOf(list[i]);if(j.status==="paid"&&j.code)return {x:list[i],j:j}}return null}
+async function resume(){
   var b=document.getElementById("pay");if(b){b.disabled=!(document.getElementById("agree")||{}).checked;b.textContent="4,900원 결제하기"}
   var w=document.getElementById("paywait");if(w)w.style.display="none";
-  if(!s||!s.o||Date.now()-s.at>2*3600000)return;
-  try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(s.o)+"&t="+encodeURIComponent(s.t),{cache:"no-store"});var j=await r.json();
-    if(j.status==="paid"){location.replace("/buy/success?o="+encodeURIComponent(s.o)+"&t="+encodeURIComponent(s.t));return}
-    if(j.status==="created"){var bar=document.getElementById("resume");if(!bar){bar=document.createElement("div");bar.id="resume";bar.className="card";bar.style.borderColor="var(--brand)";document.querySelector(".wrap").insertBefore(bar,document.querySelector("h1"))}
-      bar.innerHTML='<b>진행 중인 결제가 있어요</b><p class="mute" style="margin:6px 0 10px">카카오톡(또는 문자)으로 온 페이앱 링크로 결제를 마치면 활성화 코드가 나와요.</p><a class="btn" href="/buy/success?o='+encodeURIComponent(s.o)+'&t='+encodeURIComponent(s.t)+'">결제 완료 화면 열기</a>'}}catch(e){}}
+  var f=await findPaid(orders());if(f)location.replace("/buy/success?o="+encodeURIComponent(f.x.o)+"&t="+encodeURIComponent(f.x.t));}
 window.addEventListener("pageshow",function(){resume()});
 async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 제한 안내를 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
   try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
-    try{localStorage.setItem("kew_order",JSON.stringify({o:o.orderId,t:o.claim,at:Date.now()}))}catch(e){}
+    remember(o.orderId,o.claim);
     var p=o.payapp;
     // 같은 탭에서 결제창을 연다 — 휴대폰은 탭 직후가 아닌 팝업(주문을 만든 뒤 여는 창)을 막는다. 결제를 마치면 페이앱이 결제 완료 화면(returnurl)으로 돌려보낸다
     PayApp.setTarget("_self");
@@ -140,16 +140,18 @@ function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
     if(j.receiptUrl&&/^https:\/\//.test(j.receiptUrl))document.getElementById("rc").innerHTML='<a href="'+j.receiptUrl.replace(/"/g,"")+'" target="_blank" rel="noopener">영수증 보기</a>';
     new QRCode(document.getElementById("qr"),{text:link,width:184,height:184,correctLevel:QRCode.CorrectLevel.M});
     document.getElementById("wait").style.display="none";document.getElementById("done").style.display="";}
+// 이 브라우저에서 시작한 주문 전부 (최근 8개·7일). 그중 결제된 것이 있으면 어느 화면에서든 그 코드로 간다
+function orders(){try{var a=JSON.parse(localStorage.getItem("kew_orders")||"[]");var one=JSON.parse(localStorage.getItem("kew_order")||"null");if(one&&!a.some(function(x){return x.o===one.o}))a.push(one);return a.filter(function(x){return x&&x.o&&x.t&&Date.now()-x.at<7*86400000})}catch(e){return []}}
+function remember(o,t){var a=orders().filter(function(x){return x.o!==o});a.push({o:o,t:t,at:Date.now()});a=a.slice(-8);try{localStorage.setItem("kew_orders",JSON.stringify(a));localStorage.removeItem("kew_order")}catch(e){}}
+async function statusOf(x){try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(x.o)+"&t="+encodeURIComponent(x.t),{cache:"no-store"});if(!r.ok)return {status:"missing"};return await r.json()}catch(e){return {status:"error"}}}
+async function findPaid(list){for(var i=list.length-1;i>=0;i--){var j=await statusOf(list[i]);if(j.status==="paid"&&j.code)return {x:list[i],j:j}}return null}
 (async function(){var q=new URLSearchParams(location.search),o=q.get("o"),t=q.get("t");
-  if(!o||!t){try{var s=JSON.parse(localStorage.getItem("kew_order")||"null");if(s){o=s.o;t=s.t}}catch(e){}}
-  if(!o||!t){document.getElementById("wait").style.display="none";document.getElementById("failmsg").textContent="주문 정보를 찾지 못했어요.";document.getElementById("fail").style.display="";return}
-  // 결제완료 통보는 보통 몇 초 안에 온다. 3분까지 기다린다
+  if(o&&t)remember(o,t);
+  var list=orders();
+  if(!list.length){document.getElementById("wait").style.display="none";document.getElementById("failmsg").textContent="이 브라우저에서 시작한 결제를 찾지 못했어요. 결제를 마쳤다면 카카오톡으로 받은 결제 화면에서 이어 가거나, 영수증의 결제번호와 함께 문의해 주세요.";document.getElementById("fail").style.display="";return}
+  // 결제완료 통보는 보통 몇 초 안에 온다. 10분까지 기다린다
   for(var i=0;i<300;i++){
-    try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
-      if(r.ok&&j.status==="paid"&&j.code){show(j);return}
-      if(r.ok&&(j.status==="failed"||j.status==="refunded")){document.getElementById("wait").style.display="none";document.getElementById("failmsg").textContent=j.status==="refunded"?"이 결제는 취소(환불)되었어요.":"";document.getElementById("fail").style.display="";return}
-      if(r.status===404){break}}catch(e){}
-
+    var f=await findPaid(orders());if(f){show(f.j);return}
     await new Promise(function(res){setTimeout(res,2000)})}
   document.getElementById("waitmsg").textContent="아직 결제가 확인되지 않았어요. 결제를 마쳤다면 잠시 뒤 '다시 확인'을 눌러 주세요. 활성화 코드는 결제가 확인되면 이 화면에 나옵니다.";
   document.getElementById("again").style.display="";

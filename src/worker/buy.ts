@@ -81,7 +81,7 @@ async function pay(){var b=document.getElementById("pay");var ag=document.getEle
     // 같은 탭에서 결제창을 연다 — 휴대폰은 탭 직후가 아닌 팝업(주문을 만든 뒤 여는 창)을 막는다. 결제를 마치면 페이앱이 결제 완료 화면(returnurl)으로 돌려보낸다
     PayApp.setTarget("_self");
     PayApp.setDefault({userid:p.userid,shopname:p.shopname});
-    PayApp.setParam({goodname:p.goodname,price:p.price,var1:p.var1,feedbackurl:p.feedbackurl,returnurl:p.returnurl,smsuse:p.smsuse,checkretry:p.checkretry,openpaytype:p.openpaytype}).payrequest();
+    PayApp.setParam({goodname:p.goodname,price:p.price,redirecturl:p.redirecturl,redirect:p.redirect,var1:p.var1,feedbackurl:p.feedbackurl,returnurl:p.returnurl,smsuse:p.smsuse,checkretry:p.checkretry,openpaytype:p.openpaytype}).payrequest();
     b.textContent="결제창에서 결제를 마쳐 주세요";document.getElementById("paywait").style.display="";
     waitPaid(o.orderId,o.claim);
   }catch(e){alert("결제를 시작하지 못했어요: "+(e&&e.message||e));b.disabled=false;b.textContent="4,900원 결제하기"}}
@@ -93,7 +93,7 @@ export function successPage(origin: string): string {
   return String.raw`${SHELL_HEAD}<title>결제 완료 — 알림 켜기</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head><body><div class="wrap">
 <div class="top"><b>🇰🇷 한반도 조기경보</b></div>
-<div id="wait" class="card"><b>결제를 확인하는 중…</b><p class="mute" id="waitmsg">보통 몇 초 걸립니다. 창을 닫지 마세요.</p><button class="btn ghost" id="again" style="display:none;margin-top:10px" onclick="location.reload()">다시 확인</button></div>
+<div id="wait" class="card"><b>결제를 기다리는 중…</b><p class="mute" id="waitmsg"><b>카카오톡(또는 문자)으로 온 페이앱 링크</b>를 눌러 결제를 마쳐 주세요. 결제가 끝나면 이 화면에 바로 활성화 코드가 나와요. 이 창은 열어 두세요.</p><button class="btn ghost" id="again" style="display:none;margin-top:10px" onclick="location.reload()">다시 확인</button></div>
 <div id="done" class="card" style="display:none">
 <h1 style="margin-top:0;font-size:24px">결제 완료 ✓</h1>
 <p>알림함에 <b>지금 상황 리포트</b>가 들어 있어요. 이제 <b>휴대폰에서 알림만 켜면</b> 끝이에요.</p>
@@ -128,12 +128,12 @@ function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
   if(!o||!t){try{var s=JSON.parse(localStorage.getItem("kew_order")||"null");if(s){o=s.o;t=s.t}}catch(e){}}
   if(!o||!t){document.getElementById("wait").style.display="none";document.getElementById("failmsg").textContent="주문 정보를 찾지 못했어요.";document.getElementById("fail").style.display="";return}
   // 결제완료 통보는 보통 몇 초 안에 온다. 3분까지 기다린다
-  for(var i=0;i<90;i++){
+  for(var i=0;i<300;i++){
     try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
       if(r.ok&&j.status==="paid"&&j.code){show(j);return}
       if(r.ok&&(j.status==="failed"||j.status==="refunded")){document.getElementById("wait").style.display="none";document.getElementById("failmsg").textContent=j.status==="refunded"?"이 결제는 취소(환불)되었어요.":"";document.getElementById("fail").style.display="";return}
       if(r.status===404){break}}catch(e){}
-    if(i===10)document.getElementById("waitmsg").textContent="조금 더 걸리고 있어요. 결제를 마쳤다면 그대로 기다려 주세요.";
+
     await new Promise(function(res){setTimeout(res,2000)})}
   document.getElementById("waitmsg").textContent="아직 결제가 확인되지 않았어요. 결제를 마쳤다면 잠시 뒤 '다시 확인'을 눌러 주세요. 활성화 코드는 결제가 확인되면 이 화면에 나옵니다.";
   document.getElementById("again").style.display="";

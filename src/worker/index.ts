@@ -217,6 +217,9 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
         var1: o.orderId,
         feedbackurl: `${url.origin}/api/billing/payapp-notify`,
         returnurl: `${url.origin}/buy/success?o=${encodeURIComponent(o.orderId)}&t=${o.claim}`,
+        // 결제 요청(카톡·문자 링크) 전송 뒤 페이앱 창이 갈 곳. 없으면 창을 닫으려 하는데 같은 탭이라 닫히지 않아 갇힌다 (11/5)
+        redirecturl: `${url.origin}/buy/success?o=${encodeURIComponent(o.orderId)}&t=${o.claim}`,
+        redirect: "self",
         smsuse: "y", // 번호는 페이앱 화면에서 받고, 페이앱이 결제 링크를 문자로 보낸다 (11/5)
         checkretry: "y",
         openpaytype: PAYAPP_PAYTYPES,

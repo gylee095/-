@@ -136,6 +136,11 @@ table{width:100%;max-width:100%;table-layout:fixed;border-collapse:collapse;font
 <details id="login" class="card" style="display:none"><summary>운영자 로그인 — 지금은 공개 화면으로 열려 있어요</summary><p style="font-size:13px;color:var(--mute)">운영자만 씁니다. 보는 데는 필요 없어요. 비밀값을 넣으면 이 휴대폰의 알림이 운영자용으로 올라가요.</p><input id="tok" type="password" autocomplete="current-password" placeholder="접속 비밀값"><button class="btn" onclick="saveTok()">확인</button></details>
 </div>
 <script>
+// 로그인 링크(?login=…)로 열면 서버에서 운영자 열쇠를 받아 이 기기에 저장하고 다시 연다 (11/6, 비밀값을 잊었을 때)
+(function(){if(typeof location==="undefined"||typeof fetch==="undefined")return;var l=new URLSearchParams(location.search).get("login");if(!l)return;
+  fetch("/api/login?t="+encodeURIComponent(l),{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
+    if(j&&j.token){localStorage.setItem("kew_token",j.token);location.replace(location.pathname+location.hash)}
+    else{history.replaceState(null,"",location.pathname+location.hash);alert((j&&j.error)||"로그인 링크가 맞지 않아요.")}}).catch(function(){})})();
 var $=function(s){return document.querySelector(s)};
 var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
 var ST=null, map=null, LAST=0;

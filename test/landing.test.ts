@@ -68,3 +68,20 @@ describe("시험 서버 표시 (11/6)", async () => {
     expect(yml).toMatch(/if \[ "\$TARGET" = "staging" \]; then echo "시험 서버: 마이그레이션 건너뜀"; exit 0; fi\n\s*npx wrangler d1 migrations apply/);
   });
 });
+
+describe("운영자 로그인 링크 (11/6)", async () => {
+  const { loginSignature, verifyLoginToken } = await import("../src/worker/index.js");
+  const { createHmac } = await import("node:crypto");
+  const now = Date.UTC(2026, 10, 6);
+  it("비밀값으로 만든 15분 안 서명만 통과, 링크 만드는 스크립트와 같은 서명", async () => {
+    const exp = now + 10 * 60_000;
+    const sig = await loginSignature("s3cret-value-for-test-1234", exp);
+    expect(sig).toBe(createHmac("sha256", "s3cret-value-for-test-1234").update(`login:${exp}`).digest("hex"));
+    expect(await verifyLoginToken("s3cret-value-for-test-1234", `${exp}.${sig}`, now)).toBe(true);
+    expect(await verifyLoginToken("other-secret-value-0000000", `${exp}.${sig}`, now)).toBe(false);
+    expect(await verifyLoginToken("s3cret-value-for-test-1234", `${exp}.${sig}`, exp + 1)).toBe(false); // 만료
+    const far = now + 60 * 60_000;
+    expect(await verifyLoginToken("s3cret-value-for-test-1234", `${far}.${await loginSignature("s3cret-value-for-test-1234", far)}`, now)).toBe(false); // 너무 긴 링크는 거부
+    expect(await verifyLoginToken("s3cret-value-for-test-1234", "garbage", now)).toBe(false);
+  });
+});

@@ -91,6 +91,20 @@ async function abCompare(store: D1Store, b: Awaited<ReturnType<typeof buildState
   return { a: a ?? null, b: B };
 }
 
+/** 로그인 링크 서명: HMAC-SHA256(비밀값, "login:" + 만료 시각). 만료는 지금부터 15분 안이어야 한다 */
+export async function loginSignature(secret: string, exp: number): Promise<string> {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`login:${exp}`));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+export async function verifyLoginToken(secret: string, t: string, now: number): Promise<boolean> {
+  const m = /^(\d{13})\.([0-9a-f]{64})$/.exec(t);
+  if (!m) return false;
+  const exp = Number(m[1]);
+  if (exp <= now || exp - now > 15 * 60_000) return false;
+  return safeEq(m[2], await loginSignature(secret, exp));
+}
+
 function safeEq(a: string | undefined, b: string | undefined): boolean {
   if (!a || !b || a.length !== b.length) return false;
   let r = 0;
@@ -255,6 +269,13 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     return new Response(JSON.stringify(r), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
   }
   if (url.pathname === "/health") return json({ ok: true, configured: !!env.KEW_SECRET });
+  // 운영자 로그인 링크 (2026-11-06): 비밀값을 잊었을 때. 링크에는 비밀값이 없고 '만료 시각 + 서명'만 있다 — 서명은 비밀값으로만 만들 수 있고 15분 안에 끝난다.
+  // 저장소에 쓰지 않으므로 읽기 전용 시험 서버에서도 된다. 링크 만들기: node scripts/login-link.mjs [주소]
+  if (url.pathname === "/api/login" && req.method === "GET") {
+    const ok = env.KEW_SECRET ? await verifyLoginToken(env.KEW_SECRET, url.searchParams.get("t") ?? "", Date.now()) : false;
+    if (!ok) return json({ error: "로그인 링크가 맞지 않거나 시간이 지났어요. 새 링크를 받아 주세요." }, 401);
+    return new Response(JSON.stringify({ token: env.KEW_SECRET }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" } });
+  }
   // 웹 푸시 (2026-11-04): 브라우저가 직접 알림을 띄운다 — 앱·건당 비용 없음
   if (url.pathname === "/sw.js") return new Response(SERVICE_WORKER_JS, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-cache" } });
   if (url.pathname === "/manifest.webmanifest") {

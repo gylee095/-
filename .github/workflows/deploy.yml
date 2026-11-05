@@ -6,8 +6,8 @@
 name: Deploy Worker
 
 # 두 서버 (2026-11-06):
-#   main                        → 본 서버  koreasiren.com          (데이터베이스 kew)        — 사용자가 시험 서버를 보고 "본섭에 올려" 한 뒤에만
-#   claude/korea-early-warning  → 시험 서버 staging.koreasiren.com  (데이터베이스 kew-staging) — 작업할 때마다
+#   main                        → 본 서버  koreasiren.com          (데이터베이스 kew, 수집·알림·결제)   — 사용자가 시험 서버를 보고 "본섭에 올려" 한 뒤에만
+#   claude/korea-early-warning  → 시험 서버 staging.koreasiren.com  (같은 kew 를 읽기만, 새 규칙 실험) — 작업할 때마다
 on:
   workflow_dispatch:
     inputs:
@@ -58,7 +58,7 @@ jobs:
           if [ "$TARGET" = "production" ]; then
             echo "DB_NAME=kew" >> $GITHUB_ENV; echo "DB_SLOT=REPLACE_WITH_D1_ID" >> $GITHUB_ENV; echo "WENV=" >> $GITHUB_ENV; echo "WORKER=korea-early-warning" >> $GITHUB_ENV; echo "SITE=https://koreasiren.com" >> $GITHUB_ENV
           else
-            echo "DB_NAME=kew-staging" >> $GITHUB_ENV; echo "DB_SLOT=REPLACE_WITH_STAGING_D1_ID" >> $GITHUB_ENV; echo "WENV=--env staging" >> $GITHUB_ENV; echo "WORKER=korea-early-warning-staging" >> $GITHUB_ENV; echo "SITE=https://staging.koreasiren.com" >> $GITHUB_ENV
+            echo "DB_NAME=kew" >> $GITHUB_ENV; echo "DB_SLOT=REPLACE_WITH_D1_ID" >> $GITHUB_ENV; echo "WENV=--env staging" >> $GITHUB_ENV; echo "WORKER=korea-early-warning-staging" >> $GITHUB_ENV; echo "SITE=https://staging.koreasiren.com" >> $GITHUB_ENV
           fi
           echo "### 배포 대상: $TARGET" >> $GITHUB_STEP_SUMMARY
 
@@ -73,6 +73,8 @@ jobs:
           # 다른 서버 칸은 이번 배포에 쓰이지 않는다 — 형식만 맞춰 둔다
           sed -i "s/REPLACE_WITH_STAGING_D1_ID/00000000-0000-0000-0000-000000000000/; s/REPLACE_WITH_D1_ID/00000000-0000-0000-0000-000000000000/" wrangler.toml
           # 저장소 하루 한도를 넘은 날에도 코드는 배포되게 한다 (코드는 새 인덱스 없이도 맞게 동작한다). 다음 배포 때 다시 적용된다.
+          # 시험 서버는 본 서버 데이터베이스를 읽기만 한다 — 시험 브랜치의 표 변경이 본 서버 데이터베이스에 먼저 적용되면 안 된다
+          if [ "$TARGET" = "staging" ]; then echo "시험 서버: 마이그레이션 건너뜀"; exit 0; fi
           npx wrangler d1 migrations apply "$DB_NAME" --remote $WENV || echo "::warning::D1 마이그레이션 실패 (하루 한도 초과일 수 있음) — 코드는 배포하고 다음 배포 때 다시 적용"
 
       - name: Deploy

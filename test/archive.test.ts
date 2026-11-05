@@ -56,3 +56,24 @@ describe("30일 지난 원자료 → 영구 기록", () => {
     expect((db.prepare("SELECT count(*) AS c FROM events").get() as { c: number }).c).toBe(1);
   });
 });
+
+describe("시험 서버의 읽기 전용 데이터베이스 (11/6)", async () => {
+  const { readOnlyD1, isReadSql } = await import("../src/worker/readonly.js");
+  it("읽기만 통과하고 쓰기는 모두 버린다 — 실험 코드가 본 서버 데이터를 바꿀 수 없다", async () => {
+    const { db, d1 } = sqliteD1();
+    const real = new D1Store(d1);
+    await real.setKv("x", "본 서버 값");
+    await real.putEvents([ev("e1", NOW)]);
+    const ro = new D1Store(readOnlyD1(d1));
+    expect(await ro.getKv("x")).toBe("본 서버 값");
+    await ro.setKv("x", "시험 값");
+    await ro.putEvents([ev("e2", NOW)]);
+    await ro.putMetrics(readings(day0));
+    await ro.prune(CUT + 40 * DAY);
+    expect(await real.getKv("x")).toBe("본 서버 값");
+    expect((await real.getEvents(0)).map((e) => e.id)).toEqual(["e1"]);
+    expect((db.prepare("SELECT count(*) AS c FROM metrics").get() as { c: number }).c).toBe(0);
+    for (const w of ["INSERT INTO kv VALUES (1,2)", "  update kv set v=1", "DELETE FROM events", "CREATE TABLE t(x)", "INSERT OR REPLACE INTO kv SELECT 1,2", "PRAGMA writable_schema=1"]) expect(isReadSql(w), w).toBe(false);
+    for (const r of ["SELECT 1", " with x as (select 1) select * from x"]) expect(isReadSql(r), r).toBe(true);
+  });
+});

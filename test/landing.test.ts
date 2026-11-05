@@ -54,15 +54,17 @@ describe("시험 서버 표시 (11/6)", async () => {
     const man = await markStaging(new Response(JSON.stringify({ name: "한반도 조기경보", short_name: "조기경보" }), { headers: { "content-type": "application/manifest+json" } }), new URL("https://staging.koreasiren.com/manifest.webmanifest"));
     expect(await man.json()).toMatchObject({ name: "한반도 조기경보 (시험)", short_name: "시험 조기경보" });
   });
-  it("시험 서버 설정: 따로 된 데이터베이스·주소, 알림·결제·루틴 비밀값은 올리지 않는다", async () => {
+  it("시험 서버 설정: 본 서버 데이터를 읽기만, 알림·결제·루틴 비밀값은 올리지 않고, 표 변경도 적용하지 않는다", async () => {
     const { readFileSync } = await import("node:fs");
     const toml = readFileSync(new URL("../wrangler.toml", import.meta.url), "utf8");
     const st = toml.slice(toml.indexOf("[env.staging]"));
-    expect(st).toMatch(/database_name = "kew-staging"/);
+    expect(st).toMatch(/database_name = "kew"/); // 본 서버 데이터를 읽기만 (쓰기는 readonly.ts 가 버린다)
+    expect(st).toMatch(/crons = \[\]/); // 시험 서버는 수집·알림을 하지 않는다
     expect(st).toMatch(/PUBLIC_URL = "https:\/\/staging\.koreasiren\.com"/);
     expect(st).toMatch(/STAGING = "1"/);
     const yml = readFileSync(new URL("../.github/workflows/deploy.yml", import.meta.url), "utf8");
     for (const k of ["BARK_KEY", "PAYAPP_LINKKEY", "CLAUDE_ROUTINE_TOKEN", "TELEGRAM_BOT_TOKEN"]) expect(yml).toMatch(new RegExp(`notStaging=\\[[^\\]]*"${k}"`));
     expect(yml).toMatch(/github\.ref_name == 'main' && 'production' \|\| 'staging'/);
+    expect(yml).toMatch(/if \[ "\$TARGET" = "staging" \]; then echo "시험 서버: 마이그레이션 건너뜀"; exit 0; fi\n\s*npx wrangler d1 migrations apply/);
   });
 });

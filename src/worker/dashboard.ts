@@ -498,10 +498,29 @@ function deep(n){var d=n.data,L=function(a,f){return a&&a.length?'<ul>'+a.map(f)
   return h+'</div>'}
 function usagePanel(u){if(!u)return "";var b=u.budget;
   return '<details class="card use"><summary>Claude 사용량 (이번 달 '+esc(u.month)+')</summary><table><tr><td>심층 분석 '+u.deep.runs+'회</td><td>'+tokTotals(u.deep)+'</td></tr><tr><td>정기 분석(아침·저녁) '+u.scheduled.runs+'회</td><td>'+tokTotals(u.scheduled,true)+'</td></tr></table><p style="margin:10px 0 0">토큰 수입니다. Claude 구독의 사용 한도에서 차감되며, 조직에 추가 사용 크레딧이 켜져 있지 않으면 따로 결제되지 않습니다. 심층 분석은 하루 최대 '+(b?b.dailyMax:2)+'회, 한 달 최대 '+(b?b.monthlyMax:30)+'회이고, 다 쓰면 자동으로 멈춥니다.</p></details>'}
+// 시험 서버 실험 비교 (11/6): A = 본 서버 규칙의 최신 판정, B = 시험 서버 코드가 같은 데이터로 지금 낸 판정. 다른 칸은 빨간 ●
+function abPanel(ab){var A=ab.a,B=ab.b;if(!B)return "";
+  var cell="padding:6px 8px;border-top:1px solid var(--line);vertical-align:top";
+  var row=function(k,a,b){var same=String(a)===String(b);return '<tr><td style="'+cell+';color:var(--mute)">'+esc(k)+'</td><td style="'+cell+'">'+esc(a==null?"—":String(a))+'</td><td style="'+cell+(same?'':';color:#ff5a4e;font-weight:800')+'">'+esc(b==null?"—":String(b))+(same?'':' ●')+'</td></tr>'};
+  var dom=function(r){var m={};((r&&r.domains)||[]).forEach(function(d){m[d.label]=d.levelLabel});return m};
+  var da=dom(A),db=dom(B),labels=[];Object.keys(da).concat(Object.keys(db)).forEach(function(l){if(labels.indexOf(l)<0)labels.push(l)});
+  var t='<table style="width:100%;border-collapse:collapse;font-size:14px"><tr><th></th><th style="text-align:left;padding:6px 8px">A 본 서버 규칙</th><th style="text-align:left;padding:6px 8px">B 시험 규칙</th></tr>'+
+    row("단계",A?A.phase+"단계 "+A.phaseLabel:null,B.phase+"단계 "+B.phaseLabel)+
+    row("30일 국지 충돌",A?A.clash.point+"%":null,B.clash.point+"%")+
+    row("30일 전면전",A?A.war.point+"%":null,B.war.point+"%")+
+    row("평소 대비",A?A.vsUsual+"배":null,B.vsUsual+"배");
+  labels.forEach(function(l){t+=row("영역 · "+l,da[l]||"평소",db[l]||"평소")});
+  t+='</table>';
+  var diff=!A||A.phase!==B.phase||A.clash.point!==B.clash.point||labels.some(function(l){return (da[l]||"평소")!==(db[l]||"평소")});
+  var why=function(r){return ((r&&r.why)||[]).map(function(x){return "· "+esc(x)}).join("<br>")||"—"};
+  return '<div class="card" style="border:2px solid #ffd400;margin-bottom:12px"><b style="font-size:17px">🧪 실험 비교 — 같은 데이터, 다른 규칙</b>'+
+    '<div style="font-size:13px;color:var(--mute);margin:4px 0 10px">A = 본 서버가 5분마다 남긴 최신 판정'+(A?' ('+esc(kst(A.at))+')':' (아직 없음)')+' · B = 이 시험 서버 코드가 같은 데이터로 지금 낸 판정. '+(diff?'<b style="color:#ff5a4e">다른 칸이 있어요 (●)</b>':'<b>지금은 결과가 같아요</b>')+'</div>'+t+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;margin-top:10px"><div><b>A의 이유</b><br>'+why(A)+'</div><div><b>B의 이유</b><br>'+why(B)+'</div></div></div>'}
 function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+when(st.lastCycle?st.lastCycle.at:st.now);
   var h="";
+  if(st.ab)h+=abPanel(st.ab);
   var RP=window.__KEW_REPORT__;
   if(RP&&!document.getElementById("backbar")){document.body.style.paddingBottom="84px";document.body.insertAdjacentHTML("beforeend",'<a id="backbar" href="/me" style="position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:1000;display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:15px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)">← 알림 목록으로</a>')}
   if(RP)h+='<div class="card" style="border:2px solid #ff3b30;margin-bottom:12px"><a href="/me" style="display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:14px;border-radius:12px;margin-bottom:10px">← 알림 목록으로</a><div style="font-size:13px;color:var(--mute);margin-top:6px">📌 '+esc(kst(RP.at))+' '+(RP.kind==="snapshot"?"가입 시점 리포트 — 이 화면은 그 시각의 상황이에요":RP.kind==="demo"?"🧪 예시 리포트 — 목록·화면 확인용, 내용은 만든 때의 상황을 복사했어요":"단계 변화 리포트 — 이 화면은 그 시각의 상황이에요")+'</div><div style="font-weight:700;margin-top:2px">'+esc(RP.headline)+'</div></div>';

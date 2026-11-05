@@ -37,21 +37,22 @@ DEEP_MONTHLY_MAX_RUNS = "30"         # 한 달 최대 심층 분석 수 (수동 
 # `wrangler secret put` 으로 등록한다: KEW_SECRET(필수), SAFETYDATA_API_KEY, NTFY_TOPIC, NTFY_TOKEN,
 # PUSHOVER_TOKEN, PUSHOVER_USER, OPENSKY_CLIENT_ID, OPENSKY_CLIENT_SECRET
 
-# ── 시험 서버 (2026-11-06): staging.koreasiren.com · 데이터베이스 kew-staging (본 서버와 완전히 따로)
+# ── 시험 서버 (2026-11-06): staging.koreasiren.com — 실험실
+# 본 서버 데이터베이스(kew)를 **읽기만** 한다(src/worker/readonly.ts 가 쓰기를 모두 버림). 수집·알림·결제를 하지 않고(크론 없음),
+# 같은 데이터에 이 브랜치의 새 판정 규칙을 돌려 본 서버 판정(A)과 나란히 보여 준다(대시보드 맨 위 '실험 비교').
 # 작업 브랜치(claude/korea-early-warning)에 올리면 여기로만 배포된다. 본 서버(main)는 사용자가 확인한 뒤에만.
-# 바깥 무료 API 사용량을 아끼려고 1분마다 도는 속보 크론은 뺐다(5분마다 뉴스는 돈다).
 [env.staging]
 name = "korea-early-warning-staging"
 workers_dev = true
 routes = [{ pattern = "staging.koreasiren.com", custom_domain = true }]
 
 [env.staging.triggers]
-crons = ["*/5 * * * *", "3-59/15 * * * *", "11 * * * *", "41 2 * * *"]
+crons = []
 
 [[env.staging.d1_databases]]
 binding = "DB"
-database_name = "kew-staging"
-database_id = "REPLACE_WITH_STAGING_D1_ID"   # 배포 워크플로가 자동으로 채움
+database_name = "kew"
+database_id = "REPLACE_WITH_D1_ID"   # 본 서버와 같은 데이터베이스 (읽기 전용으로 감싼다)
 migrations_dir = "migrations"
 
 [env.staging.vars]

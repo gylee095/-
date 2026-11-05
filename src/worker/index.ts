@@ -4,9 +4,10 @@ import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
 import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
-import { addDemoReports, freezeState, loadFull, loadReports, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../core/reports.js";
+import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
+import { readOnlyD1 } from "./readonly.js";
 import { ICON_PNG_BASE64 } from "./icons.js";
 import { mePage } from "./me.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
@@ -79,6 +80,17 @@ export async function markStaging(res: Response, url: URL): Promise<Response> {
   return new Response(html, { status: res.status, headers });
 }
 
+/**
+ * 실험 비교 (시험 서버): A = 본 서버가 5분마다 남긴 최신 판정(본 서버 코드), B = 같은 데이터로 이 코드가 지금 낸 판정.
+ * 규칙을 바꾼 효과만 보이도록 입력은 같다.
+ */
+async function abCompare(store: D1Store, b: Awaited<ReturnType<typeof buildState>>["warRisk"]) {
+  const raw = await store.getKv(CURRENT_KEY);
+  const a = raw ? (JSON.parse(raw) as Report) : undefined;
+  const B = reportFromRisk(b, Date.now(), "snapshot");
+  return { a: a ?? null, b: B };
+}
+
 function safeEq(a: string | undefined, b: string | undefined): boolean {
   if (!a || !b || a.length !== b.length) return false;
   let r = 0;
@@ -144,6 +156,7 @@ async function runAndRecord(env: Env, store: D1Store, now: number, trigger: stri
 
 export default {
   async scheduled(ctrl: ScheduledController, rawEnv: Env, ctx: ExecutionContext) {
+    if (rawEnv.STAGING) return; // 시험 서버는 수집·판정 기록·알림을 하지 않는다 (본 서버 데이터를 읽기만)
     const env = await resolveEnv(rawEnv);
     const store = new D1Store(env.DB);
     // 알 수 없는 크론(배포 직후 이전 스케줄 등)은 전 소스를 돌리지 않고 속보 묶음만 실행 (CPU 한도 보호)
@@ -187,6 +200,11 @@ export default {
     const moved = publicRedirect(req, url, rawEnv.PUBLIC_URL);
     if (moved) return moved;
     const env = await resolveEnv(rawEnv, url.origin);
+    // 시험 서버: 본 서버 데이터를 읽기만 하고(쓰기는 버림), 첫 화면은 실험 비교가 있는 대시보드
+    if (env.STAGING) {
+      env.DB = readOnlyD1(env.DB);
+      if (url.pathname === "/" || url.pathname === "/index.html") return Response.redirect(`${url.origin}/ops`, 302);
+    }
     const store = new D1Store(env.DB);
     try {
       const res = await route(req, url, env, store);
@@ -353,8 +371,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   if (url.pathname === "/api/state" && req.method === "GET") {
     const hours = Math.min(Number(url.searchParams.get("hours") ?? 72), 720);
     const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES, { dailyMax: Number(env.DEEP_DAILY_MAX ?? 2), monthlyMax: Number(env.DEEP_MONTHLY_MAX_RUNS ?? 30) });
+    const ab = env.STAGING ? await abCompare(store, st.warRisk) : undefined;
     return json({
       ...st,
+      ...(ab ? { ab } : {}),
       setup: {
         ntfySubscribeUrl: env.NTFY_TOPIC ? `${env.NTFY_SERVER ?? "https://ntfy.sh"}/${env.NTFY_TOPIC}` : null,
         connectorUrl: `${url.origin}/mcp/${env.KEW_SECRET}`,

@@ -74,6 +74,16 @@ var ORIGIN=${JSON.stringify(origin)};
 function waitPaid(o,t){var n=0;var iv=setInterval(async function(){n++;if(n>400){clearInterval(iv);return}
   try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
     if(j.status==="paid"){clearInterval(iv);location.href="/buy/success?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t)}}catch(e){}},2500)}
+// 진행 중인 결제 확인: 결제됐으면 결제 완료 화면으로, 기다리는 중이면 안내 띠. 뒤로 가기로 되살아난 화면(bfcache)도 같은 처리
+async function resume(){var s=null;try{s=JSON.parse(localStorage.getItem("kew_order")||"null")}catch(e){}
+  var b=document.getElementById("pay");if(b){b.disabled=!(document.getElementById("agree")||{}).checked;b.textContent="4,900원 결제하기"}
+  var w=document.getElementById("paywait");if(w)w.style.display="none";
+  if(!s||!s.o||Date.now()-s.at>2*3600000)return;
+  try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(s.o)+"&t="+encodeURIComponent(s.t),{cache:"no-store"});var j=await r.json();
+    if(j.status==="paid"){location.replace("/buy/success?o="+encodeURIComponent(s.o)+"&t="+encodeURIComponent(s.t));return}
+    if(j.status==="created"){var bar=document.getElementById("resume");if(!bar){bar=document.createElement("div");bar.id="resume";bar.className="card";bar.style.borderColor="var(--brand)";document.querySelector(".wrap").insertBefore(bar,document.querySelector("h1"))}
+      bar.innerHTML='<b>진행 중인 결제가 있어요</b><p class="mute" style="margin:6px 0 10px">카카오톡(또는 문자)으로 온 페이앱 링크로 결제를 마치면 활성화 코드가 나와요.</p><a class="btn" href="/buy/success?o='+encodeURIComponent(s.o)+'&t='+encodeURIComponent(s.t)+'">결제 완료 화면 열기</a>'}}catch(e){}}
+window.addEventListener("pageshow",function(){resume()});
 async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 제한 안내를 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
   try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
     try{localStorage.setItem("kew_order",JSON.stringify({o:o.orderId,t:o.claim,at:Date.now()}))}catch(e){}

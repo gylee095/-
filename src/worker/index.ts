@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
-import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, createOrder, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, createOrder, loadOrders, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { loadReports, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../core/reports.js";
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { mePage } from "./me.js";
@@ -306,6 +306,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     });
   }
   if (url.pathname === "/api/billing/summary" && req.method === "GET") return json(await billingSummary(store, Date.now()));
+  if (url.pathname === "/api/billing/orders" && req.method === "GET") {
+    const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 19).replace("T", " ") : null);
+    return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, startReport: !!o.startReportId })));
+  }
   if (url.pathname === "/api/billing/last-reject" && req.method === "GET") return json(JSON.parse((await store.getKv("billing:last_reject")) ?? "null"));
   if (url.pathname === "/api/billing/refund" && req.method === "POST") {
     const body = (await req.json().catch(() => null)) as { orderId?: string; code?: string; reason?: string } | null;

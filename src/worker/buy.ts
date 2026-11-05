@@ -1,6 +1,8 @@
 // 유료 알림 상품 페이지 (2026-11-04, 결제사 페이앱 11-05). 휴대폰 우선. 페이앱 결제창 → 페이앱이 우리 서버에 결제완료 통보 → 활성화 코드 → QR/링크로 폰에서 켜기.
 // 브라우저는 결제 성공을 '주장'하지 않는다: 결제 완료 화면은 서버에 상태를 물어보기만 한다(결제완료 통보가 와야 코드가 생긴다).
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
+import { LANDING_CHROME, LANDING_CSS, LANDING_FONTS, LANDING_STORY, landingSceneJs } from "./landing.js";
+
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
 /** 기기·브라우저별 '알림을 받기까지 할 일' 안내 — 상품 페이지·알림함이 같이 쓰는 정본 (11/5) */
@@ -65,51 +67,62 @@ ul{padding-left:20px;margin:6px 0}li{margin:4px 0}.mute{color:var(--mute);font-s
 .foot{font-size:12px;color:var(--mute);margin-top:28px;line-height:1.5}a{color:var(--brand)}
 </style>`;
 
-/** 상품 페이지: 무엇을 주는지 · 가격 · 결제 */
+/** 상품 페이지 (11/5 개편): 움직이는 한반도 장면(landing.ts) → 무엇을 보는지 → 5단계 → 알림 → 가격·결제. 결제 흐름은 그대로 */
 export function buyPage(payappUserid: string | undefined, origin: string): string {
   const ready = !!payappUserid;
-  return String.raw`${SHELL_HEAD}<title>한반도 조기경보 알림 — 4,900원</title>
-<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head><body><div class="wrap">
-<div class="top"><b>🇰🇷 한반도 조기경보</b> · <a href="/me">이미 결제했어요 (알림함)</a></div>
-<h1>전쟁 위험 단계가 바뀌는 순간,<br>휴대폰이 울립니다.</h1>
-<p class="mute">공개 정보 39가지를 5분마다 읽어 한반도 전쟁 위험을 5단계로 판정합니다. 평소엔 조용하고, <b>단계가 실제로 바뀔 때만</b> 알려 드려요. 그때마다 "무엇이, 왜 바뀌었는지" 리포트가 함께 옵니다.</p>
-
-<div class="card">
-<div class="price"><b>4,900원</b><span>한 번 결제 · 평생</span></div>
-<ul>
-<li><b>결제 즉시</b> — 지금 상황 리포트 1건 (단계·확률·이유·지금 할 일)</li>
-<li><b>단계가 바뀔 때마다 휴대폰 알림</b> — 올라갈 때도, 내려갈 때도</li>
-<li><b>알림마다 리포트</b> — 알림함에 날짜별로 쌓이고, 지난 리포트도 언제든 다시 보기</li>
-<li><b>기기 3대</b>까지 — 가족 휴대폰에도 같은 코드로</li>
-<li>앱스토어 설치 없음(홈 화면에 추가만) · 문자 요금 없음 · 월 요금 없음</li>
-</ul>
+  return String.raw`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>39가지 신호로 보는 한반도 전쟁 위험 — 한반도 조기경보</title>
+<meta name="description" content="공개 신호 39가지를 5분마다 판정하고, 한반도 위기 단계가 바뀌면 바로 폰으로 알려 드립니다. 4,900원 한 번 결제로 평생.">
+<meta property="og:type" content="website"><meta property="og:title" content="39가지 신호로 보는 한반도 전쟁 위험">
+<meta property="og:description" content="위기 단계가 바뀌는 순간 폰으로 알림. 4,900원 한 번 결제로 평생.">
+<meta property="og:url" content="${esc(origin)}/"><meta property="og:image" content="${esc(origin)}/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0b0b"><meta name="color-scheme" content="dark">
+<link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="manifest" href="/manifest.webmanifest">
+${LANDING_FONTS}
+<style>${LANDING_CSS}</style>
+<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head><body>
+${LANDING_CHROME}
+<main>
+${LANDING_STORY}
+<section id="buy" data-ch="07 / 가입">
+  <div class="band"></div>
+  <div class="card reveal">
+    <p class="k">ONE-TIME</p>
+    <div class="price"><b>4,900원</b><span>한 번 결제 · 평생</span></div>
+    <ul class="checks">
+      <li>구독이 아닙니다. 한 번 결제로 계속 받습니다.</li>
+      <li>결제하면 그 시점의 판정 리포트를 바로 받습니다.</li>
+      <li>단계가 오를 때도, 내려갈 때도 알림과 리포트가 옵니다.</li>
+      <li>앱스토어 설치 없이 폰 알림으로. 가족 폰까지 3대.</li>
+    </ul>
 ${ready
-  ? String.raw`<label style="display:flex;gap:10px;align-items:flex-start;margin:14px 0 10px;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="document.getElementById('pay').disabled=!this.checked"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>
-<button class="btn" id="pay" onclick="pay()" disabled>4,900원 결제하기</button><p class="mute" id="paywait" style="display:none;margin-top:10px">페이앱 화면으로 넘어가요. 휴대폰 번호를 넣으면 페이앱이 결제 링크를 문자로 보내 드려요. 카드·카카오페이·네이버페이·토스페이·휴대폰 결제를 쓸 수 있어요.</p>`
-  : String.raw`<button class="btn" disabled>결제 준비 중</button><p class="mute">결제 연결이 아직 설정되지 않았어요. 곧 열립니다.</p>`}
-</div>
-
-<h2>이런 알림과 리포트가 와요 <span class="mute" style="font-weight:400">(예시)</span></h2>
-<div class="card" style="font-size:14px">
-<div style="background:var(--chip);border-radius:12px;padding:10px 12px"><b>🔔 3단계 위기 (3.8% → 15%) 나빠짐 · 2단계 긴장에서</b><br>⬆ 나빠짐: 2단계 긴장 → 3단계 위기<br><span class="mute">미국·일본이 동시에 여행경보를 올렸습니다</span></div>
-<div style="margin-top:10px"><b>리포트</b> — 지금 단계와 앞으로 30일 확률(평소 대비 몇 배), 왜 바뀌었는지, 영역별 근거, 다음에 볼 것, 위험을 낮추는 요인, 지금 할 일.</div>
-</div>
-
-<h2>어떻게 판단하나요</h2>
-<div class="card mute">
-정부 경보(미국·일본·영국·캐나다 여행경보, 재난문자), 군사(발사·항행경보·정찰기), 돈(환율·증시·예측시장), 북한 내부(담화·장마당 물가·평양 밤 불빛), 사람들의 불안(검색량) — 여섯 영역을 함께 봅니다. 한 가지 징후만으로는 단계를 올리지 않습니다. 확률은 1999년 이후 실제 충돌 기록을 바탕으로 한 판단값이며, 통계 예측이 아닙니다. 공식 안보 정보가 아니니 대피 등 행동은 정부 재난문자와 국민재난안전포털을 따르세요.
-</div>
-
-<h2>시작하는 법</h2>
-<ol class="steps">
+  ? String.raw`    <label class="agree"><input type="checkbox" id="agree" onchange="document.getElementById('pay').disabled=!this.checked"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>
+    <button class="cta red" id="pay" type="button" onclick="pay()" disabled>4,900원 결제하기 <small>페이앱</small></button>
+    <p class="paywait" id="paywait" style="display:none">페이앱 화면으로 넘어가요. 휴대폰 번호를 넣으면 페이앱이 결제 링크를 문자로 보내 드려요. 카드·카카오페이·네이버페이·토스페이·휴대폰 결제를 쓸 수 있어요.</p>`
+  : String.raw`    <button class="cta red" type="button" disabled>결제 준비 중</button><p class="paywait">결제 연결이 아직 설정되지 않았어요. 곧 열립니다.</p>`}
+    <div class="meta"><span>전화번호는 결제사(페이앱) 화면에서만 입력</span><span>·</span><a class="already" style="margin:0;font-size:10px" href="/me">이미 결제했어요 →</a></div>
+  </div>
+</section>
+</main>
+<div class="info"><div class="in">
+<h3>시작하는 법</h3>
+<ol>
 <li><b>아이폰</b>: 결제 → <b>공유</b>(사파리는 화면 아래, 크롬은 주소창 오른쪽) → <b>더 보기</b> → 조금 내려서 <b>홈 화면에 추가</b> → 오른쪽 위 <b>추가</b> → 홈 화면의 <b>조기경보</b> 앱에서 <b>알림 켜기</b>. 코드는 저절로 따라가요</li>
 <li><b>안드로이드</b>: 크롬·삼성 인터넷에서 결제 → <b>알림 켜기</b> (원하면 앱으로 설치)</li>
-<li><b>컴퓨터</b>: 화면의 <b>QR을 휴대폰 카메라로</b> 찍어 휴대폰에서 시작 (알림은 휴대폰으로 와요)</li>
-<li><b>카카오톡·네이버 앱 안</b>에서 열었다면: 화면의 <b>사파리(크롬)로 열기</b>를 눌러 주세요</li>
+<li><b>컴퓨터</b>: 결제 칸의 <b>QR을 휴대폰 카메라로</b> 찍어 휴대폰에서 시작 (알림은 휴대폰으로 와요)</li>
+<li><b>카카오톡·네이버 앱 안</b>에서 열었다면: 결제 칸의 <b>사파리(크롬)로 열기</b>를 눌러 주세요</li>
 </ol>
-<p class="mute">결제 화면에서 휴대폰 번호를 넣으면 페이앱이 카카오톡으로 결제 링크를 보내요. 알림이 켜지면 바로 "✅ 알림이 켜졌어요"가 오고, 첫 리포트가 앱에 들어 있어요.</p>
-<div class="foot">공개 정보만 사용합니다. 위험도는 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. <a href="/terms">이용약관</a></div>
-</div>
+<h3>알아 두세요</h3>
+<ul>
+<li>한 가지 징후만으로는 단계를 올리지 않습니다. 정부나 시장이 함께 움직이거나 실제 사건이 있어야 '위기'가 됩니다.</li>
+<li>확률은 1999년 이후 실제 충돌 기록을 바탕으로 한 판단값이며, 통계 예측이 아닙니다.</li>
+<li>위 화면의 발사·어선·레이더 장면은 무엇을 보는지 설명하는 연출이며, 지금 상황이 아닙니다.</li>
+</ul>
+<p class="fine">공개 정보만 사용합니다. 공식 안보 정보가 아니니 대피 등 행동은 정부 재난문자와 국민재난안전포털을 따르세요. · <a href="/terms">이용약관·환불</a> · <a href="/me">알림함</a></p>
+<div style="height:calc(32px + env(safe-area-inset-bottom))"></div>
+</div></div>
+<script>${landingSceneJs(["39가지", "신호로", "보는", "/", "한반도", "*전쟁", "*위험"])}</script>
 <script>
 var ORIGIN=${JSON.stringify(origin)};
 // 주문은 서버가 만든다(금액도 서버가 정함). 결제창을 띄운 뒤에는 서버에 상태를 물어 결제완료 통보가 왔는지 본다
@@ -119,16 +132,19 @@ function waitPaid(o,t){var n=0;var iv=setInterval(async function(){n++;if(n>400)
 (function(){try{if((window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true)&&!/[?&]p=1/.test(location.search)){location.replace("/me");return}}catch(e){}})();
 (function(){try{var c=localStorage.getItem("kew_code");if(/^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(c||"")&&!/[?&]p=1/.test(location.search))location.replace("/me")}catch(e){}})();
 ${ORDERS_JS}
+var PAY_LABEL='4,900원 결제하기 <small>페이앱</small>';
 async function resume(){
-  var b=document.getElementById("pay");if(b){b.disabled=!(document.getElementById("agree")||{}).checked;b.textContent="4,900원 결제하기"}
+  var b=document.getElementById("pay");if(b){b.disabled=!(document.getElementById("agree")||{}).checked;b.innerHTML=PAY_LABEL}
   var w=document.getElementById("paywait");if(w)w.style.display="none";
   var f=await findPaid(orders());if(f)location.replace("/buy/success?o="+encodeURIComponent(f.x.o)+"&t="+encodeURIComponent(f.x.t));}
 window.addEventListener("pageshow",function(){resume()});
 ${INSTALL_JS}
+// 컴퓨터·앱 안 화면: 결제 대신 폰으로 넘기는 안내(QR·바깥 브라우저). 첫 화면 버튼도 그 안내로 데려간다
 (function(){var pay=document.getElementById("pay");if(!pay)return;var E=kewEnv();if(!E.desktop&&!E.inapp)return;var box=kewGuide(E,"/");if(!box)return;
   var lab=document.getElementById("agree");if(lab&&lab.closest("label"))lab.closest("label").style.display="none";
   pay.style.display="none";var w=document.getElementById("paywait");if(w)w.style.display="none";
-  pay.insertAdjacentHTML("afterend",box);kewDrawQr("/")})();
+  pay.insertAdjacentHTML("afterend",box);kewDrawQr("/");
+  var hc=document.querySelector("#hero .cta");if(hc)hc.innerHTML=E.desktop?'휴대폰으로 시작하기 <small>QR</small>':'바깥 브라우저로 열기 <small>4,900원</small>'})();
 async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 제한 안내를 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
   try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
     remember(o.orderId,o.claim);
@@ -139,7 +155,7 @@ async function pay(){var b=document.getElementById("pay");var ag=document.getEle
     PayApp.setParam({goodname:p.goodname,price:p.price,redirecturl:p.redirecturl,redirect:p.redirect,var1:p.var1,feedbackurl:p.feedbackurl,returnurl:p.returnurl,smsuse:p.smsuse,checkretry:p.checkretry,openpaytype:p.openpaytype}).payrequest();
     b.textContent="결제창에서 결제를 마쳐 주세요";document.getElementById("paywait").style.display="";
     waitPaid(o.orderId,o.claim);
-  }catch(e){alert("결제를 시작하지 못했어요: "+(e&&e.message||e));b.disabled=false;b.textContent="4,900원 결제하기"}}
+  }catch(e){alert("결제를 시작하지 못했어요: "+(e&&e.message||e));b.disabled=false;b.innerHTML=PAY_LABEL}}
 </script></body></html>`;
 }
 

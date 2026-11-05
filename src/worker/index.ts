@@ -6,6 +6,7 @@ import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
 import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { addDemoReports, freezeState, loadFull, loadReports, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../core/reports.js";
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
+import { OG_JPG_BASE64 } from "./og.js";
 import { mePage } from "./me.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
 import { fmtRiskPct } from "../core/warrisk.js";
@@ -206,6 +207,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const m = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code) ? { ...WEB_MANIFEST, start_url: `/me?code=${code}` } : WEB_MANIFEST;
     return new Response(JSON.stringify(m), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "no-cache" } });
   }
+  if (url.pathname === "/og.jpg") return new Response(Uint8Array.from(atob(OG_JPG_BASE64), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" } });
   if (url.pathname === "/icon.svg") return new Response(ICON_SVG, { headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" } });
   // ── 유료 알림 (2026-11-04, 결제사 페이앱 11-05): 4,900원 1회 → 결제완료 통보 → 활성화 코드 → 휴대폰에서 코드로 켜기 ──
   if (url.pathname === "/buy") return new Response(buyPage(payAppConfig(env)?.userid, url.origin), { headers: { "content-type": "text/html; charset=utf-8" } });

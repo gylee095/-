@@ -51,14 +51,15 @@ describe("쌓기", () => {
     expect((await loadReports(store)).map((r) => r.headline)).toEqual(["⬆ 나빠짐: 2단계 긴장 → 3단계 위기", "⬇ 좋아짐: 3단계 위기 → 2단계 긴장"]);
   });
 
-  it("결제 순간의 첫 리포트: 5분마다 덮어 둔 현재 상황에서 꺼낸다. 아직 없으면 undefined, 내용이 같으면 같은 장을 함께 쓴다", async () => {
+  it("결제 순간의 첫 리포트: 5분마다 덮어 둔 현재 상황에서 꺼낸다. 아직 없으면 undefined, 결제마다 그 시각의 장을 따로 (11/5: 22:14 결제에 21:43 화면이 붙었다)", async () => {
     const store = new MemoryStore();
     expect(await snapshotForPurchase(store, T)).toBeUndefined();
     await saveCurrent(store, risk(2), T - 60_000);
     const s1 = await snapshotForPurchase(store, T);
     expect(s1).toMatchObject({ kind: "snapshot", at: T, headline: "가입 시점 상황: 2단계 긴장" });
     const s2 = await snapshotForPurchase(store, T + 3600_000);
-    expect(s2!.id).toBe(s1!.id);
+    expect(s2!.id).not.toBe(s1!.id);
+    expect(s2!.at).toBe(T + 3600_000); // 내용이 같아도 그 사람의 결제 시각
     await saveCurrent(store, risk(3, 15), T + 2 * 3600_000);
     const s3 = await snapshotForPurchase(store, T + 2 * 3600_000);
     expect(s3!.id).not.toBe(s1!.id);
@@ -118,7 +119,7 @@ describe("리포트 = 그 순간의 대시보드 전체 (11/5: 요약은 정보�
     expect(await loadFull(store, s.id)).toEqual(full);
     expect((await store.getKv(FULL_PREFIX + s.id))!.length).toBeGreaterThan(50);
   });
-  it("같은 내용의 가입 리포트를 함께 쓰려면 그 장에 대시보드 전체가 있어야 한다 (요약만 있던 옛 장은 새로 만든다)", async () => {
+  it("결제마다 가입 리포트와 대시보드 전체가 따로 생긴다", async () => {
     const store = new MemoryStore();
     await saveCurrent(store, risk(2), T);
     const old = (await snapshotForPurchase(store, T))!; // 대시보드 전체 없이
@@ -132,10 +133,27 @@ describe("리포트 = 그 순간의 대시보드 전체 (11/5: 요약은 정보�
     const route = idx.slice(idx.indexOf('url.pathname.startsWith("/r/")'), idx.indexOf('url.pathname === "/api/me"'));
     expect(route).toMatch(/paidOrderByCode\(store/);
     expect(route).toMatch(/visibleReports\(/);
-    expect(route).toMatch(/Date\.now=\(function\(t\)\{return function\(\)\{return t\}\}\)\(\$\{r\.at\}\)/);
+    expect(route).toMatch(/Date\.now=\(function\(t\)\{return function\(\)\{return t\}\}\)\(\$\{r\.kind === "demo" \? Date\.now\(\) : r\.at\}\)/); // 실제 리포트는 그 시각, 예시는 만든 때
     expect(route).toMatch(/replace\(\/<\/g, "\\\\u003c"\)/); // 저장된 글에 </script> 가 있어도 화면이 깨지지 않게
     const dash = readFileSync(new URL("../src/worker/dashboard.ts", import.meta.url), "utf8");
     expect(dash).toMatch(/if\(!window\.__KEW_REPORT__\)h\+=pushCard\(\);/);
     expect(dash).toMatch(/← 알림 목록/);
+  });
+});
+
+
+describe("예시 리포트 (운영자 화면 확인용, 11/5)", () => {
+  it("붙인 주문에서만 보이고, 다른 구매자에게는 안 보인다", async () => {
+    const { addDemoReports } = await import("../src/core/reports.js");
+    const store = new MemoryStore();
+    const full = freezeState({ warRisk: risk(2) } as any);
+    const demos = await addDemoReports(store, risk(2), full, 3, T);
+    expect(demos.map((d) => d.kind)).toEqual(["demo", "demo", "demo"]);
+    expect(demos[0].headline).toMatch(/^🧪 예시 알림 1/);
+    expect(await loadFull(store, demos[2].id)).toEqual(full);
+    const all = await loadReports(store);
+    const mine = visibleReports(all, T, undefined, demos.map((d) => d.id));
+    expect(mine).toHaveLength(3);
+    expect(visibleReports(all, T - 7 * 86400_000)).toHaveLength(0); // 다른 구매자(예시를 안 붙인 주문)
   });
 });

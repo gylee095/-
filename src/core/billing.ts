@@ -49,6 +49,8 @@ export interface Order {
   receiptUrl?: string;
   /** 결제 순간에 준 첫 리포트 (reports.ts) */
   startReportId?: string;
+  /** 운영자가 화면 확인용으로 붙인 예시 리포트 (이 주문에서만 보인다) */
+  extraReportIds?: string[];
 }
 
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 헷갈리는 0/O, 1/I 뺌
@@ -235,6 +237,16 @@ export async function attachStartReport(store: Pick<Store, "getKv" | "setKv">, o
   if (!o || o.startReportId) return;
   o.startReportId = reportId;
   await saveOrders(store, orders, now);
+}
+
+/** 운영자: 예시 리포트를 이 주문에 붙이거나 뗀다 */
+export async function setExtraReports(store: Pick<Store, "getKv" | "setKv">, orderId: string, ids: string[], now: number): Promise<boolean> {
+  const orders = await loadOrders(store);
+  const o = orders.find((x) => x.orderId === orderId);
+  if (!o) return false;
+  o.extraReportIds = ids;
+  await saveOrders(store, orders, now);
+  return true;
 }
 
 /** 알림함: 결제된 코드의 주문 (환불·없는 코드는 undefined) */

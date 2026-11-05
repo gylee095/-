@@ -129,7 +129,7 @@ async function pasteCode(){var t="";try{t=await navigator.clipboard.readText()}c
   try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 function saveCode(){var v=normCode($("#codein").value);if(!v){alert("코드 12자리를 확인해 주세요.");return}try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 
-var Q=new URLSearchParams(location.search),CODE=code(),OPEN=Q.get("r"),SUMMARY=Q.get("summary")==="1";
+var Q=new URLSearchParams(location.search),CODE=code(),OPEN=Q.get("r"),SUMMARY=Q.get("summary")==="1",PAGE=0;
 // 앱처럼 (11/5): 목록을 누르면 그 순간의 '대시보드 전체'(/r/번호). 안 본 알림은 '새 알림'. 앱 아이콘 배지는 열면 지운다
 function seen(){try{return JSON.parse(localStorage.getItem("kew_seen")||"[]")}catch(e){return []}}
 function markSeen(id){var a=seen();if(a.indexOf(id)<0){a.push(id);try{localStorage.setItem("kew_seen",JSON.stringify(a.slice(-500)))}catch(e){}}}
@@ -158,8 +158,11 @@ async function render(){
   var sn=seen(),fresh=me.reports.filter(function(x){return sn.indexOf(x.id)<0}).length;
   h+='<h2 style="margin-top:22px">알림 '+me.reports.length+'개'+(fresh?' · <span style="color:var(--brand)">새 알림 '+fresh+'개</span>':'')+'</h2>';
   if(!me.reports.length)h+='<div class="state mute">첫 리포트를 준비하고 있어요. 잠시 뒤 새로고침해 주세요.</div>';
-  me.reports.forEach(function(x){var isNew=sn.indexOf(x.id)<0;
-    h+='<div id="r_'+esc(x.id)+'" class="item" role="button" tabindex="0" style="'+(isNew?'border:2px solid var(--brand)':'')+'" onclick="if(event.target.closest(\'.rep\'))return;'+(SUMMARY?'openReport':'goReport')+'(\''+esc(x.id)+'\')"><div class="when">'+(isNew?'<b style="color:var(--brand)">● 새 알림</b> · ':'')+kst(x.at)+' · '+ago(x.at)+(x.kind==="snapshot"?' · 가입 시점':'')+'</div><div class="hl"><span class="chip" style="background:'+COLORS[x.phase]+'">'+x.phase+'단계</span>'+esc(x.headline)+'</div><div class="mute" style="font-size:13px;margin-top:4px">눌러서 그때의 대시보드 전체 보기 ›</div><div class="body"></div></div>'});
+  // 4개씩, 최신이 위. ◀ 최근 알림 / 지난 알림 ▶ 로 넘긴다 (11/5 사용자)
+  var PER=4,pages=Math.max(1,Math.ceil(me.reports.length/PER));if(PAGE>=pages)PAGE=pages-1;var from=PAGE*PER,shown=me.reports.slice(from,from+PER);
+  shown.forEach(function(x){var isNew=sn.indexOf(x.id)<0;
+    h+='<div id="r_'+esc(x.id)+'" class="item" role="button" tabindex="0" style="'+(isNew?'border:2px solid var(--brand)':'')+'" onclick="if(event.target.closest(\'.rep\'))return;'+(SUMMARY?'openReport':'goReport')+'(\''+esc(x.id)+'\')"><div class="when">'+(isNew?'<b style="color:var(--brand)">● 새 알림</b> · ':'')+kst(x.at)+' · '+ago(x.at)+(x.kind==="snapshot"?' · 가입 시점':x.kind==="demo"?' · 예시':'')+'</div><div class="hl"><span class="chip" style="background:'+COLORS[x.phase]+'">'+x.phase+'단계</span>'+esc(x.headline)+'</div><div class="mute" style="font-size:13px;margin-top:4px">눌러서 그때의 대시보드 전체 보기 ›</div><div class="body"></div></div>'});
+  if(pages>1)h+='<div style="display:flex;gap:8px;align-items:center;margin:10px 0"><button class="btn ghost" style="flex:1;padding:12px" '+(PAGE===0?'disabled':'')+' onclick="PAGE--;render();window.scrollTo(0,0)">◀ 최근 알림</button><span class="mute" style="white-space:nowrap">'+(from+1)+'–'+(from+shown.length)+' / '+me.reports.length+'</span><button class="btn ghost" style="flex:1;padding:12px" '+(PAGE>=pages-1?'disabled':'')+' onclick="PAGE++;render();window.scrollTo(0,0)">지난 알림 ▶</button></div>';
   h+='<p class="mute" style="margin-top:14px">단계가 바뀔 때마다 새 알림이 맨 위에 쌓여요. 코드 <b>'+esc(CODE)+'</b>는 다른 기기에서 열 때 필요하니 캡처해 두세요.</p>';
   $("#app").innerHTML=h;
   showInstall();

@@ -25,7 +25,7 @@ export interface Report {
   id: string;
   at: number;
   /** change: 단계가 바뀌어 알린 것 · snapshot: 결제 시점의 현재 상황 */
-  kind: "change" | "snapshot";
+  kind: "change" | "snapshot" | "demo";
   phase: number;
   phaseLabel: string;
   from?: number;
@@ -156,18 +156,29 @@ export async function snapshotForPurchase(store: Pick<Store, "getKv" | "setKv">,
   const raw = await store.getKv(CURRENT_KEY);
   if (!raw) return undefined;
   const cur = { ...(JSON.parse(raw) as Report), at: now };
-  const list = await loadReports(store);
-  const last = [...list].reverse().find((r) => r.kind === "snapshot");
-  // 같은 내용의 가입 리포트를 함께 쓰려면 그 장에 대시보드 전체가 있어야 한다 (없으면 새로 한 장)
-  if (last && contentKey(last) === contentKey(cur) && now - last.at < 24 * 3600_000 && (!full || (await store.getKv(FULL_PREFIX + last.id)))) return last;
+  // 결제할 때마다 그 순간의 리포트를 따로 남긴다. 예전에는 내용이 같으면 앞 사람의 가입 리포트를 같이 썼는데,
+  // 그러면 22:14 결제에 21:43 화면이 붙는다(11/5 실제). 저장은 한 장 약 150KB — 무료 저장소 5GB 에 넉넉하다
   const r = await appendReport(store, cur);
   if (full) await saveFull(store, r.id, full);
   return r;
 }
 
 /** 이 구매자가 볼 수 있는 리포트: 결제 시점 리포트 + 결제 뒤에 생긴 단계 변화 리포트 (최신이 위) */
-export function visibleReports(all: Report[], paidAt: number, startReportId?: string): Report[] {
-  return all.filter((r) => r.id === startReportId || (r.kind === "change" && r.at >= paidAt)).sort((a, b) => b.at - a.at);
+export function visibleReports(all: Report[], paidAt: number, startReportId?: string, extraIds: string[] = []): Report[] {
+  return all.filter((r) => r.id === startReportId || extraIds.includes(r.id) || (r.kind === "change" && r.at >= paidAt)).sort((a, b) => b.at - a.at);
+}
+
+/** 운영자 화면 확인용 예시 리포트: 지금의 대시보드 전체로, 날짜를 하루씩 앞당겨 n장. 붙인 주문에서만 보인다 (kind "demo") */
+export async function addDemoReports(store: Pick<Store, "getKv" | "setKv">, w: RiskLike, full: Record<string, unknown>, n: number, now: number): Promise<Report[]> {
+  const out: Report[] = [];
+  for (let i = 0; i < n; i++) {
+    const at = now - (i + 1) * 86400_000;
+    const base = reportFromRisk(w, at, "change", w.phase);
+    const r = await appendReport(store, { ...base, kind: "demo", headline: `🧪 예시 알림 ${i + 1} — 목록·화면 확인용 (내용은 ${new Date(now + 9 * 3600_000).toISOString().slice(5, 10).replace("-", "/")} 상황)` });
+    await saveFull(store, r.id, full);
+    out.push(r);
+  }
+  return out;
 }
 
 export const summarize = (r: Report): ReportSummary => ({ id: r.id, at: r.at, kind: r.kind, phase: r.phase, phaseLabel: r.phaseLabel, headline: r.headline, direction: r.direction });

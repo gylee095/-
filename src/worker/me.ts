@@ -5,11 +5,12 @@
 //  - 카카오톡·인스타그램 등 앱 안 브라우저: 웹 푸시가 안 된다 → 바깥 브라우저로 열기(안드로이드 카카오톡은 바로 넘긴다).
 //  - 알림 거절: 설정에서 다시 켜는 법.
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
-import { SHELL_HEAD } from "./buy.js";
+import { ORDERS_JS, SHELL_HEAD } from "./buy.js";
 
 export function mePage(): string {
   return String.raw`${SHELL_HEAD}<title>내 알림함 — 한반도 조기경보</title>
 <meta name="robots" content="noindex">
+<script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script>
 <style>
 .state{border-radius:14px;padding:16px;margin:12px 0;background:var(--card);border:1px solid var(--line)}
 .state.main{border:2px solid var(--brand)}
@@ -90,7 +91,41 @@ async function openReport(id){var el=document.getElementById("r_"+id);if(!el)ret
   box.innerHTML='<div class="mute" style="margin-top:8px">불러오는 중…</div>';
   try{var r=await fetch("/api/report?code="+encodeURIComponent(CODE)+"&id="+encodeURIComponent(id),{cache:"no-store"});var j=await r.json();if(!r.ok)throw new Error(j.error);box.innerHTML=reportHtml(j)}catch(e){box.innerHTML='<div class="mute">리포트를 불러오지 못했어요.</div>'}}
 
-function noCode(msg){$("#app").innerHTML='<div class="state main"><h2>활성화 코드를 넣어 주세요</h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+'<p class="mute">결제 완료 화면에 나온 12자리 코드예요. 예: ABCD-EFGH-JKLM</p><input class="code-in" id="codein" placeholder="ABCD-EFGH-JKLM" autocapitalize="characters" autocomplete="one-time-code"><button class="btn" onclick="saveCode()">확인</button></div><div class="state"><b>아직 결제하지 않으셨나요?</b><p class="mute">단계가 바뀌는 순간 휴대폰이 울리고, 그때마다 리포트가 이 알림함에 쌓여요. 4,900원 한 번, 평생.</p><a class="btn ghost" href="/?p=1">상품 보기</a></div>'}
+// 코드가 없으면 앱 안에서 결제한다 (11/5 사용자: 사파리에서 결제하면 홈 화면 앱이 코드를 몰라 다시 넣으라 한다 — 아이폰은 둘의 저장 공간이 따로).
+// 앱 안에서 주문을 만들고 결제가 끝나는 걸 앱이 스스로 알아채므로 코드를 넣을 일이 없다. 코드 입력은 다른 기기에서 결제한 사람만.
+${ORDERS_JS}
+var PENDING=null,WATCH=null;
+function noCode(msg){
+  var h='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
+  '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀔 때만 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+
+  '<label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="prep()"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>'+
+  '<button class="btn" id="pay" disabled onclick="payNow()">4,900원 결제하기</button>'+
+  '<p class="mute" id="paynote" style="margin-top:8px">결제 화면에서 휴대폰 번호를 넣으면 페이앱이 <b>카카오톡으로 결제 링크</b>를 보내요. 링크로 결제를 마치고 <b>이 앱으로 돌아오면 자동으로 이어져요.</b></p></div>'+
+  '<details class="state"><summary>다른 기기에서 이미 결제했어요 (코드 입력)</summary><p class="mute">결제 완료 화면에 나온 12자리 코드예요.</p><input class="code-in" id="codein" placeholder="ABCD-EFGH-JKLM" autocapitalize="characters" autocomplete="one-time-code"><button class="btn ghost" onclick="saveCode()">확인</button></details>';
+  $("#app").innerHTML=h;
+  if(PENDING&&PENDING.waiting)showWaiting();
+}
+// 동의하면 주문을 미리 만들어 둔다 — 결제 버튼을 누르는 순간 결제창을 바로 띄워야 휴대폰이 창을 막지 않는다
+async function prep(){var ag=$("#agree"),b=$("#pay");if(!ag.checked){b.disabled=true;return}
+  if(PENDING&&!PENDING.used){b.disabled=false;return}
+  b.disabled=true;b.textContent="준비 중…";
+  try{var r=await fetch("/api/billing/order",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({app:true})});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
+    PENDING={o:o.orderId,t:o.claim,p:o.payapp};remember(o.orderId,o.claim);b.disabled=false;b.textContent="4,900원 결제하기"}
+  catch(e){b.textContent="4,900원 결제하기";alert("결제를 준비하지 못했어요: "+(e&&e.message||e));ag.checked=false}}
+function payNow(){if(!PENDING)return;var p=PENDING.p;PENDING.used=true;PENDING.waiting=true;
+  try{PayApp.setDefault({userid:p.userid,shopname:p.shopname});
+    // 결제창은 앱 위에 잠깐 뜨는 창으로 (앱은 그대로 기다린다). 링크 전송 뒤 창은 페이앱이 스스로 닫는다
+    PayApp.setParam({goodname:p.goodname,price:p.price,var1:p.var1,feedbackurl:p.feedbackurl,returnurl:p.returnurl,smsuse:p.smsuse,checkretry:p.checkretry,openpaytype:p.openpaytype}).payrequest();}
+  catch(e){alert("결제창을 열지 못했어요: "+(e&&e.message||e));PENDING.waiting=false;return}
+  showWaiting();}
+function showWaiting(){var b=$("#pay");if(b){b.disabled=true;b.textContent="결제를 기다리는 중…"}
+  var n=$("#paynote");if(n)n.innerHTML='<b>카카오톡으로 온 페이앱 링크</b>로 결제를 마쳐 주세요. 결제가 끝나면 이 화면이 저절로 넘어가요. <a href="#" onclick="checkPaid(true);return false">결제했는데 그대로예요</a>';
+  if(!WATCH)WATCH=setInterval(function(){checkPaid(false)},2500)}
+// 이 앱이 시작한 주문 중 결제된 것이 있으면 코드를 저장하고 바로 다음 단계(알림 켜기)로
+async function checkPaid(manual){var f=await findPaid(orders());
+  if(f){clearInterval(WATCH);WATCH=null;PENDING=null;try{localStorage.setItem("kew_code",f.j.code)}catch(e){}CODE=f.j.code;manifestWithCode(CODE);render();return true}
+  if(manual)alert("아직 결제가 확인되지 않았어요. 카카오톡 링크로 결제를 마쳤다면 몇 초 뒤 다시 확인해 주세요.");return false}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&!CODE)checkPaid(false)});
 function saveCode(){var v=normCode($("#codein").value);if(!v){alert("코드 12자리를 확인해 주세요.");return}try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 
 var Q=new URLSearchParams(location.search),CODE=code(),OPEN=Q.get("r"),SUMMARY=Q.get("summary")==="1";
@@ -103,7 +138,7 @@ var INSTALL=null;window.addEventListener("beforeinstallprompt",function(e){e.pre
 function install(){if(!INSTALL)return;INSTALL.prompt();INSTALL.userChoice.finally(function(){INSTALL=null;var b=document.getElementById("install");if(b)b.style.display="none"})}
 async function render(){
   try{if(localStorage.getItem("kew_token"))$("#ops").innerHTML=' · <a href="/ops">운영자 화면</a>'}catch(e){}
-  if(!CODE)return noCode();
+  if(!CODE){if(orders().length&&await checkPaid(false))return;return noCode()}
   manifestWithCode(CODE);clearBadge();
   // 알림을 눌러 들어왔으면 바로 그 리포트(대시보드 전체)로
   if(OPEN&&!SUMMARY){var id=OPEN;OPEN=null;return goReport(id)}

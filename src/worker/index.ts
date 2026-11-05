@@ -217,6 +217,9 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const cfg = payAppConfig(env);
     if (!cfg) return json({ error: "결제 준비 중이에요" }, 503);
     const o = await createOrder(store, Date.now());
+    // 홈 화면 앱 안에서 시작한 결제 (11/5): 결제창은 앱 위에 잠깐 뜨는 창으로 열고, 결제가 끝나면 앱이 스스로 알아챈다.
+    // 카톡 링크로 결제를 마친 화면(returnurl)은 "앱으로 돌아가세요"를 보여 준다
+    const fromApp = ((await req.json().catch(() => ({}))) as { app?: boolean }).app === true;
     return json({
       orderId: o.orderId,
       claim: o.claim,
@@ -227,7 +230,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
         price: String(o.amount),
         var1: o.orderId,
         feedbackurl: `${url.origin}/api/billing/payapp-notify`,
-        returnurl: `${url.origin}/buy/success?o=${encodeURIComponent(o.orderId)}&t=${o.claim}`,
+        returnurl: `${url.origin}/buy/success?o=${encodeURIComponent(o.orderId)}&t=${o.claim}${fromApp ? "&app=1" : ""}`,
         // 결제 요청(카톡·문자 링크) 전송 뒤 페이앱 창이 갈 곳. 없으면 창을 닫으려 하는데 같은 탭이라 닫히지 않아 갇힌다 (11/5)
         redirecturl: `${url.origin}/buy/success?o=${encodeURIComponent(o.orderId)}&t=${o.claim}`,
         redirect: "self",

@@ -3,6 +3,13 @@
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
+/** 이 브라우저(또는 홈 화면 앱)가 시작한 주문 목록 — 상품 페이지·결제 완료 화면·알림함이 같이 쓰는 정본 (11/5: 두 곳에 복사돼 있었다) */
+export const ORDERS_JS = String.raw`// 이 브라우저에서 시작한 주문 전부 (최근 8개·7일). 그중 결제된 것이 있으면 어느 화면에서든 그 코드로 간다
+function orders(){try{var a=JSON.parse(localStorage.getItem("kew_orders")||"[]");var one=JSON.parse(localStorage.getItem("kew_order")||"null");if(one&&!a.some(function(x){return x.o===one.o}))a.push(one);return a.filter(function(x){return x&&x.o&&x.t&&Date.now()-x.at<7*86400000})}catch(e){return []}}
+function remember(o,t){var a=orders().filter(function(x){return x.o!==o});a.push({o:o,t:t,at:Date.now()});a=a.slice(-8);try{localStorage.setItem("kew_orders",JSON.stringify(a));localStorage.removeItem("kew_order")}catch(e){}}
+async function statusOf(x){try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(x.o)+"&t="+encodeURIComponent(x.t),{cache:"no-store"});if(!r.ok)return {status:"missing"};return await r.json()}catch(e){return {status:"error"}}}
+async function findPaid(list){for(var i=list.length-1;i>=0;i--){var j=await statusOf(list[i]);if(j.status==="paid"&&j.code)return {x:list[i],j:j}}return null}`;
+
 export const SHELL_HEAD = String.raw`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="manifest" href="/manifest.webmanifest">
 <style>
@@ -40,7 +47,7 @@ export function buyPage(payappUserid: string | undefined, origin: string): strin
 <li><b>단계가 바뀔 때마다 휴대폰 알림</b> — 올라갈 때도, 내려갈 때도</li>
 <li><b>알림마다 리포트</b> — 알림함에 날짜별로 쌓이고, 지난 리포트도 언제든 다시 보기</li>
 <li><b>기기 3대</b>까지 — 가족 휴대폰에도 같은 코드로</li>
-<li>앱 설치 없음 · 문자 요금 없음 · 월 요금 없음</li>
+<li>앱스토어 설치 없음(홈 화면에 추가만) · 문자 요금 없음 · 월 요금 없음</li>
 </ul>
 ${ready
   ? String.raw`<label style="display:flex;gap:10px;align-items:flex-start;margin:14px 0 10px;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="document.getElementById('pay').disabled=!this.checked"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>
@@ -59,13 +66,13 @@ ${ready
 정부 경보(미국·일본·영국·캐나다 여행경보, 재난문자), 군사(발사·항행경보·정찰기), 돈(환율·증시·예측시장), 북한 내부(담화·장마당 물가·평양 밤 불빛), 사람들의 불안(검색량) — 여섯 영역을 함께 봅니다. 한 가지 징후만으로는 단계를 올리지 않습니다. 확률은 1999년 이후 실제 충돌 기록을 바탕으로 한 판단값이며, 통계 예측이 아닙니다. 공식 안보 정보가 아니니 대피 등 행동은 정부 재난문자와 국민재난안전포털을 따르세요.
 </div>
 
-<h2>결제 뒤에는</h2>
+<h2>시작하는 법</h2>
 <ol class="steps">
-<li><b>페이앱 화면</b>에서 휴대폰 번호를 넣으면 페이앱이 <b>결제 링크를 문자로</b> 보내 드려요. 문자 링크로 결제하세요</li>
-<li>결제가 끝나면 <b>"이 폰으로 알림 켜기"</b> (컴퓨터 화면에는 QR 이 나와요)</li>
-<li><b>알림 켜기 → 허용</b> (아이폰은 '홈 화면에 추가'를 한 번 안내해 드려요)</li>
-<li>바로 "✅ 알림이 켜졌어요"가 오면 끝. 첫 리포트는 알림함에 있어요</li>
+<li><b>아이폰</b>: 사파리 <b>공유 → 홈 화면에 추가</b> → 홈 화면의 <b>조기경보</b> 앱에서 결제 → <b>알림 켜기</b>. 코드를 넣을 필요가 없어요</li>
+<li><b>안드로이드</b>: 크롬에서 결제 → <b>알림 켜기</b> (원하면 앱으로 설치)</li>
+<li><b>컴퓨터</b>: 결제 → 화면의 <b>QR을 휴대폰 카메라로</b> 찍어 알림 켜기</li>
 </ol>
+<p class="mute">결제 화면에서 휴대폰 번호를 넣으면 페이앱이 카카오톡으로 결제 링크를 보내요. 알림이 켜지면 바로 "✅ 알림이 켜졌어요"가 오고, 첫 리포트가 앱에 들어 있어요.</p>
 <div class="foot">공개 정보만 사용합니다. 위험도는 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. <a href="/terms">이용약관</a></div>
 </div>
 <script>
@@ -74,17 +81,29 @@ var ORIGIN=${JSON.stringify(origin)};
 function waitPaid(o,t){var n=0;var iv=setInterval(async function(){n++;if(n>400){clearInterval(iv);return}
   try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t),{cache:"no-store"});var j=await r.json();
     if(j.status==="paid"){clearInterval(iv);location.href="/buy/success?o="+encodeURIComponent(o)+"&t="+encodeURIComponent(t)}}catch(e){}},2500)}
+(function(){try{if((window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true)&&!/[?&]p=1/.test(location.search)){location.replace("/me");return}}catch(e){}})();
 (function(){try{var c=localStorage.getItem("kew_code");if(/^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(c||"")&&!/[?&]p=1/.test(location.search))location.replace("/me")}catch(e){}})();
-// 이 브라우저에서 시작한 주문 전부 (최근 8개·7일). 그중 결제된 것이 있으면 어느 화면에서든 그 코드로 간다
-function orders(){try{var a=JSON.parse(localStorage.getItem("kew_orders")||"[]");var one=JSON.parse(localStorage.getItem("kew_order")||"null");if(one&&!a.some(function(x){return x.o===one.o}))a.push(one);return a.filter(function(x){return x&&x.o&&x.t&&Date.now()-x.at<7*86400000})}catch(e){return []}}
-function remember(o,t){var a=orders().filter(function(x){return x.o!==o});a.push({o:o,t:t,at:Date.now()});a=a.slice(-8);try{localStorage.setItem("kew_orders",JSON.stringify(a));localStorage.removeItem("kew_order")}catch(e){}}
-async function statusOf(x){try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(x.o)+"&t="+encodeURIComponent(x.t),{cache:"no-store"});if(!r.ok)return {status:"missing"};return await r.json()}catch(e){return {status:"error"}}}
-async function findPaid(list){for(var i=list.length-1;i>=0;i--){var j=await statusOf(list[i]);if(j.status==="paid"&&j.code)return {x:list[i],j:j}}return null}
+${ORDERS_JS}
 async function resume(){
   var b=document.getElementById("pay");if(b){b.disabled=!(document.getElementById("agree")||{}).checked;b.textContent="4,900원 결제하기"}
   var w=document.getElementById("paywait");if(w)w.style.display="none";
   var f=await findPaid(orders());if(f)location.replace("/buy/success?o="+encodeURIComponent(f.x.o)+"&t="+encodeURIComponent(f.x.t));}
 window.addEventListener("pageshow",function(){resume()});
+(function(){var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
+  var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  var inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua);
+  var pay=document.getElementById("pay");if(!pay||standalone)return;
+  var box=null;
+  if(inapp&&(ios||android)){var url=location.origin+"/";
+    box='<div class="card" style="border:2px solid var(--brand)"><b>사파리·크롬에서 열어 주세요</b><p class="mute" style="margin:6px 0 10px">지금은 '+(/KAKAOTALK/i.test(ua)?"카카오톡":"앱")+' 안의 화면이라 알림 앱을 설치할 수 없어요.</p>'+
+      (android?'<a class="btn" href="intent://'+location.host+'/#Intent;scheme=https;package=com.android.chrome;end">크롬으로 열기</a>':(/KAKAOTALK/i.test(ua)?'<a class="btn" href="kakaotalk://web/openExternal?url='+encodeURIComponent(url)+'">사파리로 열기</a>':'<p class="mute">오른쪽 위 메뉴 → "다른 브라우저로 열기"</p>'))+'</div>'}
+  else if(ios){
+    // 아이폰: 홈 화면 앱과 사파리는 저장 공간이 따로라 사파리에서 결제하면 앱이 코드를 모른다 → 앱을 먼저 설치하고 앱 안에서 결제
+    box='<div class="card" style="border:2px solid var(--brand)"><b style="font-size:18px">📲 먼저 앱을 설치하세요 (무료, 30초)</b><ol class="steps" style="margin:10px 0 6px;padding-left:22px;font-size:16px"><li>화면 아래 가운데 <b>공유</b> 버튼 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></li><li>목록을 내려서 <b>홈 화면에 추가</b> → <b>추가</b></li><li>홈 화면의 <b>조기경보</b> 앱을 열고 그 안에서 <b>결제</b> → <b>알림 켜기</b></li></ol><p class="mute" style="margin:0">아이폰은 홈 화면에 추가한 앱만 알림을 받을 수 있어요. 앱 안에서 결제하면 코드를 넣을 필요 없이 바로 이어져요.</p></div>'}
+  if(!box)return;
+  var lab=document.getElementById("agree");if(lab&&lab.closest("label"))lab.closest("label").style.display="none";
+  pay.style.display="none";var w=document.getElementById("paywait");if(w)w.style.display="none";
+  pay.insertAdjacentHTML("afterend",box)})();
 async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 제한 안내를 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
   try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
     remember(o.orderId,o.claim);
@@ -125,8 +144,11 @@ export function successPage(origin: string): string {
 <div class="foot"><a href="/terms">이용약관·환불</a></div>
 </div>
 <script>
-var ORIGIN=${JSON.stringify(origin)};
+var ORIGIN=${JSON.stringify(origin)};var APP1=new URLSearchParams(location.search).get("app")==="1";
 function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
+    if(new URLSearchParams(location.search).get("app")==="1"||APP1){APP1=true;history.replaceState(null,"",location.pathname);
+      document.getElementById("wait").style.display="none";document.getElementById("done").style.display="";
+      document.getElementById("done").innerHTML='<h1 style="margin-top:0;font-size:24px">결제 완료 ✓</h1><p class="big" style="font-size:17px">이제 <b>홈 화면의 조기경보 앱</b>으로 돌아가세요.<br>앱이 결제를 알아채고 <b>알림 켜기</b>로 바로 이어져요.</p><p class="mute">코드를 넣을 필요는 없어요. 혹시 몰라 적어 두면: <b style="letter-spacing:1px">'+String(j.code).replace(/[<>&"]/g,"")+'</b></p>';return}
     var mobile=/Android|iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
     document.getElementById(mobile?"mobile":"desk").style.display="";
     try{localStorage.setItem("kew_code",j.code)}catch(e){}
@@ -140,11 +162,7 @@ function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
     if(j.receiptUrl&&/^https:\/\//.test(j.receiptUrl))document.getElementById("rc").innerHTML='<a href="'+j.receiptUrl.replace(/"/g,"")+'" target="_blank" rel="noopener">영수증 보기</a>';
     new QRCode(document.getElementById("qr"),{text:link,width:184,height:184,correctLevel:QRCode.CorrectLevel.M});
     document.getElementById("wait").style.display="none";document.getElementById("done").style.display="";}
-// 이 브라우저에서 시작한 주문 전부 (최근 8개·7일). 그중 결제된 것이 있으면 어느 화면에서든 그 코드로 간다
-function orders(){try{var a=JSON.parse(localStorage.getItem("kew_orders")||"[]");var one=JSON.parse(localStorage.getItem("kew_order")||"null");if(one&&!a.some(function(x){return x.o===one.o}))a.push(one);return a.filter(function(x){return x&&x.o&&x.t&&Date.now()-x.at<7*86400000})}catch(e){return []}}
-function remember(o,t){var a=orders().filter(function(x){return x.o!==o});a.push({o:o,t:t,at:Date.now()});a=a.slice(-8);try{localStorage.setItem("kew_orders",JSON.stringify(a));localStorage.removeItem("kew_order")}catch(e){}}
-async function statusOf(x){try{var r=await fetch("/api/billing/status?o="+encodeURIComponent(x.o)+"&t="+encodeURIComponent(x.t),{cache:"no-store"});if(!r.ok)return {status:"missing"};return await r.json()}catch(e){return {status:"error"}}}
-async function findPaid(list){for(var i=list.length-1;i>=0;i--){var j=await statusOf(list[i]);if(j.status==="paid"&&j.code)return {x:list[i],j:j}}return null}
+${ORDERS_JS}
 (async function(){var q=new URLSearchParams(location.search),o=q.get("o"),t=q.get("t");
   if(o&&t)remember(o,t);
   var list=orders();

@@ -3,6 +3,9 @@
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
 import { LANDING_CHROME, LANDING_CSS, LANDING_FONTS, LANDING_STORY, landingSceneJs } from "./landing.js";
 
+/** 결제 전 동의 문장 — 상품 페이지·앱 안 결제가 같이 쓰는 정본 (11/5 환불 규정: 7일 안 전액 환불) */
+export const REFUND_CONSENT = '결제 즉시 활성화 코드와 첫 리포트가 제공됩니다. <b>결제 후 7일 안에는 이유를 묻지 않고 전액 환불</b>해 드리고, 7일이 지나면 이미 제공된 디지털콘텐츠라 환불되지 않습니다(법에서 정한 경우 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.';
+
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
 /** 기기·브라우저별 '알림을 받기까지 할 일' 안내 — 상품 페이지·알림함이 같이 쓰는 정본 (11/5) */
@@ -98,7 +101,7 @@ ${LANDING_STORY}
       <li>앱스토어 설치 없이 폰 알림으로. 가족 폰까지 3대.</li>
     </ul>
 ${ready
-  ? String.raw`    <label class="agree"><input type="checkbox" id="agree" onchange="document.getElementById('pay').disabled=!this.checked"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>
+  ? String.raw`    <label class="agree"><input type="checkbox" id="agree" onchange="document.getElementById('pay').disabled=!this.checked"><span>${REFUND_CONSENT}</span></label>
     <button class="cta red" id="pay" type="button" onclick="pay()" disabled>4,900원 결제하기 <small>페이앱</small></button>
     <p class="paywait" id="paywait" style="display:none">페이앱 화면으로 넘어가요. 휴대폰 번호를 넣으면 페이앱이 결제 링크를 문자로 보내 드려요. 카드·카카오페이·네이버페이·토스페이·휴대폰 결제를 쓸 수 있어요.</p>`
   : String.raw`    <button class="cta red" type="button" disabled>결제 준비 중</button><p class="paywait">결제 연결이 아직 설정되지 않았어요. 곧 열립니다.</p>`}
@@ -146,7 +149,7 @@ ${INSTALL_JS}
   pay.style.display="none";var w=document.getElementById("paywait");if(w)w.style.display="none";
   pay.insertAdjacentHTML("afterend",box);kewDrawQr("/");
   var hc=document.querySelector("#hero .cta");if(hc)hc.innerHTML=E.desktop?'휴대폰으로 시작하기 <small>QR</small>':'바깥 브라우저로 열기 <small>4,900원</small>'})();
-async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 제한 안내를 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
+async function pay(){var b=document.getElementById("pay");var ag=document.getElementById("agree");if(ag&&!ag.checked){alert("환불 규정을 확인하고 체크해 주세요.");return}b.disabled=true;b.textContent="결제창 여는 중…";
   try{var r=await fetch("/api/billing/order",{method:"POST"});var o=await r.json();if(!r.ok)throw new Error(o.error||("오류 "+r.status));
     remember(o.orderId,o.claim);
     var p=o.payapp;
@@ -228,19 +231,31 @@ export function failPage(message: string): string {
 
 export function termsPage(): string {
   return String.raw`${SHELL_HEAD}<title>이용약관 · 환불</title></head><body><div class="wrap">
-<div class="top"><b>🇰🇷 한반도 조기경보</b> · <a href="/buy">상품으로</a></div>
+<div class="top"><b>한반도 조기경보</b> · <a href="/">상품으로</a></div>
 <h1 style="font-size:22px">이용약관 · 환불 규정</h1>
 <div class="card mute">
 <h2 style="margin-top:0">서비스</h2>
-<p>한반도 조기경보 알림은 공개 정보를 자동으로 읽어 한반도 전쟁 위험을 5단계로 판정하고, <b>단계가 바뀔 때(올라갈 때와 내려갈 때)</b> 결제한 이용자의 휴대폰에 웹 푸시 알림을 보내며, 그 순간의 판정을 담은 리포트를 이용자의 알림함에 제공하는 디지털 정보 서비스입니다. 결제 즉시 현재 상황 리포트 1건을 제공합니다. 4,900원을 한 번 결제하면 서비스가 제공되는 동안 계속 받습니다. 활성화 코드 하나로 기기 3대까지 등록할 수 있습니다. 단계 변화는 실제 정세에 따라 생기므로 일정 기간 알림이 없을 수 있으며, 알림이 없는 것은 단계가 바뀌지 않았다는 뜻입니다.</p>
+<p>한반도 조기경보 알림은 공개 정보를 자동으로 읽어 한반도 전쟁 위험을 5단계로 판정하고, <b>단계가 바뀔 때(올라갈 때와 내려갈 때)</b> 결제한 이용자의 휴대폰에 웹 푸시 알림을 보내며, 그 순간의 판정을 담은 리포트를 이용자의 알림함에 제공하는 디지털 정보 서비스입니다. 결제 즉시 현재 상황 리포트 1건을 제공합니다. 활성화 코드 하나로 기기 3대까지 등록할 수 있습니다. 단계 변화는 실제 정세에 따라 생기므로 오랫동안 알림이 없을 수 있으며, 알림이 없는 것은 단계가 바뀌지 않았다는 뜻입니다.</p>
+<h2>'평생'의 뜻과 서비스 종료</h2>
+<p>'평생'은 당사가 이 알림 서비스를 운영하는 동안 추가 요금 없이 계속 받는다는 뜻입니다. 서비스를 끝내게 되면 <b>최소 30일 전</b>에 알림함과 웹사이트에 알립니다. 결제 후 1년이 지나기 전에 서비스를 끝내면 1년 가운데 남은 달 수만큼 나눠 돌려드립니다(예: 4개월 이용 뒤 종료 → 4,900원 × 8/12 = 3,266원, 원 단위 버림). 결제 후 1년이 지난 뒤 종료하는 경우에는 돌려드리지 않습니다.</p>
 <h2>정보의 성격</h2>
-<p>모든 판정과 알림은 언론 보도·정부 공개 자료·공개 데이터와 자동 분석에 기반한 <b>참고 정보</b>이며, 공식 안보 정보나 정부 경보가 아닙니다. 확률은 과거 기록을 바탕으로 한 판단값이고 통계 예측이 아닙니다. 대피 등 실제 행동은 정부 재난문자와 국민재난안전포털의 안내를 따르셔야 합니다. 알림을 받지 못하거나 늦게 받아 생긴 손해에 대해 서비스는 책임지지 않습니다. 웹 푸시는 휴대폰·브라우저 설정과 통신 상태에 따라 도달하지 않을 수 있습니다.</p>
+<p>모든 판정과 알림은 언론 보도·정부 공개 자료·공개 데이터와 자동 분석에 기반한 <b>참고 정보</b>이며, 공식 안보 정보나 정부 경보가 아닙니다. 확률은 과거 기록을 바탕으로 한 판단값이고 통계 예측이 아닙니다. 대피 등 실제 행동은 정부 재난문자와 국민재난안전포털의 안내를 따르셔야 합니다. 알림을 받지 못하거나 늦게 받아 생긴 손해에 대해 당사는 책임지지 않습니다. 웹 푸시는 휴대폰·브라우저 설정과 통신 상태에 따라 도달하지 않을 수 있습니다.</p>
 <h2>환불</h2>
-<p>결제가 완료되면 즉시 활성화 코드가 발급되고 현재 상황 리포트가 알림함에 제공되어 디지털콘텐츠의 제공이 시작됩니다. 전자상거래법 제17조 제2항에 따라 제공이 시작된 디지털콘텐츠는 청약철회가 제한되며, 이용자는 결제 전에 이 내용을 확인하고 동의합니다. 다만 서비스 장애 등 당사 귀책 사유로 알림이나 리포트가 정상적으로 제공되지 않는 경우에는 환불해 드립니다. 환불 요청은 아래 연락처로 활성화 코드와 함께 보내 주세요.</p>
+<ol style="padding-left:20px;margin:6px 0">
+<li><b>결제 후 7일 안</b>: 이유를 묻지 않고 전액 환불해 드립니다. 알림을 켰거나 리포트를 본 뒤여도 같습니다.</li>
+<li><b>결제 후 7일이 지나면</b>: 결제 즉시 제공이 시작된 디지털콘텐츠이므로 환불되지 않습니다(전자상거래법 제17조 제2항). 다만 다음은 예외입니다.
+<ul style="margin:4px 0"><li>서비스가 안내·광고와 다르게 제공된 경우: 서비스를 받은 날부터 3개월 안, 또는 그 사실을 안 날부터 30일 안에 환불을 요청할 수 있습니다(전자상거래법 제17조 제3항).</li>
+<li>당사가 서비스를 끝내는 경우: 위 '평생의 뜻과 서비스 종료' 기준으로 돌려드립니다.</li></ul></li>
+<li><b>환불 사유가 아닌 경우</b>: 단계가 바뀌지 않아 오랫동안 알림이 없는 경우, 판정·확률이 실제 결과와 달랐던 경우, 휴대폰·브라우저 설정(알림 끄기, 홈 화면 앱 삭제 등)으로 알림을 받지 못한 경우.</li>
+<li><b>요청 방법</b>: 아래 이메일로 결제한 날짜·시각과 활성화 코드(또는 페이앱 결제 문자)를 보내 주세요. 확인 뒤 <b>3영업일 안</b>에 결제한 수단 그대로 취소해 드립니다(카드는 카드사에 따라 3~7영업일 뒤 반영).</li>
+<li>환불하면 그 활성화 코드와 등록된 모든 기기의 알림이 꺼집니다.</li>
+<li>미성년자가 법정대리인의 동의 없이 결제한 경우 법정대리인이 결제를 취소할 수 있습니다.</li>
+</ol>
 <h2>개인정보</h2>
-<p>결제 정보는 결제대행사 페이앱(PayApp)이 처리하며 당사는 카드 정보를 저장하지 않습니다. 당사가 보관하는 것은 주문번호, 결제 시각, 활성화 코드, 알림을 받을 브라우저의 푸시 주소뿐입니다. 이름·이메일을 요구하지 않으며, 결제할 때 휴대폰 번호는 결제대행사(페이앱) 화면에서 입력하며 당사는 받지도 저장하지도 않습니다. 알림을 끄면(브라우저에서 구독 해제) 푸시 주소는 삭제됩니다.</p>
+<p>결제 정보는 결제대행사 페이앱(PayApp)이 처리하며 당사는 카드 정보를 저장하지 않습니다. 당사가 보관하는 것은 주문번호, 결제 시각, 활성화 코드, 알림을 받을 브라우저의 푸시 주소뿐입니다. 이름·이메일을 요구하지 않으며, 결제할 때 휴대폰 번호는 결제대행사(페이앱) 화면에서 입력하며 당사는 받지도 저장하지도 않습니다. 환불·문의로 보내 주신 이메일은 처리에만 쓰고 처리 뒤 1년 안에 지웁니다. 알림을 끄면(브라우저에서 구독 해제) 푸시 주소는 삭제됩니다.</p>
 <h2>사업자 정보·연락처</h2>
-<p>상호·대표자·사업자등록번호·통신판매업신고번호·연락처: <i>(등록 뒤 기재)</i></p>
+<p>상호: 후손AI · 대표자: 이근엽<br>사업자등록번호: 797-27-01944<br>이메일: <a href="mailto:gfreedesign95@gmail.com">gfreedesign95@gmail.com</a><br>결제대행: 페이앱(PayApp)</p>
+<p style="font-size:12px">시행일: 2026년 11월 5일</p>
 </div>
 </div></body></html>`;
 }

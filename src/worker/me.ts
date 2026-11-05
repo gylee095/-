@@ -5,7 +5,7 @@
 //  - 카카오톡·인스타그램 등 앱 안 브라우저: 웹 푸시가 안 된다 → 바깥 브라우저로 열기(안드로이드 카카오톡은 바로 넘긴다).
 //  - 알림 거절: 설정에서 다시 켜는 법.
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
-import { INSTALL_JS, ORDERS_JS, SHELL_HEAD } from "./buy.js";
+import { INSTALL_JS, ORDERS_JS, REFUND_CONSENT, SHELL_HEAD } from "./buy.js";
 
 export function mePage(): string {
   return String.raw`${SHELL_HEAD}<title>내 알림함 — 한반도 조기경보</title>
@@ -95,7 +95,7 @@ function noCode(msg){
   var h=ENV.standalone?'<div class="state" style="border:2px solid var(--ok)"><b style="font-size:17px">이미 결제하셨나요?</b><p class="mute" style="margin:6px 0 10px">결제 뒤 버튼을 누를 때 코드가 복사돼 있어요. 아래 버튼을 누르고 휴대폰이 물으면 <b>붙여넣기</b>를 누르세요.</p><button class="btn" onclick="pasteCode()">📋 결제 코드 붙여넣기</button></div>':'';
   h+='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
   '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀔 때만 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+
-  '<label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="prep()"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>'+
+  '<label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="prep()"><span>${REFUND_CONSENT}</span></label>'+
   '<button class="btn" id="pay" disabled onclick="payNow()">4,900원 결제하기</button>'+
   '<p class="mute" id="paynote" style="margin-top:8px">결제 화면에서 휴대폰 번호를 넣으면 페이앱이 <b>카카오톡으로 결제 링크</b>를 보내요. 링크로 결제를 마치고 <b>이 앱으로 돌아오면 자동으로 이어져요.</b></p></div>'+
   '<details class="state"><summary>다른 기기에서 이미 결제했어요 (코드 입력)</summary><p class="mute">결제 완료 화면에 나온 12자리 코드예요.</p><input class="code-in" id="codein" placeholder="ABCD-EFGH-JKLM" autocapitalize="characters" autocomplete="one-time-code"><button class="btn ghost" onclick="saveCode()">확인</button></details>';

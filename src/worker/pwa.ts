@@ -24,10 +24,12 @@ self.addEventListener("activate", function(e){ e.waitUntil(self.clients.claim())
 self.addEventListener("push", function(e){
   var d = { title: "한반도 조기경보", body: "" };
   try { d = Object.assign(d, e.data ? e.data.json() : {}); } catch (err) { try { d.body = e.data ? e.data.text() : ""; } catch (e2) {} }
-  e.waitUntil(self.registration.showNotification(d.title, {
+  var counted = !/^kew-(test|welcome)/.test(d.tag || "");
+  var badge = counted ? caches.open("kew-badge").then(function(c){ return c.match("/badge").then(function(r){ return r ? r.text() : "0"; }).then(function(t){ var n = (parseInt(t, 10) || 0) + 1; return c.put("/badge", new Response(String(n))).then(function(){ if (self.navigator.setAppBadge) return self.navigator.setAppBadge(n); }); }); }).catch(function(){}) : Promise.resolve();
+  e.waitUntil(badge.then(function(){ return self.registration.showNotification(d.title, {
     body: d.body, icon: "/icon.svg", badge: "/icon.svg", tag: d.tag || "kew", renotify: true,
-    data: { url: d.url || "/" }
-  }));
+    data: { url: d.url || "/me" }
+  }); }));
 });
 self.addEventListener("notificationclick", function(e){
   e.notification.close();

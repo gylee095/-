@@ -84,6 +84,8 @@ export async function notifyPhaseChange(
   w: WarRisk,
   now: number,
   fetchImpl: typeof fetch = fetch,
+  /** 그 순간의 대시보드 전체 (고객 리포트로 얼린다) */
+  full?: Record<string, unknown>,
 ): Promise<{ sent?: PhaseMessage; ok?: boolean; state: PhaseNotifyState }> {
   const raw = await store.getKv(PHASE_STATE_KEY);
   const prev = raw ? (JSON.parse(raw) as PhaseNotifyState & { fails?: number }) : undefined;
@@ -94,7 +96,7 @@ export async function notifyPhaseChange(
     return { state };
   }
   // 고객은 알림이 올 때만 리포트를 받는다 (11/5): 그 순간의 판정을 리포트로 얼려 두고, 알림을 누르면 알림함에서 그 리포트가 열린다
-  const report = await addChangeReport(store, w, prev?.phase ?? w.phase, now).catch(() => undefined);
+  const report = await addChangeReport(store, w, prev?.phase ?? w.phase, now, full).catch(() => undefined);
   const url = env.DASHBOARD_URL ? (report ? `${env.DASHBOARD_URL}/me?r=${report.id}` : `${env.DASHBOARD_URL}/me`) : undefined;
   const body = url && env.DASHBOARD_URL ? message.body.replace(`대시보드 : ${env.DASHBOARD_URL}`, `리포트 : ${url}`) : message.body;
   const res = await sendPush(env, { audience: "all", title: message.title, body, priority: message.priority, url }, fetchImpl, store);

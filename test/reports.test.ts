@@ -1,7 +1,7 @@
 // 고객 리포트 (2026-11-05): 단계가 바뀐 순간의 판정을 얼려 알림함에 쌓는다. 결제 직후 '가입 시점' 한 장.
 // 고객은 결제 뒤에 생긴 변화 리포트와 자기 가입 시점 리포트만 본다.
 import { describe, expect, it } from "vitest";
-import { CURRENT_KEY, PHASE_TODO, addChangeReport, loadReports, oddsText, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../src/core/reports.js";
+import { CURRENT_KEY, FULL_PREFIX, PHASE_TODO, addChangeReport, freezeState, loadFull, loadReports, oddsText, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../src/core/reports.js";
 import { fmtRiskPct } from "../src/core/warrisk.js";
 import { MemoryStore } from "../src/core/store.js";
 
@@ -96,5 +96,46 @@ describe("경로 규칙 (코드 검사)", () => {
     expect(src("worker/buy.ts")).not.toMatch(/public-state/);
     expect(idx).toMatch(/paidOrderByCode\(store/); // 알림함·리포트는 결제된 코드만
     expect(idx).toMatch(/snapshotForPurchase\(store/); // 결제완료 → 첫 리포트
+  });
+});
+
+describe("리포트 = 그 순간의 대시보드 전체 (11/5: 요약은 정보량이 너무 적다)", () => {
+  const state = { warRisk: risk(3, 15), board: [{ id: "x" }], events: [], notes: [{ text: "분석" }], alerts: [{ title: "운영자 알림 기록" }], usage: { tokens: 1 }, storage: { read: 1 }, phaseNotify: { phase: 3 } };
+
+  it("운영자 전용(알림 기록·사용량·저장소·알림 상태)은 빼고 나머지는 그대로", () => {
+    const f = freezeState(state as any);
+    expect(Object.keys(f).sort()).toEqual(["board", "events", "notes", "warRisk"]);
+  });
+  it("단계 변화 리포트와 가입 리포트에 대시보드 전체가 함께 저장된다; 같은 변화를 다시 보내도 한 장", async () => {
+    const store = new MemoryStore();
+    const full = freezeState(state as any);
+    const a = await addChangeReport(store, risk(3, 15), 2, T, full);
+    expect(await loadFull(store, a.id)).toEqual(full);
+    const again = await addChangeReport(store, risk(3, 15), 2, T + 60_000, full);
+    expect(again.id).toBe(a.id);
+    await saveCurrent(store, risk(3, 15), T);
+    const s = (await snapshotForPurchase(store, T + 1000, full))!;
+    expect(await loadFull(store, s.id)).toEqual(full);
+    expect((await store.getKv(FULL_PREFIX + s.id))!.length).toBeGreaterThan(50);
+  });
+  it("같은 내용의 가입 리포트를 함께 쓰려면 그 장에 대시보드 전체가 있어야 한다 (요약만 있던 옛 장은 새로 만든다)", async () => {
+    const store = new MemoryStore();
+    await saveCurrent(store, risk(2), T);
+    const old = (await snapshotForPurchase(store, T))!; // 대시보드 전체 없이
+    const now = (await snapshotForPurchase(store, T + 1000, freezeState(state as any)))!;
+    expect(now.id).not.toBe(old.id);
+    expect(await loadFull(store, now.id)).toBeTruthy();
+  });
+  it("리포트 화면: 결제된 코드 + 그 사람이 볼 수 있는 리포트만, 시계는 그 시각에 고정, 운영자 부분은 숨김 (코드 검사)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const idx = readFileSync(new URL("../src/worker/index.ts", import.meta.url), "utf8");
+    const route = idx.slice(idx.indexOf('url.pathname.startsWith("/r/")'), idx.indexOf('url.pathname === "/api/me"'));
+    expect(route).toMatch(/paidOrderByCode\(store/);
+    expect(route).toMatch(/visibleReports\(/);
+    expect(route).toMatch(/Date\.now=\(function\(t\)\{return function\(\)\{return t\}\}\)\(\$\{r\.at\}\)/);
+    expect(route).toMatch(/replace\(\/<\/g, "\\\\u003c"\)/); // 저장된 글에 </script> 가 있어도 화면이 깨지지 않게
+    const dash = readFileSync(new URL("../src/worker/dashboard.ts", import.meta.url), "utf8");
+    expect(dash).toMatch(/if\(!window\.__KEW_REPORT__\)h\+=pushCard\(\);/);
+    expect(dash).toMatch(/← 알림 목록/);
   });
 });

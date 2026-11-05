@@ -200,7 +200,7 @@ async function load(){
     try{body=await r.json()}catch(e){}
     if(!r.ok||!body||body.error){showErr(body&&body.message?body.message:"서버 오류 ("+r.status+") — 잠시 뒤 다시 열어 보세요.",!!body&&body.error==="storage_limit");return}
     st=body}
-  LAST=Date.now();$("#login").style.display="none";ST=st;render();if(tok())resyncPush()}
+  LAST=Date.now();$("#login").style.display="none";ST=st;render();if(tok()&&!window.__KEW_REPORT__)resyncPush()}
 // 불러오기 실패: 이미 화면이 있으면 그대로 두고 위에 알리고, 처음이면 이유를 크게 보여 준다 (빈 화면 금지)
 function showErr(msg,limit){$("#login").style.display="none";
   var box='<div class="card" id="err" style="border-left:4px solid #d33"><b>'+(limit?"서버 저장소 하루 한도 초과":"불러오기 실패")+'</b><div style="font-size:14px;margin-top:6px">'+esc(msg)+'</div>'+
@@ -445,7 +445,7 @@ function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평�
   if(op.length)h+='<div class="calm">🧑‍💻 클로드: '+esc(op.join(" · "))+' <span style="opacity:.8">(전문은 아래 \'클로드 분석 전문\')</span></div>';
   var DO={1:"평소대로 지내면 됩니다.",2:"평소대로 지내면 됩니다. 시간이 날 때 가까운 대피소 위치만 확인해 두세요.",3:"비상용품(물·약·손전등·보조배터리)과 가족 연락 방법을 확인하고, 재난문자 수신을 켜 두세요.",4:"정부·지자체 안내를 따르고 대피소와 이동 경로를 확인하세요.",5:"재난문자·민방위 경보에 따라 바로 대피하세요."};
   h+='<div class="do"><b>지금 할 일</b>'+(DO[w.phase]||DO[2])+' <a href="https://www.safekorea.go.kr" target="_blank" rel="noopener">국민재난안전포털 → 대피소 찾기</a></div>';
-  h+=pushCard();
+  if(!window.__KEW_REPORT__)h+=pushCard();
   var la=(st.alerts||[]).filter(function(a){return a.ok})[0];
   if(la)h+='<div class="calm">🔔 마지막 알림 '+esc(when(la.sentAt))+' · '+(/테스트/.test(la.title)?'<b>테스트</b>':'<b>실제</b>')+' · '+esc(la.title.slice(0,60))+'</div>';
   var dh=st.dataHealth;
@@ -502,6 +502,8 @@ function render(){
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+when(st.lastCycle?st.lastCycle.at:st.now);
   var h="";
+  var RP=window.__KEW_REPORT__;
+  if(RP)h+='<div class="card" style="border:2px solid var(--link);margin-bottom:12px"><a href="/me" style="font-size:14px;text-decoration:none">← 알림 목록</a><div style="font-size:13px;color:var(--mute);margin-top:6px">📌 '+esc(kst(RP.at))+' '+(RP.kind==="snapshot"?"가입 시점":"단계 변화")+' 리포트 — 이 화면은 그 시각의 상황이에요</div><div style="font-weight:700;margin-top:2px">'+esc(RP.headline)+'</div></div>';
   // 0) 사건이나 징후 조합이 있을 때만 맨 위 띠 (사건 기반 위험도와 패턴 신뢰도 중 높은 쪽)
   var pats=st.patterns||[];var patLvl=pats.some(function(p){return p.confidence==="high"})?3:pats.some(function(p){return p.confidence==="medium"})?2:1;
   var lvl=Math.max(th.level,patLvl);var label=lvl===th.level?th.label:(lvl===3?"경계":"주의");
@@ -567,7 +569,8 @@ function render(){
   var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패('+esc(lastFail.channel||"")+') '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+(lastFail.channel==="ntfy"&&chans.indexOf("bark")<0?'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).':'')+'</p>':"";
   var ntfyUi=chans.indexOf("ntfy")>=0&&st.setup?'<p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button>':'';
   sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+'<p style="font-size:13px">휴대폰 알림은 <b>전쟁 위험 단계가 실제로 바뀔 때</b>(올라가면 5분 주기 두 번 확인 뒤, 내려가면 6시간 이어진 뒤)와 <b>실제 사건</b>(발사 속보·민방위 경보·철수 권고)일 때만 갑니다. 확률 숫자의 작은 흔들림, 징후 조합, 결론이 같은 심층 분석은 화면에만 남깁니다. <b>테스트 푸시와 시스템 경고는 운영자 기기(Bark·운영자 구독)에만</b> 가고, 다른 구독자에게는 실제 알림(단계 변화·사건·심층 분석)만 갑니다. 이 휴대폰: <b id="pushst">확인 중</b> · 로그인: <b>'+(st.public?"안 됨 (공개 화면)":"운영자")+'</b> <a href="#pushcard" onclick="return goPush()">알림 켜기·끄기는 첫 화면 카드에서 ↑</a></p><p style="font-size:13px">'+(st.phaseNotify?' 지금 기억한 단계: <b>'+st.phaseNotify.phase+'단계</b> ('+esc(kst(st.phaseNotify.at))+'부터)'+(st.phaseNotify.pending?' · 확인 중: '+st.phaseNotify.pending.phase+'단계':''):'')+'</p>'+(st.setup&&tok()?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
-  h+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
+  if(window.__KEW_REPORT__)h+=group("sys","데이터 출처","수집 상태 · 어디서 가져왔나",'<div class="card">'+health(st)+'</div>');
+  else h+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
   bindGroups(top);

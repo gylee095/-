@@ -110,6 +110,27 @@ async function appendReport(store: Pick<Store, "getKv" | "setKv">, r: Report): P
   return saved;
 }
 
+// ── 대시보드 전체를 얼린다 (11/5): 리포트 목록 한 줄(요약)과 별개로, 그 순간의 대시보드 상태 전체를 따로 저장한다.
+//    고객은 리포트를 열면 처음부터 보던 대시보드를 그 시각 그대로 본다. 운영자 전용(알림 기록·사용량·저장소·알림 상태)은 뺀다.
+export const FULL_PREFIX = "report:full:";
+const OPERATOR_ONLY = ["alerts", "usage", "storage", "phaseNotify", "setup", "deepBudget"];
+
+/** buildState 결과에서 운영자 전용을 뺀 사본 */
+export function freezeState(st: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(st)) if (!OPERATOR_ONLY.includes(k)) out[k] = v;
+  return out;
+}
+
+export async function saveFull(store: Pick<Store, "setKv">, id: string, full: Record<string, unknown>): Promise<void> {
+  await store.setKv(FULL_PREFIX + id, JSON.stringify(full));
+}
+
+export async function loadFull(store: Pick<Store, "getKv">, id: string): Promise<Record<string, unknown> | undefined> {
+  const raw = await store.getKv(FULL_PREFIX + id);
+  return raw ? (JSON.parse(raw) as Record<string, unknown>) : undefined;
+}
+
 /** 5분마다: 지금 판정을 '현재 상황'으로 덮어 둔다 (결제 순간 첫 리포트를 무거운 계산 없이 꺼내려고) */
 export async function saveCurrent(store: Pick<Store, "setKv">, w: RiskLike, now: number): Promise<void> {
   await store.setKv(CURRENT_KEY, JSON.stringify(reportFromRisk(w, now, "snapshot")));
@@ -118,25 +139,30 @@ export async function saveCurrent(store: Pick<Store, "setKv">, w: RiskLike, now:
 /**
  * 단계 알림을 보낼 때: 그 순간의 리포트를 남긴다. 보내기가 실패해 다음 주기에 다시 보내도(최대 세 번) 같은 변화는 한 장만.
  */
-export async function addChangeReport(store: Pick<Store, "getKv" | "setKv">, w: RiskLike, from: number, now: number): Promise<Report> {
+export async function addChangeReport(store: Pick<Store, "getKv" | "setKv">, w: RiskLike, from: number, now: number, full?: Record<string, unknown>): Promise<Report> {
   const list = await loadReports(store);
   const last = [...list].reverse().find((r) => r.kind === "change");
   if (last && last.from === from && last.phase === w.phase && now - last.at < 60 * 60_000) return last;
-  return appendReport(store, reportFromRisk(w, now, "change", from));
+  const r = await appendReport(store, reportFromRisk(w, now, "change", from));
+  if (full) await saveFull(store, r.id, full);
+  return r;
 }
 
 /**
  * 결제 순간의 첫 리포트: 5분마다 덮어 둔 현재 상황을 한 장으로 남긴다. 직전 가입 리포트와 내용이 같으면 그것을 같이 쓴다.
  * 현재 상황이 아직 없으면(배포 직후 몇 분) undefined — 알림함은 "곧 첫 리포트가 들어옵니다"를 보여 준다.
  */
-export async function snapshotForPurchase(store: Pick<Store, "getKv" | "setKv">, now: number): Promise<Report | undefined> {
+export async function snapshotForPurchase(store: Pick<Store, "getKv" | "setKv">, now: number, full?: Record<string, unknown>): Promise<Report | undefined> {
   const raw = await store.getKv(CURRENT_KEY);
   if (!raw) return undefined;
   const cur = { ...(JSON.parse(raw) as Report), at: now };
   const list = await loadReports(store);
   const last = [...list].reverse().find((r) => r.kind === "snapshot");
-  if (last && contentKey(last) === contentKey(cur) && now - last.at < 24 * 3600_000) return last;
-  return appendReport(store, cur);
+  // 같은 내용의 가입 리포트를 함께 쓰려면 그 장에 대시보드 전체가 있어야 한다 (없으면 새로 한 장)
+  if (last && contentKey(last) === contentKey(cur) && now - last.at < 24 * 3600_000 && (!full || (await store.getKv(FULL_PREFIX + last.id)))) return last;
+  const r = await appendReport(store, cur);
+  if (full) await saveFull(store, r.id, full);
+  return r;
 }
 
 /** 이 구매자가 볼 수 있는 리포트: 결제 시점 리포트 + 결제 뒤에 생긴 단계 변화 리포트 (최신이 위) */

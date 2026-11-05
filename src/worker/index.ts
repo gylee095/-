@@ -4,7 +4,7 @@ import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
 import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, createOrder, loadOrders, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
-import { loadReports, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../core/reports.js";
+import { freezeState, loadFull, loadReports, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../core/reports.js";
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { mePage } from "./me.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
@@ -131,7 +131,7 @@ export default {
             await store.setKv("risk:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
           // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
-          await notifyPhaseChange(store, env, st.warRisk, report.at).catch(async (e) => {
+          await notifyPhaseChange(store, env, st.warRisk, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
             await store.setKv("phase_notify:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
@@ -173,6 +173,17 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   }
   if (url.pathname === "/ops") return new Response(DASHBOARD_HTML, { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
   if (url.pathname === "/me") return new Response(mePage(), { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
+  if (url.pathname.startsWith("/r/") && req.method === "GET") {
+    const id = decodeURIComponent(url.pathname.slice(3));
+    const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
+    if (!o) return Response.redirect(`${url.origin}/me`, 302);
+    const r = visibleReports(await loadReports(store), o.paidAt ?? 0, o.startReportId).find((x) => x.id === id);
+    if (!r) return Response.redirect(`${url.origin}/me`, 302);
+    const full = await loadFull(store, id);
+    if (!full) return Response.redirect(`${url.origin}/me?r=${encodeURIComponent(id)}&summary=1`, 302); // 대시보드 전체를 저장하기 전에 만든 리포트
+    const inject = `<script>window.__KEW_REPORT__=${JSON.stringify({ id: r.id, at: r.at, headline: r.headline, kind: r.kind, phase: r.phase }).replace(/</g, "\\u003c")};Date.now=(function(t){return function(){return t}})(${r.at});window.__KEW_STATE__=${JSON.stringify(full).replace(/</g, "\\u003c")};</script>`;
+    return new Response(DASHBOARD_HTML.replace("<head>", "<head>" + inject), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-store", "x-robots-tag": "noindex" } });
+  }
   if (url.pathname === "/api/me" && req.method === "GET") {
     // 알림함: 결제된 코드만. 결제 시점 리포트 + 결제 뒤 단계 변화 리포트 목록 (본문은 따로)
     const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
@@ -235,7 +246,9 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     if (r.reply === "SUCCESS" && r.action === "revoked") for (const ep of r.devices) await removeSub(store, ep);
     if (r.reply === "SUCCESS" && r.action === "paid" && r.order) {
       // 결제하자마자 받는 첫 리포트 (빈 알림함 방지)
-      const first = await snapshotForPurchase(store, Date.now()).catch(() => undefined);
+      // 그 순간의 대시보드 전체도 함께 얼린다 (고객은 리포트를 열면 처음부터 보던 대시보드를 본다)
+      const full = await buildState(store, Date.now() - 168 * 3600_000, env.DISABLED_SOURCES).then((st) => freezeState(st as unknown as Record<string, unknown>)).catch(() => undefined);
+      const first = await snapshotForPurchase(store, Date.now(), full).catch(() => undefined);
       if (first) await attachStartReport(store, r.order.orderId, first.id, Date.now()).catch(() => {});
     }
     if (r.reply === "FAIL")

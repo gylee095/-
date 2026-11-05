@@ -4,14 +4,14 @@ import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { MemoryStore, kstDay, kstMidnight } from "../src/core/store.js";
 import { D1Store } from "../src/worker/d1store.js";
-import type { CrisisEvent } from "../src/core/types.js";
+import type { CrisisEvent, Reading } from "../src/core/types.js";
 
 const DAY = 86400_000;
 const NOW = Date.UTC(2026, 11, 6, 15, 1); // 12/7 00:01 KST — 매일 정리하는 시각
 const CUT = NOW - 30 * DAY;
 const day0 = kstMidnight(CUT) - DAY; // 지울 날 (한국 날짜 하루 전체)
 const ev = (id: string, at: number) => ({ id, firstDetectedTime: at, title: id, severity: 4 }) as unknown as CrisisEvent;
-const readings = (at0: number) => [
+const readings = (at0: number): Reading[] => [
   { indicator: "air.mil_airborne", value: 3, at: at0 + 3600_000, z: 0.5, n: 10, state: "normal" },
   { indicator: "air.mil_airborne", value: 9, at: at0 + 7200_000, z: 3.1, n: 10, state: "elevated" },
   { indicator: "seismic.nk_events_24h", value: 0, at: at0 + 7200_000, n: 10, state: "normal" },

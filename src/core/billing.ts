@@ -149,20 +149,22 @@ export async function handlePayAppNotice(store: Pick<Store, "getKv" | "setKv">, 
   const orders = await loadOrders(store);
   const o = orders.find((x) => x.orderId === f.var1);
   if (!o) return { reply: "FAIL", reason: "주문 없음" };
-  if (o.mulNo && f.mul_no && o.mulNo !== f.mul_no) return { reply: "FAIL", reason: "결제요청번호 불일치" };
+  // 결제요청번호(mul_no)는 결제 전에 바뀔 수 있다: 페이앱 결제창은 한 주문에서 요청을 두 번 만들기도 한다(창을 열 때, 번호를 넣고 문자를 보낼 때 — 11/5 실제 시도).
+  // 그래서 요청 단계에서는 최신 번호로 바꿔 두고, 결제완료는 어느 요청으로 결제됐든 받고 그 번호를 기록하며, 취소는 '결제된 그 번호'의 취소만 반영한다.
   const state = Number(f.pay_state);
   const priceOk = Number(f.price) === o.amount;
   switch (state) {
     case 1: // 요청 — 금액 확인 후 결제 진행 허락
       if (!priceOk) return { reply: "FAIL", reason: "금액이 주문과 다름" };
       if (o.status !== "created") return { reply: "SUCCESS", action: "already", order: o };
-      o.mulNo = f.mul_no;
-      await saveOrders(store, orders, now);
+      if (f.mul_no && o.mulNo !== f.mul_no) {
+        o.mulNo = f.mul_no;
+        await saveOrders(store, orders, now);
+      }
       return { reply: "SUCCESS", action: "requested", order: o };
     case 4: // 결제완료 → 코드 발급 (같은 통보가 다시 와도 코드는 하나)
       if (!priceOk) return { reply: "FAIL", reason: "금액이 주문과 다름" };
-      if (o.status === "paid") return { reply: "SUCCESS", action: "already", order: o };
-      if (o.status === "refunded") return { reply: "SUCCESS", action: "already", order: o };
+      if (o.status === "paid" || o.status === "refunded") return { reply: "SUCCESS", action: "already", order: o };
       o.status = "paid";
       o.paidAt = now;
       o.mulNo = f.mul_no;
@@ -175,8 +177,8 @@ export async function handlePayAppNotice(store: Pick<Store, "getKv" | "setKv">, 
     case 8:
     case 16:
     case 31:
-    case 32: // 요청취소 — 결제 전 취소
-      if (o.status === "created") {
+    case 32: // 요청취소 — 결제 전, 지금 기다리는 그 요청이 취소됐을 때만 주문을 접는다
+      if (o.status === "created" && (!o.mulNo || o.mulNo === f.mul_no)) {
         o.status = "failed";
         await saveOrders(store, orders, now);
       }
@@ -185,8 +187,9 @@ export async function handlePayAppNotice(store: Pick<Store, "getKv" | "setKv">, 
     case 64:
     case 70:
     case 71: {
-      // 승인취소·부분취소 (페이앱 관리 화면에서 취소해도 여기로 온다) → 코드 무효, 켠 기기 목록을 돌려준다
+      // 승인취소·부분취소 (페이앱 관리 화면에서 취소해도 여기로 온다) → '결제된 그 요청'의 취소일 때만 코드 무효, 켠 기기 목록을 돌려준다
       if (o.status === "refunded") return { reply: "SUCCESS", action: "already", order: o };
+      if (o.status !== "paid" || o.mulNo !== f.mul_no) return { reply: "SUCCESS", action: "ignored", order: o };
       const devices = o.devices;
       o.status = "refunded";
       o.refundedAt = now;

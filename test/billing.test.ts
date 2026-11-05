@@ -124,10 +124,33 @@ describe("결제통보 검증 — 위조는 코드를 못 만든다", () => {
     expect((await loadOrders(store))[0].status).toBe("created");
   });
 
-  it("거부: 없는 주문, 결제요청번호가 바뀐 통보", async () => {
-    const { store, order } = await paidOrder();
+  it("거부: 없는 주문", async () => {
+    const store = new MemoryStore();
     expect(await handlePayAppNotice(store, cfg, await notice({ var1: "kew_nope" }), NOW)).toEqual({ reply: "FAIL", reason: "주문 없음" });
-    expect(await handlePayAppNotice(store, cfg, await notice({ var1: order.orderId, mul_no: "999999" }), NOW)).toEqual({ reply: "FAIL", reason: "결제요청번호 불일치" });
+  });
+
+  it("11/5 실제 시도: 한 주문에 결제 요청이 두 번(번호가 바뀜) → 둘 다 받고, 먼저 온 문자 링크로 결제해도 코드가 나온다", async () => {
+    const store = new MemoryStore();
+    const o = await createOrder(store, NOW);
+    expect(await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "1", mul_no: "1001" }), NOW)).toMatchObject({ reply: "SUCCESS", action: "requested" });
+    expect(await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "1", mul_no: "1002" }), NOW + 5000)).toMatchObject({ reply: "SUCCESS", action: "requested" }); // 예전엔 여기서 '결제요청번호 불일치'로 거절했다
+    const paid = await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "4", mul_no: "1001" }), NOW + 60_000);
+    expect(paid).toMatchObject({ reply: "SUCCESS", action: "paid" });
+    expect((await loadOrders(store))[0]).toMatchObject({ status: "paid", mulNo: "1001" });
+  });
+
+  it("취소는 '결제된 그 요청'의 것만 반영: 다른 요청의 취소로는 코드가 살아 있고, 결제 전 다른 요청의 요청취소로 주문이 접히지 않는다", async () => {
+    const store = new MemoryStore();
+    const o = await createOrder(store, NOW);
+    await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "1", mul_no: "2001" }), NOW);
+    await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "1", mul_no: "2002" }), NOW);
+    expect(await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "8", mul_no: "2001" }), NOW)).toMatchObject({ action: "request_canceled" });
+    expect((await loadOrders(store))[0].status).toBe("created"); // 기다리는 요청(2002)은 그대로
+    const r4 = await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "4", mul_no: "2002" }), NOW);
+    const code = (r4 as any).order.code;
+    expect(await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "9", mul_no: "2001" }), NOW)).toMatchObject({ reply: "SUCCESS", action: "ignored" });
+    expect((await redeemCode(store, code, "https://p/1", NOW)).ok).toBe(true);
+    expect(await handlePayAppNotice(store, cfg, await notice({ var1: o.orderId, pay_state: "9", mul_no: "2002" }), NOW)).toMatchObject({ action: "revoked", devices: ["https://p/1"] });
   });
 
   it("요청취소(결제 전) → failed, 코드 없음", async () => {

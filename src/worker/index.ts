@@ -235,7 +235,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
       const first = await snapshotForPurchase(store, Date.now()).catch(() => undefined);
       if (first) await attachStartReport(store, r.order.orderId, first.id, Date.now()).catch(() => {});
     }
-    if (r.reply === "FAIL") await store.setKv("billing:last_reject", JSON.stringify({ at: Date.now(), reason: r.reason, state: form.pay_state, order: form.var1 })).catch(() => {});
+    if (r.reply === "FAIL")
+      await store
+        .setKv("billing:last_reject", JSON.stringify({ at: Date.now(), reason: r.reason, state: form.pay_state, order: form.var1, price: form.price, responsedate: form.responsedate, fields: Object.keys(form).sort(), match: { userid: form.userid === cfg.userid, linkkey: form.linkkey === cfg.linkkey, linkval: form.linkval === cfg.linkval, hashPresent: !!form.hash } }))
+        .catch(() => {});
     return new Response(r.reply, { headers: { "content-type": "text/plain; charset=utf-8" } });
   }
   if (url.pathname === "/api/billing/status" && req.method === "GET") {
@@ -300,6 +303,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     });
   }
   if (url.pathname === "/api/billing/summary" && req.method === "GET") return json(await billingSummary(store, Date.now()));
+  if (url.pathname === "/api/billing/last-reject" && req.method === "GET") return json(JSON.parse((await store.getKv("billing:last_reject")) ?? "null"));
   if (url.pathname === "/api/billing/refund" && req.method === "POST") {
     const body = (await req.json().catch(() => null)) as { orderId?: string; code?: string; reason?: string } | null;
     if (!body?.orderId && !body?.code) return json({ error: "orderId 또는 code 필요" }, 400);

@@ -31,6 +31,25 @@ export interface MetricPoint {
   value: number;
 }
 
+/** 지표 하루 요약 (영구 보관, 2026-11-06) — 원자료는 30일 뒤 지우므로 그 전에 한국 날짜별로 묶어 둔다 */
+export interface MetricDay {
+  day: string;
+  indicator: string;
+  n: number;
+  avg: number;
+  min: number;
+  max: number;
+  /** 그날 가장 큰 z (평소 대비 얼마나 튀었나) */
+  zmax?: number;
+}
+
+const DAY = 86400_000;
+const KST = 9 * 3600_000;
+/** 한국 날짜 'YYYY-MM-DD' */
+export const kstDay = (ms: number) => new Date(ms + KST).toISOString().slice(0, 10);
+/** 그 시각이 속한 한국 날짜의 00시 — 지우는 경계를 날짜에 맞춰 하루 요약이 반쪽이 되지 않게 */
+export const kstMidnight = (ms: number) => Math.floor((ms + KST) / DAY) * DAY - KST;
+
 export interface Store {
   getSignals(sinceMs: number): Promise<Signal[]>;
   /** 지정한 신호만 (사건 근거 보충용) */
@@ -56,6 +75,9 @@ export interface Store {
   getRiskDays(sinceDay: string): Promise<RiskDay[]>;
   putRiskHourly(s: RiskSnapshot): Promise<void>;
   getRiskHourly(sinceMs: number): Promise<RiskSnapshot[]>;
+  /** 지표 하루 요약 · 지난 사건 (영구 보관, 30일이 지난 것) */
+  getMetricDays(indicator: string, sinceDay: string): Promise<MetricDay[]>;
+  getArchivedEvents(sinceMs: number, untilMs: number): Promise<CrisisEvent[]>;
 }
 
 export function healthOf(r: CollectResult): SourceHealth {
@@ -72,6 +94,8 @@ interface State {
   metrics: Reading[];
   riskDaily: Record<string, RiskDay>;
   riskHourly: Record<string, RiskSnapshot>;
+  metricsDaily?: Record<string, MetricDay>;
+  eventsArchive?: Record<string, CrisisEvent>;
 }
 
 const emptyState = (): State => ({ signals: {}, events: {}, alerts: [], health: {}, kv: {}, notes: [], metrics: [], riskDaily: {}, riskHourly: {} });
@@ -175,11 +199,27 @@ export class MemoryStore implements Store {
   async getRiskHourly(since: number) {
     return Object.values(this.s.riskHourly).filter((x) => x.at >= since).sort((a, b) => a.at - b.at);
   }
-  /** 보존 기간이 지난 데이터 정리 (판정 기록은 지우지 않는다) */
+  async getMetricDays(indicator: string, sinceDay: string) {
+    return Object.values(this.s.metricsDaily ?? {}).filter((d) => d.indicator === indicator && d.day >= sinceDay).sort((a, b) => a.day.localeCompare(b.day));
+  }
+  async getArchivedEvents(since: number, until: number) {
+    return Object.values(this.s.eventsArchive ?? {}).filter((e) => e.firstDetectedTime >= since && e.firstDetectedTime < until).sort((a, b) => a.firstDetectedTime - b.firstDetectedTime);
+  }
+  /** 보존 기간이 지난 데이터 정리 (판정 기록은 지우지 않는다). 지우기 전에 지표 하루 요약과 사건을 영구 기록으로 옮긴다 */
   prune(olderThan: number) {
-    for (const [k, v] of Object.entries(this.s.signals)) if (v.detectedTime < olderThan) delete this.s.signals[k];
-    for (const [k, v] of Object.entries(this.s.events)) if (v.firstDetectedTime < olderThan) delete this.s.events[k];
-    this.s.metrics = this.s.metrics.filter((m) => m.at >= olderThan);
+    const cut = kstMidnight(olderThan);
+    const daily = (this.s.metricsDaily ??= {});
+    const groups = new Map<string, Reading[]>();
+    for (const m of this.s.metrics) if (m.at < cut) { const k = `${kstDay(m.at)}|${m.indicator}`; (groups.get(k) ?? groups.set(k, []).get(k)!).push(m); }
+    for (const [k, rs] of groups) {
+      const [day, indicator] = k.split("|");
+      const vs = rs.map((r) => r.value), zs = rs.map((r) => r.z).filter((z): z is number => typeof z === "number");
+      daily[k] = { day, indicator, n: vs.length, avg: vs.reduce((a, b) => a + b, 0) / vs.length, min: Math.min(...vs), max: Math.max(...vs), ...(zs.length ? { zmax: Math.max(...zs) } : {}) };
+    }
+    const arch = (this.s.eventsArchive ??= {});
+    for (const [k, v] of Object.entries(this.s.events)) if (v.firstDetectedTime < cut) { arch[k] = v; delete this.s.events[k]; }
+    for (const [k, v] of Object.entries(this.s.signals)) if (v.detectedTime < cut) delete this.s.signals[k];
+    this.s.metrics = this.s.metrics.filter((m) => m.at >= cut);
   }
 }
 

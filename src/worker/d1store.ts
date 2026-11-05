@@ -1,5 +1,5 @@
 import type { AlertRecord, CrisisEvent, Reading, Signal } from "../core/types.js";
-import type { AgentNote, MetricPoint, SourceHealth, Store } from "../core/store.js";
+import { kstMidnight, type AgentNote, type MetricDay, type MetricPoint, type SourceHealth, type Store } from "../core/store.js";
 import type { RiskDay, RiskSnapshot } from "../core/history.js";
 
 /** Cloudflare D1 무료 요금제 하루 한도 (UTC 자정에 초기화) */
@@ -193,24 +193,42 @@ export class D1Store implements Store {
     return rows.map((x) => JSON.parse(x.doc));
   }
 
-  /** migrations/0003·0004 와 같은 인덱스·표 — 배포 때 마이그레이션이 실패했어도(한도 초과 등) Worker 가 스스로 만든다 (멱등) */
+  /** migrations/0003·0004·0005 와 같은 인덱스·표 — 배포 때 마이그레이션이 실패했어도(한도 초과 등) Worker 가 스스로 만든다 (멱등) */
   async ensureSchema(): Promise<boolean> {
-    if (await this.getKv("schema:0004")) return false;
+    if (await this.getKv("schema:0005")) return false;
     await this.batch([
+      this.db.prepare("CREATE TABLE IF NOT EXISTS metrics_daily (day TEXT NOT NULL, indicator TEXT NOT NULL, n INTEGER NOT NULL, avg REAL NOT NULL, min REAL NOT NULL, max REAL NOT NULL, zmax REAL, PRIMARY KEY (day, indicator))"),
+      this.db.prepare("CREATE TABLE IF NOT EXISTS events_archive (id TEXT PRIMARY KEY, first_detected_at INTEGER NOT NULL, doc TEXT NOT NULL)"),
+      this.db.prepare("CREATE INDEX IF NOT EXISTS idx_events_archive_at ON events_archive(first_detected_at)"),
       this.db.prepare("CREATE INDEX IF NOT EXISTS idx_signals_event ON signals(event_at)"),
       this.db.prepare("CREATE INDEX IF NOT EXISTS idx_notes_at ON notes(at)"),
       this.db.prepare("CREATE TABLE IF NOT EXISTS risk_daily (day TEXT PRIMARY KEY, doc TEXT NOT NULL)"),
       this.db.prepare("CREATE TABLE IF NOT EXISTS risk_hourly (at INTEGER PRIMARY KEY, doc TEXT NOT NULL)"),
     ]);
-    await this.setKv("schema:0004", String(Date.now()));
+    await this.setKv("schema:0005", String(Date.now()));
     return true;
   }
 
+  async getMetricDays(indicator: string, sinceDay: string): Promise<MetricDay[]> {
+    return this.all<MetricDay>(this.db.prepare("SELECT day, indicator, n, avg, min, max, zmax FROM metrics_daily WHERE indicator = ? AND day >= ? ORDER BY day").bind(indicator, sinceDay));
+  }
+  async getArchivedEvents(since: number, until: number): Promise<CrisisEvent[]> {
+    const rows = await this.all<{ doc: string }>(this.db.prepare("SELECT doc FROM events_archive WHERE first_detected_at >= ? AND first_detected_at < ? ORDER BY first_detected_at").bind(since, until));
+    return rows.map((x) => JSON.parse(x.doc));
+  }
+
+  /** 30일이 지난 원자료를 지운다. 지우기 전에 지표 하루 요약(한국 날짜)과 사건 문서를 영구 기록으로 옮긴다 (2026-11-06) */
   async prune(olderThan: number): Promise<void> {
+    await this.ensureSchema();
+    const cut = kstMidnight(olderThan);
     await this.batch([
-      this.db.prepare("DELETE FROM signals WHERE detected_at < ?").bind(olderThan),
-      this.db.prepare("DELETE FROM events WHERE first_detected_at < ?").bind(olderThan),
-      this.db.prepare("DELETE FROM metrics WHERE at < ?").bind(olderThan),
+      this.db
+        .prepare("INSERT OR REPLACE INTO metrics_daily (day, indicator, n, avg, min, max, zmax) SELECT strftime('%Y-%m-%d', (at + 32400000) / 1000, 'unixepoch') AS d, indicator, count(*), avg(value), min(value), max(value), max(z) FROM metrics WHERE at < ? GROUP BY d, indicator")
+        .bind(cut),
+      this.db.prepare("INSERT OR IGNORE INTO events_archive (id, first_detected_at, doc) SELECT id, first_detected_at, doc FROM events WHERE first_detected_at < ?").bind(cut),
+      this.db.prepare("DELETE FROM signals WHERE detected_at < ?").bind(cut),
+      this.db.prepare("DELETE FROM events WHERE first_detected_at < ?").bind(cut),
+      this.db.prepare("DELETE FROM metrics WHERE at < ?").bind(cut),
       // 지난 사용량 기록은 40일만 둔다
       this.db.prepare("DELETE FROM kv WHERE k LIKE 'd1:%' AND k < ?").bind(d1DayKey(olderThan - 10 * 86400_000)),
     ]);

@@ -130,7 +130,9 @@ function seen(){try{return JSON.parse(localStorage.getItem("kew_seen")||"[]")}ca
 function markSeen(id){var a=seen();if(a.indexOf(id)<0){a.push(id);try{localStorage.setItem("kew_seen",JSON.stringify(a.slice(-500)))}catch(e){}}}
 function goReport(id){markSeen(id);location.href="/r/"+encodeURIComponent(id)+"?code="+encodeURIComponent(CODE)}
 function clearBadge(){try{if(navigator.clearAppBadge)navigator.clearAppBadge()}catch(e){}try{caches.open("kew-badge").then(function(c){c.put("/badge",new Response("0"))})}catch(e){}}
-var INSTALL=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();INSTALL=e;var b=document.getElementById("install");if(b)b.style.display=""});
+var INSTALL=null;function showInstall(){var b=document.getElementById("install"),h=document.getElementById("installhow");if(INSTALL&&b){b.style.display="";if(h)h.style.display="none"}}
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();INSTALL=e;showInstall()});
+window.addEventListener("appinstalled",function(){var b=document.getElementById("install");if(b)b.closest(".state").innerHTML='<div class="okline">✓ 홈 화면에 추가했어요</div><div class="mute">이제 홈 화면의 조기경보 아이콘으로 여세요.</div>'});
 function install(){if(!INSTALL)return;INSTALL.prompt();INSTALL.userChoice.finally(function(){INSTALL=null;var b=document.getElementById("install");if(b)b.style.display="none"})}
 async function render(){
   try{if(localStorage.getItem("kew_token"))$("#ops").innerHTML=' · <a href="/ops">운영자 화면</a>'}catch(e){}
@@ -144,7 +146,10 @@ async function render(){
   if(!r.ok){try{localStorage.removeItem("kew_code")}catch(e){}CODE=null;return noCode(me.error)}
   var on=await pushOn();
   var h=stepCard(CODE,me,on);
-  if(on&&ENV.android&&!ENV.standalone)h+='<button class="btn ghost" id="install" style="display:none;margin:0 0 8px" onclick="install()">📲 홈 화면에 앱으로 설치</button>';
+  if(on&&ENV.android&&!ENV.standalone){var sam=/SamsungBrowser/.test(navigator.userAgent);
+    h+='<div class="state" style="border:2px solid var(--brand)"><b style="font-size:17px">📲 홈 화면에 앱으로 추가하세요</b><p class="mute" style="margin:6px 0 10px">앱처럼 아이콘을 눌러 알림 목록과 리포트를 바로 볼 수 있어요. 알림은 지금도 와요.</p>'+
+      '<button class="btn" id="install" style="display:none;margin:0 0 8px" onclick="install()">앱으로 추가</button>'+
+      '<p class="big" id="installhow" style="margin:0">'+(sam?'아래 <b>메뉴 ≡</b> → <b>현재 페이지 추가</b> → <b>홈 화면</b>':'오른쪽 위 <b>⋮</b> → <b>홈 화면에 추가</b> (또는 <b>앱 설치</b>)')+'</p></div>'}
   var sn=seen(),fresh=me.reports.filter(function(x){return sn.indexOf(x.id)<0}).length;
   h+='<h2 style="margin-top:22px">알림 '+me.reports.length+'개'+(fresh?' · <span style="color:var(--brand)">새 알림 '+fresh+'개</span>':'')+'</h2>';
   if(!me.reports.length)h+='<div class="state mute">첫 리포트를 준비하고 있어요. 잠시 뒤 새로고침해 주세요.</div>';
@@ -152,7 +157,7 @@ async function render(){
     h+='<div id="r_'+esc(x.id)+'" class="item" role="button" tabindex="0" style="'+(isNew?'border:2px solid var(--brand)':'')+'" onclick="if(event.target.closest(\'.rep\'))return;'+(SUMMARY?'openReport':'goReport')+'(\''+esc(x.id)+'\')"><div class="when">'+(isNew?'<b style="color:var(--brand)">● 새 알림</b> · ':'')+kst(x.at)+' · '+ago(x.at)+(x.kind==="snapshot"?' · 가입 시점':'')+'</div><div class="hl"><span class="chip" style="background:'+COLORS[x.phase]+'">'+x.phase+'단계</span>'+esc(x.headline)+'</div><div class="mute" style="font-size:13px;margin-top:4px">눌러서 그때의 대시보드 전체 보기 ›</div><div class="body"></div></div>'});
   h+='<p class="mute" style="margin-top:14px">단계가 바뀔 때마다 새 알림이 맨 위에 쌓여요. 코드 <b>'+esc(CODE)+'</b>는 다른 기기에서 열 때 필요하니 캡처해 두세요.</p>';
   $("#app").innerHTML=h;
-  if(INSTALL){var b=document.getElementById("install");if(b)b.style.display=""}
+  showInstall();
   // 예전(요약만 있던) 리포트를 열 때
   if(SUMMARY&&OPEN){var id2=OPEN;OPEN=null;markSeen(id2);openReport(id2);var el=document.getElementById("r_"+id2);if(el)el.scrollIntoView({block:"start"})}
 }

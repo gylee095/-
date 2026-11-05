@@ -8,7 +8,7 @@ export const DASHBOARD_HTML = String.raw`<!doctype html>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="한반도 경보">
 <meta name="theme-color" content="#0f1115">
 <title>한반도 조기경보</title>
-<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/icon.svg">
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -503,8 +503,8 @@ function render(){
   $("#upd").textContent="업데이트 "+when(st.lastCycle?st.lastCycle.at:st.now);
   var h="";
   var RP=window.__KEW_REPORT__;
-  if(RP&&!document.getElementById("backbar")){document.body.style.paddingBottom="84px";document.body.insertAdjacentHTML("beforeend",'<a id="backbar" href="/me" style="position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:1000;display:block;text-align:center;background:#1f5fbf;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:15px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)">← 알림 목록으로</a>')}
-  if(RP)h+='<div class="card" style="border:2px solid var(--link);margin-bottom:12px"><a href="/me" style="display:block;text-align:center;background:#1f5fbf;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:14px;border-radius:12px;margin-bottom:10px">← 알림 목록으로</a><div style="font-size:13px;color:var(--mute);margin-top:6px">📌 '+esc(kst(RP.at))+' '+(RP.kind==="snapshot"?"가입 시점 리포트 — 이 화면은 그 시각의 상황이에요":RP.kind==="demo"?"🧪 예시 리포트 — 목록·화면 확인용, 내용은 만든 때의 상황을 복사했어요":"단계 변화 리포트 — 이 화면은 그 시각의 상황이에요")+'</div><div style="font-weight:700;margin-top:2px">'+esc(RP.headline)+'</div></div>';
+  if(RP&&!document.getElementById("backbar")){document.body.style.paddingBottom="84px";document.body.insertAdjacentHTML("beforeend",'<a id="backbar" href="/me" style="position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:1000;display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:15px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)">← 알림 목록으로</a>')}
+  if(RP)h+='<div class="card" style="border:2px solid #ff3b30;margin-bottom:12px"><a href="/me" style="display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:14px;border-radius:12px;margin-bottom:10px">← 알림 목록으로</a><div style="font-size:13px;color:var(--mute);margin-top:6px">📌 '+esc(kst(RP.at))+' '+(RP.kind==="snapshot"?"가입 시점 리포트 — 이 화면은 그 시각의 상황이에요":RP.kind==="demo"?"🧪 예시 리포트 — 목록·화면 확인용, 내용은 만든 때의 상황을 복사했어요":"단계 변화 리포트 — 이 화면은 그 시각의 상황이에요")+'</div><div style="font-weight:700;margin-top:2px">'+esc(RP.headline)+'</div></div>';
   // 0) 사건이나 징후 조합이 있을 때만 맨 위 띠 (사건 기반 위험도와 패턴 신뢰도 중 높은 쪽)
   var pats=st.patterns||[];var patLvl=pats.some(function(p){return p.confidence==="high"})?3:pats.some(function(p){return p.confidence==="medium"})?2:1;
   var lvl=Math.max(th.level,patLvl);var label=lvl===th.level?th.label:(lvl===3?"경계":"주의");
@@ -664,3 +664,9 @@ load();setInterval(function(){if(!window.__KEW_STATE__&&!document.hidden)load()}
 var rsz=0;window.addEventListener("resize",function(){clearTimeout(rsz);rsz=setTimeout(function(){if(ST){try{drawTension(ST.tension)}catch(e){}try{drawRiskChart(ST)}catch(e){}}},200)});
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&!window.__KEW_STATE__&&Date.now()-LAST>120000)load()});
 </script></body></html>`;
+
+/** 고객 리포트 화면(/r/<id>)은 휴대폰 설정과 상관없이 블랙·레드 — 상품 소개·알림함과 같은 색 (11/5). 운영자 화면(/ops)은 그대로 */
+export const REPORT_THEME_CSS = (() => {
+  const m = DASHBOARD_HTML.match(/@media \(prefers-color-scheme:dark\)\{:root\{([^}]*)\}\}/);
+  return `:root{color-scheme:dark;${m?.[1] ?? ""};--bg:#0a0b0b;--card:#141616;--chip:#1d2020;--line:#262a29;--link:#ff6a5f}`;
+})();

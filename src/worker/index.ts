@@ -7,6 +7,7 @@ import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStart
 import { addDemoReports, freezeState, loadFull, loadReports, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../core/reports.js";
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
+import { ICON_PNG_BASE64 } from "./icons.js";
 import { mePage } from "./me.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
 import { fmtRiskPct } from "../core/warrisk.js";
@@ -18,7 +19,7 @@ import { buildState } from "../core/state.js";
 import { postWithRetry, pushChannels, sendPush } from "../core/notify.js";
 import { registerTools } from "../mcp/tools.js";
 import { D1_FREE_LIMITS, D1Store, type D1Usage } from "./d1store.js";
-import { DASHBOARD_HTML } from "./dashboard.js";
+import { REPORT_THEME_CSS, DASHBOARD_HTML } from "./dashboard.js";
 import { loadMonthUsage, maybeFireDeep } from "../core/deep.js";
 import { recordRisk } from "../core/history.js";
 import { recordMajorDays } from "../core/forecast.js";
@@ -183,7 +184,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const full = await loadFull(store, id);
     if (!full) return Response.redirect(`${url.origin}/me?r=${encodeURIComponent(id)}&summary=1`, 302); // 대시보드 전체를 저장하기 전에 만든 리포트
     const inject = `<script>window.__KEW_REPORT__=${JSON.stringify({ id: r.id, at: r.at, headline: r.headline, kind: r.kind, phase: r.phase }).replace(/</g, "\\u003c")};Date.now=(function(t){return function(){return t}})(${r.kind === "demo" ? Date.now() : r.at});window.__KEW_STATE__=${JSON.stringify(full).replace(/</g, "\\u003c")};</script>`;
-    return new Response(DASHBOARD_HTML.replace("<head>", "<head>" + inject), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-store", "x-robots-tag": "noindex" } });
+    return new Response(DASHBOARD_HTML.replace("<head>", "<head>" + inject).replace("</head>", `<style>${REPORT_THEME_CSS}</style><meta name="theme-color" content="#0a0b0b"></head>`), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-store", "x-robots-tag": "noindex" } });
   }
   if (url.pathname === "/api/me" && req.method === "GET") {
     // 알림함: 결제된 코드만. 결제 시점 리포트 + 결제 뒤 단계 변화 리포트 목록 (본문은 따로)
@@ -208,6 +209,8 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     return new Response(JSON.stringify(m), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "no-cache" } });
   }
   if (url.pathname === "/og.jpg") return new Response(Uint8Array.from(atob(OG_JPG_BASE64), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" } });
+  const iconSize = { "/icon-180.png": 180, "/apple-touch-icon.png": 180, "/apple-touch-icon-precomposed.png": 180, "/icon-192.png": 192, "/icon-512.png": 512 }[url.pathname];
+  if (iconSize) return new Response(Uint8Array.from(atob(ICON_PNG_BASE64[iconSize]), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } });
   if (url.pathname === "/icon.svg") return new Response(ICON_SVG, { headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" } });
   // ── 유료 알림 (2026-11-04, 결제사 페이앱 11-05): 4,900원 1회 → 결제완료 통보 → 활성화 코드 → 휴대폰에서 코드로 켜기 ──
   if (url.pathname === "/buy") return new Response(buyPage(payAppConfig(env)?.userid, url.origin), { headers: { "content-type": "text/html; charset=utf-8" } });

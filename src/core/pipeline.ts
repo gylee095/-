@@ -225,12 +225,12 @@ export async function runCycle(env: Env, store: Store, opts: CycleOptions = {}):
   const situation = send.length ? await situationFromRecords(store, now, "확인 중").catch(() => undefined) : undefined;
   for (const d of send) {
     const ids = new Set(d.event.signalIds);
-    const msg = formatAlert(d, env.DASHBOARD_URL, briefEvent(d.event, signals.filter((s) => ids.has(s.id))), situation);
+    const msg = formatAlert(d, (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined), briefEvent(d.event, signals.filter((s) => ids.has(s.id))), situation);
     let ok = true;
     let error: string | undefined;
     let channel = "dry-run";
     if (!opts.dryRun) {
-      const res = await sendPush(env, { ...msg, audience: "all", url: env.DASHBOARD_URL ? `${env.DASHBOARD_URL}#${d.event.id}` : undefined }, opts.fetchImpl, store);
+      const res = await sendPush(env, { ...msg, url: env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops#${d.event.id}` : undefined }, opts.fetchImpl, store);
       ok = res.some((r) => r.ok);
       error = res.filter((r) => !r.ok).map((r) => `${r.channel}: ${r.error}`).join("; ") || undefined;
       channel = res.map((r) => r.channel).join(",");

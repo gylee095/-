@@ -157,8 +157,9 @@ describe("알림 본문은 셋 다 같은 모양: 상황(어제 대비) · 무�
     await notifyPhaseChange(store, env2, w(3), NOW + 5 * MIN, f);
     await notifyPhaseChange(store, env2, w(3), NOW + 10 * MIN, f);
     expect(calls).toHaveLength(1);
-    expect(calls[0].body).toMatch(/\n대시보드 : https:\/\/kew\.example$/);
-    expect(calls[0].url).toBe("https://kew.example");
+    // 11/5: 고객은 알림이 올 때만 리포트를 본다 — 본문 마지막 줄과 누르면 열리는 주소가 둘 다 그 리포트
+    expect(calls[0].body).toMatch(/\n리포트 : https:\/\/kew\.example\/me\?r=r_[0-9a-z]+_[0-9a-f]{8}$/);
+    expect(calls[0].url).toBe(calls[0].body.split("리포트 : ")[1]);
   });
 });
 

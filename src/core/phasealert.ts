@@ -4,6 +4,7 @@
 // 확률 숫자(약 4%)는 영역 압력에 따라 하루에도 3.4 → 3.6 → 3.8 처럼 조금씩 흔들리고, 반올림 경계(3.5%)에서 3%↔4%로 깜빡이므로 알림 기준으로 쓰지 않는다.
 // 단계는 드물게 바뀌고 바뀌면 범위가 크게 뛴다(2단계 2~4% → 3단계 8~25%).
 // 실제 사건(발사 속보·민방위 경보·철수 권고)은 단계와 상관없이 지금처럼 바로 알린다 (policy.ts).
+import { addChangeReport } from "./reports.js";
 import type { Phase, WarRisk } from "./warrisk.js";
 import { fmtRiskPct } from "./warrisk.js";
 import type { Store } from "./store.js";
@@ -92,7 +93,11 @@ export async function notifyPhaseChange(
     await store.setKv(PHASE_STATE_KEY, JSON.stringify(state));
     return { state };
   }
-  const res = await sendPush(env, { audience: "all", title: message.title, body: message.body, priority: message.priority, url: env.DASHBOARD_URL }, fetchImpl, store);
+  // 고객은 알림이 올 때만 리포트를 받는다 (11/5): 그 순간의 판정을 리포트로 얼려 두고, 알림을 누르면 알림함에서 그 리포트가 열린다
+  const report = await addChangeReport(store, w, prev?.phase ?? w.phase, now).catch(() => undefined);
+  const url = env.DASHBOARD_URL ? (report ? `${env.DASHBOARD_URL}/me?r=${report.id}` : `${env.DASHBOARD_URL}/me`) : undefined;
+  const body = url && env.DASHBOARD_URL ? message.body.replace(`대시보드 : ${env.DASHBOARD_URL}`, `리포트 : ${url}`) : message.body;
+  const res = await sendPush(env, { audience: "all", title: message.title, body, priority: message.priority, url }, fetchImpl, store);
   const ok = res.some((r) => r.ok);
   const error = res.filter((r) => !r.ok).map((r) => `${r.channel}: ${r.error}`).join("; ") || undefined;
   await store.logAlert({ eventId: `phase:${w.phase}`, sentAt: now, status: "CONFIRMED", severity: w.phase * 20, title: message.title, body: message.body, channel: res.map((r) => r.channel).join(","), ok, ...(error ? { error } : {}) });

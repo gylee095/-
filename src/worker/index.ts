@@ -1,10 +1,12 @@
 // Cloudflare Worker: 5분 크론 감시 사이클 + 원격 MCP 커넥터 + 모바일 대시보드
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
-import { addSub, loadSubs, loadVapid, removeSub, type PushSubscriptionJson } from "../core/webpush.js";
+import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
-import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, billingSummary, createOrder, handlePayAppNotice, orderStatus, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, createOrder, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { loadReports, saveCurrent, snapshotForPurchase, summarize, visibleReports } from "../core/reports.js";
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
+import { mePage } from "./me.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
 import { fmtRiskPct } from "../core/warrisk.js";
 import { SCHEDULE } from "../core/sources.js";
@@ -82,7 +84,7 @@ async function finishUsage(store: D1Store, env: Env, now: number): Promise<D1Usa
           title: "[시스템] 서버 저장소 하루 한도의 70%를 넘었습니다",
           body: `오늘 읽기 ${fmtRows(u.read)}/500만 행 · 쓰기 ${fmtRows(u.written)}/10만 행 (Cloudflare D1 무료). 한도를 넘으면 한국 시간 오전 9시까지 감시·알림·대시보드가 멈춥니다.`,
           priority: 4,
-          url: env.DASHBOARD_URL,
+          url: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined),
         });
       }
     }
@@ -124,6 +126,7 @@ export default {
         try {
           const st = await buildState(store, report.at - 72 * 3600_000, env.DISABLED_SOURCES);
           await recordMajorDays(store, st.events.map((e) => e.brief), report.at).catch(() => 0);
+          await saveCurrent(store, st.warRisk, report.at).catch(() => {});
           await recordRisk(store, { ...st.warRisk, at: report.at }, { raw: st.tension.raw, pct: st.tension.pct }, st.forecast.p30).catch(async (e) => {
             await store.setKv("risk:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
@@ -132,7 +135,7 @@ export default {
             await store.setKv("phase_notify:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
-            await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: env.DASHBOARD_URL });
+            await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined) });
         } catch (e) {
           await store.setKv("deep:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
         }
@@ -163,14 +166,33 @@ export default {
 
 async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<Response> {
   if (url.pathname === "/" || url.pathname === "/index.html") {
-    return new Response(DASHBOARD_HTML, { headers: { "content-type": "text/html; charset=utf-8" } });
+    // 예전 QR·링크(/?code=)는 알림함으로
+    const code = url.searchParams.get("code");
+    if (code) return Response.redirect(`${url.origin}/me?code=${encodeURIComponent(code)}`, 302);
+    return new Response(buyPage(payAppConfig(env)?.userid, url.origin), { headers: { "content-type": "text/html; charset=utf-8" } });
+  }
+  if (url.pathname === "/ops") return new Response(DASHBOARD_HTML, { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
+  if (url.pathname === "/me") return new Response(mePage(), { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
+  if (url.pathname === "/api/me" && req.method === "GET") {
+    // 알림함: 결제된 코드만. 결제 시점 리포트 + 결제 뒤 단계 변화 리포트 목록 (본문은 따로)
+    const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
+    if (!o) return json({ error: "맞지 않는 코드예요. 결제 뒤 받은 코드를 확인해 주세요." }, 404);
+    const list = visibleReports(await loadReports(store), o.paidAt ?? 0, o.startReportId).map(summarize);
+    return new Response(JSON.stringify({ code: o.code, paidAt: o.paidAt, devicesUsed: o.devices.length, devicesMax: DEVICES_PER_CODE, reports: list }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+  }
+  if (url.pathname === "/api/report" && req.method === "GET") {
+    const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
+    if (!o) return json({ error: "맞지 않는 코드예요." }, 404);
+    const r = visibleReports(await loadReports(store), o.paidAt ?? 0, o.startReportId).find((x) => x.id === url.searchParams.get("id"));
+    if (!r) return json({ error: "볼 수 없는 리포트예요." }, 404);
+    return new Response(JSON.stringify(r), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
   }
   if (url.pathname === "/health") return json({ ok: true, configured: !!env.KEW_SECRET });
   // 웹 푸시 (2026-11-04): 브라우저가 직접 알림을 띄운다 — 앱·건당 비용 없음
   if (url.pathname === "/sw.js") return new Response(SERVICE_WORKER_JS, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-cache" } });
   if (url.pathname === "/manifest.webmanifest") {
     const code = url.searchParams.get("code") ?? "";
-    const m = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code) ? { ...WEB_MANIFEST, start_url: `/?code=${code}` } : WEB_MANIFEST;
+    const m = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code) ? { ...WEB_MANIFEST, start_url: `/me?code=${code}` } : WEB_MANIFEST;
     return new Response(JSON.stringify(m), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "no-cache" } });
   }
   if (url.pathname === "/icon.svg") return new Response(ICON_SVG, { headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" } });
@@ -208,6 +230,11 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const form = Object.fromEntries(new URLSearchParams(await req.text()));
     const r = await handlePayAppNotice(store, cfg, form, Date.now());
     if (r.reply === "SUCCESS" && r.action === "revoked") for (const ep of r.devices) await removeSub(store, ep);
+    if (r.reply === "SUCCESS" && r.action === "paid" && r.order) {
+      // 결제하자마자 받는 첫 리포트 (빈 알림함 방지)
+      const first = await snapshotForPurchase(store, Date.now()).catch(() => undefined);
+      if (first) await attachStartReport(store, r.order.orderId, first.id, Date.now()).catch(() => {});
+    }
     if (r.reply === "FAIL") await store.setKv("billing:last_reject", JSON.stringify({ at: Date.now(), reason: r.reason, state: form.pay_state, order: form.var1 })).catch(() => {});
     return new Response(r.reply, { headers: { "content-type": "text/plain; charset=utf-8" } });
   }
@@ -224,7 +251,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const r = await redeemCode(store, body.code, body.subscription.endpoint);
     if (!r.ok) return json({ error: r.reason }, 403);
     const s = await addSub(store, body.subscription, "paid", Date.now());
-    return json({ ok: true, who: s.who, devicesUsed: r.order.devices.length, devicesMax: DEVICES_PER_CODE });
+    // 켜자마자 이 기기 하나에만 '켜졌어요' 알림 — 고객이 바로 확인하고(체감), 서비스 제공이 시작됐다는 기록도 된다. 다른 구독자에게는 가지 않는다
+    const keys = await loadVapid(store, env.DASHBOARD_URL ?? url.origin);
+    const welcome = await sendWebPush(keys, body.subscription, { title: "✅ 알림이 켜졌어요 — 한반도 조기경보", body: "앞으로 전쟁 위험 단계가 바뀔 때만 이렇게 알려 드려요. 평소엔 조용합니다.\n지금 상황 리포트는 알림함에 있어요.", url: `${url.origin}/me`, tag: "kew-welcome" }).catch(() => ({ ok: false }));
+    return json({ ok: true, who: s.who, devicesUsed: r.order.devices.length, devicesMax: DEVICES_PER_CODE, welcome: welcome.ok });
   }
   if (url.pathname === "/api/push/key" && req.method === "GET") {
     const k = await loadVapid(store, env.DASHBOARD_URL ?? url.origin);
@@ -252,14 +282,6 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   if (url.pathname.startsWith("/mcp/")) {
     if (!safeEq(url.pathname.slice(5), env.KEW_SECRET)) return json({ error: "not found" }, 404);
     return handleMcp(req, env, store);
-  }
-
-  // 공개 대시보드 (2026-11-04): 사람들에게 보여 줄 화면은 비밀값 없이 읽는다. 비밀값·연결 주소(setup)와 운영 기록(알림 이력·노트·사용량)만 뺀다.
-  // 5분 주기 데이터라 60초 캐시 — 많은 사람이 열어도 저장소 읽기는 그대로
-  if (url.pathname === "/api/public-state" && req.method === "GET") {
-    const st = await buildState(store, Date.now() - 168 * 3600_000, env.DISABLED_SOURCES);
-    const { alerts: _a, notes: _n, usage: _u, ...pub } = st as typeof st & { setup?: unknown };
-    return new Response(JSON.stringify({ ...pub, public: true }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=60" } });
   }
 
   const authed = safeEq(req.headers.get("authorization")?.replace(/^Bearer\s+/i, ""), env.KEW_SECRET);
@@ -403,9 +425,9 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
       ? pushBody({ ...sit, label }, `[테스트] ${st.threat.level > 1 ? st.threat.summary : "최근 24시간 북한 발사·포격 없음"}`, env.DASHBOARD_URL)
       : `지금 한반도 상황 : ${label}\n[테스트] 연결 확인\n대시보드 : ${env.DASHBOARD_URL ?? ""}`;
     // 테스트는 첫 글자부터 테스트여야 한다 (2026-11-04: '주의 (약 4%) 테스트' 는 잘리면 실제 악화로 읽혔다). 실제 알림 틀(pushBody)을 쓰지 않는다
-    const testBody = [`🧪 테스트 알림 — 실제 상황 아님`, `연결 확인용입니다. 지금 상황은 평소와 같이 ${label}입니다.`, env.DASHBOARD_URL ? `대시보드 : ${env.DASHBOARD_URL}` : ""].filter(Boolean).join("\n");
+    const testBody = [`🧪 테스트 알림 — 실제 상황 아님`, `연결 확인용입니다. 지금 상황은 평소와 같이 ${label}입니다.`, env.DASHBOARD_URL ? `대시보드 : ${env.DASHBOARD_URL}/ops` : ""].filter(Boolean).join("\n");
     void body;
-    return json(await sendPush(env, { title: "🧪 테스트 — 실제 상황 아님", body: testBody, priority: 2, url: env.DASHBOARD_URL, tag: "kew-test" }, fetch, store));
+    return json(await sendPush(env, { title: "🧪 테스트 — 실제 상황 아님", body: testBody, priority: 2, url: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined), tag: "kew-test" }, fetch, store));
   }
   return json({ error: "not found" }, 404);
 }

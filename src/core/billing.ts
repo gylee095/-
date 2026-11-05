@@ -47,6 +47,8 @@ export interface Order {
   devices: string[];
   /** 신용카드 매출전표 주소 (비밀 없음) */
   receiptUrl?: string;
+  /** 결제 순간에 준 첫 리포트 (reports.ts) */
+  startReportId?: string;
 }
 
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 헷갈리는 0/O, 1/I 뺌
@@ -221,6 +223,22 @@ export async function cancelWithPayApp(cfg: PayAppConfig, mulNo: string, memo: s
   } catch (e) {
     return { ok: false, error: String((e as Error)?.message ?? e).slice(0, 160) };
   }
+}
+
+/** 결제 순간의 첫 리포트를 주문에 붙인다 */
+export async function attachStartReport(store: Pick<Store, "getKv" | "setKv">, orderId: string, reportId: string, now: number): Promise<void> {
+  const orders = await loadOrders(store);
+  const o = orders.find((x) => x.orderId === orderId);
+  if (!o || o.startReportId) return;
+  o.startReportId = reportId;
+  await saveOrders(store, orders, now);
+}
+
+/** 알림함: 결제된 코드의 주문 (환불·없는 코드는 undefined) */
+export async function paidOrderByCode(store: Pick<Store, "getKv">, code: string): Promise<Order | undefined> {
+  const norm = normalizeCode(code ?? "");
+  const o = (await loadOrders(store)).find((x) => x.code === norm);
+  return o && o.status === "paid" ? o : undefined;
 }
 
 export const normalizeCode = (c: string) => c.toUpperCase().replace(/[^A-Z2-9]/g, "").replace(/(.{4})(?=.)/g, "$1-");

@@ -162,10 +162,7 @@ function basisText(e){if(e.brief&&e.brief.sourceLabel)return e.brief.sourceLabel
 // ── 웹 푸시: 브라우저가 직접 알림을 띄운다 (앱·건당 비용 없음, 2026-11-04) ──
 function pushSupport(){var ios=/iPhone|iPad|iPod/.test(navigator.userAgent);var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var ok="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;return {ios:ios,standalone:standalone,ok:ok}}
 function pushCard(){var s=pushSupport();var code=actCode(),owner=!!tok();var h='<div class="do" id="pushcard"><b>휴대폰 알림 받기</b>';
-  if(!code&&!owner){
-    h+='<span id="pushmsg">전쟁 위험 단계가 바뀌는 순간 휴대폰이 울립니다. <b>4,900원 한 번, 평생.</b> 앱 설치·문자 요금 없음.</span><div style="margin-top:8px"><a class="btn" href="/buy" style="display:inline-block;text-decoration:none">알림 받기 · 4,900원</a></div>';
-    h+='<details style="margin-top:8px"><summary>이미 결제했어요 (활성화 코드 입력)</summary><input id="codein" placeholder="ABCD-EFGH-JKLM" autocapitalize="characters" autocomplete="one-time-code" style="width:100%;padding:12px;font-size:17px;letter-spacing:1px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);margin:8px 0"><button class="btn" onclick="saveCode()">확인</button></details>';
-    return h+'</div>'}
+  if(!owner)return h+'운영자 로그인 뒤에 이 기기로 운영자 알림을 켤 수 있어요. 고객 알림함은 <a href="/me">/me</a>, 상품 페이지는 <a href="/">/</a></div>';
   if(code)h+='<div style="margin:4px 0 6px;font-size:13px;color:var(--mute)">결제 확인됨 · 활성화 코드 <b style="letter-spacing:1px">'+esc(code)+'</b></div>';
   if(!s.ok&&s.ios&&!s.standalone)h+='아이폰은 <strong>한 단계만 더</strong> 하면 끝나요.<ol style="margin:6px 0 0;padding-left:20px"><li>화면 아래 <b>공유</b> 버튼(네모에 위쪽 화살표)</li><li><b>홈 화면에 추가</b> → 추가</li><li>홈 화면에 생긴 <b>조기경보</b> 아이콘을 열고 <b>알림 켜기</b></li></ol><p style="font-size:12px;color:var(--mute);margin:6px 0 0">애플 규칙상 홈 화면에 추가한 앱만 알림을 받을 수 있어요. 코드는 자동으로 함께 옮겨져요.</p>';
   else if(!s.ok)h+='이 브라우저는 알림을 지원하지 않아요. 크롬(안드로이드)이나 사파리(아이폰, 홈 화면에 추가)에서 열어 주세요.';
@@ -182,7 +179,7 @@ async function enablePush(){var b=$("#pushbtn");try{b.disabled=true;b.textConten
   var key=(await (await fetch("/api/push/key")).json()).publicKey;
   var sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToU8(key)});
   var hd={"content-type":"application/json"};var t=tok();if(t)hd.authorization="Bearer "+t;
-  var code=actCode(),r,j={};
+  var code=tok()?null:actCode(),r,j={}; // 운영자 화면에서는 늘 운영자 구독으로 (고객 코드가 이 기기에 남아 있어도)
   if(code){r=await fetch("/api/billing/activate",{method:"POST",headers:hd,body:JSON.stringify({code:code,subscription:sub.toJSON()})});j=await r.json().catch(function(){return {}});
     if(!r.ok){try{await sub.unsubscribe()}catch(e){}throw new Error(j.error||("활성화 실패 "+r.status))}}
   else{r=await fetch("/api/push/subscribe",{method:"POST",headers:hd,body:JSON.stringify({subscription:sub.toJSON()})});if(!r.ok)throw new Error("등록 실패 "+r.status)}
@@ -197,12 +194,13 @@ async function load(){
   var st=window.__KEW_STATE__;
   if(!st){var t=tok();
     var r,body=null;
-    try{r=t?await fetch("/api/state?hours=168",{headers:{authorization:"Bearer "+t}}):await fetch("/api/public-state")}catch(e){showErr("서버에 연결하지 못했습니다. 인터넷 연결을 확인하세요.",false);return}
-    if(r.status===401){try{localStorage.removeItem("kew_token")}catch(e){}alert("접속 비밀값이 맞지 않아요. 공개 화면으로 엽니다.");load();return}
+    if(!t){var lg0=$("#login");lg0.style.display="block";lg0.open=true;return}
+    try{r=await fetch("/api/state?hours=168",{headers:{authorization:"Bearer "+t}})}catch(e){showErr("서버에 연결하지 못했습니다. 인터넷 연결을 확인하세요.",false);return}
+    if(r.status===401){try{localStorage.removeItem("kew_token")}catch(e){}alert("접속 비밀값이 맞지 않아요.");load();return}
     try{body=await r.json()}catch(e){}
     if(!r.ok||!body||body.error){showErr(body&&body.message?body.message:"서버 오류 ("+r.status+") — 잠시 뒤 다시 열어 보세요.",!!body&&body.error==="storage_limit");return}
     st=body}
-  LAST=Date.now();var lg=$("#login");lg.style.display=st.public?"block":"none";lg.open=!!st.public;ST=st;render();if(!st.public)resyncPush()}
+  LAST=Date.now();$("#login").style.display="none";ST=st;render();if(tok())resyncPush()}
 // 불러오기 실패: 이미 화면이 있으면 그대로 두고 위에 알리고, 처음이면 이유를 크게 보여 준다 (빈 화면 금지)
 function showErr(msg,limit){$("#login").style.display="none";
   var box='<div class="card" id="err" style="border-left:4px solid #d33"><b>'+(limit?"서버 저장소 하루 한도 초과":"불러오기 실패")+'</b><div style="font-size:14px;margin-top:6px">'+esc(msg)+'</div>'+

@@ -166,11 +166,12 @@ describe("받는 사람 범위: 테스트·시스템 경고는 절대 공개 구
     expect(r.sent).toBe(6);
     expect(auths.size).toBe(2); // 애플 한 번, 구글 한 번
   });
-  it("실제 알림 경로(사건·단계·심층 분석)만 all 을 쓴다 — 코드 검사", async () => {
+  it("실제 알림 중 단계 변화만 all 을 쓴다 — 코드 검사", async () => {
     const { readFileSync } = await import("node:fs");
     const src = (p: string) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
-    for (const p of ["core/pipeline.ts", "core/phasealert.ts", "mcp/tools_deep.ts"]) expect(src(p), p).toMatch(/audience: "all"/);
-    for (const p of ["worker/index.ts", "mcp/tools.ts"]) expect(src(p), p).not.toMatch(/audience: "all"/);
+    // 11/5: 고객 알림은 단계 변화만 — 사건 속보·심층 분석은 운영자에게만
+    for (const p of ["core/phasealert.ts"]) expect(src(p), p).toMatch(/audience: "all"/);
+    for (const p of ["worker/index.ts", "mcp/tools.ts", "core/pipeline.ts", "mcp/tools_deep.ts"]) expect(src(p), p).not.toMatch(/audience: "all"/);
   });
 });
 

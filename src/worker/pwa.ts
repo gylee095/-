@@ -2,8 +2,8 @@
 export const WEB_MANIFEST = {
   name: "한반도 조기경보",
   short_name: "조기경보",
-  description: "공개 정보로 보는 한반도 전쟁 위험 — 단계가 바뀌면 알립니다",
-  start_url: "/",
+  description: "한반도 전쟁 위험 단계가 바뀌는 순간 알려 드립니다 — 받은 리포트는 알림함에",
+  start_url: "/me",
   scope: "/",
   display: "standalone",
   background_color: "#f3f4f6",

@@ -58,7 +58,7 @@ function stepCard(c,me,on){
   if(on)return '<div class="state"><div class="okline">✓ 이 휴대폰으로 알림이 와요</div><div class="mute">단계가 올라가거나 내려갈 때만 울립니다. 평소엔 조용해요. 기기 '+me.devicesUsed+'/'+me.devicesMax+'대 사용 중</div>'+(me.devicesUsed<me.devicesMax?'<button class="btn ghost" style="margin-top:10px" onclick="shareFamily()">가족 휴대폰에도 켜기 ('+(me.devicesMax-me.devicesUsed)+'대 남음)</button>':'')+'</div>';
   var h='<div class="state main"><h2>마지막 한 단계: 이 폰에서 알림 켜기</h2>';
   var g=kewGuide(kewEnv(),"/me?code="+encodeURIComponent(c));
-  if(g){setTimeout(function(){kewDrawQr("/me?code="+encodeURIComponent(c))},0);return h.replace('<div class="state main">','<div>')+g+'<p class="mute">활성화 코드 <b>'+esc(c)+'</b> — 주소에 들어 있어 따로 넣을 필요는 없어요.</p></div>'}
+  if(g){setTimeout(function(){kewDrawQr("/me?code="+encodeURIComponent(c))},0);return '<div>'+g+'<p class="mute">활성화 코드 <b>'+esc(c)+'</b> — 주소에 들어 있어 따로 넣을 필요는 없어요.</p></div>'}
   if(!ENV.ok)return h+'<p class="big">이 브라우저는 알림을 지원하지 않아요. 안드로이드는 <b>크롬</b>, 아이폰은 <b>사파리</b>에서 열어 주세요.</p></div>';
   if(Notification.permission==="denied")return h+'<p class="big">이 사이트의 알림이 <b>꺼져</b> 있어요. 휴대폰 <b>설정 → 알림</b>'+(ENV.ios?' → 조기경보':' (크롬: 주소창 왼쪽 자물쇠 → 권한 → 알림)')+'에서 켠 뒤 이 화면을 새로고침해 주세요.</p></div>';
   return h+'<p class="big">버튼을 누르고 휴대폰이 묻는 창에서 <b>허용</b>을 눌러 주세요.</p><button class="btn" id="enable" onclick="enable()">알림 켜기</button></div>'}
@@ -91,8 +91,9 @@ ${ORDERS_JS}
 ${INSTALL_JS}
 var PENDING=null,WATCH=null;
 function noCode(msg){
-  var g=kewGuide(kewEnv(),"/");if(g){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+g+'<div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';kewDrawQr("/");return}
-  var h='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
+  var KE=kewEnv();var g=(KE.desktop||KE.inapp)?kewGuide(KE,"/"):"";if(g){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+g+'<div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';kewDrawQr("/");return}
+  var h=ENV.standalone?'<div class="state" style="border:2px solid var(--ok)"><b style="font-size:17px">이미 결제하셨나요?</b><p class="mute" style="margin:6px 0 10px">결제 뒤 버튼을 누를 때 코드가 복사돼 있어요. 아래 버튼을 누르고 휴대폰이 물으면 <b>붙여넣기</b>를 누르세요.</p><button class="btn" onclick="pasteCode()">📋 결제 코드 붙여넣기</button></div>':'';
+  h+='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
   '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀔 때만 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+
   '<label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="prep()"><span>결제 즉시 활성화 코드와 첫 리포트가 제공되어 서비스가 시작됩니다. 따라서 결제 후에는 <b>청약철회(환불)가 제한</b>됩니다(서비스 장애 시 제외). <a href="/terms">이용약관·환불</a>을 확인했습니다.</span></label>'+
   '<button class="btn" id="pay" disabled onclick="payNow()">4,900원 결제하기</button>'+
@@ -122,6 +123,10 @@ async function checkPaid(manual){var f=await findPaid(orders());
   if(f){clearInterval(WATCH);WATCH=null;PENDING=null;try{localStorage.setItem("kew_code",f.j.code)}catch(e){}CODE=f.j.code;manifestWithCode(CODE);render();return true}
   if(manual)alert("아직 결제가 확인되지 않았어요. 카카오톡 링크로 결제를 마쳤다면 몇 초 뒤 다시 확인해 주세요.");return false}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&!CODE)checkPaid(false)});
+async function pasteCode(){var t="";try{t=await navigator.clipboard.readText()}catch(e){}
+  var v=normCode((String(t).match(/[A-Za-z2-9]{4}-?[A-Za-z2-9]{4}-?[A-Za-z2-9]{4}/)||[""])[0]);
+  if(!v){alert("복사된 결제 코드가 없어요. 결제 완료 화면의 코드를 길게 눌러 복사한 뒤 다시 눌러 주세요.");return}
+  try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 function saveCode(){var v=normCode($("#codein").value);if(!v){alert("코드 12자리를 확인해 주세요.");return}try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 
 var Q=new URLSearchParams(location.search),CODE=code(),OPEN=Q.get("r"),SUMMARY=Q.get("summary")==="1";

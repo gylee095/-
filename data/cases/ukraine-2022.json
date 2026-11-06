@@ -1,0 +1,715 @@
+{
+ "id": "ukraine-2022",
+ "name": "러시아 → 우크라이나 침공",
+ "outcome": "war",
+ "truthDate": "2022-02-24",
+ "start": "2021-11-26",
+ "end": "2022-02-24",
+ "preroll": [],
+ "days": [
+  {
+   "date": "2021-11-26",
+   "fxPct": 0.305,
+   "equityRel": 0.583,
+   "defenseRel": 1.359,
+   "wikiPct": 146
+  },
+  {
+   "date": "2021-11-27",
+   "fxPct": 0.305,
+   "equityRel": 0.583,
+   "defenseRel": 1.359,
+   "wikiPct": 136
+  },
+  {
+   "date": "2021-11-28",
+   "fxPct": 0.305,
+   "equityRel": 0.583,
+   "defenseRel": 1.359,
+   "wikiPct": 136
+  },
+  {
+   "date": "2021-11-29",
+   "fxPct": 1.331,
+   "equityRel": 1.36,
+   "defenseRel": -1.292,
+   "wikiPct": 123
+  },
+  {
+   "date": "2021-11-30",
+   "fxPct": 0.443,
+   "equityRel": 0.901,
+   "defenseRel": 0.483,
+   "wikiPct": 122
+  },
+  {
+   "date": "2021-12-01",
+   "fxPct": -0.226,
+   "equityRel": 0.153,
+   "defenseRel": -0.601,
+   "wikiPct": 135
+  },
+  {
+   "date": "2021-12-02",
+   "fxPct": 0.473,
+   "equityRel": -0.058,
+   "defenseRel": 0.302,
+   "wikiPct": 167
+  },
+  {
+   "date": "2021-12-03",
+   "fxPct": 0.069,
+   "equityRel": 0.171,
+   "defenseRel": 1.161,
+   "wikiPct": 161
+  },
+  {
+   "date": "2021-12-04",
+   "fxPct": 0.069,
+   "equityRel": 0.171,
+   "defenseRel": 1.161,
+   "wikiPct": 128
+  },
+  {
+   "date": "2021-12-05",
+   "fxPct": 0.069,
+   "equityRel": 0.171,
+   "defenseRel": 1.161,
+   "wikiPct": 224
+  },
+  {
+   "date": "2021-12-06",
+   "fxPct": 0.337,
+   "equityRel": -3.718,
+   "defenseRel": 0.355,
+   "wikiPct": 198
+  },
+  {
+   "date": "2021-12-07",
+   "fxPct": 0.65,
+   "equityRel": -0.816,
+   "defenseRel": -2.133,
+   "wikiPct": 207
+  },
+  {
+   "date": "2021-12-08",
+   "fxPct": -0.13,
+   "equityRel": -2.267,
+   "defenseRel": 0.451,
+   "wikiPct": 329
+  },
+  {
+   "date": "2021-12-09",
+   "fxPct": -0.495,
+   "equityRel": 1.583,
+   "defenseRel": 0.11,
+   "wikiPct": 297
+  },
+  {
+   "date": "2021-12-10",
+   "fxPct": 0.124,
+   "equityRel": -1.323,
+   "defenseRel": -0.375,
+   "wikiPct": 262
+  },
+  {
+   "date": "2021-12-11",
+   "fxPct": 0.124,
+   "equityRel": -1.323,
+   "defenseRel": -0.375,
+   "wikiPct": 195
+  },
+  {
+   "date": "2021-12-12",
+   "fxPct": 0.124,
+   "equityRel": -1.323,
+   "defenseRel": -0.375,
+   "wikiPct": 153
+  },
+  {
+   "date": "2021-12-13",
+   "fxPct": -0.28,
+   "equityRel": -2.095,
+   "defenseRel": -0.05,
+   "wikiPct": 161
+  },
+  {
+   "date": "2021-12-14",
+   "fxPct": 0.099,
+   "equityRel": 0.604,
+   "defenseRel": 0.765,
+   "wikiPct": 150
+  },
+  {
+   "date": "2021-12-15",
+   "fxPct": 0.45,
+   "equityRel": 0.029,
+   "defenseRel": -1.863,
+   "wikiPct": 125
+  },
+  {
+   "date": "2021-12-16",
+   "fxPct": 0.916,
+   "equityRel": 2.98,
+   "defenseRel": 0.548,
+   "wikiPct": 98
+  },
+  {
+   "date": "2021-12-17",
+   "fxPct": 0.216,
+   "equityRel": 0.008,
+   "defenseRel": 0.693,
+   "wikiPct": 101
+  },
+  {
+   "date": "2021-12-18",
+   "fxPct": 0.216,
+   "equityRel": 0.008,
+   "defenseRel": 0.693,
+   "wikiPct": 96
+  },
+  {
+   "date": "2021-12-19",
+   "fxPct": 0.216,
+   "equityRel": 0.008,
+   "defenseRel": 0.693,
+   "wikiPct": 86
+  },
+  {
+   "date": "2021-12-20",
+   "fxPct": 0.925,
+   "equityRel": -0.057,
+   "defenseRel": -0.464,
+   "wikiPct": 86
+  },
+  {
+   "date": "2021-12-21",
+   "fxPct": 0.001,
+   "equityRel": -1.016,
+   "defenseRel": 0.062,
+   "wikiPct": 81
+  },
+  {
+   "date": "2021-12-22",
+   "fxPct": -0.067,
+   "equityRel": 0.713,
+   "defenseRel": -0.144,
+   "wikiPct": 85
+  },
+  {
+   "date": "2021-12-23",
+   "fxPct": 0.009,
+   "equityRel": -1.961,
+   "defenseRel": -0.196,
+   "wikiPct": 103
+  },
+  {
+   "date": "2021-12-24",
+   "fxPct": -0.08,
+   "equityRel": -1.961,
+   "defenseRel": -0.196,
+   "wikiPct": 111
+  },
+  {
+   "date": "2021-12-25",
+   "fxPct": -0.08,
+   "equityRel": -1.961,
+   "defenseRel": -0.196,
+   "wikiPct": 93
+  },
+  {
+   "date": "2021-12-26",
+   "fxPct": -0.08,
+   "equityRel": -1.961,
+   "defenseRel": -0.196,
+   "wikiPct": 81
+  },
+  {
+   "date": "2021-12-27",
+   "fxPct": 0.425,
+   "equityRel": 0.539,
+   "defenseRel": -0.216,
+   "wikiPct": 74
+  },
+  {
+   "date": "2021-12-28",
+   "fxPct": 0.299,
+   "equityRel": 0.871,
+   "defenseRel": 0.399,
+   "wikiPct": 71
+  },
+  {
+   "date": "2021-12-29",
+   "fxPct": 0.421,
+   "equityRel": -0.426,
+   "defenseRel": 0.505,
+   "wikiPct": 68
+  },
+  {
+   "date": "2021-12-30",
+   "fxPct": 0.417,
+   "equityRel": 0.441,
+   "defenseRel": -0.295,
+   "wikiPct": 63
+  },
+  {
+   "date": "2021-12-31",
+   "fxPct": 0.752,
+   "equityRel": 0.441,
+   "defenseRel": 0.558,
+   "wikiPct": 67
+  },
+  {
+   "date": "2022-01-01",
+   "fxPct": 0.752,
+   "equityRel": 0.441,
+   "defenseRel": 0.558,
+   "wikiPct": 76
+  },
+  {
+   "date": "2022-01-02",
+   "fxPct": 0.752,
+   "equityRel": 0.441,
+   "defenseRel": 0.558,
+   "wikiPct": 63
+  },
+  {
+   "date": "2022-01-03",
+   "fxPct": 0.61,
+   "equityRel": 1.065,
+   "defenseRel": 0.33,
+   "wikiPct": 69
+  },
+  {
+   "date": "2022-01-04",
+   "fxPct": 0.02,
+   "equityRel": 0.304,
+   "defenseRel": 1.177,
+   "wikiPct": 87
+  },
+  {
+   "date": "2022-01-05",
+   "fxPct": 1.198,
+   "equityRel": -0.974,
+   "defenseRel": 0.581,
+   "wikiPct": 72
+  },
+  {
+   "date": "2022-01-06",
+   "fxPct": 1.858,
+   "equityRel": -1.08,
+   "defenseRel": 0.488,
+   "wikiPct": 71
+  },
+  {
+   "date": "2022-01-07",
+   "fxPct": 0.079,
+   "equityRel": 0.265,
+   "defenseRel": 1.331,
+   "wikiPct": 75
+  },
+  {
+   "date": "2022-01-08",
+   "fxPct": 0.079,
+   "equityRel": 0.265,
+   "defenseRel": 1.331,
+   "wikiPct": 74
+  },
+  {
+   "date": "2022-01-09",
+   "fxPct": 0.079,
+   "equityRel": 0.265,
+   "defenseRel": 1.331,
+   "wikiPct": 76
+  },
+  {
+   "date": "2022-01-10",
+   "fxPct": -0.494,
+   "equityRel": -0.114,
+   "defenseRel": 1.815,
+   "wikiPct": 97
+  },
+  {
+   "date": "2022-01-11",
+   "fxPct": 0.459,
+   "equityRel": -0.405,
+   "defenseRel": -0.39,
+   "wikiPct": 120
+  },
+  {
+   "date": "2022-01-12",
+   "fxPct": 0.162,
+   "equityRel": -0.057,
+   "defenseRel": -0.747,
+   "wikiPct": 114
+  },
+  {
+   "date": "2022-01-13",
+   "fxPct": 0.72,
+   "equityRel": -3.339,
+   "defenseRel": 1.785,
+   "wikiPct": 115
+  },
+  {
+   "date": "2022-01-14",
+   "fxPct": 2.336,
+   "equityRel": -1.589,
+   "defenseRel": 2.237,
+   "wikiPct": 110
+  },
+  {
+   "date": "2022-01-15",
+   "fxPct": 2.336,
+   "equityRel": -1.589,
+   "defenseRel": 2.237,
+   "wikiPct": 168
+  },
+  {
+   "date": "2022-01-16",
+   "fxPct": 2.336,
+   "equityRel": -1.589,
+   "defenseRel": 2.237,
+   "wikiPct": 173
+  },
+  {
+   "date": "2022-01-17",
+   "fxPct": 0.745,
+   "equityRel": -1.719,
+   "defenseRel": 0.441,
+   "wikiPct": 175
+  },
+  {
+   "date": "2022-01-18",
+   "fxPct": 0.809,
+   "equityRel": -5.097,
+   "defenseRel": 2.862,
+   "wikiPct": 172
+  },
+  {
+   "date": "2022-01-19",
+   "fxPct": 0.981,
+   "equityRel": 2.905,
+   "defenseRel": 0.526,
+   "wikiPct": 253
+  },
+  {
+   "date": "2022-01-20",
+   "fxPct": -0.106,
+   "equityRel": 1.644,
+   "defenseRel": -0.075,
+   "wikiPct": 380
+  },
+  {
+   "date": "2022-01-21",
+   "fxPct": -0.295,
+   "equityRel": -0.645,
+   "defenseRel": 1.052,
+   "wikiPct": 403
+  },
+  {
+   "date": "2022-01-22",
+   "fxPct": -0.295,
+   "equityRel": -0.645,
+   "defenseRel": 1.052,
+   "wikiPct": 441
+  },
+  {
+   "date": "2022-01-23",
+   "fxPct": -0.295,
+   "equityRel": -0.645,
+   "defenseRel": 1.052,
+   "wikiPct": 431
+  },
+  {
+   "date": "2022-01-24",
+   "fxPct": 1.728,
+   "equityRel": -3.155,
+   "defenseRel": 1.045,
+   "wikiPct": 452
+  },
+  {
+   "date": "2022-01-25",
+   "fxPct": 1.612,
+   "equityRel": 0.524,
+   "defenseRel": 1.836,
+   "wikiPct": 903
+  },
+  {
+   "date": "2022-01-26",
+   "fxPct": 0.957,
+   "equityRel": 2.61,
+   "defenseRel": 0.175,
+   "wikiPct": 825
+  },
+  {
+   "date": "2022-01-27",
+   "fxPct": 0.589,
+   "equityRel": 3.26,
+   "defenseRel": 0.108,
+   "wikiPct": 592
+  },
+  {
+   "date": "2022-01-28",
+   "fxPct": 0.697,
+   "equityRel": 1.275,
+   "defenseRel": -0.953,
+   "wikiPct": 466
+  },
+  {
+   "date": "2022-01-29",
+   "fxPct": 0.697,
+   "equityRel": 1.275,
+   "defenseRel": -0.953,
+   "wikiPct": 345
+  },
+  {
+   "date": "2022-01-30",
+   "fxPct": 0.697,
+   "equityRel": 1.275,
+   "defenseRel": -0.953,
+   "wikiPct": 262
+  },
+  {
+   "date": "2022-01-31",
+   "fxPct": -0.431,
+   "equityRel": -0.897,
+   "defenseRel": -2.922,
+   "wikiPct": 205
+  },
+  {
+   "date": "2022-02-01",
+   "fxPct": -0.551,
+   "equityRel": -0.4,
+   "defenseRel": -0.532,
+   "wikiPct": 168
+  },
+  {
+   "date": "2022-02-02",
+   "fxPct": -0.08,
+   "equityRel": -0.013,
+   "defenseRel": -1.157,
+   "wikiPct": 149
+  },
+  {
+   "date": "2022-02-03",
+   "fxPct": -0.064,
+   "equityRel": -0.56,
+   "defenseRel": 2.456,
+   "wikiPct": 114
+  },
+  {
+   "date": "2022-02-04",
+   "fxPct": 0.313,
+   "equityRel": 0.529,
+   "defenseRel": -0.381,
+   "wikiPct": 94
+  },
+  {
+   "date": "2022-02-05",
+   "fxPct": 0.313,
+   "equityRel": 0.529,
+   "defenseRel": -0.381,
+   "wikiPct": 76
+  },
+  {
+   "date": "2022-02-06",
+   "fxPct": 0.313,
+   "equityRel": 0.529,
+   "defenseRel": -0.381,
+   "wikiPct": 70
+  },
+  {
+   "date": "2022-02-07",
+   "fxPct": -0.44,
+   "equityRel": -0.32,
+   "defenseRel": 0.528,
+   "wikiPct": 99
+  },
+  {
+   "date": "2022-02-08",
+   "fxPct": -0.507,
+   "equityRel": 1.741,
+   "defenseRel": 1.278,
+   "wikiPct": 98
+  },
+  {
+   "date": "2022-02-09",
+   "fxPct": -0.03,
+   "equityRel": 0.766,
+   "defenseRel": -1.019,
+   "wikiPct": 95
+  },
+  {
+   "date": "2022-02-10",
+   "fxPct": -0.036,
+   "equityRel": 0.877,
+   "defenseRel": 0.875,
+   "wikiPct": 83
+  },
+  {
+   "date": "2022-02-11",
+   "fxPct": 0.424,
+   "equityRel": -1.729,
+   "defenseRel": 2.965,
+   "wikiPct": 80
+  },
+  {
+   "date": "2022-02-12",
+   "fxPct": 0.424,
+   "equityRel": -1.729,
+   "defenseRel": 2.965,
+   "wikiPct": 166
+  },
+  {
+   "date": "2022-02-13",
+   "fxPct": 0.424,
+   "equityRel": -1.729,
+   "defenseRel": 2.965,
+   "wikiPct": 312
+  },
+  {
+   "date": "2022-02-14",
+   "fxPct": 3.235,
+   "equityRel": -0.398,
+   "defenseRel": 0.113,
+   "wikiPct": 234
+  },
+  {
+   "date": "2022-02-15",
+   "fxPct": 1.44,
+   "equityRel": 1.355,
+   "defenseRel": -1.405,
+   "wikiPct": 248
+  },
+  {
+   "date": "2022-02-16",
+   "fxPct": -1.244,
+   "equityRel": 0.995,
+   "defenseRel": 0.303,
+   "wikiPct": 251
+  },
+  {
+   "date": "2022-02-17",
+   "fxPct": -0.273,
+   "equityRel": -2.838,
+   "defenseRel": 0.83,
+   "wikiPct": 154
+  },
+  {
+   "date": "2022-02-18",
+   "fxPct": 1.458,
+   "equityRel": -2.383,
+   "defenseRel": 0.678,
+   "wikiPct": 153
+  },
+  {
+   "date": "2022-02-19",
+   "fxPct": 1.458,
+   "equityRel": -2.383,
+   "defenseRel": 0.678,
+   "wikiPct": 165
+  },
+  {
+   "date": "2022-02-20",
+   "fxPct": 1.458,
+   "equityRel": -2.383,
+   "defenseRel": 0.678,
+   "wikiPct": 211
+  },
+  {
+   "date": "2022-02-21",
+   "fxPct": 1.625,
+   "equityRel": -8.33,
+   "defenseRel": 0.357,
+   "wikiPct": 205
+  },
+  {
+   "date": "2022-02-22",
+   "fxPct": 3.9,
+   "equityRel": 2.287,
+   "defenseRel": 1.287,
+   "wikiPct": 527
+  },
+  {
+   "date": "2022-02-23",
+   "fxPct": 1.498,
+   "equityRel": 2.287,
+   "defenseRel": 2.049,
+   "wikiPct": 847
+  },
+  {
+   "date": "2022-02-24",
+   "fxPct": 3.305,
+   "equityRel": -30.435,
+   "defenseRel": 4.496,
+   "wikiPct": 518
+  }
+ ],
+ "gov": [
+  {
+   "date": "2022-01-15",
+   "indicator": "official.ca_level_kr",
+   "value": 1,
+   "what": "캐나다: 우크라이나 전역 '높은 주의' → '불필요한 여행 자제' (한 단계 상향)",
+   "source": "https://www.ctvnews.ca/politics/canada-urges-avoiding-non-essential-travel-to-ukraine-due-to-russian-aggression-1.5742023"
+  },
+  {
+   "date": "2022-01-23",
+   "indicator": "official.us_travel_level_kr",
+   "value": 4,
+   "what": "미국: 4단계(원래 코로나 사유)에 러시아 군사행동 위협을 사유로 추가 — 안보 사유 4단계가 된 날",
+   "source": "https://web.archive.org/web/20220210233741/https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/ukraine-travel-advisory.html"
+  },
+  {
+   "date": "2022-01-23",
+   "indicator": "official.us_departure_kr",
+   "value": 2,
+   "what": "미국: 키이우 대사관 가족 철수 명령, 직원 자발적 출국 허용 (출처에 따라 1/24 표기 — 늦은 날로 써도 결과 같음)",
+   "source": "https://web.archive.org/web/20220210233741/https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/ukraine-travel-advisory.html"
+  },
+  {
+   "date": "2022-02-08",
+   "indicator": "official.ca_level_kr",
+   "value": 2,
+   "what": "캐나다: '모든 여행 자제' (출처가 2/1·2/8 로 엇갈려 늦은 날)",
+   "source": "https://www.wingsmagazine.com/ottawa-increases-warnings-about-ukraine-urges-canadians-to-leave-over-russia-threat/"
+  },
+  {
+   "date": "2022-02-11",
+   "indicator": "official.uk_advice_security_flag",
+   "value": 1,
+   "what": "영국: 우크라이나 전역 여행 금지 권고, 즉시 출국 권고",
+   "source": "https://gov.uk/government/news/british-nationals-advised-to-leave-ukraine-immediately"
+  },
+  {
+   "date": "2022-02-11",
+   "indicator": "official.jp_risk_level_kr",
+   "value": 4,
+   "what": "일본: 우크라이나 전역 레벨4(대피 권고)",
+   "source": "https://www.mofa.go.jp/mofaj/press/release/press4_009268.html"
+  },
+  {
+   "date": "2022-02-12",
+   "indicator": "official.de_warning_kr",
+   "value": 2,
+   "what": "독일: 전역 여행경고와 출국 촉구",
+   "source": "https://www.t-online.de/nachrichten/deutschland/aussenpolitik/id_91654760/ukraine-krise-bundesregierung-empfiehlt-deutsche-sollen-ukraine-verlassen.html"
+  }
+ ],
+ "airspace": [
+  {
+   "date": "2022-02-12",
+   "what": "KLM 우크라이나 노선 중단·영공 미사용, 보험사 48시간 내 보험 중단 통보",
+   "source": "https://www.businessinsurance.com/insurers-withdraw-cover-for-ukrainian-airline-carriers-skyup-klm/"
+  }
+ ],
+ "sources": [
+  "통화: Yahoo Finance 일봉 RUB=X, UAH=X (여럿이면 그날 가장 약세)",
+  "증시: 모스크바 거래소 ISS IMOEX − EEM·^STOXX50E 평균",
+  "방산: RHM.DE·BA.L·LMT − ^STOXX50E·^GSPC",
+  "위키백과 조회수(Wikimedia): en:Ukraine, en:Russo-Ukrainian_War, en:Russia–Ukraine_relations, en:Armed_Forces_of_Ukraine, en:War_in_Donbas, en:Donbas, ru:Украина, uk:Збройні_сили_України, de:Ukraine",
+  "보도량: GDELT DOC 2.0 \"Ukraine (war OR invasion OR troops)\"",
+  "정부·영공: 미·영·캐·독·일 공식 권고(웨이백 스냅샷)와 보도 — 위 항목별 주소. 정리 2026-11-06"
+ ],
+ "retrieved": "2026-11-06"
+}

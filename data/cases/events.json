@@ -1,0 +1,66 @@
+{
+ "retrieved": "2026-11-06",
+ "rules": [
+  "정부 경보는 안보 사유 변경만 넣는다. 코로나 사유 단계 변경은 넣지 않는다.",
+  "창 시작 때 이미 걸려 있던 경보(돈바스·가자 같은 일부 지역 경고, 2023년 10월 이후 계속된 이스라엘 3단계)는 평소로 본다. 한국의 평시처럼 미국 1단계·나머지 0에서 시작해, 창 안의 안보 사유 상향만큼 값을 올린다.",
+  "그 나라(공격받은 나라)의 경보만 넣는다. 이웃 나라(이라크 등) 철수, 공격하는 나라(이란) 경보, 대사관 직원 이동 제한은 우리 지표에 해당 항목이 없어 넣지 않고 성적표에 '못 잰 신호'로 적는다.",
+  "출처끼리 날짜가 다르면 늦은 날짜를 쓴다 (선행일을 부풀리지 않게).",
+  "정답 당일 사건은 채점에서 빠진다 (정답일 전날까지만 채점)."
+ ],
+ "cases": {
+  "ukraine-2022": {
+   "gov": [
+    { "date": "2022-01-15", "indicator": "official.ca_level_kr", "value": 1, "what": "캐나다: 우크라이나 전역 '높은 주의' → '불필요한 여행 자제' (한 단계 상향)", "source": "https://www.ctvnews.ca/politics/canada-urges-avoiding-non-essential-travel-to-ukraine-due-to-russian-aggression-1.5742023" },
+    { "date": "2022-01-23", "indicator": "official.us_travel_level_kr", "value": 4, "what": "미국: 4단계(원래 코로나 사유)에 러시아 군사행동 위협을 사유로 추가 — 안보 사유 4단계가 된 날", "source": "https://web.archive.org/web/20220210233741/https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/ukraine-travel-advisory.html" },
+    { "date": "2022-01-23", "indicator": "official.us_departure_kr", "value": 2, "what": "미국: 키이우 대사관 가족 철수 명령, 직원 자발적 출국 허용 (출처에 따라 1/24 표기 — 늦은 날로 써도 결과 같음)", "source": "https://web.archive.org/web/20220210233741/https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/ukraine-travel-advisory.html" },
+    { "date": "2022-02-08", "indicator": "official.ca_level_kr", "value": 2, "what": "캐나다: '모든 여행 자제' (출처가 2/1·2/8 로 엇갈려 늦은 날)", "source": "https://www.wingsmagazine.com/ottawa-increases-warnings-about-ukraine-urges-canadians-to-leave-over-russia-threat/" },
+    { "date": "2022-02-11", "indicator": "official.uk_advice_security_flag", "value": 1, "what": "영국: 우크라이나 전역 여행 금지 권고, 즉시 출국 권고", "source": "https://gov.uk/government/news/british-nationals-advised-to-leave-ukraine-immediately" },
+    { "date": "2022-02-11", "indicator": "official.jp_risk_level_kr", "value": 4, "what": "일본: 우크라이나 전역 레벨4(대피 권고)", "source": "https://www.mofa.go.jp/mofaj/press/release/press4_009268.html" },
+    { "date": "2022-02-12", "indicator": "official.de_warning_kr", "value": 2, "what": "독일: 전역 여행경고와 출국 촉구", "source": "https://www.t-online.de/nachrichten/deutschland/aussenpolitik/id_91654760/ukraine-krise-bundesregierung-empfiehlt-deutsche-sollen-ukraine-verlassen.html" }
+   ],
+   "airspace": [
+    { "date": "2022-02-12", "what": "KLM 우크라이나 노선 중단·영공 미사용, 보험사 48시간 내 보험 중단 통보", "source": "https://www.businessinsurance.com/insurers-withdraw-cover-for-ukrainian-airline-carriers-skyup-klm/" }
+   ],
+   "sources": ["정부·영공: 미·영·캐·독·일 공식 권고(웨이백 스냅샷)와 보도 — 위 항목별 주소. 정리 2026-11-06"]
+  },
+  "russia-buildup-2021": {
+   "gov": [
+    { "date": "2021-04-15", "indicator": "official.uk_advice_security_flag", "value": 1, "what": "영국: 단계는 그대로, 본문에 'Since 30 March ... Russian military build-up' 문구 (그 문구가 든 판의 갱신일 4/15 — 실제 삽입일은 더 이를 수 있음)", "source": "https://web.archive.org/web/20210429183014/https://www.gov.uk/foreign-travel-advice/ukraine" }
+   ],
+   "airspace": [
+    { "date": "2021-04-20", "what": "러시아 NOTAM: 크림 남부 인접 해역·흑해 일부 민간 비행 제한(4/20~24). 항공사 운항 중단은 아님 — 헛경보 시험이라 엄하게 넣는다", "source": "https://tass.com/politics/1280469" }
+   ],
+   "sources": [
+    "정부: 미국 2021-01-16·05-01, 영국 01-10·04-29, 캐나다 2020-11-12·2021-05-06 스냅샷을 비교 — 안보 사유 단계 변경 없음. 미국 4/20 4단계는 코로나 사유라 넣지 않음. 독일·일본은 비교본 부족(변경 없음 미확정). 캐나다 '러시아 군 주둔' 문구는 4/29 판에서 삭제(추가일 미확인).",
+    "미국 대사관 철수: 두 스냅샷에 출국 허용·명령 문구 없음(5/1~15 미열람)."
+   ]
+  },
+  "hamas-2023": {
+   "gov": [],
+   "airspace": [],
+   "sources": ["정부: 미국 7/13 재발행(2단계 유지), 10/3 직원 이동 제한 완화 — 창 안에서 안보 사유 상향 없음. 영국·캐나다·독일 첫 상향은 10/7 당일 이후. 일본 7~10월 스냅샷 없음(변경 없음 미확정). 항공사 운항 중단은 10/7 당일부터."]
+  },
+  "iran-israel-2024-04": {
+   "gov": [
+    { "date": "2024-04-11", "indicator": "official.uk_advice_security_flag", "value": 1, "what": "영국: 단계는 그대로, '이란의 이스라엘 공격 가능성' 경고 추가", "source": "https://www.gov.uk/api/content/foreign-travel-advice/israel" },
+    { "date": "2024-04-12", "indicator": "official.ca_level_kr", "value": 1, "what": "캐나다: 이스라엘 '불필요한 여행 자제' → '모든 여행 자제' (한 단계 상향, 16:55 ET)", "source": "https://travel.gc.ca/destinations/israel-the-west-bank-and-the-gaza-strip" }
+   ],
+   "airspace": [],
+   "sources": ["정부: 창 시작 때 미국 3단계·영국 필수 외 자제·캐나다 불필요한 여행 자제·독일 전역 경고 — 2023년 10월부터 계속된 것이라 평소로 봄. 미 대사관 4/11 직원 이동 제한은 해당 지표 없음. 영공 폐쇄는 4/13 당일."]
+  },
+  "iran-israel-2024-10": {
+   "gov": [
+    { "date": "2024-07-28", "indicator": "official.uk_advice_security_flag", "value": 1, "what": "영국: '모든 여행 자제' 지역 갱신(북부 국경 쪽, 단계 자체는 그대로)", "source": "https://www.gov.uk/api/content/foreign-travel-advice/israel" },
+    { "date": "2024-08-03", "indicator": "official.ca_level_kr", "value": 1, "what": "캐나다: 이스라엘 '모든 여행 자제'로 상향", "source": "https://travel.gc.ca/destinations/israel-the-west-bank-and-the-gaza-strip" },
+    { "date": "2024-08-06", "indicator": "official.jp_risk_level_kr", "value": 1, "what": "일본: 이스라엘 '그 외 지역' 레벨2 → 3 (한 단계 상향)", "source": "https://www.anzen.mofa.go.jp/" }
+   ],
+   "airspace": [],
+   "sources": ["정부: 미 대사관 7/31 북부 이동 제한은 해당 지표 없음. 독일 8/6·8/25·9/28 갱신은 단계 유지. 영공 폐쇄는 10/1 당일."]
+  },
+  "israel-iran-2025": {
+   "gov": [],
+   "airspace": [],
+   "sources": ["정부: 이스라엘 대상 상향(영국·캐나다·일본·독일)은 모두 6/13 당일, 미국 4단계는 6/16. 그 전 신호는 이웃 나라에서 나왔다 — 6/11 주이라크 미 대사관 비필수 인력 철수 명령, 6/11 중동 미군 가족 자발적 출국 승인, 6/12 주이스라엘 미 대사관 직원 이동 제한(보도). 우리 지표에 해당 항목이 없어 넣지 않음."]
+  }
+ }
+}

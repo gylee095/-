@@ -50,6 +50,7 @@ GitHub Secrets → 배포 때 Worker 로 올라간다(`deploy.yml` 의 목록). 
 | 파이프라인 | `src/core/pipeline.ts` | 수집 → 신호 → 사건 → 사건 알림(운영자) |
 | 전쟁 위험 판정 | `src/core/warrisk.ts` (`assessWarRisk`) | 다섯 영역 → 단계 → 30일 확률 범위. 확률 표기 정본 `fmtRiskPct` |
 | 오늘의 판정 | `src/core/official.ts` | **화면 숫자는 하루 한 번(오전 8시)**, 확인된 단계가 바뀌면 바로. 알림·심층 분석은 `warRisk.live` (11/6, 시험 서버까지만 배포됨 — 아래 7절) |
+| 외국 전쟁 사례집 | `src/core/casereplay.ts`(재생·채점, 운영 `assessWarRisk` 그대로 호출), `scripts/fetch-cases.ts`·`score-cases.ts`, `data/cases/`(자료·`events.json` 정부 사건), `docs/CASEBOOK.md`·`src/core/casebook_data.ts`(자동 생성) | 전쟁 직전 대비 점수 = `official.ts` 의 `makeReadiness` (11/6, 시험 서버까지) |
 | 대시보드 상태 | `src/core/state.ts` (`buildState`) | 화면·MCP·리포트가 모두 이걸 쓴다 |
 | 단계 알림 | `src/core/phasealert.ts` | 손님에게 가는 유일한 알림(`audience:"all"`) |
 | 리포트(손님) | `src/core/reports.ts` | `report:full:<id>` 에 대시보드 전체를 얼림(`freezeState`) |

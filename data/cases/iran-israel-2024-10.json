@@ -1,0 +1,681 @@
+{
+ "id": "iran-israel-2024-10",
+ "name": "이란 → 이스라엘 공격 (2024년 10월)",
+ "outcome": "attack",
+ "truthDate": "2024-10-01",
+ "start": "2024-07-03",
+ "end": "2024-10-01",
+ "preroll": [],
+ "days": [
+  {
+   "date": "2024-07-03",
+   "fxPct": -0.188,
+   "equityRel": -0.68,
+   "defenseRel": 0.375,
+   "wikiPct": 82
+  },
+  {
+   "date": "2024-07-04",
+   "fxPct": -0.649,
+   "equityRel": 0.623,
+   "defenseRel": -0.511,
+   "wikiPct": 81
+  },
+  {
+   "date": "2024-07-05",
+   "fxPct": -0.649,
+   "equityRel": 0.623,
+   "defenseRel": -0.511,
+   "wikiPct": 83
+  },
+  {
+   "date": "2024-07-06",
+   "fxPct": -0.649,
+   "equityRel": 0.623,
+   "defenseRel": -0.511,
+   "wikiPct": 77
+  },
+  {
+   "date": "2024-07-07",
+   "fxPct": -1.237,
+   "equityRel": 0.623,
+   "defenseRel": -0.511,
+   "wikiPct": 73
+  },
+  {
+   "date": "2024-07-08",
+   "fxPct": -0.595,
+   "equityRel": 1.527,
+   "defenseRel": -1.314,
+   "wikiPct": 85
+  },
+  {
+   "date": "2024-07-09",
+   "fxPct": -0.013,
+   "equityRel": 0.824,
+   "defenseRel": -1.598,
+   "wikiPct": 84
+  },
+  {
+   "date": "2024-07-10",
+   "fxPct": -0.325,
+   "equityRel": -1.49,
+   "defenseRel": 0.351,
+   "wikiPct": 83
+  },
+  {
+   "date": "2024-07-11",
+   "fxPct": -0.523,
+   "equityRel": 0.949,
+   "defenseRel": -2.147,
+   "wikiPct": 85
+  },
+  {
+   "date": "2024-07-12",
+   "fxPct": -0.523,
+   "equityRel": 0.949,
+   "defenseRel": -2.147,
+   "wikiPct": 86
+  },
+  {
+   "date": "2024-07-13",
+   "fxPct": -0.523,
+   "equityRel": 0.949,
+   "defenseRel": -2.147,
+   "wikiPct": 87
+  },
+  {
+   "date": "2024-07-14",
+   "fxPct": -0.774,
+   "equityRel": 0.949,
+   "defenseRel": -2.147,
+   "wikiPct": 90
+  },
+  {
+   "date": "2024-07-15",
+   "fxPct": 0.38,
+   "equityRel": 1.462,
+   "defenseRel": -0.59,
+   "wikiPct": 86
+  },
+  {
+   "date": "2024-07-16",
+   "fxPct": -0.049,
+   "equityRel": 0.034,
+   "defenseRel": -1.038,
+   "wikiPct": 88
+  },
+  {
+   "date": "2024-07-17",
+   "fxPct": 0.375,
+   "equityRel": 0.658,
+   "defenseRel": 1.707,
+   "wikiPct": 87
+  },
+  {
+   "date": "2024-07-18",
+   "fxPct": 0.113,
+   "equityRel": -0.13,
+   "defenseRel": 0.112,
+   "wikiPct": 92
+  },
+  {
+   "date": "2024-07-19",
+   "fxPct": 0.113,
+   "equityRel": -0.13,
+   "defenseRel": 0.112,
+   "wikiPct": 87
+  },
+  {
+   "date": "2024-07-20",
+   "fxPct": 0.113,
+   "equityRel": -0.13,
+   "defenseRel": 0.112,
+   "wikiPct": 89
+  },
+  {
+   "date": "2024-07-21",
+   "fxPct": 0.088,
+   "equityRel": -0.13,
+   "defenseRel": 0.112,
+   "wikiPct": 102
+  },
+  {
+   "date": "2024-07-22",
+   "fxPct": -0.383,
+   "equityRel": -1.27,
+   "defenseRel": -0.635,
+   "wikiPct": 109
+  },
+  {
+   "date": "2024-07-23",
+   "fxPct": -0.103,
+   "equityRel": 1.368,
+   "defenseRel": 0.146,
+   "wikiPct": 95
+  },
+  {
+   "date": "2024-07-24",
+   "fxPct": 0.577,
+   "equityRel": 1.023,
+   "defenseRel": -0.344,
+   "wikiPct": 96
+  },
+  {
+   "date": "2024-07-25",
+   "fxPct": 0.532,
+   "equityRel": 0.1,
+   "defenseRel": 1.706,
+   "wikiPct": 111
+  },
+  {
+   "date": "2024-07-26",
+   "fxPct": 0.532,
+   "equityRel": 0.1,
+   "defenseRel": 1.706,
+   "wikiPct": 112
+  },
+  {
+   "date": "2024-07-27",
+   "fxPct": 0.532,
+   "equityRel": 0.1,
+   "defenseRel": 1.706,
+   "wikiPct": 99
+  },
+  {
+   "date": "2024-07-28",
+   "fxPct": -0.324,
+   "equityRel": 0.1,
+   "defenseRel": 1.706,
+   "wikiPct": 115
+  },
+  {
+   "date": "2024-07-29",
+   "fxPct": 1.631,
+   "equityRel": -0.587,
+   "defenseRel": 0.34,
+   "wikiPct": 149
+  },
+  {
+   "date": "2024-07-30",
+   "fxPct": 0.848,
+   "equityRel": -0.824,
+   "defenseRel": 0.546,
+   "wikiPct": 130
+  },
+  {
+   "date": "2024-07-31",
+   "fxPct": 0.309,
+   "equityRel": -1.098,
+   "defenseRel": 0.075,
+   "wikiPct": 133
+  },
+  {
+   "date": "2024-08-01",
+   "fxPct": 0.867,
+   "equityRel": 0.341,
+   "defenseRel": 3.95,
+   "wikiPct": 305
+  },
+  {
+   "date": "2024-08-02",
+   "fxPct": 0.867,
+   "equityRel": 0.341,
+   "defenseRel": 3.95,
+   "wikiPct": 245
+  },
+  {
+   "date": "2024-08-03",
+   "fxPct": 0.867,
+   "equityRel": 0.341,
+   "defenseRel": 3.95,
+   "wikiPct": 191
+  },
+  {
+   "date": "2024-08-04",
+   "fxPct": 0.216,
+   "equityRel": 0.341,
+   "defenseRel": 3.95,
+   "wikiPct": 180
+  },
+  {
+   "date": "2024-08-05",
+   "fxPct": 0.638,
+   "equityRel": -1.255,
+   "defenseRel": 2.43,
+   "wikiPct": 190
+  },
+  {
+   "date": "2024-08-06",
+   "fxPct": 0.188,
+   "equityRel": 1.357,
+   "defenseRel": -0.865,
+   "wikiPct": 207
+  },
+  {
+   "date": "2024-08-07",
+   "fxPct": -1.063,
+   "equityRel": 0.209,
+   "defenseRel": -0.375,
+   "wikiPct": 176
+  },
+  {
+   "date": "2024-08-08",
+   "fxPct": -0.061,
+   "equityRel": 0.259,
+   "defenseRel": 2.012,
+   "wikiPct": 151
+  },
+  {
+   "date": "2024-08-09",
+   "fxPct": -0.061,
+   "equityRel": 0.259,
+   "defenseRel": 2.012,
+   "wikiPct": 150
+  },
+  {
+   "date": "2024-08-10",
+   "fxPct": -0.061,
+   "equityRel": 0.259,
+   "defenseRel": 2.012,
+   "wikiPct": 124
+  },
+  {
+   "date": "2024-08-11",
+   "fxPct": -1.693,
+   "equityRel": 0.259,
+   "defenseRel": 2.012,
+   "wikiPct": 107
+  },
+  {
+   "date": "2024-08-12",
+   "fxPct": 1.335,
+   "equityRel": -1.091,
+   "defenseRel": -1.071,
+   "wikiPct": 105
+  },
+  {
+   "date": "2024-08-13",
+   "fxPct": -1.427,
+   "equityRel": -1.091,
+   "defenseRel": -1.071,
+   "wikiPct": 117
+  },
+  {
+   "date": "2024-08-14",
+   "fxPct": -0.008,
+   "equityRel": 1.71,
+   "defenseRel": 2.301,
+   "wikiPct": 107
+  },
+  {
+   "date": "2024-08-15",
+   "fxPct": -0.884,
+   "equityRel": 0.226,
+   "defenseRel": -1.547,
+   "wikiPct": 95
+  },
+  {
+   "date": "2024-08-16",
+   "fxPct": -0.884,
+   "equityRel": 0.226,
+   "defenseRel": -1.547,
+   "wikiPct": 87
+  },
+  {
+   "date": "2024-08-17",
+   "fxPct": -0.884,
+   "equityRel": 0.226,
+   "defenseRel": -1.547,
+   "wikiPct": 77
+  },
+  {
+   "date": "2024-08-18",
+   "fxPct": -0.375,
+   "equityRel": 0.226,
+   "defenseRel": -1.547,
+   "wikiPct": 71
+  },
+  {
+   "date": "2024-08-19",
+   "fxPct": 1.193,
+   "equityRel": -0.722,
+   "defenseRel": 0.027,
+   "wikiPct": 77
+  },
+  {
+   "date": "2024-08-20",
+   "fxPct": -0.553,
+   "equityRel": 0.698,
+   "defenseRel": 0.522,
+   "wikiPct": 79
+  },
+  {
+   "date": "2024-08-21",
+   "fxPct": 0.809,
+   "equityRel": -1.19,
+   "defenseRel": -0.245,
+   "wikiPct": 80
+  },
+  {
+   "date": "2024-08-22",
+   "fxPct": -0.466,
+   "equityRel": 0.894,
+   "defenseRel": -0.503,
+   "wikiPct": 78
+  },
+  {
+   "date": "2024-08-23",
+   "fxPct": -0.466,
+   "equityRel": 0.894,
+   "defenseRel": -0.503,
+   "wikiPct": 78
+  },
+  {
+   "date": "2024-08-24",
+   "fxPct": -0.466,
+   "equityRel": 0.894,
+   "defenseRel": -0.503,
+   "wikiPct": 74
+  },
+  {
+   "date": "2024-08-25",
+   "fxPct": -0.526,
+   "equityRel": 0.894,
+   "defenseRel": -0.503,
+   "wikiPct": 70
+  },
+  {
+   "date": "2024-08-26",
+   "fxPct": -0.267,
+   "equityRel": 1.814,
+   "defenseRel": -1.115,
+   "wikiPct": 116
+  },
+  {
+   "date": "2024-08-27",
+   "fxPct": 0.039,
+   "equityRel": -0.059,
+   "defenseRel": -0.222,
+   "wikiPct": 95
+  },
+  {
+   "date": "2024-08-28",
+   "fxPct": -0.703,
+   "equityRel": 0.766,
+   "defenseRel": -0.044,
+   "wikiPct": 86
+  },
+  {
+   "date": "2024-08-29",
+   "fxPct": 0.14,
+   "equityRel": -0.432,
+   "defenseRel": 0.868,
+   "wikiPct": 91
+  },
+  {
+   "date": "2024-08-30",
+   "fxPct": 0.14,
+   "equityRel": -0.432,
+   "defenseRel": 0.868,
+   "wikiPct": 81
+  },
+  {
+   "date": "2024-08-31",
+   "fxPct": 0.14,
+   "equityRel": -0.432,
+   "defenseRel": 0.868,
+   "wikiPct": 79
+  },
+  {
+   "date": "2024-09-01",
+   "fxPct": -0.909,
+   "equityRel": -0.432,
+   "defenseRel": 0.868,
+   "wikiPct": 72
+  },
+  {
+   "date": "2024-09-02",
+   "fxPct": 0.683,
+   "equityRel": -0.367,
+   "defenseRel": 0.397,
+   "wikiPct": 94
+  },
+  {
+   "date": "2024-09-03",
+   "fxPct": 1.074,
+   "equityRel": 0.154,
+   "defenseRel": 1.433,
+   "wikiPct": 106
+  },
+  {
+   "date": "2024-09-04",
+   "fxPct": -0.167,
+   "equityRel": -0.007,
+   "defenseRel": -0.634,
+   "wikiPct": 95
+  },
+  {
+   "date": "2024-09-05",
+   "fxPct": 0.571,
+   "equityRel": 1.456,
+   "defenseRel": -1.186,
+   "wikiPct": 81
+  },
+  {
+   "date": "2024-09-06",
+   "fxPct": 0.571,
+   "equityRel": 1.456,
+   "defenseRel": -1.186,
+   "wikiPct": 83
+  },
+  {
+   "date": "2024-09-07",
+   "fxPct": 0.571,
+   "equityRel": 1.456,
+   "defenseRel": -1.186,
+   "wikiPct": 82
+  },
+  {
+   "date": "2024-09-08",
+   "fxPct": 0.572,
+   "equityRel": 1.456,
+   "defenseRel": -1.186,
+   "wikiPct": 75
+  },
+  {
+   "date": "2024-09-09",
+   "fxPct": 1.061,
+   "equityRel": -2.443,
+   "defenseRel": 1.961,
+   "wikiPct": 82
+  },
+  {
+   "date": "2024-09-10",
+   "fxPct": -0.176,
+   "equityRel": 0.114,
+   "defenseRel": 0.108,
+   "wikiPct": 79
+  },
+  {
+   "date": "2024-09-11",
+   "fxPct": 0.433,
+   "equityRel": -0.424,
+   "defenseRel": -1.901,
+   "wikiPct": 86
+  },
+  {
+   "date": "2024-09-12",
+   "fxPct": -1.383,
+   "equityRel": 0.112,
+   "defenseRel": -0.753,
+   "wikiPct": 90
+  },
+  {
+   "date": "2024-09-13",
+   "fxPct": -1.383,
+   "equityRel": 0.112,
+   "defenseRel": -0.753,
+   "wikiPct": 82
+  },
+  {
+   "date": "2024-09-14",
+   "fxPct": -1.383,
+   "equityRel": 0.112,
+   "defenseRel": -0.753,
+   "wikiPct": 76
+  },
+  {
+   "date": "2024-09-15",
+   "fxPct": -0.397,
+   "equityRel": 0.112,
+   "defenseRel": -0.753,
+   "wikiPct": 76
+  },
+  {
+   "date": "2024-09-16",
+   "fxPct": 0.99,
+   "equityRel": -1.822,
+   "defenseRel": 2.211,
+   "wikiPct": 88
+  },
+  {
+   "date": "2024-09-17",
+   "fxPct": 1.006,
+   "equityRel": -1.582,
+   "defenseRel": -0.309,
+   "wikiPct": 90
+  },
+  {
+   "date": "2024-09-18",
+   "fxPct": -0.092,
+   "equityRel": 0.937,
+   "defenseRel": -0.292,
+   "wikiPct": 122
+  },
+  {
+   "date": "2024-09-19",
+   "fxPct": -0.156,
+   "equityRel": -2.861,
+   "defenseRel": 0.406,
+   "wikiPct": 197
+  },
+  {
+   "date": "2024-09-20",
+   "fxPct": -0.156,
+   "equityRel": -2.861,
+   "defenseRel": 0.406,
+   "wikiPct": 205
+  },
+  {
+   "date": "2024-09-21",
+   "fxPct": -0.156,
+   "equityRel": -2.861,
+   "defenseRel": 0.406,
+   "wikiPct": 184
+  },
+  {
+   "date": "2024-09-22",
+   "fxPct": 0.193,
+   "equityRel": -2.861,
+   "defenseRel": 0.406,
+   "wikiPct": 160
+  },
+  {
+   "date": "2024-09-23",
+   "fxPct": 0.071,
+   "equityRel": 1.465,
+   "defenseRel": -1.221,
+   "wikiPct": 169
+  },
+  {
+   "date": "2024-09-24",
+   "fxPct": -0.729,
+   "equityRel": -1.301,
+   "defenseRel": -0.291,
+   "wikiPct": 202
+  },
+  {
+   "date": "2024-09-25",
+   "fxPct": -0.414,
+   "equityRel": 1.7,
+   "defenseRel": -1,
+   "wikiPct": 193
+  },
+  {
+   "date": "2024-09-26",
+   "fxPct": -1.367,
+   "equityRel": -1.66,
+   "defenseRel": -1.348,
+   "wikiPct": 196
+  },
+  {
+   "date": "2024-09-27",
+   "fxPct": -1.367,
+   "equityRel": -1.66,
+   "defenseRel": -1.348,
+   "wikiPct": 166
+  },
+  {
+   "date": "2024-09-28",
+   "fxPct": -1.367,
+   "equityRel": -1.66,
+   "defenseRel": -1.348,
+   "wikiPct": 203
+  },
+  {
+   "date": "2024-09-29",
+   "fxPct": 0.222,
+   "equityRel": -1.66,
+   "defenseRel": -1.348,
+   "wikiPct": 352
+  },
+  {
+   "date": "2024-09-30",
+   "fxPct": 0.476,
+   "equityRel": 2.796,
+   "defenseRel": 0.094,
+   "wikiPct": 290
+  },
+  {
+   "date": "2024-10-01",
+   "fxPct": 1.035,
+   "equityRel": -1.317,
+   "defenseRel": 3.229,
+   "wikiPct": 287
+  }
+ ],
+ "gov": [
+  {
+   "date": "2024-07-28",
+   "indicator": "official.uk_advice_security_flag",
+   "value": 1,
+   "what": "영국: '모든 여행 자제' 지역 갱신(북부 국경 쪽, 단계 자체는 그대로)",
+   "source": "https://www.gov.uk/api/content/foreign-travel-advice/israel"
+  },
+  {
+   "date": "2024-08-03",
+   "indicator": "official.ca_level_kr",
+   "value": 1,
+   "what": "캐나다: 이스라엘 '모든 여행 자제'로 상향",
+   "source": "https://travel.gc.ca/destinations/israel-the-west-bank-and-the-gaza-strip"
+  },
+  {
+   "date": "2024-08-06",
+   "indicator": "official.jp_risk_level_kr",
+   "value": 1,
+   "what": "일본: 이스라엘 '그 외 지역' 레벨2 → 3 (한 단계 상향)",
+   "source": "https://www.anzen.mofa.go.jp/"
+  }
+ ],
+ "airspace": [],
+ "sources": [
+  "통화: Yahoo Finance 일봉 ILS=X (여럿이면 그날 가장 약세)",
+  "증시: Yahoo Finance TA35.TA − EEM·^STOXX50E 평균",
+  "방산: ESLT.TA − TA35.TA",
+  "위키백과 조회수(Wikimedia): en:Israel, en:Hamas, en:Gaza_Strip, en:Israel_Defense_Forces, en:Hezbollah, en:Iran–Israel_proxy_conflict, en:Islamic_Revolutionary_Guard_Corps, he:צבא_הגנה_לישראל, fa:ایران",
+  "보도량: GDELT DOC 2.0 \"Iran Israel (war OR attack OR strike)\"",
+  "정부: 미 대사관 7/31 북부 이동 제한은 해당 지표 없음. 독일 8/6·8/25·9/28 갱신은 단계 유지. 영공 폐쇄는 10/1 당일."
+ ],
+ "retrieved": "2026-11-06"
+}

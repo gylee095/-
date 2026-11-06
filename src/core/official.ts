@@ -5,6 +5,8 @@
 // 하루하루는 어제의 공식 판정과 비교해 "무엇이 바뀌었나"와 "의미 있는 변화인가(단계가 바뀌었나)"를 같이 적는다.
 import { fmtRiskPct, type WarRisk } from "./warrisk.js";
 import { kstDay, kstMidnight } from "./store.js";
+import { readinessScore, type ReadinessScale } from "./casereplay.js";
+import { CASEBOOK } from "./casebook_data.js";
 
 export const OFFICIAL_KEY = "risk:official";
 export const OFFICIAL_PREV_KEY = "risk:official:prev";
@@ -33,6 +35,45 @@ export interface OfficialView {
   change: { meaningful: boolean; text: string; moved: string[] } | null;
   /** 이 숫자가 무엇이고 무엇이 아닌가 */
   basis: string;
+  /** 전쟁 직전 대비 점수 — 외국 전쟁 사례로 만든 눈금 (docs/CASEBOOK.md) */
+  readiness: Readiness;
+}
+
+export interface Readiness {
+  /** 0 = 한반도 평소, 100 = 우크라이나 침공 전날 */
+  score: number;
+  /** 사례들의 전쟁 전날 점수 (눈금 옆에 놓을 기준점) */
+  anchors: { name: string; eve: string; phase: number; score: number; caught: boolean }[];
+  /** 외국 사례 평시 날들 중 이 점수 이상이었던 비율 % */
+  quietAtOrAbovePct: number;
+  quietDays: number;
+  text: string;
+}
+
+/** 단계마다 나올 수 있는 점수 범위 — 온도계 눈금이 단계 칸의 40%~100% 자리이므로 */
+function phaseRange(p: 1 | 2 | 3 | 4 | 5, s: ReadinessScale): [number, number] {
+  if (p === 1) return [0, readinessScore(1 / 5, s)];
+  if (p === 5) return [100, 100];
+  return [readinessScore((p - 1 + 0.4) / 5, s), readinessScore(p / 5, s)];
+}
+
+export function makeReadiness(gauge: number): Readiness {
+  const { scale, anchors, quietScores } = CASEBOOK;
+  const score = readinessScore(gauge, scale);
+  const above = quietScores.filter((s) => s >= score).length;
+  const quietAtOrAbovePct = Math.round((above / quietScores.length) * 100);
+  // 평시 비율은 화면 문장에 쓰지 않는다: 외국 사례는 잰 신호가 한반도보다 훨씬 적어 평시 점수가 낮게 나온다 — 한국 점수와 바로 비교하면 겁을 준다 (11/6)
+  const phase = ([1, 2, 3, 4, 5] as const).find((p) => score <= phaseRange(p, scale)[1]) ?? 5;
+  const [lo, hi] = phaseRange(phase, scale);
+  const same = anchors.filter((a) => a.id !== "ukraine-2022" && a.phase === phase);
+  const next = phase < 4 ? phaseRange((phase + 1) as 2 | 3 | 4, scale)[0] : undefined;
+  const text =
+    score === 0
+      ? `전쟁 직전 대비 0점 — 한반도 평소 수준이에요.`
+      : `전쟁 직전 대비 ${score}점 (우크라이나 침공 전날 = 100). ${phase}단계의 범위(${lo}~${hi}점) 안이에요.` +
+        (same.length ? ` 같은 ${phase}단계였던 사례: ${same.map((a) => `${a.name} 전날 ${a.score}점${a.caught ? "" : "(규칙이 미리 못 잡음)"}`).join(", ")}.` : "") +
+        (next !== undefined ? ` ${phase + 1}단계가 되면 ${next}점 이상이에요.` : "");
+  return { score, anchors: anchors.map(({ name, eve, phase, score, caught }) => ({ name, eve, phase, score, caught })), quietAtOrAbovePct, quietDays: quietScores.length, text };
 }
 
 export type WithOfficial = WarRisk & { live: WarRisk; official?: OfficialView };
@@ -61,8 +102,9 @@ export function officialDue(cur: Official | undefined, w: WarRisk, confirmedPhas
   return undefined;
 }
 
+const T = CASEBOOK.totals;
 const BASIS =
-  "이 %는 1999~2026년 남북 충돌 8번의 빈도로 정한 단계별 범위 안의 판단값이에요. 실제 결과로 채점해 맞춘 숫자는 아직 아니에요(외국 전쟁 사례로 채점표를 만드는 중).";
+  `이 %는 1999~2026년 남북 충돌 8번의 빈도로 정한 단계별 범위 안의 판단값이에요. % 자체는 아직 실제 결과로 맞추지 않았어요. 대신 단계 규칙은 외국 전쟁 ${T.cases}건으로 채점했어요(1차): 공격 ${T.warCases}건 중 ${T.caught}건을 미리 잡았고, 평시 ${T.quietDays}일 중 헛경보(3단계 이상) ${T.falseAlarmDays}일이에요.`;
 
 function changeText(prev: Official | undefined, off: Official): OfficialView["change"] {
   if (!prev) return null;
@@ -102,7 +144,7 @@ export function applyOfficial(w: WarRisk, off: Official | undefined, prev: Offic
     vsUsual: off.vsUsual,
     headline: `전쟁 위험 ${off.phase}단계(${off.phaseLabel}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(off.clash30d.point)}, 전면전 ${fmtRiskPct(off.war30d.point)}`,
     live: w,
-    official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS },
+    official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS, readiness: makeReadiness(off.gauge.now) },
   };
 }
 

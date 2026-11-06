@@ -38,16 +38,55 @@ interface CaseConfig {
 
 const WIKI_RU: [string, string][] = [["en", "Ukraine"], ["en", "Russo-Ukrainian_War"], ["en", "Russia–Ukraine_relations"], ["en", "Armed_Forces_of_Ukraine"], ["en", "War_in_Donbas"], ["en", "Donbas"], ["ru", "Украина"], ["uk", "Збройні_сили_України"], ["de", "Ukraine"]];
 const WIKI_IL: [string, string][] = [["en", "Israel"], ["en", "Hamas"], ["en", "Gaza_Strip"], ["en", "Israel_Defense_Forces"], ["en", "Hezbollah"], ["en", "Iran–Israel_proxy_conflict"], ["en", "Islamic_Revolutionary_Guard_Corps"], ["he", "צבא_הגנה_לישראל"], ["fa", "ایران"]];
+const WIKI_AZ_AM: [string, string][] = [["en", "Azerbaijan"], ["en", "Armenia"], ["en", "Nagorno-Karabakh"], ["en", "2020_Nagorno-Karabakh_war"], ["en", "Nagorno-Karabakh_conflict"], ["ru", "Нагорный_Карабах"]];
+const WIKI_IN_PK: [string, string][] = [["en", "India"], ["en", "Pakistan"], ["en", "2019_India–Pakistan_standoff"], ["en", "Indian_Air_Force"], ["en", "Kashmir"]];
+const WIKI_IN_CN: [string, string][] = [["en", "India"], ["en", "China"], ["en", "Galwan_Valley"], ["en", "Sino-Indian_border_dispute"], ["en", "Line_of_Actual_Control"]];
+const WIKI_TW: [string, string][] = [["en", "Taiwan"], ["en", "China"], ["en", "Taiwan_Strait"], ["en", "Cross-Strait_relations"], ["en", "Republic_of_China_Armed_Forces"]];
+const WIKI_US_IR: [string, string][] = [["en", "Iran"], ["en", "United_States"], ["en", "Assassination_of_Qasem_Soleimani"], ["en", "Iran–United_States_relations"], ["en", "Islamic_Revolutionary_Guard_Corps"]];
+const WIKI_NK: [string, string][] = [["en", "North_Korea"], ["en", "North_Korea_and_weapons_of_mass_destruction"], ["en", "Korean_Peninsula"], ["en", "Korean_Demilitarized_Zone"]];
+const WIKI_IL_HZ: [string, string][] = [["en", "Israel"], ["en", "Hezbollah"], ["en", "Lebanon"], ["en", "Israel_Defense_Forces"], ["en", "2024_Israel–Hezbollah_conflict"]];
+const WIKI_SA_YE: [string, string][] = [["en", "Yemen"], ["en", "Saudi_Arabia"], ["en", "Houthi_movement"], ["en", "Saudi-led_intervention_in_Yemen"], ["en", "Yemeni_Civil_War_(2014–present)"]];
+const WIKI_TR_SY: [string, string][] = [["en", "Turkey"], ["en", "Syria"], ["en", "Turkish_involvement_in_the_Syrian_civil_war"], ["en", "Operation_Olive_Branch"], ["en", "Afrin_District"]];
 const RU = { fx: ["RUB=X", "UAH=X"], equity: moex, peers: ["EEM", "^STOXX50E"], defense: [y("RHM.DE"), y("BA.L"), y("LMT")], defenseBase: [y("^STOXX50E"), y("^GSPC")], wiki: WIKI_RU };
 const IL = { fx: ["ILS=X"], equity: y("TA35.TA"), peers: ["EEM", "^STOXX50E"], defense: [y("ESLT.TA")], defenseBase: [y("TA35.TA")], wiki: WIKI_IL };
 
+// ── 사례 선정 규칙 (지시서 001, 2026-11-06) ──
+// 1. 2015년 이후 국가 간 군사 위기 (위키피디아 조회수 API가 2015-07부터)
+// 2. outcome war/attack: 실제 공습·포격·침공 발생. no_war: 전면 교전 없이 종료
+// 3. 숨긴 사례 3건(인도↔파키스탄 2025, 태국↔캄보디아 2025, 대만 2022) 제외
+// 4. 무료 자료(Yahoo Finance, Wikipedia pageviews, GDELT)로 채울 수 있는 것만
+// 5. 빠진 영역(정부 경보 등)은 사례별로 표시
 export const CASES: CaseConfig[] = [
+  // ── 기존 사례 (6건) ──
   { id: "ukraine-2022", name: "러시아 → 우크라이나 침공", outcome: "war", truthDate: "2022-02-24", start: "2021-11-26", end: "2022-02-24", ...RU, gdelt: "Ukraine (war OR invasion OR troops)" },
   { id: "russia-buildup-2021", name: "러시아 병력 집결 2021년 봄 (전쟁 안 남)", outcome: "no_war", start: "2021-01-15", end: "2021-05-15", ...RU, gdelt: "Ukraine (war OR invasion OR troops)" },
   { id: "hamas-2023", name: "하마스 기습", outcome: "attack", truthDate: "2023-10-07", start: "2023-07-09", end: "2023-10-07", ...IL, gdelt: "Israel Gaza (war OR attack OR rockets)" },
   { id: "iran-israel-2024-04", name: "이란 → 이스라엘 공격 (2024년 4월)", outcome: "attack", truthDate: "2024-04-13", start: "2024-01-14", end: "2024-04-14", ...IL, gdelt: "Iran Israel (war OR attack OR strike)" },
   { id: "iran-israel-2024-10", name: "이란 → 이스라엘 공격 (2024년 10월)", outcome: "attack", truthDate: "2024-10-01", start: "2024-07-03", end: "2024-10-01", ...IL, gdelt: "Iran Israel (war OR attack OR strike)" },
   { id: "israel-iran-2025", name: "이스라엘 ↔ 이란 12일 전쟁", outcome: "war", truthDate: "2025-06-13", start: "2025-03-15", end: "2025-06-13", ...IL, gdelt: "Iran Israel (war OR attack OR strike)" },
+  // ── 개발용 추가 사례 (10건, 지시서 001) ──
+  // 전쟁/공격 (6건)
+  { id: "azerbaijan-armenia-2020", name: "제2차 나고르노카라바흐 전쟁", outcome: "war", truthDate: "2020-09-27", start: "2020-06-29", end: "2020-09-27",
+    fx: ["TRY=X"], equity: y("XU100.IS"), peers: ["EEM"], defense: [y("LMT"), y("BA.L")], defenseBase: [y("^GSPC")], wiki: WIKI_AZ_AM, gdelt: "Nagorno-Karabakh (war OR attack OR conflict)" },
+  { id: "india-pakistan-2019", name: "인도 → 파키스탄 발라코트 공습", outcome: "attack", truthDate: "2019-02-26", start: "2018-11-28", end: "2019-02-27",
+    fx: ["INR=X", "PKR=X"], equity: y("^BSESN"), peers: ["EEM"], defense: [y("BEL.NS"), y("HAL.NS")], defenseBase: [y("^BSESN")], wiki: WIKI_IN_PK, gdelt: "India Pakistan (war OR attack OR strike OR Kashmir)" },
+  { id: "israel-hezbollah-2024", name: "이스라엘 → 레바논 (북부 화살 작전)", outcome: "war", truthDate: "2024-09-23", start: "2024-06-25", end: "2024-09-23",
+    fx: ["ILS=X"], equity: y("TA35.TA"), peers: ["EEM"], defense: [y("ESLT.TA")], defenseBase: [y("TA35.TA")], wiki: WIKI_IL_HZ, gdelt: "Israel Hezbollah Lebanon (war OR attack OR strike)" },
+  { id: "turkey-syria-afrin-2018", name: "터키 → 시리아 아프린 작전", outcome: "attack", truthDate: "2018-01-20", start: "2017-10-22", end: "2018-01-20",
+    fx: ["TRY=X"], equity: y("XU100.IS"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: WIKI_TR_SY, gdelt: "Turkey Syria Afrin (war OR attack OR operation)" },
+  { id: "saudi-yemen-2015", name: "사우디 → 예멘 결정적 폭풍 작전", outcome: "war", truthDate: "2015-03-26", start: "2014-12-26", end: "2015-03-26",
+    fx: ["SAR=X"], equity: y("^TASI.SR"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: WIKI_SA_YE, gdelt: "Saudi Yemen (war OR attack OR airstrikes)" },
+  { id: "ethiopia-tigray-2020", name: "에티오피아 → 티그라이 내전", outcome: "war", truthDate: "2020-11-04", start: "2020-08-06", end: "2020-11-04",
+    fx: ["ETB=X"], equity: y("^GSPC"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: [["en", "Tigray_War"], ["en", "Ethiopia"], ["en", "Tigray_Region"], ["en", "Tigray_People%27s_Liberation_Front"]], gdelt: "Ethiopia Tigray (war OR attack OR conflict)" },
+  // 안 터진 위기 (4건)
+  { id: "taiwan-2024", name: "대만 2024 (라이칭더 취임 뒤 중국 훈련, 전쟁 안 남)", outcome: "no_war", start: "2024-02-20", end: "2024-05-27",
+    fx: ["TWD=X"], equity: y("^TWII"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: WIKI_TW, gdelt: "Taiwan China (war OR invasion OR military)" },
+  { id: "us-iran-2020", name: "솔레이마니 피살 뒤 미↔이란 위기 (전쟁 안 남)", outcome: "no_war", start: "2019-10-03", end: "2020-01-08",
+    fx: ["IRR=X"], equity: y("^GSPC"), peers: ["EEM"], defense: [y("LMT"), y("RTX")], defenseBase: [y("^GSPC")], wiki: WIKI_US_IR, gdelt: "Iran United States (war OR attack OR strike OR Soleimani)" },
+  { id: "india-china-2020", name: "갈완 계곡 충돌 (전쟁 안 남)", outcome: "no_war", start: "2020-03-15", end: "2020-06-15",
+    fx: ["INR=X", "CNY=X"], equity: y("^BSESN"), peers: ["EEM"], defense: [y("BEL.NS"), y("HAL.NS")], defenseBase: [y("^BSESN")], wiki: WIKI_IN_CN, gdelt: "India China (border OR clash OR Galwan)" },
+  { id: "north-korea-2017", name: "화염과 분노 (전쟁 안 남)", outcome: "no_war", start: "2017-05-08", end: "2017-09-15",
+    fx: ["KRW=X"], equity: y("^KS11"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: WIKI_NK, gdelt: "North Korea (war OR nuclear OR missile OR ICBM)" },
 ];
 
 const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);

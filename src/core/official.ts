@@ -104,7 +104,7 @@ export function officialDue(cur: Official | undefined, w: WarRisk, confirmedPhas
 
 const T = CASEBOOK.totals;
 const BASIS =
-  `이 %는 1999~2026년 남북 충돌 8번의 빈도로 정한 단계별 범위 안의 판단값이에요. % 자체는 아직 실제 결과로 맞추지 않았어요. 대신 단계 규칙은 외국 전쟁 ${T.cases}건으로 채점했어요(1차): 공격 ${T.warCases}건 중 ${T.caught}건을 미리 잡았고, 평시 ${T.quietDays}일 중 헛경보(3단계 이상) ${T.falseAlarmDays}일이에요.`;
+  `이 %는 1999~2026년 남북 충돌 8번의 빈도로 정한 단계별 범위 안의 판단값이에요. % 자체는 아직 실제 결과로 맞추지 않았어요. 대신 단계 규칙은 외국 전쟁 ${T.cases}건으로 채점했어요(1차): 공격 ${T.warCases}건 중 ${T.caught}건을 30일 안에 미리 잡았고, 평시 ${T.quietDays}일 중 헛경보(3단계 이상)가 ${T.falseAlarmDays}일 있었어요. 외국 사례라 한반도 성적은 아니에요.`;
 
 function changeText(prev: Official | undefined, off: Official): OfficialView["change"] {
   if (!prev) return null;

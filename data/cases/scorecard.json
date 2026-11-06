@@ -6,7 +6,7 @@
   "warCases": 5,
   "caught": 3,
   "quietDays": 421,
-  "falseAlarmDays": 0,
+  "falseAlarmDays": 31,
   "flips": 40,
   "days": 571
  },
@@ -446,7 +446,38 @@
   37,
   37,
   40,
-  40
+  40,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  63,
+  66,
+  66,
+  69,
+  69,
+  69,
+  100,
+  100
  ],
  "cases": [
   {
@@ -455,13 +486,13 @@
    "outcome": "war",
    "truthDate": "2022-02-24",
    "days": 90,
-   "firstCrisis": "2022-01-23",
-   "crisisLeadDays": 32,
-   "firstImminent": "2022-01-23",
-   "imminentLeadDays": 32,
+   "firstCrisis": "2022-01-25",
+   "crisisLeadDays": 30,
+   "firstImminent": "2022-01-25",
+   "imminentLeadDays": 30,
    "eveLevel": 4,
    "evePressure": 5,
-   "falseAlarmDays": 0,
+   "falseAlarmDays": 2,
    "quietDays": 60,
    "flips": 8,
    "caught": true,
@@ -505,52 +536,52 @@
    ],
    "signals": [
     {
-     "id": "psych.wiki_korea_attention",
-     "label": "세계의 한반도 관심 (위키백과 조회수, 평소 대비)",
-     "first": "2022-01-15",
-     "leadDays": 40,
-     "hotDays": 38,
-     "quietHotDays": 10
-    },
-    {
-     "id": "official.ca_level_kr",
-     "label": "캐나다 정부 한국 여행경보 단계",
-     "first": "2022-01-15",
-     "leadDays": 40,
-     "hotDays": 40,
-     "quietHotDays": 0
-    },
-    {
      "id": "media.war_talk_24h",
      "label": "한반도 '전쟁' 언급 보도 (24h)",
-     "first": "2022-01-18",
-     "leadDays": 37,
+     "first": "2022-01-25",
+     "leadDays": 30,
      "hotDays": 34,
-     "quietHotDays": 14
+     "quietHotDays": 21
     },
     {
-     "id": "official.us_travel_level_kr",
-     "label": "미 국무부 한국 여행경보 단계",
-     "first": "2022-01-23",
-     "leadDays": 32,
-     "hotDays": 32,
-     "quietHotDays": 0
-    },
-    {
-     "id": "official.us_departure_kr",
-     "label": "미 국무부 주한 대사관 철수·출국 권고",
-     "first": "2022-01-23",
-     "leadDays": 32,
-     "hotDays": 32,
-     "quietHotDays": 0
+     "id": "psych.wiki_korea_attention",
+     "label": "세계의 한반도 관심 (위키백과 조회수, 평소 대비)",
+     "first": "2022-01-25",
+     "leadDays": 30,
+     "hotDays": 38,
+     "quietHotDays": 20
     },
     {
      "id": "market.usdkrw_change_pct",
      "label": "원·달러 환율 변동 (전일 대비 %)",
-     "first": "2022-01-24",
-     "leadDays": 31,
+     "first": "2022-01-25",
+     "leadDays": 30,
      "hotDays": 9,
-     "quietHotDays": 4
+     "quietHotDays": 5
+    },
+    {
+     "id": "official.ca_level_kr",
+     "label": "캐나다 정부 한국 여행경보 단계",
+     "first": "2022-01-25",
+     "leadDays": 30,
+     "hotDays": 40,
+     "quietHotDays": 10
+    },
+    {
+     "id": "official.us_travel_level_kr",
+     "label": "미 국무부 한국 여행경보 단계",
+     "first": "2022-01-25",
+     "leadDays": 30,
+     "hotDays": 32,
+     "quietHotDays": 2
+    },
+    {
+     "id": "official.us_departure_kr",
+     "label": "미 국무부 주한 대사관 철수·출국 권고",
+     "first": "2022-01-25",
+     "leadDays": 30,
+     "hotDays": 32,
+     "quietHotDays": 2
     },
     {
      "id": "official.uk_advice_security_flag",
@@ -850,11 +881,11 @@
    "outcome": "attack",
    "truthDate": "2024-10-01",
    "days": 90,
-   "firstCrisis": "2024-08-03",
-   "crisisLeadDays": 59,
+   "firstCrisis": "2024-09-01",
+   "crisisLeadDays": 30,
    "eveLevel": 3,
    "evePressure": 4,
-   "falseAlarmDays": 0,
+   "falseAlarmDays": 29,
    "quietDays": 60,
    "flips": 8,
    "caught": true,
@@ -900,26 +931,26 @@
     {
      "id": "official.uk_advice_security_flag",
      "label": "영국 외무부 한국 여행권고 안보 경고",
-     "first": "2024-07-28",
-     "leadDays": 65,
+     "first": "2024-09-01",
+     "leadDays": 30,
      "hotDays": 65,
-     "quietHotDays": 0
+     "quietHotDays": 35
     },
     {
      "id": "official.ca_level_kr",
      "label": "캐나다 정부 한국 여행경보 단계",
-     "first": "2024-08-03",
-     "leadDays": 59,
+     "first": "2024-09-01",
+     "leadDays": 30,
      "hotDays": 59,
-     "quietHotDays": 0
+     "quietHotDays": 29
     },
     {
      "id": "official.jp_risk_level_kr",
      "label": "일본 외무성 한국 위험 레벨",
-     "first": "2024-08-06",
-     "leadDays": 56,
+     "first": "2024-09-01",
+     "leadDays": 30,
      "hotDays": 56,
-     "quietHotDays": 0
+     "quietHotDays": 26
     },
     {
      "id": "market.kr_equity_rel_pct",
@@ -1050,19 +1081,19 @@
    "caught": 5,
    "warTotal": 5,
    "medianLead": 23,
-   "quietHotDays": 70,
+   "quietHotDays": 77,
    "quietTotal": 421,
-   "quietRatePct": 16.6
+   "quietRatePct": 18.3
   },
   {
    "id": "official.ca_level_kr",
    "label": "캐나다 정부 한국 여행경보 단계",
    "caught": 3,
    "warTotal": 5,
-   "medianLead": 40,
-   "quietHotDays": 0,
+   "medianLead": 30,
+   "quietHotDays": 39,
    "quietTotal": 421,
-   "quietRatePct": 0
+   "quietRatePct": 9.3
   },
   {
    "id": "official.uk_advice_security_flag",
@@ -1070,19 +1101,9 @@
    "caught": 3,
    "warTotal": 5,
    "medianLead": 13,
-   "quietHotDays": 31,
+   "quietHotDays": 66,
    "quietTotal": 421,
-   "quietRatePct": 7.4
-  },
-  {
-   "id": "official.jp_risk_level_kr",
-   "label": "일본 외무성 한국 위험 레벨",
-   "caught": 2,
-   "warTotal": 5,
-   "medianLead": 56,
-   "quietHotDays": 0,
-   "quietTotal": 421,
-   "quietRatePct": 0
+   "quietRatePct": 15.7
   },
   {
    "id": "market.kr_equity_rel_pct",
@@ -1099,40 +1120,30 @@
    "label": "원·달러 환율 변동 (전일 대비 %)",
    "caught": 2,
    "warTotal": 5,
-   "medianLead": 31,
-   "quietHotDays": 11,
+   "medianLead": 30,
+   "quietHotDays": 12,
    "quietTotal": 421,
-   "quietRatePct": 2.6
+   "quietRatePct": 2.9
+  },
+  {
+   "id": "official.jp_risk_level_kr",
+   "label": "일본 외무성 한국 위험 레벨",
+   "caught": 2,
+   "warTotal": 5,
+   "medianLead": 30,
+   "quietHotDays": 26,
+   "quietTotal": 421,
+   "quietRatePct": 6.2
   },
   {
    "id": "psych.wiki_korea_attention",
    "label": "세계의 한반도 관심 (위키백과 조회수, 평소 대비)",
    "caught": 2,
    "warTotal": 5,
-   "medianLead": 40,
-   "quietHotDays": 33,
+   "medianLead": 30,
+   "quietHotDays": 43,
    "quietTotal": 421,
-   "quietRatePct": 7.8
-  },
-  {
-   "id": "official.us_travel_level_kr",
-   "label": "미 국무부 한국 여행경보 단계",
-   "caught": 1,
-   "warTotal": 5,
-   "medianLead": 32,
-   "quietHotDays": 0,
-   "quietTotal": 421,
-   "quietRatePct": 0
-  },
-  {
-   "id": "official.us_departure_kr",
-   "label": "미 국무부 주한 대사관 철수·출국 권고",
-   "caught": 1,
-   "warTotal": 5,
-   "medianLead": 32,
-   "quietHotDays": 0,
-   "quietTotal": 421,
-   "quietRatePct": 0
+   "quietRatePct": 10.2
   },
   {
    "id": "official.de_warning_kr",
@@ -1143,6 +1154,26 @@
    "quietHotDays": 0,
    "quietTotal": 421,
    "quietRatePct": 0
+  },
+  {
+   "id": "official.us_travel_level_kr",
+   "label": "미 국무부 한국 여행경보 단계",
+   "caught": 1,
+   "warTotal": 5,
+   "medianLead": 30,
+   "quietHotDays": 2,
+   "quietTotal": 421,
+   "quietRatePct": 0.5
+  },
+  {
+   "id": "official.us_departure_kr",
+   "label": "미 국무부 주한 대사관 철수·출국 권고",
+   "caught": 1,
+   "warTotal": 5,
+   "medianLead": 30,
+   "quietHotDays": 2,
+   "quietTotal": 421,
+   "quietRatePct": 0.5
   },
   {
    "id": "market.defense_rel_pct",

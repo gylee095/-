@@ -68,13 +68,13 @@ describe("재생과 채점", () => {
     expect(s.caught).toBe(false);
     expect(s.falseAlarmDays).toBe(5);
   });
-  it("30일보다 먼저 켜져 정답까지 이어진 경보는 헛경보가 아니라 긴 선행", () => {
+  it("엄격 기준: 30일보다 먼저 켜져 정답까지 이어진 경보도 30일 전까지는 헛경보, 선행일은 최대 30일", () => {
     const c = mk({ gov: [us("2022-01-20", 3)] });
     const s = scoreCase(c, replayCase(c));
     expect(s.caught).toBe(true);
-    expect(s.firstCrisis).toBe("2022-01-20");
-    expect(s.crisisLeadDays).toBe(40);
-    expect(s.falseAlarmDays).toBe(0);
+    expect(s.firstCrisis).toBe("2022-01-30");
+    expect(s.crisisLeadDays).toBe(30);
+    expect(s.falseAlarmDays).toBe(10);
   });
   it("전쟁이 안 난 사례는 3단계 이상이 모두 헛경보이고 잡음으로 치지 않는다", () => {
     const c = mk({ outcome: "no_war", truthDate: undefined, gov: [us("2022-02-20", 3)] });

@@ -65,9 +65,9 @@ const anchors = results.filter((r) => r.c.truthDate).map((r) => {
   return { id: r.c.id, name: r.c.name, eve: e.date, phase: e.phase, score: readinessScore(e.gauge, scale), caught: r.score.caught };
 });
 // 평시로 보는 날들(정답 30일 전보다 앞선 날 + 전쟁 안 난 사례 전체)의 점수 — "평시에 이 점수 이상이 얼마나 흔했나"
-// 정답까지 이어진 경보 구간(우크라이나 1/23~)은 평시가 아니므로 뺀다
+// 평시 = 채점과 같은 엄격 기준 (정답 30일 전보다 앞선 날 + 전쟁 안 난 사례 전체)
 const isQuiet = (r: (typeof results)[number], date: string) =>
-  !r.c.truthDate || (Math.round((Date.parse(r.c.truthDate) - Date.parse(date)) / 86400_000) > FORECAST_DAYS && (!r.score.firstCrisis || date < r.score.firstCrisis));
+  !r.c.truthDate || Math.round((Date.parse(r.c.truthDate) - Date.parse(date)) / 86400_000) > FORECAST_DAYS;
 const quietScores = results.flatMap((r) => r.replay.filter((d) => isQuiet(r, d.date)).map((d) => readinessScore(d.gauge, scale))).sort((a, b) => a - b);
 const card = { ruleVersion: "1.0", retrieved, forecastDays: FORECAST_DAYS, totals, scale, anchors, quietScores, cases: results.map((r) => r.score), signals };
 

@@ -134,7 +134,7 @@ export interface SignalScore {
   leadDays?: number;
   /** 창 전체에서 켜진 날 수 */
   hotDays: number;
-  /** 헛것으로 켜진 날 수: 정답 30일 안까지 이어지지 못하고 그 전에 꺼진 날들 (no_war 는 켜진 날 전부) */
+  /** 평시(정답 30일 전보다 앞선 날, no_war 는 창 전체)에 켜진 날 수 */
   quietHotDays: number;
 }
 
@@ -172,22 +172,11 @@ export function scoreCase(c: CaseFile, replay: ReplayDay[]): CaseScore {
   const lead = (d?: string) => (d && c.truthDate ? dayDiff(c.truthDate, d) : undefined);
   const inHorizon = (r: ReplayDay) => (c.truthDate ? dayDiff(c.truthDate, r.date) <= FORECAST_DAYS : false);
   const quiet = before.filter((r) => !inHorizon(r));
-  // 3단계 이상이 이어진 구간 단위로 본다: 정답 30일 안까지 이어진 구간은 '잡음'(시작일이 선행일), 그 전에 끝난 구간은 헛경보
-  const runsOf = (on: (r: ReplayDay) => boolean) => {
-    const out: ReplayDay[][] = [];
-    let open = false;
-    for (const r of before) {
-      if (!on(r)) { open = false; continue; }
-      if (open) out[out.length - 1].push(r);
-      else out.push([r]);
-      open = true;
-    }
-    return { live: out.find((run) => run.some(inHorizon)), stale: out.filter((run) => !run.some(inHorizon)).reduce((a, run) => a + run.length, 0) };
-  };
-  const crisis = runsOf((r) => r.phase >= 3);
-  const firstCrisis = crisis.live?.[0].date;
-  const firstImminent = runsOf((r) => r.phase >= 4).live?.[0].date;
-  const falseAlarmDays = crisis.stale;
+  // 엄격 기준 (11/6 제3자 검토): 예보는 30일이므로 정답 30일 전보다 앞선 3단계 이상은 이어져 있어도 모두 헛경보다.
+  // (한때 '정답까지 이어진 구간은 잡음'으로 셌더니 계속 켜져 있는 신호의 헛경보 31일이 숨었다.) 선행일은 그래서 최대 30일.
+  const firstCrisis = before.find((r) => inHorizon(r) && r.phase >= 3)?.date;
+  const firstImminent = before.find((r) => inHorizon(r) && r.phase >= 4)?.date;
+  const falseAlarmDays = quiet.filter((r) => r.phase >= 3).length;
   const eve = c.truthDate ? before[before.length - 1] : undefined;
   let flips = 0;
   for (let i = 1; i < before.length; i++) if (before[i].phase !== before[i - 1].phase) flips++;
@@ -201,10 +190,9 @@ export function scoreCase(c: CaseFile, replay: ReplayDay[]): CaseScore {
 
   const ids = [...new Set(replay.flatMap((r) => r.hot.map((h) => h.id)))];
   const signals: SignalScore[] = ids.map((id) => {
-    const runs = runsOf((r) => r.hot.some((h) => h.id === id));
-    const first = runs.live?.[0].date;
-    const hotDays = before.filter((r) => r.hot.some((h) => h.id === id)).length;
-    return { id, label: INDICATOR_BY_ID[id].label, first, leadDays: lead(first), hotDays, quietHotDays: runs.stale };
+    const on = before.filter((r) => r.hot.some((h) => h.id === id));
+    const first = on.find(inHorizon)?.date;
+    return { id, label: INDICATOR_BY_ID[id].label, first, leadDays: lead(first), hotDays: on.length, quietHotDays: on.filter((r) => !inHorizon(r)).length };
   }).sort((a, b) => (b.leadDays ?? -1) - (a.leadDays ?? -1));
 
   return {

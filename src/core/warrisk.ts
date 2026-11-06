@@ -255,7 +255,7 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
     if (L.elite >= 2 && (L.military >= 1 || L.nkwords >= 1)) reasons.push("엘리트·큰손이 크게 움직이는데 북한 쪽 움직임이 겹쳤다");
     if (high >= 3 && insiders) reasons.push(`세 영역 이상이 동시에 경계 이상 (${domains.filter((d) => d.level >= 2).map((d) => d.label).join(", ")})이고 정부·돈·큰손 쪽도 움직였다`);
   // 규칙 2.0: 소음만으로는 2단계 안 됨 — 도발이 있거나 정보통(정부·돈·큰손)이 뒷받침해야
-  // 근거: 한국 10년 시장·검색만으로 차이 3.5%p (예측력 없음), 2단계 38%는 너무 흔해 의미 없음
+  // 근거: 규칙 1.0에서 도발 없는 날 2단계 gap 3.5%p (시장·검색만, 예측력 없음), 2단계 38%는 너무 흔해 의미 없음
   } else if (prov7.length || ((elevated >= 2 || high >= 1) && insiders)) {
     phase = 2;
     // 2026-11-01: 군사·북한의 말·대중 불안이 함께 '경계'였지만 정부·시장은 평소 — 위기로 올리지 않고 이유를 남긴다
@@ -270,12 +270,12 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
   // ── 확률: 단계 범위 안에서 영역 가중 압력만큼 (규칙 2.0: 사례집 기반 가중치) ──
   // 근거는 docs/INDICATORS.md '영역 가중치 근거' 참고
   const DOMAIN_WEIGHT: Record<DomainId, number> = {
-    gov: 2.0,      // 외국 6건에서 가장 먼저·정확히 선행 (우크라이나: 11일 전, 이란 2024-04: 수일 전 대사관 행동 제한)
+    gov: 2.0,      // 외국 5건 중 3건에서 여행경보·대사관 행동이 선행 (우크라이나: 11일 전, 이란 2024 양쪽)
     elite: 1.0,    // 근거 없음 — 외국 사례·한국 재생 모두 미측정
-    money: 1.0,    // 일부 선행(환율·방산주)하나 헛경보도 많음; 한국 10년 시장만으로 차이 3.5%p의 일부
+    money: 1.0,    // 일부 선행(환율·방산주)하나 헛경보도 많음
     military: 1.5, // 외국 사례에서 영공 폐쇄·항행경보가 공격 1~2일 전 강한 신호 (이란 2024 양쪽)
     nkwords: 1.0,  // 근거 없음 — 한국 재생에 장마당·매체 데이터 없음
-    public: 0.5,   // 한국 10년: 시장·위키·검색만으로 차이 3.5%p (평균 19.4%와 거의 같음, 예측력 없음); 외국: 가장 늦게 움직이고 헛경보 최다
+    public: 0.5,   // 한국 10년: 도발 없는 날의 2단계가 1단계보다 낮음(예측력 없음); 외국: 가장 늦게 움직이고 헛경보 최다
   };
   const avgWeight = DOMAINS.reduce((a, d) => a + DOMAIN_WEIGHT[d.id], 0) / DOMAINS.length;
   const weightedSum = domains.reduce((a, d) => a + d.level * DOMAIN_WEIGHT[d.id], 0);

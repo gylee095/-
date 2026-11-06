@@ -62,7 +62,7 @@ describe("운영자 알림 링크 = 그때 화면", () => {
     expect(route).toMatch(/Date\.now=\(function\(t\)\{return function\(\)\{return t\}\}\)\(\$\{meta\.at\}\)/);
     const me = readFileSync(new URL("../src/worker/me.ts", import.meta.url), "utf8");
     expect(me).toMatch(/if\(OPEN&&SIGN\)\{markSeen\(OPEN\);location\.replace\("\/ops\/r\/"/);
-    expect(me).toMatch(/if\(!CODE&&OT\)return renderOps\(OT\)/);
+    expect(me).toMatch(/if\(OT\)return renderOps\(OT\)/);
     expect(me).toMatch(/📊 실시간 대시보드 보기 <span[^>]*>운영자 전용/);
     const dash = readFileSync(new URL("../src/worker/dashboard.ts", import.meta.url), "utf8");
     const ops = dash.slice(dash.indexOf('if(RP&&RP.kind==="ops"){'), dash.indexOf('else if(RP&&!document.getElementById("backbar")){'));

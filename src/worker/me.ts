@@ -141,10 +141,10 @@ window.addEventListener("appinstalled",function(){var b=document.getElementById(
 function install(){if(!INSTALL)return;INSTALL.prompt();INSTALL.userChoice.finally(function(){INSTALL=null;var b=document.getElementById("install");if(b)b.style.display="none"})}
 async function render(){
   try{if(localStorage.getItem("kew_token"))$("#ops").innerHTML=' · <a href="/ops">운영자 화면</a>'}catch(e){}
-  // 운영자 (11/6): 운영자 알림 링크(?r=번호&s=서명)는 바로 그 알림의 그때 화면으로. 결제 코드 없이 운영자 열쇠만 있으면 운영자 알림 목록
+  // 운영자 (11/6): 운영자 알림 링크(?r=번호&s=서명)는 바로 그 알림의 그때 화면으로. 운영자 열쇠가 있는 기기는 운영자 알림 목록
   if(OPEN&&SIGN){markSeen(OPEN);location.replace("/ops/r/"+encodeURIComponent(OPEN)+"?s="+encodeURIComponent(SIGN));return}
   var OT=null;try{OT=localStorage.getItem("kew_token")}catch(e){}
-  if(!CODE&&OT)return renderOps(OT);
+  if(OT)return renderOps(OT); // 운영자 열쇠가 있으면 결제 코드가 있어도 운영자 알림 목록 (단계 변화 알림도 거기 함께 쌓인다, 11/6)
   if(!CODE){if(orders().length&&await checkPaid(false))return;return noCode()}
   manifestWithCode(CODE);clearBadge();
   // 알림을 눌러 들어왔으면 바로 그 리포트(대시보드 전체)로

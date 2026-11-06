@@ -34,7 +34,7 @@ ol.g{padding-left:22px;margin:8px 0}ol.g li{margin:10px 0}
 .okline{color:var(--ok);font-weight:700}
 input.code-in{width:100%;padding:14px;font-size:18px;letter-spacing:1px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);margin:8px 0;text-transform:uppercase}
 </style></head><body><div class="wrap">
-<div class="top"><b>🇰🇷 한반도 조기경보</b> · ${ops ? "운영자 알림" : "내 알림함"}<span id="ops"></span></div>
+<div class="top"><b id="brand" onclick="opsTap()" style="cursor:default;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent">🇰🇷 한반도 조기경보</b> · ${ops ? "운영자 알림" : "내 알림함"}<span id="ops"></span></div>
 <div id="app"><div class="state">불러오는 중…</div></div>
 <div class="foot">알림과 리포트는 공개 정보를 자동으로 분석한 참고 정보이며 공식 안보 정보가 아닙니다. 대피 등 실제 행동은 정부 재난문자와 국민재난안전포털을 따르세요. <a href="/terms">이용약관·환불</a></div>
 </div>
@@ -139,6 +139,9 @@ function saveCode(){var v=normCode($("#codein").value);if(!v){alert("코드 12�
 var OPSAPP=${ops ? "true" : "false"};
 var Q=new URLSearchParams(location.search),CODE=code(),OPEN=Q.get("r"),SIGN=Q.get("s"),SUMMARY=Q.get("summary")==="1",PAGE=0;
 // 앱처럼 (11/5): 목록을 누르면 그 순간의 '대시보드 전체'(/r/번호). 안 본 알림은 '새 알림'. 앱 아이콘 배지는 열면 지운다
+// 운영자 숨은 입구 (11/6 사용자 결정): 홈 화면 앱에는 주소창이 없다 — 제목을 3초 안에 5번 누르면 운영자 화면(처음엔 로그인)
+var TAPS=[];function opsTap(){var n=Date.now();TAPS=TAPS.filter(function(t){return n-t<3000});TAPS.push(n);if(TAPS.length>=5){TAPS=[];try{sessionStorage.removeItem("kew_view")}catch(e){}location.href="/ops/app"}}
+function asCustomer(){try{sessionStorage.setItem("kew_view","customer")}catch(e){}location.href="/me"}
 function seen(){try{return JSON.parse(localStorage.getItem("kew_seen")||"[]")}catch(e){return []}}
 function markSeen(id){var a=seen();if(a.indexOf(id)<0){a.push(id);try{localStorage.setItem("kew_seen",JSON.stringify(a.slice(-500)))}catch(e){}}}
 function goReport(id){markSeen(id);location.href="/r/"+encodeURIComponent(id)+"?code="+encodeURIComponent(CODE)}
@@ -152,8 +155,11 @@ async function render(){
   // 운영자 (11/6): 운영자 알림 링크(?r=번호&s=서명)는 바로 그 알림의 그때 화면으로. 운영자 열쇠가 있는 기기는 운영자 알림 목록
   if(OPEN&&SIGN){markSeen(OPEN);location.replace("/ops/r/"+encodeURIComponent(OPEN)+"?s="+encodeURIComponent(SIGN));return}
   var OT=null;try{OT=localStorage.getItem("kew_token")}catch(e){}
-  if(OT)return renderOps(OT);
-  if(OPSAPP)return opsLogin(); // 운영자 앱인데 열쇠가 없으면 로그인 한 번 // 운영자 열쇠가 있으면 결제 코드가 있어도 운영자 알림 목록 (단계 변화 알림도 거기 함께 쌓인다, 11/6)
+  // 앱 하나에 손님·운영자 (11/6): 운영자 열쇠가 있으면 운영자 알림 목록. 거기서 '손님 화면 보기'를 누르면 이 앱을 닫을 때까지 손님 화면
+  var VIEW="";try{VIEW=sessionStorage.getItem("kew_view")||""}catch(e){}
+  if(OPSAPP){try{sessionStorage.removeItem("kew_view")}catch(e){}VIEW=""}
+  if(OT&&VIEW!=="customer")return renderOps(OT);
+  if(OPSAPP)return opsLogin(); // 운영자 화면인데 열쇠가 없으면 로그인 한 번 // 운영자 열쇠가 있으면 결제 코드가 있어도 운영자 알림 목록 (단계 변화 알림도 거기 함께 쌓인다, 11/6)
   if(!CODE){if(orders().length&&await checkPaid(false))return;return noCode()}
   manifestWithCode(CODE);clearBadge();
   // 알림을 눌러 들어왔으면 바로 그 리포트(대시보드 전체)로
@@ -204,6 +210,7 @@ async function renderOps(t){clearBadge();
   shown.forEach(function(x){var isNew=sn.indexOf(x.id)<0;
     h+='<a class="item" href="'+esc(x.url)+'" onclick="markSeen(\''+esc(x.id)+'\')" style="display:block;color:inherit;text-decoration:none;'+(isNew?'border:2px solid var(--brand)':'')+'"><div class="when">'+(isNew?'<b style="color:var(--brand)">● 새 알림</b> · ':'')+esc(kst(x.at))+' · '+(x.kind==="ops"?'운영자 알림':'단계 변화 (손님도 받음)')+'</div><div style="font-weight:700;margin-top:4px">'+esc(x.headline||"")+'</div><div class="mute" style="font-size:13px;margin-top:4px">눌러서 그때의 대시보드 전체 보기 ›</div></a>'});
   if(pages>1)h+='<div style="display:flex;gap:8px;align-items:center;margin:10px 0"><button class="btn ghost" style="flex:1;padding:12px" '+(PAGE===0?'disabled':'')+' onclick="PAGE--;renderOps(localStorage.getItem(\'kew_token\'));window.scrollTo(0,0)">◀ 최근 알림</button><span class="mute">'+(PAGE*PER+1)+'–'+Math.min(items.length,PAGE*PER+PER)+' / '+items.length+'</span><button class="btn ghost" style="flex:1;padding:12px" '+(PAGE>=pages-1?'disabled':'')+' onclick="PAGE++;renderOps(localStorage.getItem(\'kew_token\'));window.scrollTo(0,0)">지난 알림 ▶</button></div>';
+  h+='<button class="btn ghost" style="margin-top:18px" onclick="asCustomer()">👤 손님 화면 보기 <span style="font-weight:400;font-size:13px;opacity:.75">손님이 보는 알림함 그대로 · 제목 5번 누르면 다시 여기로</span></button>';
   $("#app").innerHTML=h}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});
 render();

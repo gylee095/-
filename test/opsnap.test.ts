@@ -62,7 +62,9 @@ describe("운영자 알림 링크 = 그때 화면", () => {
     expect(route).toMatch(/Date\.now=\(function\(t\)\{return function\(\)\{return t\}\}\)\(\$\{meta\.at\}\)/);
     const me = readFileSync(new URL("../src/worker/me.ts", import.meta.url), "utf8");
     expect(me).toMatch(/if\(OPEN&&SIGN\)\{markSeen\(OPEN\);location\.replace\("\/ops\/r\/"/);
-    expect(me).toMatch(/if\(OT\)return renderOps\(OT\)/);
+    expect(me).toMatch(/if\(OT&&VIEW!=="customer"\)return renderOps\(OT\)/);
+    expect(me).toMatch(/if\(TAPS\.length>=5\)\{TAPS=\[\];try\{sessionStorage\.removeItem\("kew_view"\)\}catch\(e\)\{\}location\.href="\/ops\/app"\}/); // 제목 5번 → 운영자
+    expect(me).toMatch(/onclick="asCustomer\(\)">👤 손님 화면 보기/);
     expect(me).toMatch(/📊 실시간 대시보드 보기 <span[^>]*>운영자 전용/);
     const dash = readFileSync(new URL("../src/worker/dashboard.ts", import.meta.url), "utf8");
     const ops = dash.slice(dash.indexOf('if(RP&&RP.kind==="ops"){'), dash.indexOf('else if(RP&&!document.getElementById("backbar")){'));

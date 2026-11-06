@@ -5,6 +5,7 @@
 // 계산은 src/core/tension.ts 의 함수를 그대로 쓴다(지금 값과 같은 잣대). 근거·검증: docs/INDICATORS.md 0.2
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { summarizeFlow, type DayValue } from "../src/core/collectors/ecos.js";
+import { dangerOf, parseCsis, type Prov } from "../src/core/provdanger.js";
 import { MILITARY_UNITS, tensionRaw, type TensionInputs, type TensionKey, type Thresholds } from "../src/core/tension.js";
 
 const BASE = process.env.KEW_BASE ?? "https://korea-early-warning.gylee-30d.workers.dev";
@@ -97,29 +98,7 @@ const meanOf = (xs: (number | undefined)[]) => {
   return v.length ? v.reduce((a, b) => a + b, 0) / v.length : undefined;
 };
 
-// ── CSIS Beyond Parallel 도발 데이터베이스 → 날짜별 최고 위험도 ──
-interface Prov { date: string; type: string; event: string; desc: string }
-export function dangerOf(r: Prov): number {
-  const e = r.event.toLowerCase();
-  const x = `${r.event} ${r.desc}`.toLowerCase();
-  if (r.type === "Nuclear Provocation" && e.includes("nuclear test")) return 5;
-  if (e.includes("nuclear detonation")) return x.includes("ballistic") ? 3 : 2;
-  if (e.includes("artillery")) {
-    if (/yeonpyeong|baengnyeong|evacuat/.test(x)) return 5;
-    if (/rocket|mlrs|multiple.{0,10}launch/.test(x)) return 2;
-    return 4;
-  }
-  if (e.includes("explosion") || e.includes("liaison")) return 4;
-  if (e.includes("land mine")) return 4;
-  if (e.includes("drone")) return /intru|cross|incursion|over .*seoul|airspace/.test(x) ? 4 : 2;
-  if (/dmz en(ro|cro)achment/.test(e)) return 3;
-  if (e.includes("intercontinental") || e.includes("satellite")) return 4;
-  if (e.includes("ballistic") || e.includes("mirv")) return /over japan|over hokkaido|flew over|j-alert|overflew/.test(x) ? 4 : 3;
-  if (e.includes("short-range missile") || /mlrs|multiple lan/.test(e)) return 3;
-  if (/cruise|anti-aircraft|surface-to-air|tactical guided|anti-ship/.test(e)) return 2;
-  if (/balloon|loudspeaker|gps|exercise|posturing|engine|rocket experiment|underwater|launcher deployment|mixed tactical/.test(e)) return 2;
-  return 1;
-}
+// CSIS 도발 일지 → 위험도 규칙은 src/core/provdanger.ts (사례집 한국 재생과 같은 규칙을 쓴다)
 const KO: [RegExp, string][] = [
   [/nuclear test/i, "핵실험"], [/intercontinental/i, "ICBM"], [/satellite/i, "위성 발사"], [/liaison/i, "남북공동연락사무소 폭파"], [/land mine/i, "DMZ 지뢰 폭발"],
   [/^explosion/i, "남북 연결도로 폭파"], [/artillery/i, "포 사격"], [/drones/i, "무인기"], [/intermediate-range/i, "중거리 탄도미사일"], [/medium-range/i, "준중거리 탄도미사일"],
@@ -200,13 +179,7 @@ async function main() {
   const kospiRelD = ffill(kospiRel), defRelD = ffill(defRel), krwRelD = ffill(krwRel), fzD = ffill(fz);
   // 5) 도발 일지
   const html = await cached("bp.json", async () => (await fetch("https://beyondparallel.csis.org/database-north-korean-provocations/", { headers: { "User-Agent": "Mozilla/5.0 (research)" } })).text());
-  const provs: Prov[] = [];
-  const body = (html as string).slice((html as string).indexOf("<tbody>"), (html as string).indexOf("</tbody>"));
-  const unesc = (s: string) => s.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#0?39;|&rsquo;|&#8217;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
-  for (const tr of body.match(/<tr[^>]*>[\s\S]*?<\/tr>/g) ?? []) {
-    const tds = [...tr.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((m) => unesc(m[1]));
-    if (tds.length >= 4 && /^\d{4}-\d{2}-\d{2}$/.test(tds[0])) provs.push({ date: tds[0], type: tds[1], event: tds[2], desc: tds[3].slice(0, 400) });
-  }
+  const provs: Prov[] = parseCsis(html as string);
   const lv = new Array(days.length).fill(0);
   const names = new Map<string, Set<string>>();
   for (const p of provs) {

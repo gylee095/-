@@ -2,9 +2,9 @@
 // 결과: data/cases/scorecard.json (화면·비교용), docs/CASEBOOK.md (사람이 읽는 성적표)
 //
 // 실행: npx tsx scripts/score-cases.ts [--no-write]
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { assessWarRisk } from "../src/core/warrisk.js";
-import { isQuietDay, readinessScore, replayCase, scoreCase, FORECAST_DAYS, type CaseFile, type CaseScore, type ReplayDay } from "../src/core/casereplay.js";
+import { isQuietDay, phaseCalibration, readinessScore, replayCase, scoreMulti, scoreCase, FORECAST_DAYS, type CaseFile, type CaseScore, type ReplayDay } from "../src/core/casereplay.js";
 import { PHASE_LABEL, type Phase } from "../src/core/warrisk.js";
 
 const DIR = new URL("../data/cases/", import.meta.url);
@@ -79,11 +79,37 @@ const anchors = results.filter((r) => r.c.truthDate).map((r) => {
 // 평시로 보는 날들(정답 30일 전보다 앞선 날 + 전쟁 안 난 사례 전체)의 점수 — "평시에 이 점수 이상이 얼마나 흔했나"
 // 평시 = 채점과 같은 정의 (isQuietDay)
 const quietScores = results.flatMap((r) => r.replay.filter((d) => isQuietDay(r.c, d.date)).map((d) => readinessScore(d.gauge, scale))).sort((a, b) => a - b);
-const card = { ruleVersion: "1.0", retrieved, forecastDays: FORECAST_DAYS, totals, scale, anchors, quietScores, cases: results.map((r) => r.score), signals };
+// ── 한국 재생 (주 시험, 11/6 제3자 검토 반영) ──
+const KFILE = new URL("../data/korea/korea-2017-2026.json", import.meta.url);
+const kc = existsSync(KFILE) ? (JSON.parse(readFileSync(KFILE, "utf8")) as CaseFile & { truth: { date: string; what: string; kind: string; source: string }[] }) : undefined;
+const korea = kc && (() => {
+  const replay = replayCase(kc);
+  const major = kc.truth.filter((t) => t.kind === "major").map((t) => t.date);
+  const clash = kc.truth.filter((t) => t.kind !== "major").map((t) => t.date);
+  const s = scoreMulti(replay, kc.truth.map((t) => t.date));
+  const cal = phaseCalibration(replay, major);
+  const pctOf = (x: { hit: number; n: number }) => Math.round((x.hit / Math.max(1, x.n)) * 1000) / 10;
+  const runs: { from: string; to: string; why: string }[] = [];
+  replay.forEach((r, i) => {
+    if (r.phase >= 3 && (i === 0 || replay[i - 1].phase < 3)) runs.push({ from: r.date, to: r.date, why: r.reasons[0] ?? "" });
+    else if (r.phase >= 3) runs[runs.length - 1].to = r.date;
+  });
+  const years = (replay.length / 365.25);
+  return {
+    from: kc.start, to: kc.end, days: s.days, phaseShare: Object.fromEntries(Object.entries(s.phaseDays).map(([k, v]) => [k, Math.round((v / s.days) * 1000) / 10])),
+    crisisDays: s.crisisDays, falseAlarmDays: s.falseAlarmDays, flipsPerYear: Math.round(s.flips / years), runs,
+    truths: s.truths.length, caught: s.truths.filter((t) => t.caught).length, caughtList: s.truths.filter((t) => t.caught),
+    clashes: kc.truth.filter((t) => t.kind !== "major"), clashCal: clash.length ? phaseCalibration(replay, clash) : undefined,
+    cal: { basePct: pctOf(cal.base), byPhase: Object.fromEntries(Object.entries(cal.byPhase).map(([k, v]) => [k, { pct: pctOf(v), n: v.n }])) },
+    coverage: scoreCase(kc, replay).coverage,
+  };
+})();
+
+const card = { ruleVersion: "1.0", retrieved, forecastDays: FORECAST_DAYS, totals, scale, anchors, quietScores, cases: results.map((r) => r.score), signals, korea };
 
 const gen = `// 자동 생성: scripts/score-cases.ts — 직접 고치지 말 것. 성적표: docs/CASEBOOK.md, 자료: data/cases/
 // 외국 전쟁 사례 ${results.length}건을 지금 판정 규칙(1.0)으로 하루씩 재생한 결과에서 화면에 필요한 것만 담는다.
-export const CASEBOOK = ${JSON.stringify({ ruleVersion: "1.0", retrieved, scale, anchors, quietScores, totals: { cases: results.length, ...totals } })} as const;
+export const CASEBOOK = ${JSON.stringify({ ruleVersion: "1.0", retrieved, scale, anchors, quietScores, totals: { cases: results.length, ...totals }, korea: korea && { from: korea.from, to: korea.to, phaseShare: korea.phaseShare, cal: korea.cal, falseAlarmDays: korea.falseAlarmDays, crisisDays: korea.crisisDays, truths: korea.truths, caught: korea.caught } })} as const;
 `;
 
 const timeline = (replay: ReplayDay[], truth?: string) => replay.filter((r) => !truth || r.date < truth).map((r) => r.phase).join("");
@@ -103,6 +129,23 @@ const md = `# 외국 전쟁 사례집 — 성적표 (규칙 1.0)
 |---|---|---|---|---|---|---|---|
 ${results.map(({ score: s }) => row([s.name, s.outcome === "no_war" ? "전쟁 안 남" : s.truthDate!, verdict(s), s.firstCrisis ?? "—", s.firstImminent ?? "—", phaseName(s.eveLevel), `${s.falseAlarmDays}/${s.quietDays}일`, `${s.flips}번`])).join("\n")}
 
+${korea ? `## 한반도 10년 재생 (${korea.from} ~ ${korea.to}) — 주 시험
+
+지금 규칙(1.0)을 한반도 과거 ${korea.days}일에 하루씩 돌렸다. 시장·위키·네이버 검색·북한 도발(CSIS 도발 일지 → 운영과 같은 위험도)을 넣었고, 보도량·항공·정부 경보 등은 과거 자료가 없어 뺐다(아래 측정 범위).
+
+| 단계 | 날 비율 | 그 단계였던 날 뒤 30일 안에 큰 도발 | 날 수 |
+|---|---|---|---|
+${[1, 2, 3, 4, 5].filter((p) => korea.cal.byPhase[p]).map((p) => row([`${phaseName(p as Phase)}`, `${korea.phaseShare[p]}%`, `${korea.cal.byPhase[p].pct}%`, korea.cal.byPhase[p].n])).join("\n")}
+| 전체 | 100% | ${korea.cal.basePct}% | — |
+
+- **3단계 이상은 ${korea.crisisDays}일**뿐이고 모두 큰 사건 **뒤의 반응**이었다: ${korea.runs.map((r) => `${r.from}~${r.to} (${r.why.slice(0, 40)})`).join(", ")}. 이 중 뒤 30일 안에 큰 도발이 없었던 날(헛경보) ${korea.falseAlarmDays}일.
+- 큰 도발·교전 ${korea.truths}번 중 30일 안에 3단계 이상이었던 것 ${korea.caught}번 — ${korea.caughtList.map((t) => t.date).join(", ") || "없음"} (앞선 큰 사건의 14일 경보가 이어진 경우). **미리 내다본 경우는 사실상 없다.**
+- 단계가 바뀐 횟수: 한 해 평균 ${korea.flipsPerYear}번 (하루 단위 원값, 대부분 1↔2단계).
+- 해석: 2단계(긴장)는 10년 중 ${korea.phaseShare[2]}%의 날에 나온 흔한 상태다. 2단계였던 날 뒤 30일 안에 큰 도발이 난 비율(${korea.cal.byPhase[2]?.pct}%)은 1단계(${korea.cal.byPhase[1]?.pct}%)보다 높아 단계가 정보를 조금 갖고 있다. 다만 '전쟁'이 아니라 '큰 도발'로 맞춘 값이다.
+${korea.clashCal ? `- 실제 교전·직접 공격 ${korea.clashes.length}번(조사): ${korea.clashes.map((c) => `${c.date} ${c.what.slice(0, 30)}`).join(" · ")}. 그 단계였던 날 뒤 30일 안에 교전: ${Object.entries(korea.clashCal.byPhase).map(([p, v]) => `${p}단계 ${Math.round((v.hit / Math.max(1, v.n)) * 1000) / 10}%`).join(", ")}.` : ""}
+
+측정 범위 (영역별 측정 / 전체 지표, 군사 동향은 지표 대신 도발 사건 ${kc!.events?.length ?? 0}일로 들어감): ${korea.coverage.map((d) => `${d.label} ${d.measured}/${d.total}`).join(" · ")}
+` : ""}
 ## 전쟁 직전 대비 점수 (화면에 나가는 숫자)
 
 0 = 한반도 평소(평온 단계 기준점), 100 = 우크라이나 침공 전날의 판정(${phaseName(eveOf(ukr).phase)}). 판정 규칙의 온도계 눈금(단계 + 단계 안 위치)을 이 두 점 사이에 놓은 것이다. 각 사례의 전날 점수:

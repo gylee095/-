@@ -14,8 +14,8 @@ const OUT = new URL("../data/cases/", import.meta.url);
 const DAY = 86400_000;
 const PRE_DAYS = 45;
 
-interface Quote { kind: "yahoo" | "moex"; symbol: string }
-const y = (symbol: string): Quote => ({ kind: "yahoo", symbol });
+export interface Quote { kind: "yahoo" | "moex"; symbol: string }
+export const y = (symbol: string): Quote => ({ kind: "yahoo", symbol });
 const moex: Quote = { kind: "moex", symbol: "IMOEX" };
 
 interface CaseConfig {
@@ -56,7 +56,7 @@ const wait = (t: number) => new Promise((r) => setTimeout(r, t));
 const round = (x: number) => +x.toFixed(3);
 
 /** 같은 주소를 다시 받지 않는다 */
-async function cached(name: string, url: string, headers: Record<string, string>, ok: (j: any) => boolean = () => true): Promise<string | undefined> {
+export async function cached(name: string, url: string, headers: Record<string, string>, ok: (j: any) => boolean = () => true): Promise<string | undefined> {
   const file = new URL(name, CACHE);
   // 깨지거나 오류 본문인 캐시는 버리고 다시 받는다 (11/6 검토: 일시 오류가 영구 '측정 불가'로 굳지 않게)
   const valid = (text: string) => { try { return ok(JSON.parse(text)); } catch { return false; } };
@@ -85,7 +85,7 @@ const safe = (s: string) => s.replace(/[^A-Za-z0-9]+/g, "_");
 export const localDate = (msUtc: number, timeZone: string) => new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(msUtc));
 
 /** 날짜 → 종가 */
-async function closes(q: Quote, from: string, to: string): Promise<Map<string, number>> {
+export async function closes(q: Quote, from: string, to: string): Promise<Map<string, number>> {
   const m = new Map<string, number>();
   if (q.kind === "moex") {
     for (let start = 0; ; start += 100) {
@@ -121,7 +121,7 @@ export function pct(series: Map<string, number>): Map<string, number> {
   return out;
 }
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
-const pctOf = async (q: Quote, from: string, to: string) => pct(await closes(q, from, to));
+export const pctOf = async (q: Quote, from: string, to: string) => pct(await closes(q, from, to));
 /** 구성 종목이 모두 있는 날만 평균한다 (휴장일이 달라 날마다 구성이 바뀌면 가짜 차이가 생긴다 — 11/6 검토) */
 export const avgOn = (date: string, ms_: Map<string, number>[]) => {
   const v = ms_.map((m) => m.get(date));

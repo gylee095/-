@@ -6,6 +6,7 @@ import { INDICATORS, INDICATOR_BY_ID, addToDay, dayBaseline, evaluate, type DayH
 import type { BoardRow } from "./state.js";
 import type { Reading } from "./types.js";
 import { articleRatio } from "./collectors/wiki.js";
+import type { EventBrief } from "./brief.js";
 
 export type CaseOutcome = "war" | "attack" | "no_war";
 
@@ -22,6 +23,15 @@ export interface CaseDay {
   wikiPct?: number;
   /** 전쟁 언급 보도 건수 → media.war_talk_24h */
   media?: number;
+  /** 한국 사람들의 전쟁 불안 검색 배율 ×100 (네이버, 어제 ÷ 직전 28일 중앙값, 불안 묶음 중 최대) → psych.naver_war_search */
+  naverPct?: number;
+}
+
+/** 도발·사건 하루치 — 운영에서 사건 판정(brief)이 하던 몫. 위험도는 provdanger.ts 의 같은 눈금 */
+export interface CaseEvent {
+  date: string;
+  level: 1 | 2 | 3 | 4 | 5;
+  headline: string;
 }
 
 /** 정부 신호 변화. date 부터 다음 변화 전까지 그 값이 유지된다 */
@@ -48,6 +58,8 @@ export interface CaseFile {
   gov: CaseGovEvent[];
   /** 영공 폐쇄·항공사 운항 중단이 있었던 날 */
   airspace: { date: string; what: string; source: string }[];
+  /** 도발 사건 (있는 사례만 — 한국 재생). 운영처럼 군사 영역·중대 사건 판정에 들어간다 */
+  events?: CaseEvent[];
   sources: string[];
   retrieved: string;
 }
@@ -63,6 +75,7 @@ const SERIES: [keyof CaseDay, string][] = [
   ["equityRel", "market.kr_equity_rel_pct"],
   ["defenseRel", "market.defense_rel_pct"],
   ["wikiPct", "psych.wiki_korea_attention"],
+  ["naverPct", "psych.naver_war_search"],
 ];
 
 /** 그날까지 공개된 값만으로 지표 표를 만든다. 없는 지표는 '측정 불가' */
@@ -108,12 +121,20 @@ export interface ReplayDay {
   hot: { id: string; pts: 1 | 2 }[];
 }
 
+const DANGER_LABEL = ["", "낮음", "보통", "주의", "높음", "매우 높음"];
+/** 그날까지 일어난 도발만 운영 사건 판정 모양으로 (지난 14일 — 판정이 보는 가장 긴 창) */
+function briefsFor(c: CaseFile, date: string): EventBrief[] {
+  return (c.events ?? [])
+    .filter((e) => e.date <= date && dayDiff(date, e.date) <= 14)
+    .map((e) => ({ at: atOf(e.date), headline: e.headline, isProvocation: true, danger: { level: e.level, label: DANGER_LABEL[e.level], reason: "도발 일지" } }) as unknown as EventBrief);
+}
+
 export function replayCase(c: CaseFile): ReplayDay[] {
   let hist: DayHistory | undefined;
   for (const p of c.preroll) if (typeof p.media === "number") hist = addToDay(hist, p.media, atOf(p.date));
   return c.days.map((d) => {
     const board = caseBoard(c, d.date, hist);
-    const w = assessWarRisk({ now: atOf(d.date), board, briefs: [], patterns: [] });
+    const w = assessWarRisk({ now: atOf(d.date), board, briefs: briefsFor(c, d.date), patterns: [] });
     if (typeof d.media === "number") hist = addToDay(hist, d.media, atOf(d.date));
     const levels = Object.fromEntries(w.domains.map((x) => [x.id, x.level])) as Record<DomainId, Level>;
     const hot: ReplayDay["hot"] = board.flatMap((r): ReplayDay["hot"] => (r.reading?.state === "anomalous" ? [{ id: r.id, pts: 2 }] : r.reading?.state === "elevated" ? [{ id: r.id, pts: 1 }] : []));
@@ -137,6 +158,73 @@ export function readinessScore(gauge: number, s: ReadinessScale): number {
 /** 평시로 보는 날인가 — 채점과 성적표가 같은 정의를 쓴다: 정답 30일 전보다 앞선 날, 전쟁 안 난 사례는 전부 */
 export function isQuietDay(c: Pick<CaseFile, "truthDate">, date: string): boolean {
   return !c.truthDate || dayDiff(c.truthDate, date) > FORECAST_DAYS;
+}
+
+/** 여러 날짜의 정답(한국: 큰 도발·교전 날)으로 하루 재생을 채점한다 — 30일 예보 기준 */
+export interface MultiScore {
+  days: number;
+  phaseDays: Record<Phase, number>;
+  truths: { date: string; caught: boolean; firstCrisis?: string; leadDays?: number }[];
+  /** 3단계 이상인데 뒤 30일 안에 정답 날이 없는 날 */
+  falseAlarmDays: number;
+  /** 3단계 이상인 날 */
+  crisisDays: number;
+  flips: number;
+}
+
+export function scoreMulti(replay: ReplayDay[], truthDates: string[]): MultiScore {
+  const truths = [...new Set(truthDates)].sort();
+  const phaseDays = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<Phase, number>;
+  for (const r of replay) phaseDays[r.phase]++;
+  let flips = 0;
+  for (let i = 1; i < replay.length; i++) if (replay[i].phase !== replay[i - 1].phase) flips++;
+  const crisis = replay.filter((r) => r.phase >= 3);
+  const falseAlarmDays = crisis.filter((r) => !truths.some((t) => t > r.date && dayDiff(t, r.date) <= FORECAST_DAYS)).length;
+  const inRange = truths.filter((t) => replay.length && t > replay[0].date && t <= replay[replay.length - 1].date);
+  return {
+    days: replay.length, phaseDays, crisisDays: crisis.length, falseAlarmDays, flips,
+    truths: inRange.map((t) => {
+      const win = replay.filter((r) => r.date < t && dayDiff(t, r.date) <= FORECAST_DAYS);
+      const first = win.find((r) => r.phase >= 3)?.date;
+      return { date: t, caught: !!first, firstCrisis: first, leadDays: first ? dayDiff(t, first) : undefined };
+    }),
+  };
+}
+
+/** 단계별 실제 결과: 그 단계였던 날 뒤 30일 안에 정답 날(큰 도발 등)이 있었던 비율 — '이 단계의 %'를 결과로 채점한 값 */
+export function phaseCalibration(replay: ReplayDay[], truthDates: string[]): { base: { hit: number; n: number }; byPhase: Record<number, { hit: number; n: number }> } {
+  const truths = [...new Set(truthDates)].sort();
+  const last = replay[replay.length - 1]?.date ?? "";
+  // 뒤 30일을 다 볼 수 있는 날만 센다 (끝 30일은 아직 결과를 모른다)
+  const usable = replay.filter((r) => dayDiff(last, r.date) >= FORECAST_DAYS);
+  const hit = (d: string) => truths.some((t) => t > d && dayDiff(t, d) <= FORECAST_DAYS);
+  const byPhase: Record<number, { hit: number; n: number }> = {};
+  for (const r of usable) { byPhase[r.phase] ??= { hit: 0, n: 0 }; byPhase[r.phase].n++; if (hit(r.date)) byPhase[r.phase].hit++; }
+  return { base: { hit: usable.filter((r) => hit(r.date)).length, n: usable.length }, byPhase };
+}
+
+/** 네이버 불안 검색 배율 — 운영 naverRatios/naverMetrics 와 같게: 묶음마다 어제 ÷ 그 전 28일 중앙값(평소 > 0), 묶음 중 가장 큰 값 ×100.
+ *  (위키와 달리 '평소 5 이상' 바닥이 없다 — 네이버 값은 상대값이라 크기가 의미 없다.) 어제 자료까지만 쓴다 */
+export function naverDaily(groups: { name: string; series: Map<string, number> }[], from: string, to: string): Map<string, number> {
+  const out = new Map<string, number>();
+  const med = (xs: number[]) => { const a = [...xs].sort((x, y) => x - y); const m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; };
+  const sorted = groups.map((g) => ({ ...g, keys: [...g.series.keys()].sort() }));
+  for (let t = atOf(from); t <= atOf(to); t += DAY_MS) {
+    const yesterday = new Date(t - DAY_MS).toISOString().slice(0, 10);
+    let best: number | undefined;
+    for (const g of sorted) {
+      if (!g.series.has(yesterday)) continue;
+      const i = g.keys.indexOf(yesterday);
+      const prior = g.keys.slice(Math.max(0, i - 28), i).map((k) => g.series.get(k)!);
+      if (prior.length < 20) continue;
+      const usual = med(prior);
+      if (!(usual > 0)) continue;
+      const r = g.series.get(yesterday)! / usual;
+      best = best === undefined ? r : Math.max(best, r);
+    }
+    if (best !== undefined) out.set(new Date(t).toISOString().slice(0, 10), Math.round(best * 100));
+  }
+  return out;
 }
 
 /** 위키 조회수 배율 (날짜 → 문서별 '어제 ÷ 그 전 28일 중앙값'의 중앙값 ×100). 운영 지표처럼 어제 자료까지만 쓴다 — 오늘·미래 조회수는 들어가지 않는다 */

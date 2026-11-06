@@ -1175,5 +1175,137 @@
    "quietTotal": 421,
    "quietRatePct": 2.9
   }
- ]
+ ],
+ "korea": {
+  "from": "2017-01-01",
+  "to": "2026-10-31",
+  "days": 3591,
+  "phaseShare": {
+   "1": 60.4,
+   "2": 38.8,
+   "3": 0.8,
+   "4": 0,
+   "5": 0
+  },
+  "crisisDays": 28,
+  "falseAlarmDays": 14,
+  "flipsPerYear": 34,
+  "runs": [
+   {
+    "from": "2017-09-03",
+    "to": "2017-09-16",
+    "why": "최근 14일 중대 사건: 북한 Nuclear Test (도발 일지)"
+   },
+   {
+    "from": "2024-01-05",
+    "to": "2024-01-18",
+    "why": "최근 14일 중대 사건: 북한 Artillery Fire (도발 일지)"
+   }
+  ],
+  "truths": 34,
+  "caught": 3,
+  "caughtList": [
+   {
+    "date": "2017-09-15",
+    "caught": true,
+    "firstCrisis": "2017-09-03",
+    "leadDays": 12
+   },
+   {
+    "date": "2024-01-06",
+    "caught": true,
+    "firstCrisis": "2024-01-05",
+    "leadDays": 1
+   },
+   {
+    "date": "2024-01-07",
+    "caught": true,
+    "firstCrisis": "2024-01-05",
+    "leadDays": 2
+   }
+  ],
+  "clashes": [
+   {
+    "date": "2020-05-03",
+    "what": "북측 총탄 여러 발이 DMZ 내 육군 3사단 관할 GP에 피탄(07:41경). 우리 군은 경고방송 후 사격 2회로 대응. 인명·장비 피해 없음. 유엔사는 5/26 조사 결과 '양측 모두 정전협정 위반' 발표(출처 간 의도성·대응 적절성 평가 상이: 합참은 비례 대응, 유엔사는 위반 판정). 양측 사격이 있었으므로 exchange로 분류하되 북측 고의성은 군 당국이 낮게 봄.",
+    "kind": "exchange",
+    "source": "https://newstomato.com/ReadNews.aspx?no=969698"
+   }
+  ],
+  "clashCal": {
+   "base": {
+    "hit": 30,
+    "n": 3561
+   },
+   "byPhase": {
+    "1": {
+     "hit": 11,
+     "n": 2168
+    },
+    "2": {
+     "hit": 19,
+     "n": 1365
+    },
+    "3": {
+     "hit": 0,
+     "n": 28
+    }
+   }
+  },
+  "cal": {
+   "basePct": 19.4,
+   "byPhase": {
+    "1": {
+     "pct": 15.6,
+     "n": 2168
+    },
+    "2": {
+     "pct": 24.8,
+     "n": 1365
+    },
+    "3": {
+     "pct": 50,
+     "n": 28
+    }
+   }
+  },
+  "coverage": [
+   {
+    "domain": "gov",
+    "label": "정부의 행동",
+    "total": 7,
+    "measured": 0
+   },
+   {
+    "domain": "elite",
+    "label": "엘리트·큰손",
+    "total": 2,
+    "measured": 0
+   },
+   {
+    "domain": "money",
+    "label": "돈의 움직임",
+    "total": 4,
+    "measured": 3
+   },
+   {
+    "domain": "military",
+    "label": "군사 동향",
+    "total": 13,
+    "measured": 0
+   },
+   {
+    "domain": "nkwords",
+    "label": "북한의 말·내부 사정",
+    "total": 6,
+    "measured": 0
+   },
+   {
+    "domain": "public",
+    "label": "사람들의 불안",
+    "total": 4,
+    "measured": 2
+   }
+  ]
+ }
 }

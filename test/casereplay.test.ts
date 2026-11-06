@@ -1,6 +1,6 @@
 // 사례집 재생: 운영 규칙을 그대로 쓰는지, 미래 정보를 쓰지 않는지, 채점이 맞는지
 import { describe, expect, it } from "vitest";
-import { caseBoard, isQuietDay, readinessScore, replayCase, scoreCase, wikiDaily, type CaseDay, type CaseFile } from "../src/core/casereplay.js";
+import { caseBoard, isQuietDay, naverDaily, phaseCalibration, readinessScore, replayCase, scoreCase, scoreMulti, wikiDaily, type CaseDay, type CaseFile } from "../src/core/casereplay.js";
 
 const dates = (start: string, n: number) => Array.from({ length: n }, (_, i) => new Date(Date.parse(`${start}T00:00:00Z`) + i * 86400_000).toISOString().slice(0, 10));
 const mk = (over: Partial<CaseFile> = {}, day: (date: string) => Partial<CaseDay> = () => ({})): CaseFile => {
@@ -218,5 +218,43 @@ describe("검토 반영 3바퀴 (11/6 self-verify)", () => {
         if (m) { expect(r.score).toBeGreaterThanOrEqual(+m[1]); expect(r.score).toBeLessThanOrEqual(+m[2]); }
       }
     }
+  });
+});
+
+describe("한국 재생 (11/6)", () => {
+  it("도발 사건은 그날부터만 보이고, 위험도 5 는 운영처럼 당일 포함 14일간 3단계", () => {
+    const c = mk({ events: [{ date: "2022-02-01", level: 5, headline: "북한 Nuclear Test" }] });
+    const r = replayCase(c);
+    expect(r.find((x) => x.date === "2022-01-31")!.phase).toBe(1);
+    expect(r.find((x) => x.date === "2022-02-01")!.phase).toBe(3);
+    expect(r.find((x) => x.date === "2022-02-14")!.phase).toBe(3);
+    expect(r.find((x) => x.date === "2022-02-15")!.phase).toBeLessThan(3);
+  });
+  it("위험도 3 도발은 2단계(긴장), 7일 뒤 풀린다", () => {
+    const c = mk({ events: [{ date: "2022-02-01", level: 3, headline: "북한 short-range missile" }] });
+    const r = replayCase(c);
+    expect(r.find((x) => x.date === "2022-02-07")!.phase).toBe(2);
+    expect(r.find((x) => x.date === "2022-02-09")!.phase).toBe(1);
+  });
+  it("여러 정답 채점: 30일 안에 3단계였으면 잡음, 정답이 뒤따르지 않은 3단계 날은 헛경보", () => {
+    const c = mk({ events: [{ date: "2022-01-05", level: 5, headline: "x" }] });
+    const s = scoreMulti(replayCase(c), ["2022-01-10", "2022-02-25"]);
+    expect(s.truths.find((t) => t.date === "2022-01-10")!.caught).toBe(true);
+    expect(s.truths.find((t) => t.date === "2022-02-25")!.caught).toBe(false);
+    expect(s.crisisDays).toBe(14); // 1/5~1/18
+    expect(s.falseAlarmDays).toBe(9); // 1/10~1/18 은 뒤 30일 안에 정답이 없다(2/25 는 38일 뒤) → 헛경보
+  });
+  it("단계별 결과 비율은 뒤 30일을 다 볼 수 있는 날만 센다", () => {
+    const c = mk();
+    const cal = phaseCalibration(replayCase(c), ["2022-01-20"]);
+    expect(cal.base.n).toBe(30); // 60일 중 끝 30일 제외
+    expect(cal.byPhase[1].hit).toBe(19); // 1/1~1/19
+  });
+  it("네이버: 평소 바닥 없이 어제 ÷ 28일 중앙값, 묶음 중 최대 — 오늘·미래 값은 안 들어감", () => {
+    const ds = dates("2022-01-01", 40);
+    const g = (name: string, spike: string, v: number) => ({ name, series: new Map(ds.map((d) => [d, d === spike ? v : 0.5])) });
+    const r = naverDaily([g("a", "2022-02-01", 2), g("b", "2022-02-01", 1.5)], ds[0], ds[ds.length - 1]);
+    expect(r.get("2022-02-01")).toBe(100);
+    expect(r.get("2022-02-02")).toBe(400);
   });
 });

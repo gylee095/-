@@ -189,7 +189,7 @@ async function render(){
   if(SUMMARY&&OPEN){var id2=OPEN;OPEN=null;markSeen(id2);openReport(id2);var el=document.getElementById("r_"+id2);if(el)el.scrollIntoView({block:"start"})}
 }
 // 운영자 앱 첫 로그인 (이 앱에 한 번만): 비밀값을 붙여 넣으면 서버에 맞는지 물어보고 이 앱에 저장
-function opsLogin(msg){$("#app").innerHTML='<div class="state main"><h2>🔑 운영자 로그인</h2><p class="big" style="margin:4px 0 8px">이 운영자 앱에 <b>한 번만</b> 넣으면 돼요. 손님 앱과는 따로 저장돼요.</p>'+(msg?'<p class="err" style="margin:6px 0">'+esc(msg)+'</p>':'')+
+function opsLogin(msg){$("#app").innerHTML='<div class="state main"><h2>🔑 운영자 로그인</h2><p class="big" style="margin:4px 0 8px">이 앱에 <b>한 번만</b> 넣으면 돼요. 그다음부터 앱을 열면 운영자 알림 목록이 떠요.</p>'+(msg?'<p class="err" style="margin:6px 0">'+esc(msg)+'</p>':'')+
   '<input class="code-in" id="opskey" type="password" autocomplete="off" placeholder="운영자 비밀값" style="text-transform:none;letter-spacing:0">'+
   '<button class="btn ghost" style="margin:4px 0 8px" onclick="opsPaste()">📋 붙여넣기</button><button class="btn" onclick="opsSave()">확인</button></div>'}
 async function opsPaste(){try{var t=await navigator.clipboard.readText();if(t)$("#opskey").value=t.trim()}catch(e){alert("붙여넣기를 할 수 없어요. 입력칸을 길게 눌러 붙여 넣어 주세요.")}}

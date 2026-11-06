@@ -438,7 +438,7 @@ function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평�
   h+=whyPct(w);
   // 하루 한 번 정하는 숫자 (11/6): 어제 판정과 비교 — 무엇이 바뀌었고 의미 있는 변화인가. 이 숫자가 무엇인지도 밝힌다
   if(O){h+='<div class="pwhy" style="'+(O.change&&O.change.meaningful?'color:var(--l4);font-weight:700':'')+'">'+esc(O.change?O.change.text:'어제 판정 기록이 아직 없어요 — 내일부터 하루씩 비교해요.')+'</div>';
-    h+='<div class="ps" style="margin-top:4px">'+esc(O.note)+'</div><div class="ps" style="margin-top:2px">'+esc(O.basis)+'</div>'}
+    h+='<div style="margin-top:6px;font-size:12.5px;line-height:1.55;color:var(--mute)">'+esc(O.note)+'<br>'+esc(O.basis)+'</div>'}
   else h+=whyChanged(w,c);
   var hot=w.domains.filter(function(d){return d.level>0}).sort(function(a,b){return b.level-a.level});
   var calm=w.domains.filter(function(d){return d.level===0}).map(function(d){return d.label});

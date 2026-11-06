@@ -1,0 +1,928 @@
+{
+ "id": "turkey-syria-afrin-2018",
+ "name": "터키 → 시리아 아프린 작전",
+ "outcome": "attack",
+ "truthDate": "2018-01-20",
+ "start": "2017-10-22",
+ "end": "2018-01-20",
+ "preroll": [
+  {
+   "date": "2017-09-07",
+   "media": 23
+  },
+  {
+   "date": "2017-09-08",
+   "media": 14
+  },
+  {
+   "date": "2017-09-09",
+   "media": 8
+  },
+  {
+   "date": "2017-09-10",
+   "media": 10
+  },
+  {
+   "date": "2017-09-11",
+   "media": 80
+  },
+  {
+   "date": "2017-09-12",
+   "media": 32
+  },
+  {
+   "date": "2017-09-13",
+   "media": 47
+  },
+  {
+   "date": "2017-09-14",
+   "media": 29
+  },
+  {
+   "date": "2017-09-15",
+   "media": 45
+  },
+  {
+   "date": "2017-09-16",
+   "media": 23
+  },
+  {
+   "date": "2017-09-17",
+   "media": 11
+  },
+  {
+   "date": "2017-09-18",
+   "media": 18
+  },
+  {
+   "date": "2017-09-19",
+   "media": 27
+  },
+  {
+   "date": "2017-09-20",
+   "media": 37
+  },
+  {
+   "date": "2017-09-21",
+   "media": 22
+  },
+  {
+   "date": "2017-09-22",
+   "media": 20
+  },
+  {
+   "date": "2017-09-23",
+   "media": 11
+  },
+  {
+   "date": "2017-09-24",
+   "media": 14
+  },
+  {
+   "date": "2017-09-25",
+   "media": 38
+  },
+  {
+   "date": "2017-09-26",
+   "media": 28
+  },
+  {
+   "date": "2017-09-27",
+   "media": 15
+  },
+  {
+   "date": "2017-09-28",
+   "media": 9
+  },
+  {
+   "date": "2017-09-29",
+   "media": 10
+  },
+  {
+   "date": "2017-09-30",
+   "media": 25
+  },
+  {
+   "date": "2017-10-01",
+   "media": 6
+  },
+  {
+   "date": "2017-10-02",
+   "media": 3
+  },
+  {
+   "date": "2017-10-03",
+   "media": 18
+  },
+  {
+   "date": "2017-10-04",
+   "media": 6
+  },
+  {
+   "date": "2017-10-05",
+   "media": 59
+  },
+  {
+   "date": "2017-10-06",
+   "media": 25
+  },
+  {
+   "date": "2017-10-07",
+   "media": 162
+  },
+  {
+   "date": "2017-10-08",
+   "media": 438
+  },
+  {
+   "date": "2017-10-09",
+   "media": 230
+  },
+  {
+   "date": "2017-10-10",
+   "media": 101
+  },
+  {
+   "date": "2017-10-11",
+   "media": 99
+  },
+  {
+   "date": "2017-10-12",
+   "media": 98
+  },
+  {
+   "date": "2017-10-13",
+   "media": 313
+  },
+  {
+   "date": "2017-10-14",
+   "media": 83
+  },
+  {
+   "date": "2017-10-15",
+   "media": 130
+  },
+  {
+   "date": "2017-10-16",
+   "media": 76
+  },
+  {
+   "date": "2017-10-17",
+   "media": 41
+  },
+  {
+   "date": "2017-10-18",
+   "media": 27
+  },
+  {
+   "date": "2017-10-19",
+   "media": 59
+  },
+  {
+   "date": "2017-10-20",
+   "media": 35
+  },
+  {
+   "date": "2017-10-21",
+   "media": 27
+  }
+ ],
+ "days": [
+  {
+   "date": "2017-10-22",
+   "fxPct": -0.566,
+   "equityRel": -0.318,
+   "defenseRel": 0.486,
+   "wikiPct": 91,
+   "media": 35
+  },
+  {
+   "date": "2017-10-23",
+   "fxPct": 0.985,
+   "equityRel": -0.293,
+   "defenseRel": 0.625,
+   "wikiPct": 103,
+   "media": 48
+  },
+  {
+   "date": "2017-10-24",
+   "fxPct": 0.667,
+   "equityRel": -0.09,
+   "defenseRel": -2.525,
+   "wikiPct": 103,
+   "media": 272
+  },
+  {
+   "date": "2017-10-25",
+   "fxPct": 0.656,
+   "equityRel": 1.289,
+   "defenseRel": 0.236,
+   "wikiPct": 111,
+   "media": 68
+  },
+  {
+   "date": "2017-10-26",
+   "fxPct": 0.569,
+   "equityRel": -0.264,
+   "defenseRel": -1.58,
+   "wikiPct": 102,
+   "media": 74
+  },
+  {
+   "date": "2017-10-27",
+   "fxPct": 1.59,
+   "equityRel": -0.94,
+   "defenseRel": -0.772,
+   "wikiPct": 101,
+   "media": 50
+  },
+  {
+   "date": "2017-10-28",
+   "fxPct": 1.59,
+   "equityRel": -0.94,
+   "defenseRel": -0.772,
+   "wikiPct": 87,
+   "media": 26
+  },
+  {
+   "date": "2017-10-29",
+   "fxPct": 1.59,
+   "equityRel": -0.94,
+   "defenseRel": -0.772,
+   "wikiPct": 84,
+   "media": 35
+  },
+  {
+   "date": "2017-10-30",
+   "fxPct": -0.82,
+   "equityRel": 1.169,
+   "defenseRel": 0.524,
+   "wikiPct": 89,
+   "media": 27
+  },
+  {
+   "date": "2017-10-31",
+   "fxPct": -0.26,
+   "equityRel": 0.607,
+   "defenseRel": -0.247,
+   "wikiPct": 104,
+   "media": 37
+  },
+  {
+   "date": "2017-11-01",
+   "fxPct": 0.266,
+   "equityRel": 2.098,
+   "defenseRel": -0.665,
+   "wikiPct": 99,
+   "media": 30
+  },
+  {
+   "date": "2017-11-02",
+   "fxPct": 0.631,
+   "equityRel": -0.155,
+   "defenseRel": 1.37,
+   "wikiPct": 98,
+   "media": 57
+  },
+  {
+   "date": "2017-11-03",
+   "fxPct": -0.314,
+   "equityRel": -0.991,
+   "defenseRel": -0.59,
+   "wikiPct": 88,
+   "media": 25
+  },
+  {
+   "date": "2017-11-04",
+   "fxPct": -0.314,
+   "equityRel": -0.991,
+   "defenseRel": -0.59,
+   "wikiPct": 95,
+   "media": 25
+  },
+  {
+   "date": "2017-11-05",
+   "fxPct": -0.314,
+   "equityRel": -0.991,
+   "defenseRel": -0.59,
+   "wikiPct": 89,
+   "media": 17
+  },
+  {
+   "date": "2017-11-06",
+   "fxPct": 2.158,
+   "equityRel": 1.459,
+   "defenseRel": -0.098,
+   "wikiPct": 98,
+   "media": 35
+  },
+  {
+   "date": "2017-11-07",
+   "fxPct": -1.418,
+   "equityRel": -1.019,
+   "defenseRel": 1.054,
+   "wikiPct": 98,
+   "media": 17
+  },
+  {
+   "date": "2017-11-08",
+   "fxPct": 1.484,
+   "equityRel": -0.809,
+   "defenseRel": 0.606,
+   "wikiPct": 98,
+   "media": 16
+  },
+  {
+   "date": "2017-11-09",
+   "fxPct": -0.449,
+   "equityRel": -0.853,
+   "defenseRel": -1.069,
+   "wikiPct": 101,
+   "media": 7
+  },
+  {
+   "date": "2017-11-10",
+   "fxPct": -0.115,
+   "equityRel": -0.746,
+   "defenseRel": 0.119,
+   "wikiPct": 103,
+   "media": 52
+  },
+  {
+   "date": "2017-11-11",
+   "fxPct": -0.115,
+   "equityRel": -0.746,
+   "defenseRel": 0.119,
+   "wikiPct": 93,
+   "media": 5
+  },
+  {
+   "date": "2017-11-12",
+   "fxPct": -0.115,
+   "equityRel": -0.746,
+   "defenseRel": 0.119,
+   "wikiPct": 89,
+   "media": 4
+  },
+  {
+   "date": "2017-11-13",
+   "fxPct": -0.076,
+   "equityRel": 0.134,
+   "defenseRel": 0.474,
+   "wikiPct": 86,
+   "media": 64
+  },
+  {
+   "date": "2017-11-14",
+   "fxPct": 0.269,
+   "equityRel": 1.855,
+   "defenseRel": 0.483,
+   "wikiPct": 108,
+   "media": 33
+  },
+  {
+   "date": "2017-11-15",
+   "fxPct": 0.462,
+   "equityRel": -1.685,
+   "defenseRel": -0.436,
+   "wikiPct": 105,
+   "media": 76
+  },
+  {
+   "date": "2017-11-16",
+   "fxPct": 0.462,
+   "equityRel": -2.768,
+   "defenseRel": -0.173,
+   "wikiPct": 90,
+   "media": 24
+  },
+  {
+   "date": "2017-11-17",
+   "fxPct": -0.597,
+   "equityRel": -1.183,
+   "defenseRel": -0.681,
+   "wikiPct": 85,
+   "media": 184
+  },
+  {
+   "date": "2017-11-18",
+   "fxPct": -0.597,
+   "equityRel": -1.183,
+   "defenseRel": -0.681,
+   "wikiPct": 95,
+   "media": 55
+  },
+  {
+   "date": "2017-11-19",
+   "fxPct": -0.597,
+   "equityRel": -1.183,
+   "defenseRel": -0.681,
+   "wikiPct": 88,
+   "media": 41
+  },
+  {
+   "date": "2017-11-20",
+   "fxPct": 0.134,
+   "equityRel": -2.704,
+   "defenseRel": 1.471,
+   "wikiPct": 96,
+   "media": 114
+  },
+  {
+   "date": "2017-11-21",
+   "fxPct": 1.506,
+   "equityRel": -0.034,
+   "defenseRel": 0.074,
+   "wikiPct": 105,
+   "media": 113
+  },
+  {
+   "date": "2017-11-22",
+   "fxPct": 0.861,
+   "equityRel": 0.409,
+   "defenseRel": -0.578,
+   "wikiPct": 124,
+   "media": 118
+  },
+  {
+   "date": "2017-11-23",
+   "fxPct": -1.078,
+   "equityRel": 0.409,
+   "defenseRel": -0.578,
+   "wikiPct": 122,
+   "media": 63
+  },
+  {
+   "date": "2017-11-24",
+   "fxPct": 0.092,
+   "equityRel": -0.254,
+   "defenseRel": 0.096,
+   "wikiPct": 126,
+   "media": 63
+  },
+  {
+   "date": "2017-11-25",
+   "fxPct": 0.092,
+   "equityRel": -0.254,
+   "defenseRel": 0.096,
+   "wikiPct": 118,
+   "media": 21
+  },
+  {
+   "date": "2017-11-26",
+   "fxPct": 0.092,
+   "equityRel": -0.254,
+   "defenseRel": 0.096,
+   "wikiPct": 95,
+   "media": 35
+  },
+  {
+   "date": "2017-11-27",
+   "fxPct": 0.75,
+   "equityRel": 1.678,
+   "defenseRel": 0.317,
+   "wikiPct": 108,
+   "media": 65
+  },
+  {
+   "date": "2017-11-28",
+   "fxPct": -1.154,
+   "equityRel": -3.314,
+   "defenseRel": -0.255,
+   "wikiPct": 119,
+   "media": 190
+  },
+  {
+   "date": "2017-11-29",
+   "fxPct": 1.521,
+   "equityRel": 1.852,
+   "defenseRel": 0.585,
+   "wikiPct": 100,
+   "media": 59
+  },
+  {
+   "date": "2017-11-30",
+   "fxPct": -0.213,
+   "equityRel": 2.699,
+   "defenseRel": -1.33,
+   "wikiPct": 96,
+   "media": 117
+  },
+  {
+   "date": "2017-12-01",
+   "fxPct": -1.001,
+   "equityRel": 0.155,
+   "defenseRel": -1.537,
+   "wikiPct": 95
+  },
+  {
+   "date": "2017-12-02",
+   "fxPct": -1.001,
+   "equityRel": 0.155,
+   "defenseRel": -1.537,
+   "wikiPct": 85
+  },
+  {
+   "date": "2017-12-03",
+   "fxPct": -1.001,
+   "equityRel": 0.155,
+   "defenseRel": -1.537,
+   "wikiPct": 74,
+   "media": 62
+  },
+  {
+   "date": "2017-12-04",
+   "fxPct": 0.203,
+   "equityRel": 1.403,
+   "defenseRel": -0.466,
+   "wikiPct": 85,
+   "media": 37
+  },
+  {
+   "date": "2017-12-05",
+   "fxPct": -1.261,
+   "equityRel": 1.059,
+   "defenseRel": -0.152,
+   "wikiPct": 99,
+   "media": 37
+  },
+  {
+   "date": "2017-12-06",
+   "fxPct": -0.862,
+   "equityRel": 0.451,
+   "defenseRel": 0.601,
+   "wikiPct": 99,
+   "media": 18
+  },
+  {
+   "date": "2017-12-07",
+   "fxPct": 0.224,
+   "equityRel": 0.799,
+   "defenseRel": 0.492,
+   "wikiPct": 102,
+   "media": 5
+  },
+  {
+   "date": "2017-12-08",
+   "fxPct": 0.388,
+   "equityRel": 0.217,
+   "defenseRel": -0.096,
+   "wikiPct": 122,
+   "media": 27
+  },
+  {
+   "date": "2017-12-09",
+   "fxPct": 0.388,
+   "equityRel": 0.217,
+   "defenseRel": -0.096,
+   "wikiPct": 93,
+   "media": 18
+  },
+  {
+   "date": "2017-12-10",
+   "fxPct": 0.388,
+   "equityRel": 0.217,
+   "defenseRel": -0.096,
+   "wikiPct": 97,
+   "media": 15
+  },
+  {
+   "date": "2017-12-11",
+   "fxPct": -0.723,
+   "equityRel": 0.644,
+   "defenseRel": -0.219,
+   "wikiPct": 96,
+   "media": 16
+  },
+  {
+   "date": "2017-12-12",
+   "fxPct": -0.157,
+   "equityRel": 0.573,
+   "defenseRel": -0.243,
+   "wikiPct": 116,
+   "media": 99
+  },
+  {
+   "date": "2017-12-13",
+   "fxPct": 0.384,
+   "equityRel": -2.021,
+   "defenseRel": 0.649,
+   "wikiPct": 106,
+   "media": 74
+  },
+  {
+   "date": "2017-12-14",
+   "fxPct": -0.855,
+   "equityRel": 2.132,
+   "defenseRel": 0.162,
+   "wikiPct": 104,
+   "media": 67
+  },
+  {
+   "date": "2017-12-15",
+   "fxPct": 1.87,
+   "equityRel": -0.524,
+   "defenseRel": 0.935,
+   "wikiPct": 101,
+   "media": 48
+  },
+  {
+   "date": "2017-12-16",
+   "fxPct": 1.87,
+   "equityRel": -0.524,
+   "defenseRel": 0.935,
+   "wikiPct": 89,
+   "media": 6
+  },
+  {
+   "date": "2017-12-17",
+   "fxPct": 1.87,
+   "equityRel": -0.524,
+   "defenseRel": 0.935,
+   "wikiPct": 77,
+   "media": 119
+  },
+  {
+   "date": "2017-12-18",
+   "fxPct": -0.729,
+   "equityRel": -0.287,
+   "defenseRel": -0.555,
+   "wikiPct": 96,
+   "media": 37
+  },
+  {
+   "date": "2017-12-19",
+   "fxPct": -0.704,
+   "equityRel": 1.949,
+   "defenseRel": -0.541,
+   "wikiPct": 90,
+   "media": 39
+  },
+  {
+   "date": "2017-12-20",
+   "fxPct": 0.074,
+   "equityRel": 0.121,
+   "defenseRel": -0.62,
+   "wikiPct": 87,
+   "media": 74
+  },
+  {
+   "date": "2017-12-21",
+   "fxPct": -0.26,
+   "equityRel": 0.085,
+   "defenseRel": -0.365,
+   "wikiPct": 94,
+   "media": 27
+  },
+  {
+   "date": "2017-12-22",
+   "fxPct": -0.106,
+   "equityRel": -1.001,
+   "defenseRel": 0.311,
+   "wikiPct": 87,
+   "media": 10
+  },
+  {
+   "date": "2017-12-23",
+   "fxPct": -0.106,
+   "equityRel": -1.001,
+   "defenseRel": 0.311,
+   "wikiPct": 84,
+   "media": 6
+  },
+  {
+   "date": "2017-12-24",
+   "fxPct": -0.106,
+   "equityRel": -1.001,
+   "defenseRel": 0.311,
+   "wikiPct": 76,
+   "media": 30
+  },
+  {
+   "date": "2017-12-25",
+   "fxPct": -0.207,
+   "equityRel": -1.001,
+   "defenseRel": 0.311,
+   "wikiPct": 89,
+   "media": 20
+  },
+  {
+   "date": "2017-12-26",
+   "fxPct": -0.087,
+   "equityRel": 0.903,
+   "defenseRel": 0.257,
+   "wikiPct": 97,
+   "media": 6
+  },
+  {
+   "date": "2017-12-27",
+   "fxPct": 0.016,
+   "equityRel": -0.131,
+   "defenseRel": 0.213,
+   "wikiPct": 92,
+   "media": 56
+  },
+  {
+   "date": "2017-12-28",
+   "fxPct": 0.207,
+   "equityRel": 1.391,
+   "defenseRel": 0.649,
+   "wikiPct": 101,
+   "media": 16
+  },
+  {
+   "date": "2017-12-29",
+   "fxPct": -0.997,
+   "equityRel": 0.276,
+   "defenseRel": 0.192,
+   "wikiPct": 94,
+   "media": 21
+  },
+  {
+   "date": "2017-12-30",
+   "fxPct": -0.997,
+   "equityRel": 0.276,
+   "defenseRel": 0.192,
+   "wikiPct": 143,
+   "media": 22
+  },
+  {
+   "date": "2017-12-31",
+   "fxPct": -0.997,
+   "equityRel": 0.276,
+   "defenseRel": 0.192,
+   "wikiPct": 91,
+   "media": 12
+  },
+  {
+   "date": "2018-01-01",
+   "fxPct": 0.478,
+   "equityRel": 0.276,
+   "defenseRel": 0.192,
+   "wikiPct": 87,
+   "media": 15
+  },
+  {
+   "date": "2018-01-02",
+   "fxPct": -0.1,
+   "equityRel": 0.011,
+   "defenseRel": -1.612,
+   "wikiPct": 85,
+   "media": 16
+  },
+  {
+   "date": "2018-01-03",
+   "fxPct": -0.673,
+   "equityRel": -2.211,
+   "defenseRel": 0.198,
+   "wikiPct": 97,
+   "media": 11
+  },
+  {
+   "date": "2018-01-04",
+   "fxPct": 0.398,
+   "equityRel": -0.979,
+   "defenseRel": 1.313,
+   "wikiPct": 108,
+   "media": 29
+  },
+  {
+   "date": "2018-01-05",
+   "fxPct": -0.802,
+   "equityRel": 0.131,
+   "defenseRel": 0.203,
+   "wikiPct": 115,
+   "media": 57
+  },
+  {
+   "date": "2018-01-06",
+   "fxPct": -0.802,
+   "equityRel": 0.131,
+   "defenseRel": 0.203,
+   "wikiPct": 98,
+   "media": 16
+  },
+  {
+   "date": "2018-01-07",
+   "fxPct": -0.802,
+   "equityRel": 0.131,
+   "defenseRel": 0.203,
+   "wikiPct": 90,
+   "media": 9
+  },
+  {
+   "date": "2018-01-08",
+   "fxPct": -0.478,
+   "equityRel": -0.286,
+   "defenseRel": -0.627,
+   "wikiPct": 101,
+   "media": 54
+  },
+  {
+   "date": "2018-01-09",
+   "fxPct": 0.309,
+   "equityRel": -0.939,
+   "defenseRel": 0.586,
+   "wikiPct": 109,
+   "media": 111
+  },
+  {
+   "date": "2018-01-10",
+   "fxPct": 0.655,
+   "equityRel": -0.614,
+   "defenseRel": 0.275,
+   "wikiPct": 110,
+   "media": 88
+  },
+  {
+   "date": "2018-01-11",
+   "fxPct": 0.804,
+   "equityRel": 0.379,
+   "defenseRel": -0.679,
+   "wikiPct": 111,
+   "media": 64
+  },
+  {
+   "date": "2018-01-12",
+   "fxPct": -0.662,
+   "equityRel": -1.023,
+   "defenseRel": 0.871,
+   "wikiPct": 114,
+   "media": 63
+  },
+  {
+   "date": "2018-01-13",
+   "fxPct": -0.662,
+   "equityRel": -1.023,
+   "defenseRel": 0.871,
+   "wikiPct": 99,
+   "media": 199
+  },
+  {
+   "date": "2018-01-14",
+   "fxPct": -0.662,
+   "equityRel": -1.023,
+   "defenseRel": 0.871,
+   "wikiPct": 97,
+   "media": 415
+  },
+  {
+   "date": "2018-01-15",
+   "fxPct": -0.583,
+   "equityRel": -1.023,
+   "defenseRel": 0.871,
+   "wikiPct": 111,
+   "media": 847
+  },
+  {
+   "date": "2018-01-16",
+   "fxPct": 1.29,
+   "equityRel": 2.398,
+   "defenseRel": -1.474,
+   "wikiPct": 121,
+   "media": 975
+  },
+  {
+   "date": "2018-01-17",
+   "fxPct": -0.034,
+   "equityRel": 0.582,
+   "defenseRel": 0.497,
+   "wikiPct": 111,
+   "media": 1041
+  },
+  {
+   "date": "2018-01-18",
+   "fxPct": 0.434,
+   "equityRel": 0.106,
+   "defenseRel": -0.394,
+   "wikiPct": 128,
+   "media": 1065
+  },
+  {
+   "date": "2018-01-19",
+   "fxPct": -1.302,
+   "equityRel": -2.282,
+   "defenseRel": -0.739,
+   "wikiPct": 121,
+   "media": 1821
+  },
+  {
+   "date": "2018-01-20",
+   "fxPct": -1.302,
+   "equityRel": -2.282,
+   "defenseRel": -0.739,
+   "wikiPct": 125,
+   "media": 2692
+  }
+ ],
+ "gov": [],
+ "airspace": [],
+ "sources": [
+  "통화: Yahoo Finance 일봉 TRY=X (여럿이면 그날 가장 약세)",
+  "증시: Yahoo Finance XU100.IS − EEM 평균",
+  "방산: LMT − ^GSPC",
+  "위키백과 조회수(Wikimedia): en:Turkey, en:Syria, en:Syrian_civil_war, en:Afrin,_Syria",
+  "보도량: GDELT DOC 2.0 \"Turkey Syria Afrin (war OR attack OR operation)\""
+ ],
+ "retrieved": "2026-11-06"
+}

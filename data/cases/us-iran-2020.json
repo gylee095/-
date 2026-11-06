@@ -1,0 +1,706 @@
+{
+ "id": "us-iran-2020",
+ "name": "솔레이마니 피살 뒤 미↔이란 위기 (전쟁 안 남)",
+ "outcome": "no_war",
+ "start": "2019-10-03",
+ "end": "2020-01-08",
+ "preroll": [],
+ "days": [
+  {
+   "date": "2019-10-03",
+   "fxPct": 0,
+   "equityRel": -0.494,
+   "defenseRel": -0.262,
+   "wikiPct": 88
+  },
+  {
+   "date": "2019-10-04",
+   "fxPct": 0,
+   "equityRel": 0.98,
+   "defenseRel": -0.016,
+   "wikiPct": 90
+  },
+  {
+   "date": "2019-10-05",
+   "fxPct": 0,
+   "equityRel": 0.98,
+   "defenseRel": -0.016,
+   "wikiPct": 84
+  },
+  {
+   "date": "2019-10-06",
+   "fxPct": 0,
+   "equityRel": 0.98,
+   "defenseRel": -0.016,
+   "wikiPct": 75
+  },
+  {
+   "date": "2019-10-07",
+   "fxPct": 0,
+   "equityRel": 0.382,
+   "defenseRel": 0.101,
+   "wikiPct": 80
+  },
+  {
+   "date": "2019-10-08",
+   "fxPct": 0,
+   "equityRel": -0.842,
+   "defenseRel": 0.624,
+   "wikiPct": 87
+  },
+  {
+   "date": "2019-10-09",
+   "fxPct": 0,
+   "equityRel": 0.142,
+   "defenseRel": -0.137,
+   "wikiPct": 92
+  },
+  {
+   "date": "2019-10-10",
+   "fxPct": 0,
+   "equityRel": -0.392,
+   "defenseRel": 0.396,
+   "wikiPct": 87
+  },
+  {
+   "date": "2019-10-11",
+   "fxPct": 0,
+   "equityRel": -0.513,
+   "defenseRel": -0.96,
+   "wikiPct": 95
+  },
+  {
+   "date": "2019-10-12",
+   "fxPct": 0,
+   "equityRel": -0.513,
+   "defenseRel": -0.96,
+   "wikiPct": 92
+  },
+  {
+   "date": "2019-10-13",
+   "fxPct": 0,
+   "equityRel": -0.513,
+   "defenseRel": -0.96,
+   "wikiPct": 76
+  },
+  {
+   "date": "2019-10-14",
+   "fxPct": 0,
+   "equityRel": 0.293,
+   "defenseRel": 0.204,
+   "wikiPct": 84
+  },
+  {
+   "date": "2019-10-15",
+   "fxPct": 0,
+   "equityRel": 0.105,
+   "defenseRel": -0.893,
+   "wikiPct": 98
+  },
+  {
+   "date": "2019-10-16",
+   "fxPct": 0,
+   "equityRel": -0.486,
+   "defenseRel": 0.417,
+   "wikiPct": 92
+  },
+  {
+   "date": "2019-10-17",
+   "fxPct": 0,
+   "equityRel": -0.104,
+   "defenseRel": -0.497,
+   "wikiPct": 88
+  },
+  {
+   "date": "2019-10-18",
+   "fxPct": 0,
+   "equityRel": 0.129,
+   "defenseRel": -0.711,
+   "wikiPct": 90
+  },
+  {
+   "date": "2019-10-19",
+   "fxPct": 0,
+   "equityRel": 0.129,
+   "defenseRel": -0.711,
+   "wikiPct": 80
+  },
+  {
+   "date": "2019-10-20",
+   "fxPct": 0,
+   "equityRel": 0.129,
+   "defenseRel": -0.711,
+   "wikiPct": 79
+  },
+  {
+   "date": "2019-10-21",
+   "fxPct": 0,
+   "equityRel": -0.218,
+   "defenseRel": 0.09,
+   "wikiPct": 84
+  },
+  {
+   "date": "2019-10-22",
+   "fxPct": 0,
+   "equityRel": -0.428,
+   "defenseRel": 1.413,
+   "wikiPct": 92
+  },
+  {
+   "date": "2019-10-23",
+   "fxPct": 0,
+   "equityRel": 0.261,
+   "defenseRel": -0.894,
+   "wikiPct": 109
+  },
+  {
+   "date": "2019-10-24",
+   "fxPct": 0,
+   "equityRel": 0.192,
+   "defenseRel": 1.291,
+   "wikiPct": 90
+  },
+  {
+   "date": "2019-10-25",
+   "fxPct": 0,
+   "equityRel": -0.3,
+   "defenseRel": -1.11,
+   "wikiPct": 84
+  },
+  {
+   "date": "2019-10-26",
+   "fxPct": 0,
+   "equityRel": -0.3,
+   "defenseRel": -1.11,
+   "wikiPct": 79
+  },
+  {
+   "date": "2019-10-27",
+   "fxPct": 0,
+   "equityRel": -0.3,
+   "defenseRel": -1.11,
+   "wikiPct": 75
+  },
+  {
+   "date": "2019-10-28",
+   "fxPct": 0,
+   "equityRel": -0.027,
+   "defenseRel": -0.38,
+   "wikiPct": 85
+  },
+  {
+   "date": "2019-10-29",
+   "fxPct": 0,
+   "equityRel": 0.429,
+   "defenseRel": -0.38,
+   "wikiPct": 90
+  },
+  {
+   "date": "2019-10-30",
+   "fxPct": 0,
+   "equityRel": -0.119,
+   "defenseRel": 1.338,
+   "wikiPct": 98
+  },
+  {
+   "date": "2019-10-31",
+   "fxPct": 0,
+   "equityRel": 0.49,
+   "defenseRel": -0.047,
+   "wikiPct": 96
+  },
+  {
+   "date": "2019-11-01",
+   "fxPct": 0,
+   "equityRel": -0.537,
+   "defenseRel": 0.444,
+   "wikiPct": 99
+  },
+  {
+   "date": "2019-11-02",
+   "fxPct": 0,
+   "equityRel": -0.537,
+   "defenseRel": 0.444,
+   "wikiPct": 90
+  },
+  {
+   "date": "2019-11-03",
+   "fxPct": 0,
+   "equityRel": -0.537,
+   "defenseRel": 0.444,
+   "wikiPct": 85
+  },
+  {
+   "date": "2019-11-04",
+   "fxPct": 0,
+   "equityRel": -0.625,
+   "defenseRel": -0.706,
+   "wikiPct": 95
+  },
+  {
+   "date": "2019-11-05",
+   "fxPct": 0,
+   "equityRel": -0.691,
+   "defenseRel": 0.12,
+   "wikiPct": 112
+  },
+  {
+   "date": "2019-11-06",
+   "fxPct": 0,
+   "equityRel": 0.389,
+   "defenseRel": 0.91,
+   "wikiPct": 102
+  },
+  {
+   "date": "2019-11-07",
+   "fxPct": 0,
+   "equityRel": -0.458,
+   "defenseRel": -0.268,
+   "wikiPct": 99
+  },
+  {
+   "date": "2019-11-08",
+   "fxPct": 0,
+   "equityRel": 1.164,
+   "defenseRel": 0.205,
+   "wikiPct": 110
+  },
+  {
+   "date": "2019-11-09",
+   "fxPct": 0,
+   "equityRel": 1.164,
+   "defenseRel": 0.205,
+   "wikiPct": 91
+  },
+  {
+   "date": "2019-11-10",
+   "fxPct": 0,
+   "equityRel": 1.164,
+   "defenseRel": 0.205,
+   "wikiPct": 84
+  },
+  {
+   "date": "2019-11-11",
+   "fxPct": 0,
+   "equityRel": 0.513,
+   "defenseRel": -0.088,
+   "wikiPct": 95
+  },
+  {
+   "date": "2019-11-12",
+   "fxPct": 0,
+   "equityRel": 0.802,
+   "defenseRel": 0.546,
+   "wikiPct": 113
+  },
+  {
+   "date": "2019-11-13",
+   "fxPct": 0,
+   "equityRel": 0.837,
+   "defenseRel": 0.082,
+   "wikiPct": 110
+  },
+  {
+   "date": "2019-11-14",
+   "fxPct": 0,
+   "equityRel": 0.014,
+   "defenseRel": 0.167,
+   "wikiPct": 111
+  },
+  {
+   "date": "2019-11-15",
+   "fxPct": 0,
+   "equityRel": -0.025,
+   "defenseRel": 0.087,
+   "wikiPct": 106
+  },
+  {
+   "date": "2019-11-16",
+   "fxPct": 0,
+   "equityRel": -0.025,
+   "defenseRel": 0.087,
+   "wikiPct": 90
+  },
+  {
+   "date": "2019-11-17",
+   "fxPct": 0,
+   "equityRel": -0.025,
+   "defenseRel": 0.087,
+   "wikiPct": 92
+  },
+  {
+   "date": "2019-11-18",
+   "fxPct": 0,
+   "equityRel": 0.213,
+   "defenseRel": -0.234,
+   "wikiPct": 108
+  },
+  {
+   "date": "2019-11-19",
+   "fxPct": 0,
+   "equityRel": -0.268,
+   "defenseRel": -0.437,
+   "wikiPct": 116
+  },
+  {
+   "date": "2019-11-20",
+   "fxPct": 0,
+   "equityRel": 0.065,
+   "defenseRel": 0.038,
+   "wikiPct": 122
+  },
+  {
+   "date": "2019-11-21",
+   "fxPct": 0,
+   "equityRel": 0.051,
+   "defenseRel": 0.069,
+   "wikiPct": 136
+  },
+  {
+   "date": "2019-11-22",
+   "fxPct": 0,
+   "equityRel": 0.217,
+   "defenseRel": -0.02,
+   "wikiPct": 116
+  },
+  {
+   "date": "2019-11-23",
+   "fxPct": 0,
+   "equityRel": 0.217,
+   "defenseRel": -0.02,
+   "wikiPct": 102
+  },
+  {
+   "date": "2019-11-24",
+   "fxPct": 0,
+   "equityRel": 0.217,
+   "defenseRel": -0.02,
+   "wikiPct": 93
+  },
+  {
+   "date": "2019-11-25",
+   "fxPct": 0,
+   "equityRel": -0.252,
+   "defenseRel": -0.909,
+   "wikiPct": 99
+  },
+  {
+   "date": "2019-11-26",
+   "fxPct": 0,
+   "equityRel": 0.52,
+   "defenseRel": 0.307,
+   "wikiPct": 105
+  },
+  {
+   "date": "2019-11-27",
+   "fxPct": 0,
+   "equityRel": 0.302,
+   "defenseRel": 0.041,
+   "wikiPct": 104
+  },
+  {
+   "date": "2019-11-28",
+   "fxPct": 0,
+   "equityRel": 0.302,
+   "defenseRel": 0.041,
+   "wikiPct": 100
+  },
+  {
+   "date": "2019-11-29",
+   "fxPct": 0,
+   "equityRel": 1.172,
+   "defenseRel": -0.167,
+   "wikiPct": 112
+  },
+  {
+   "date": "2019-11-30",
+   "fxPct": 0,
+   "equityRel": 1.172,
+   "defenseRel": -0.167,
+   "wikiPct": 94
+  },
+  {
+   "date": "2019-12-01",
+   "fxPct": 0,
+   "equityRel": 1.172,
+   "defenseRel": -0.167,
+   "wikiPct": 85
+  },
+  {
+   "date": "2019-12-02",
+   "fxPct": 0,
+   "equityRel": -0.84,
+   "defenseRel": -1.214,
+   "wikiPct": 93
+  },
+  {
+   "date": "2019-12-03",
+   "fxPct": 0,
+   "equityRel": -0.147,
+   "defenseRel": -0.031,
+   "wikiPct": 102
+  },
+  {
+   "date": "2019-12-04",
+   "fxPct": 0,
+   "equityRel": -0.124,
+   "defenseRel": 0.03,
+   "wikiPct": 104
+  },
+  {
+   "date": "2019-12-05",
+   "fxPct": 0,
+   "equityRel": -0.296,
+   "defenseRel": 0.283,
+   "wikiPct": 100
+  },
+  {
+   "date": "2019-12-06",
+   "fxPct": 0,
+   "equityRel": 0.33,
+   "defenseRel": -0.199,
+   "wikiPct": 106
+  },
+  {
+   "date": "2019-12-07",
+   "fxPct": 0,
+   "equityRel": 0.33,
+   "defenseRel": -0.199,
+   "wikiPct": 96
+  },
+  {
+   "date": "2019-12-08",
+   "fxPct": 0,
+   "equityRel": 0.33,
+   "defenseRel": -0.199,
+   "wikiPct": 95
+  },
+  {
+   "date": "2019-12-09",
+   "fxPct": 0,
+   "equityRel": 0.078,
+   "defenseRel": -0.401,
+   "wikiPct": 104
+  },
+  {
+   "date": "2019-12-10",
+   "fxPct": 0,
+   "equityRel": -0.459,
+   "defenseRel": -0.037,
+   "wikiPct": 100
+  },
+  {
+   "date": "2019-12-11",
+   "fxPct": 0,
+   "equityRel": -1.173,
+   "defenseRel": 0.597,
+   "wikiPct": 96
+  },
+  {
+   "date": "2019-12-12",
+   "fxPct": 0,
+   "equityRel": -0.882,
+   "defenseRel": -0.414,
+   "wikiPct": 93
+  },
+  {
+   "date": "2019-12-13",
+   "fxPct": 0,
+   "equityRel": 0.052,
+   "defenseRel": 0.194,
+   "wikiPct": 95
+  },
+  {
+   "date": "2019-12-14",
+   "fxPct": 0,
+   "equityRel": 0.052,
+   "defenseRel": 0.194,
+   "wikiPct": 84
+  },
+  {
+   "date": "2019-12-15",
+   "fxPct": 0,
+   "equityRel": 0.052,
+   "defenseRel": 0.194,
+   "wikiPct": 73
+  },
+  {
+   "date": "2019-12-16",
+   "fxPct": 0,
+   "equityRel": 1.975,
+   "defenseRel": -0.651,
+   "wikiPct": 83
+  },
+  {
+   "date": "2019-12-17",
+   "fxPct": 0,
+   "equityRel": -0.878,
+   "defenseRel": -0.193,
+   "wikiPct": 93
+  },
+  {
+   "date": "2019-12-18",
+   "fxPct": 0,
+   "equityRel": -0.585,
+   "defenseRel": -1.08,
+   "wikiPct": 92
+  },
+  {
+   "date": "2019-12-19",
+   "fxPct": 0,
+   "equityRel": 0.401,
+   "defenseRel": 0.232,
+   "wikiPct": 92
+  },
+  {
+   "date": "2019-12-20",
+   "fxPct": 0,
+   "equityRel": 0.292,
+   "defenseRel": 0.201,
+   "wikiPct": 103
+  },
+  {
+   "date": "2019-12-21",
+   "fxPct": 0,
+   "equityRel": 0.292,
+   "defenseRel": 0.201,
+   "wikiPct": 76
+  },
+  {
+   "date": "2019-12-22",
+   "fxPct": 0,
+   "equityRel": 0.292,
+   "defenseRel": 0.201,
+   "wikiPct": 71
+  },
+  {
+   "date": "2019-12-23",
+   "fxPct": 0,
+   "equityRel": -0.048,
+   "defenseRel": 0.726,
+   "wikiPct": 75
+  },
+  {
+   "date": "2019-12-24",
+   "fxPct": 0,
+   "equityRel": 0.204,
+   "defenseRel": -0.285,
+   "wikiPct": 88
+  },
+  {
+   "date": "2019-12-25",
+   "fxPct": 0,
+   "equityRel": 0.204,
+   "defenseRel": -0.285,
+   "wikiPct": 79
+  },
+  {
+   "date": "2019-12-26",
+   "fxPct": 0,
+   "equityRel": -0.205,
+   "defenseRel": 0.141,
+   "wikiPct": 78
+  },
+  {
+   "date": "2019-12-27",
+   "fxPct": 0,
+   "equityRel": -0.398,
+   "defenseRel": 0.02,
+   "wikiPct": 84
+  },
+  {
+   "date": "2019-12-28",
+   "fxPct": 0,
+   "equityRel": -0.398,
+   "defenseRel": 0.02,
+   "wikiPct": 86
+  },
+  {
+   "date": "2019-12-29",
+   "fxPct": 0,
+   "equityRel": -0.398,
+   "defenseRel": 0.02,
+   "wikiPct": 95
+  },
+  {
+   "date": "2019-12-30",
+   "fxPct": 0,
+   "equityRel": 0.088,
+   "defenseRel": 0.229,
+   "wikiPct": 95
+  },
+  {
+   "date": "2019-12-31",
+   "fxPct": 0,
+   "equityRel": 0.071,
+   "defenseRel": -0.656,
+   "wikiPct": 111
+  },
+  {
+   "date": "2020-01-01",
+   "fxPct": 0,
+   "equityRel": 0.071,
+   "defenseRel": -0.656,
+   "wikiPct": 146
+  },
+  {
+   "date": "2020-01-02",
+   "fxPct": 0,
+   "equityRel": -1.19,
+   "defenseRel": 1.573,
+   "wikiPct": 147
+  },
+  {
+   "date": "2020-01-03",
+   "fxPct": 0,
+   "equityRel": 1.151,
+   "defenseRel": 2.574,
+   "wikiPct": 158
+  },
+  {
+   "date": "2020-01-04",
+   "fxPct": 0,
+   "equityRel": 1.151,
+   "defenseRel": 2.574,
+   "wikiPct": 7417
+  },
+  {
+   "date": "2020-01-05",
+   "fxPct": 0,
+   "equityRel": 1.151,
+   "defenseRel": 2.574,
+   "wikiPct": 5905
+  },
+  {
+   "date": "2020-01-06",
+   "fxPct": 0,
+   "equityRel": 0.598,
+   "defenseRel": -0.322,
+   "wikiPct": 4325
+  },
+  {
+   "date": "2020-01-07",
+   "fxPct": 0,
+   "equityRel": -0.213,
+   "defenseRel": 0.289,
+   "wikiPct": 3750
+  },
+  {
+   "date": "2020-01-08",
+   "fxPct": 0,
+   "equityRel": -0.09,
+   "defenseRel": -0.834,
+   "wikiPct": 3283
+  }
+ ],
+ "gov": [],
+ "airspace": [],
+ "sources": [
+  "통화: Yahoo Finance 일봉 IRR=X (여럿이면 그날 가장 약세)",
+  "증시: Yahoo Finance ^GSPC − EEM 평균",
+  "방산: LMT·RTX − ^GSPC",
+  "위키백과 조회수(Wikimedia): en:Iran, en:United_States, en:Assassination_of_Qasem_Soleimani, en:Iran–United_States_relations, en:Islamic_Revolutionary_Guard_Corps",
+  "보도량: GDELT DOC 2.0 \"Iran United States (war OR attack OR strike OR Soleimani)\""
+ ],
+ "retrieved": "2026-11-06"
+}

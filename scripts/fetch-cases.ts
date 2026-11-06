@@ -45,8 +45,8 @@ const WIKI_TW: [string, string][] = [["en", "Taiwan"], ["en", "China"], ["en", "
 const WIKI_US_IR: [string, string][] = [["en", "Iran"], ["en", "United_States"], ["en", "Assassination_of_Qasem_Soleimani"], ["en", "Iran–United_States_relations"], ["en", "Islamic_Revolutionary_Guard_Corps"]];
 const WIKI_NK: [string, string][] = [["en", "North_Korea"], ["en", "North_Korea_and_weapons_of_mass_destruction"], ["en", "Korean_Peninsula"], ["en", "Korean_Demilitarized_Zone"]];
 const WIKI_IL_HZ: [string, string][] = [["en", "Israel"], ["en", "Hezbollah"], ["en", "Lebanon"], ["en", "Israel_Defense_Forces"], ["en", "2024_Israel–Hezbollah_conflict"]];
-const WIKI_SA_YE: [string, string][] = [["en", "Yemen"], ["en", "Saudi_Arabia"], ["en", "Houthi_movement"], ["en", "Saudi-led_intervention_in_Yemen"], ["en", "Yemeni_Civil_War_(2014–present)"]];
-const WIKI_TR_SY: [string, string][] = [["en", "Turkey"], ["en", "Syria"], ["en", "Turkish_involvement_in_the_Syrian_civil_war"], ["en", "Operation_Olive_Branch"], ["en", "Afrin_District"]];
+const WIKI_SA_YE: [string, string][] = [["en", "Yemen"], ["en", "Saudi_Arabia"]];
+const WIKI_TR_SY: [string, string][] = [["en", "Turkey"], ["en", "Syria"], ["en", "Syrian_civil_war"], ["en", "Afrin,_Syria"]];
 const RU = { fx: ["RUB=X", "UAH=X"], equity: moex, peers: ["EEM", "^STOXX50E"], defense: [y("RHM.DE"), y("BA.L"), y("LMT")], defenseBase: [y("^STOXX50E"), y("^GSPC")], wiki: WIKI_RU };
 const IL = { fx: ["ILS=X"], equity: y("TA35.TA"), peers: ["EEM", "^STOXX50E"], defense: [y("ESLT.TA")], defenseBase: [y("TA35.TA")], wiki: WIKI_IL };
 
@@ -77,7 +77,7 @@ export const CASES: CaseConfig[] = [
   { id: "saudi-yemen-2015", name: "사우디 → 예멘 결정적 폭풍 작전", outcome: "war", truthDate: "2015-03-26", start: "2014-12-26", end: "2015-03-26",
     fx: ["SAR=X"], equity: y("^TASI.SR"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: WIKI_SA_YE, gdelt: "Saudi Yemen (war OR attack OR airstrikes)" },
   { id: "ethiopia-tigray-2020", name: "에티오피아 → 티그라이 내전", outcome: "war", truthDate: "2020-11-04", start: "2020-08-06", end: "2020-11-04",
-    fx: ["ETB=X"], equity: y("^GSPC"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: [["en", "Tigray_War"], ["en", "Ethiopia"], ["en", "Tigray_Region"], ["en", "Tigray_People%27s_Liberation_Front"]], gdelt: "Ethiopia Tigray (war OR attack OR conflict)" },
+    fx: ["ETB=X"], equity: y("^GSPC"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: [["en", "Ethiopia"], ["en", "Tigray_Region"], ["en", "Ethiopian_People's_Revolutionary_Democratic_Front"]], gdelt: "Ethiopia Tigray (war OR attack OR conflict)" },
   // 안 터진 위기 (4건)
   { id: "taiwan-2024", name: "대만 2024 (라이칭더 취임 뒤 중국 훈련, 전쟁 안 남)", outcome: "no_war", start: "2024-02-20", end: "2024-05-27",
     fx: ["TWD=X"], equity: y("^TWII"), peers: ["EEM"], defense: [y("LMT")], defenseBase: [y("^GSPC")], wiki: WIKI_TW, gdelt: "Taiwan China (war OR invasion OR military)" },
@@ -281,11 +281,13 @@ async function main() {
     process.exitCode = 1;
     continue;
   }
-  if (empty.length) {
-    console.error(`  ${c.id}: ${empty.join(", ")} 자료가 통째로 비어 저장하지 않음 — 나중에 다시 실행`);
+  const critical = empty.filter(k => k !== "media" && k !== "wikiPct"); // GDELT 장애·위키 API 미지원 시 부분 저장 (지시서 001: 빠진 영역 표시)
+  if (critical.length && !process.argv.includes("--allow-partial")) {
+    console.error(`  ${c.id}: ${critical.join(", ")} 자료가 통째로 비어 저장하지 않음 — 나중에 다시 실행`);
     process.exitCode = 1;
     continue;
   }
+  if (empty.length) console.warn(`  ${c.id}: ${empty.join(", ")} 빠짐 (부분 저장)`);
   writeFileSync(new URL(`${c.id}.json`, OUT), JSON.stringify(out, null, 1) + "\n");
   const n = (k: keyof CaseDay) => out.days.filter((d) => typeof d[k] === "number").length;
   console.log(`  ${out.days.length}일 · 통화 ${n("fxPct")} 증시 ${n("equityRel")} 방산 ${n("defenseRel")} 위키 ${n("wikiPct")} 보도 ${n("media")} · 정부 ${out.gov.length} 영공 ${out.airspace.length}`);

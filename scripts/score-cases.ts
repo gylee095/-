@@ -11,8 +11,14 @@ const DIR = new URL("../data/cases/", import.meta.url);
 const NOT_CASE = new Set(["events.json", "scorecard.json", "scorecard-v1.json"]);
 const files = readdirSync(DIR).filter((f) => f.endsWith(".json") && !NOT_CASE.has(f)).sort();
 const cases: CaseFile[] = files.map((f) => JSON.parse(readFileSync(new URL(f, DIR), "utf8")));
-const ORDER = ["ukraine-2022", "russia-buildup-2021", "hamas-2023", "iran-israel-2024-04", "iran-israel-2024-10", "israel-iran-2025"];
-cases.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
+const ORDER = [
+  "ukraine-2022", "russia-buildup-2021", "hamas-2023", "iran-israel-2024-04", "iran-israel-2024-10", "israel-iran-2025",
+  "azerbaijan-armenia-2020", "india-pakistan-2019", "israel-hezbollah-2024", "turkey-syria-afrin-2018",
+  "saudi-yemen-2015", "ethiopia-tigray-2020",
+  "taiwan-2024", "us-iran-2020", "india-china-2020", "north-korea-2017",
+];
+const idx = (id: string) => { const i = ORDER.indexOf(id); return i < 0 ? ORDER.length : i; };
+cases.sort((a, b) => idx(a.id) - idx(b.id));
 
 const results = cases.map((c) => {
   const replay = replayCase(c);
@@ -70,7 +76,8 @@ const eveOf = (r: (typeof results)[number]) => {
 };
 const missing = ORDER.filter((id) => !cases.some((c) => c.id === id));
 const extra = cases.filter((c) => !ORDER.includes(c.id)).map((c) => c.id);
-if (missing.length || extra.length) throw new Error(`사례 파일이 정해진 목록과 다르다 — 빠짐: ${missing.join(",") || "없음"}, 모르는 것: ${extra.join(",") || "없음"} (ORDER 갱신 또는 fetch-cases)`);
+if (missing.length) console.warn(`  ORDER에 있지만 파일 없음 (건너뜀): ${missing.join(", ")}`);
+if (extra.length) throw new Error(`ORDER에 없는 파일: ${extra.join(",")} (ORDER 갱신 필요)`);
 // 0점 = 운영 규칙이 정한 '평소' 눈금 자리 (값을 베껴 쓰지 않고 규칙에서 읽는다)
 const usualGauge = assessWarRisk({ now: Date.now(), board: [], briefs: [], patterns: [] }).gauge.usual;
 const scale = { usualGauge, eveGauge: eveOf(ukr).gauge };

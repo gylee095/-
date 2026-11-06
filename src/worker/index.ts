@@ -8,6 +8,8 @@ import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, report
 import { SHELL_HEAD, buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
 import { readOnlyD1 } from "./readonly.js";
+import { updateOfficial } from "../core/official.js";
+import type { WarRisk } from "../core/warrisk.js";
 import { OPSNAP_PREFIX, loadOpsSnaps, setOpsSnapshotMaker, snapSig } from "../core/opsnap.js";
 
 // 운영자 알림을 보낼 때 그 순간의 대시보드 전체를 얼린다 (손님 리포트와 같은 freezeState) — notify.ts 가 부른다
@@ -88,7 +90,7 @@ export async function markStaging(res: Response, url: URL): Promise<Response> {
  * 실험 비교 (시험 서버): A = 본 서버가 5분마다 남긴 최신 판정(본 서버 코드), B = 같은 데이터로 이 코드가 지금 낸 판정.
  * 규칙을 바꾼 효과만 보이도록 입력은 같다.
  */
-async function abCompare(store: D1Store, b: Awaited<ReturnType<typeof buildState>>["warRisk"]) {
+async function abCompare(store: D1Store, b: WarRisk) {
   const raw = await store.getKv(CURRENT_KEY);
   const a = raw ? (JSON.parse(raw) as Report) : undefined;
   const B = reportFromRisk(b, Date.now(), "snapshot");
@@ -197,11 +199,14 @@ export default {
             await store.setKv("risk:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
           // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
-          await notifyPhaseChange(store, env, st.warRisk, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
+          // 단계 알림은 5분마다 하는 계산(live)으로 판단한다 — 공식 판정(하루 한 번)으로 하면 바뀐 단계를 늦게 알게 된다
+          await notifyPhaseChange(store, env, st.warRisk.live, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
             await store.setKv("phase_notify:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
+          // 오늘의 판정 (11/6): 오전 8시에 한 번, 또는 확인된 단계가 바뀌면 바로 새로 정한다
+          await updateOfficial(store, st.warRisk.live, report.at).catch(() => undefined);
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
-            await maybeFireDeep(store, env, { warRisk: st.warRisk, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined) });
+            await maybeFireDeep(store, env, { warRisk: st.warRisk.live, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined) });
         } catch (e) {
           await store.setKv("deep:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
         }
@@ -423,7 +428,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   if (url.pathname === "/api/state" && req.method === "GET") {
     const hours = Math.min(Number(url.searchParams.get("hours") ?? 72), 720);
     const st = await buildState(store, Date.now() - hours * 3600_000, env.DISABLED_SOURCES, { dailyMax: Number(env.DEEP_DAILY_MAX ?? 2), monthlyMax: Number(env.DEEP_MONTHLY_MAX_RUNS ?? 30) });
-    const ab = env.STAGING ? await abCompare(store, st.warRisk) : undefined;
+    const ab = env.STAGING ? await abCompare(store, st.warRisk.live) : undefined;
     return json({
       ...st,
       ...(ab ? { ab } : {}),

@@ -431,11 +431,15 @@ function whyChanged(w,c){if(!c)return "";
   return h+'</div>'}
 // 첫 화면 한 장: 지금 단계 · 30일 국지 충돌 확률 · 어제와 비교 · 왜 · 오를 조건 · 마지막 도발 · 클로드 의견 · 할 일 · 데이터 상태 (2026-11-02)
 function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평온","긴장","위기","임박","교전"],LV=["평소","주의","경계","심각"];
-  var h='<div class="card sum"><div class="lead">지금 한반도 · 자동 판정 '+esc(when(w.at))+'</div>';
+  var O=w.official;
+  var h='<div class="card sum"><div class="lead">'+(O?'오늘의 판정 · '+esc(kst(O.at))+' 기준':'지금 한반도 · 자동 판정 '+esc(when(w.at)))+'</div>';
   h+='<div class="phase"><b>'+w.phase+'단계 '+esc(w.phaseLabel)+'</b><span>5단계 중 · 1953년 이후 전면전 없음</span></div>';
   h+=gauge(w,c);
   h+=whyPct(w);
-  h+=whyChanged(w,c);
+  // 하루 한 번 정하는 숫자 (11/6): 어제 판정과 비교 — 무엇이 바뀌었고 의미 있는 변화인가. 이 숫자가 무엇인지도 밝힌다
+  if(O){h+='<div class="pwhy" style="'+(O.change&&O.change.meaningful?'color:var(--l4);font-weight:700':'')+'">'+esc(O.change?O.change.text:'어제 판정 기록이 아직 없어요 — 내일부터 하루씩 비교해요.')+'</div>';
+    h+='<div class="ps" style="margin-top:4px">'+esc(O.note)+'</div><div class="ps" style="margin-top:2px">'+esc(O.basis)+'</div>'}
+  else h+=whyChanged(w,c);
   var hot=w.domains.filter(function(d){return d.level>0}).sort(function(a,b){return b.level-a.level});
   var calm=w.domains.filter(function(d){return d.level===0}).map(function(d){return d.label});
   if(hot.length){h+='<h3>왜 '+esc(w.phaseLabel)+'인가</h3><div class="why">'+hot.map(function(d){return '<div class="t"><b>'+esc(d.label)+'</b><span>'+esc((d.drivers[0]||"근거 확인 중").replace(/\s*\((이상|상승|주의|경계|심각|위급)\)(?=\s*(—|$))/,""))+'</span></div><span class="chip d'+(d.level+1)+'">'+LV[Math.min(3,d.level)]+'</span>'}).join("")+'</div>';

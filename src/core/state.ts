@@ -1,4 +1,5 @@
 // 대시보드·에이전트가 공유하는 상태 스냅샷
+import { OFFICIAL_KEY, OFFICIAL_PREV_KEY, applyOfficial, makeOfficial, type Official } from "./official.js";
 import type { AgentNote, Store } from "./store.js";
 import { dataHealthOf, markFailing } from "./datahealth.js";
 import { compareWithYesterday, judgmentsFromNotes } from "./compare.js";
@@ -48,7 +49,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const modelSince = Math.min(since, now - 14 * 24 * 3600_000);
   // 저장소(D1) 무료 한도: 신호 표 전체·시계열 표 전체를 훑지 않는다. 사건은 근거 신호 사본(evidence)을 함께 갖고 있고,
   // 스파크라인은 KV 'hourly' 한 줄에서 읽는다.
-  const [events, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourlyRaw, d1Raw, historyRaw, phaseNotifyRaw] = await Promise.all([
+  const [events, health, alerts, notes, lastCycle, readingsRaw, patternsRaw, hourlyRaw, d1Raw, historyRaw, phaseNotifyRaw, officialRaw, officialPrevRaw] = await Promise.all([
     store.getEvents(modelSince),
     store.getHealth(),
     store.getAlerts(since),
@@ -60,6 +61,8 @@ export async function buildState(store: Store, since: number, disabledSources = 
     store.getKv(`d1:${new Date(now).toISOString().slice(0, 10)}`),
     store.getKv("risk:summary"),
     store.getKv("risk:phase_notify"),
+    store.getKv(OFFICIAL_KEY),
+    store.getKv(OFFICIAL_PREV_KEY),
   ]);
   // 근거 사본이 없는 옛 사건(이 변경 전에 저장된 것)만 신호를 ID로 찾아 채우고, 한 번 다시 저장한다
   const missing = events.filter((e) => !e.evidence);
@@ -109,7 +112,10 @@ export async function buildState(store: Store, since: number, disabledSources = 
   // 규칙 기반 해설: 숫자 → 뜻 → 조합 힌트 (클로드 분석관은 이 위에서 추론한다)
   const interpretation = interpret({ now, threat, board, patterns: livePatterns, briefs: enriched.map((e) => e.brief) });
   // 전쟁 위험: 다섯 영역 → 국면 5단계 → 30일 확률 범위
-  const warRisk = assessWarRisk({ now, board, briefs: enriched.map((e) => e.brief), patterns: livePatterns });
+  const warRiskLive = assessWarRisk({ now, board, briefs: enriched.map((e) => e.brief), patterns: livePatterns });
+  // 사람에게 보이는 숫자는 하루 한 번 정하는 '오늘의 판정' (11/6). 아직 저장된 것이 없으면 지금 계산을 그대로 보인다
+  const official: Official | undefined = officialRaw ? JSON.parse(officialRaw) : makeOfficial(warRiskLive, now, "first");
+  const warRisk = applyOfficial(warRiskLive, official, officialPrevRaw ? JSON.parse(officialPrevRaw) : undefined);
   // 긴장 온도계: 지난 10년(2016~)과 같은 잣대로 잰 오늘의 위치
   const tensionNow = tensionOf(liveInputs(board, enriched.map((e) => e.brief), now));
   const tension = { ...tensionNow, view: tensionView(tensionNow) };

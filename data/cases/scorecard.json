@@ -7,7 +7,7 @@
   "caught": 3,
   "quietDays": 421,
   "falseAlarmDays": 0,
-  "flips": 36,
+  "flips": 40,
   "days": 571
  },
  "scale": {
@@ -326,20 +326,6 @@
   0,
   0,
   0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
   3,
   3,
   3,
@@ -400,6 +386,13 @@
   3,
   3,
   3,
+  3,
+  3,
+  34,
+  34,
+  34,
+  34,
+  34,
   34,
   34,
   34,
@@ -446,7 +439,14 @@
   37,
   37,
   37,
-  37
+  37,
+  37,
+  37,
+  37,
+  37,
+  37,
+  40,
+  40
  ],
  "cases": [
   {
@@ -500,7 +500,7 @@
      "domain": "public",
      "label": "사람들의 불안",
      "total": 4,
-     "measured": 1
+     "measured": 2
     }
    ],
    "signals": [
@@ -519,6 +519,14 @@
      "leadDays": 40,
      "hotDays": 40,
      "quietHotDays": 0
+    },
+    {
+     "id": "media.war_talk_24h",
+     "label": "한반도 '전쟁' 언급 보도 (24h)",
+     "first": "2022-01-18",
+     "leadDays": 37,
+     "hotDays": 34,
+     "quietHotDays": 14
     },
     {
      "id": "official.us_travel_level_kr",
@@ -848,7 +856,7 @@
    "evePressure": 4,
    "falseAlarmDays": 0,
    "quietDays": 60,
-   "flips": 4,
+   "flips": 8,
    "caught": true,
    "coverage": [
     {
@@ -885,7 +893,7 @@
      "domain": "public",
      "label": "사람들의 불안",
      "total": 4,
-     "measured": 1
+     "measured": 2
     }
    ],
    "signals": [
@@ -920,6 +928,14 @@
      "leadDays": 22,
      "hotDays": 5,
      "quietHotDays": 0
+    },
+    {
+     "id": "media.war_talk_24h",
+     "label": "한반도 '전쟁' 언급 보도 (24h)",
+     "first": "2024-09-17",
+     "leadDays": 14,
+     "hotDays": 28,
+     "quietHotDays": 17
     },
     {
      "id": "psych.wiki_korea_attention",
@@ -1029,6 +1045,16 @@
  ],
  "signals": [
   {
+   "id": "media.war_talk_24h",
+   "label": "한반도 '전쟁' 언급 보도 (24h)",
+   "caught": 5,
+   "warTotal": 5,
+   "medianLead": 23,
+   "quietHotDays": 70,
+   "quietTotal": 421,
+   "quietRatePct": 16.6
+  },
+  {
    "id": "official.ca_level_kr",
    "label": "캐나다 정부 한국 여행경보 단계",
    "caught": 3,
@@ -1047,16 +1073,6 @@
    "quietHotDays": 31,
    "quietTotal": 421,
    "quietRatePct": 7.4
-  },
-  {
-   "id": "media.war_talk_24h",
-   "label": "한반도 '전쟁' 언급 보도 (24h)",
-   "caught": 3,
-   "warTotal": 5,
-   "medianLead": 23,
-   "quietHotDays": 39,
-   "quietTotal": 421,
-   "quietRatePct": 9.3
   },
   {
    "id": "official.jp_risk_level_kr",

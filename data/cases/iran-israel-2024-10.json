@@ -5,644 +5,916 @@
  "truthDate": "2024-10-01",
  "start": "2024-07-03",
  "end": "2024-10-01",
- "preroll": [],
+ "preroll": [
+  {
+   "date": "2024-05-19",
+   "media": 990
+  },
+  {
+   "date": "2024-05-20",
+   "media": 2460
+  },
+  {
+   "date": "2024-05-21",
+   "media": 793
+  },
+  {
+   "date": "2024-05-22",
+   "media": 839
+  },
+  {
+   "date": "2024-05-23",
+   "media": 432
+  },
+  {
+   "date": "2024-05-24",
+   "media": 269
+  },
+  {
+   "date": "2024-05-25",
+   "media": 352
+  },
+  {
+   "date": "2024-05-26",
+   "media": 253
+  },
+  {
+   "date": "2024-05-27",
+   "media": 442
+  },
+  {
+   "date": "2024-05-28",
+   "media": 432
+  },
+  {
+   "date": "2024-05-29",
+   "media": 371
+  },
+  {
+   "date": "2024-05-30",
+   "media": 708
+  },
+  {
+   "date": "2024-05-31",
+   "media": 794
+  },
+  {
+   "date": "2024-06-01",
+   "media": 391
+  },
+  {
+   "date": "2024-06-02",
+   "media": 294
+  },
+  {
+   "date": "2024-06-03",
+   "media": 672
+  },
+  {
+   "date": "2024-06-04",
+   "media": 366
+  },
+  {
+   "date": "2024-06-05",
+   "media": 415
+  },
+  {
+   "date": "2024-06-06",
+   "media": 478
+  },
+  {
+   "date": "2024-06-07",
+   "media": 513
+  },
+  {
+   "date": "2024-06-08",
+   "media": 414
+  },
+  {
+   "date": "2024-06-09",
+   "media": 364
+  },
+  {
+   "date": "2024-06-10",
+   "media": 307
+  },
+  {
+   "date": "2024-06-11",
+   "media": 246
+  },
+  {
+   "date": "2024-06-12",
+   "media": 253
+  },
+  {
+   "date": "2024-06-13",
+   "media": 449
+  },
+  {
+   "date": "2024-06-14",
+   "media": 443
+  },
+  {
+   "date": "2024-06-15",
+   "media": 545
+  },
+  {
+   "date": "2024-06-16",
+   "media": 334
+  },
+  {
+   "date": "2024-06-17",
+   "media": 243
+  },
+  {
+   "date": "2024-06-18",
+   "media": 398
+  },
+  {
+   "date": "2024-06-19",
+   "media": 786
+  },
+  {
+   "date": "2024-06-20",
+   "media": 622
+  },
+  {
+   "date": "2024-06-21",
+   "media": 338
+  },
+  {
+   "date": "2024-06-22",
+   "media": 378
+  },
+  {
+   "date": "2024-06-23",
+   "media": 551
+  },
+  {
+   "date": "2024-06-24",
+   "media": 736
+  },
+  {
+   "date": "2024-06-25",
+   "media": 423
+  },
+  {
+   "date": "2024-06-26",
+   "media": 593
+  },
+  {
+   "date": "2024-06-27",
+   "media": 771
+  },
+  {
+   "date": "2024-06-28",
+   "media": 883
+  },
+  {
+   "date": "2024-06-29",
+   "media": 886
+  },
+  {
+   "date": "2024-06-30",
+   "media": 509
+  },
+  {
+   "date": "2024-07-01",
+   "media": 338
+  },
+  {
+   "date": "2024-07-02",
+   "media": 433
+  }
+ ],
  "days": [
   {
    "date": "2024-07-03",
    "fxPct": -0.188,
    "equityRel": -0.68,
    "defenseRel": 0.375,
-   "wikiPct": 82
+   "wikiPct": 82,
+   "media": 310
   },
   {
    "date": "2024-07-04",
    "fxPct": -0.649,
    "equityRel": 0.623,
    "defenseRel": -0.511,
-   "wikiPct": 81
+   "wikiPct": 81,
+   "media": 616
   },
   {
    "date": "2024-07-05",
    "fxPct": -0.649,
    "equityRel": 0.623,
    "defenseRel": -0.511,
-   "wikiPct": 83
+   "wikiPct": 83,
+   "media": 509
   },
   {
    "date": "2024-07-06",
    "fxPct": -0.649,
    "equityRel": 0.623,
    "defenseRel": -0.511,
-   "wikiPct": 77
+   "wikiPct": 77,
+   "media": 865
   },
   {
    "date": "2024-07-07",
    "fxPct": -1.237,
    "equityRel": 0.623,
    "defenseRel": -0.511,
-   "wikiPct": 73
+   "wikiPct": 73,
+   "media": 351
   },
   {
    "date": "2024-07-08",
    "fxPct": -0.595,
    "equityRel": 1.527,
    "defenseRel": -1.314,
-   "wikiPct": 85
+   "wikiPct": 85,
+   "media": 301
   },
   {
    "date": "2024-07-09",
    "fxPct": -0.013,
    "equityRel": 0.824,
    "defenseRel": -1.598,
-   "wikiPct": 84
+   "wikiPct": 84,
+   "media": 335
   },
   {
    "date": "2024-07-10",
    "fxPct": -0.325,
    "equityRel": -1.49,
    "defenseRel": 0.351,
-   "wikiPct": 83
+   "wikiPct": 83,
+   "media": 344
   },
   {
    "date": "2024-07-11",
    "fxPct": -0.523,
    "equityRel": 0.949,
    "defenseRel": -2.147,
-   "wikiPct": 85
+   "wikiPct": 85,
+   "media": 273
   },
   {
    "date": "2024-07-12",
    "fxPct": -0.523,
    "equityRel": 0.949,
    "defenseRel": -2.147,
-   "wikiPct": 86
+   "wikiPct": 86,
+   "media": 222
   },
   {
    "date": "2024-07-13",
    "fxPct": -0.523,
    "equityRel": 0.949,
    "defenseRel": -2.147,
-   "wikiPct": 87
+   "wikiPct": 87,
+   "media": 336
   },
   {
    "date": "2024-07-14",
    "fxPct": -0.774,
    "equityRel": 0.949,
    "defenseRel": -2.147,
-   "wikiPct": 90
+   "wikiPct": 90,
+   "media": 214
   },
   {
    "date": "2024-07-15",
    "fxPct": 0.38,
    "equityRel": 1.462,
    "defenseRel": -0.59,
-   "wikiPct": 86
+   "wikiPct": 86,
+   "media": 319
   },
   {
    "date": "2024-07-16",
    "fxPct": -0.049,
    "equityRel": 0.034,
    "defenseRel": -1.038,
-   "wikiPct": 88
+   "wikiPct": 88,
+   "media": 297
   },
   {
    "date": "2024-07-17",
    "fxPct": 0.375,
    "equityRel": 0.658,
    "defenseRel": 1.707,
-   "wikiPct": 87
+   "wikiPct": 87,
+   "media": 333
   },
   {
    "date": "2024-07-18",
    "fxPct": 0.113,
    "equityRel": -0.13,
    "defenseRel": 0.112,
-   "wikiPct": 92
+   "wikiPct": 92,
+   "media": 334
   },
   {
    "date": "2024-07-19",
    "fxPct": 0.113,
    "equityRel": -0.13,
    "defenseRel": 0.112,
-   "wikiPct": 87
+   "wikiPct": 87,
+   "media": 576
   },
   {
    "date": "2024-07-20",
    "fxPct": 0.113,
    "equityRel": -0.13,
    "defenseRel": 0.112,
-   "wikiPct": 89
+   "wikiPct": 89,
+   "media": 1054
   },
   {
    "date": "2024-07-21",
    "fxPct": 0.088,
    "equityRel": -0.13,
    "defenseRel": 0.112,
-   "wikiPct": 102
+   "wikiPct": 102,
+   "media": 1320
   },
   {
    "date": "2024-07-22",
    "fxPct": -0.383,
    "equityRel": -1.27,
    "defenseRel": -0.635,
-   "wikiPct": 109
+   "wikiPct": 109,
+   "media": 365
   },
   {
    "date": "2024-07-23",
    "fxPct": -0.103,
    "equityRel": 1.368,
    "defenseRel": 0.146,
-   "wikiPct": 95
+   "wikiPct": 95,
+   "media": 625
   },
   {
    "date": "2024-07-24",
    "fxPct": 0.577,
    "equityRel": 1.023,
    "defenseRel": -0.344,
-   "wikiPct": 96
+   "wikiPct": 96,
+   "media": 991
   },
   {
    "date": "2024-07-25",
    "fxPct": 0.532,
    "equityRel": 0.1,
    "defenseRel": 1.706,
-   "wikiPct": 111
+   "wikiPct": 111,
+   "media": 837
   },
   {
    "date": "2024-07-26",
    "fxPct": 0.532,
    "equityRel": 0.1,
    "defenseRel": 1.706,
-   "wikiPct": 112
+   "wikiPct": 112,
+   "media": 892
   },
   {
    "date": "2024-07-27",
    "fxPct": 0.532,
    "equityRel": 0.1,
    "defenseRel": 1.706,
-   "wikiPct": 99
+   "wikiPct": 99,
+   "media": 446
   },
   {
    "date": "2024-07-28",
    "fxPct": -0.324,
    "equityRel": 0.1,
    "defenseRel": 1.706,
-   "wikiPct": 115
+   "wikiPct": 115,
+   "media": 1111
   },
   {
    "date": "2024-07-29",
    "fxPct": 1.631,
    "equityRel": -0.587,
    "defenseRel": 0.34,
-   "wikiPct": 149
+   "wikiPct": 149,
+   "media": 1072
   },
   {
    "date": "2024-07-30",
    "fxPct": 0.848,
    "equityRel": -0.824,
    "defenseRel": 0.546,
-   "wikiPct": 130
+   "wikiPct": 130,
+   "media": 1026
   },
   {
    "date": "2024-07-31",
    "fxPct": 0.309,
    "equityRel": -1.098,
    "defenseRel": 0.075,
-   "wikiPct": 133
+   "wikiPct": 133,
+   "media": 4573
   },
   {
    "date": "2024-08-01",
    "fxPct": 0.867,
    "equityRel": 0.341,
    "defenseRel": 3.95,
-   "wikiPct": 305
+   "wikiPct": 305,
+   "media": 3213
   },
   {
    "date": "2024-08-02",
    "fxPct": 0.867,
    "equityRel": 0.341,
    "defenseRel": 3.95,
-   "wikiPct": 245
+   "wikiPct": 245,
+   "media": 2292
   },
   {
    "date": "2024-08-03",
    "fxPct": 0.867,
    "equityRel": 0.341,
    "defenseRel": 3.95,
-   "wikiPct": 191
+   "wikiPct": 191,
+   "media": 2576
   },
   {
    "date": "2024-08-04",
    "fxPct": 0.216,
    "equityRel": 0.341,
    "defenseRel": 3.95,
-   "wikiPct": 180
+   "wikiPct": 180,
+   "media": 2595
   },
   {
    "date": "2024-08-05",
    "fxPct": 0.638,
    "equityRel": -1.255,
    "defenseRel": 2.43,
-   "wikiPct": 190
+   "wikiPct": 190,
+   "media": 1408
   },
   {
    "date": "2024-08-06",
    "fxPct": 0.188,
    "equityRel": 1.357,
    "defenseRel": -0.865,
-   "wikiPct": 207
+   "wikiPct": 207,
+   "media": 2463
   },
   {
    "date": "2024-08-07",
    "fxPct": -1.063,
    "equityRel": 0.209,
    "defenseRel": -0.375,
-   "wikiPct": 176
+   "wikiPct": 176,
+   "media": 1907
   },
   {
    "date": "2024-08-08",
    "fxPct": -0.061,
    "equityRel": 0.259,
    "defenseRel": 2.012,
-   "wikiPct": 151
+   "wikiPct": 151,
+   "media": 1512
   },
   {
    "date": "2024-08-09",
    "fxPct": -0.061,
    "equityRel": 0.259,
    "defenseRel": 2.012,
-   "wikiPct": 150
+   "wikiPct": 150,
+   "media": 1456
   },
   {
    "date": "2024-08-10",
    "fxPct": -0.061,
    "equityRel": 0.259,
    "defenseRel": 2.012,
-   "wikiPct": 124
+   "wikiPct": 124,
+   "media": 1002
   },
   {
    "date": "2024-08-11",
    "fxPct": -1.693,
    "equityRel": 0.259,
    "defenseRel": 2.012,
-   "wikiPct": 107
+   "wikiPct": 107,
+   "media": 865
   },
   {
    "date": "2024-08-12",
    "fxPct": 1.335,
    "equityRel": -1.091,
    "defenseRel": -1.071,
-   "wikiPct": 105
+   "wikiPct": 105,
+   "media": 1893
   },
   {
    "date": "2024-08-13",
    "fxPct": -1.427,
    "equityRel": -1.091,
    "defenseRel": -1.071,
-   "wikiPct": 117
+   "wikiPct": 117,
+   "media": 2231
   },
   {
    "date": "2024-08-14",
    "fxPct": -0.008,
    "equityRel": 1.71,
    "defenseRel": 2.301,
-   "wikiPct": 107
+   "wikiPct": 107,
+   "media": 1894
   },
   {
    "date": "2024-08-15",
    "fxPct": -0.884,
    "equityRel": 0.226,
    "defenseRel": -1.547,
-   "wikiPct": 95
+   "wikiPct": 95,
+   "media": 1191
   },
   {
    "date": "2024-08-16",
    "fxPct": -0.884,
    "equityRel": 0.226,
    "defenseRel": -1.547,
-   "wikiPct": 87
+   "wikiPct": 87,
+   "media": 859
   },
   {
    "date": "2024-08-17",
    "fxPct": -0.884,
    "equityRel": 0.226,
    "defenseRel": -1.547,
-   "wikiPct": 77
+   "wikiPct": 77,
+   "media": 1344
   },
   {
    "date": "2024-08-18",
    "fxPct": -0.375,
    "equityRel": 0.226,
    "defenseRel": -1.547,
-   "wikiPct": 71
+   "wikiPct": 71,
+   "media": 1100
   },
   {
    "date": "2024-08-19",
    "fxPct": 1.193,
    "equityRel": -0.722,
    "defenseRel": 0.027,
-   "wikiPct": 77
+   "wikiPct": 77,
+   "media": 1008
   },
   {
    "date": "2024-08-20",
    "fxPct": -0.553,
    "equityRel": 0.698,
    "defenseRel": 0.522,
-   "wikiPct": 79
+   "wikiPct": 79,
+   "media": 500
   },
   {
    "date": "2024-08-21",
    "fxPct": 0.809,
    "equityRel": -1.19,
    "defenseRel": -0.245,
-   "wikiPct": 80
+   "wikiPct": 80,
+   "media": 771
   },
   {
    "date": "2024-08-22",
    "fxPct": -0.466,
    "equityRel": 0.894,
    "defenseRel": -0.503,
-   "wikiPct": 78
+   "wikiPct": 78,
+   "media": 833
   },
   {
    "date": "2024-08-23",
    "fxPct": -0.466,
    "equityRel": 0.894,
    "defenseRel": -0.503,
-   "wikiPct": 78
+   "wikiPct": 78,
+   "media": 668
   },
   {
    "date": "2024-08-24",
    "fxPct": -0.466,
    "equityRel": 0.894,
    "defenseRel": -0.503,
-   "wikiPct": 74
+   "wikiPct": 74,
+   "media": 727
   },
   {
    "date": "2024-08-25",
    "fxPct": -0.526,
    "equityRel": 0.894,
    "defenseRel": -0.503,
-   "wikiPct": 70
+   "wikiPct": 70,
+   "media": 2171
   },
   {
    "date": "2024-08-26",
    "fxPct": -0.267,
    "equityRel": 1.814,
    "defenseRel": -1.115,
-   "wikiPct": 116
+   "wikiPct": 116,
+   "media": 1306
   },
   {
    "date": "2024-08-27",
    "fxPct": 0.039,
    "equityRel": -0.059,
    "defenseRel": -0.222,
-   "wikiPct": 95
+   "wikiPct": 95,
+   "media": 741
   },
   {
    "date": "2024-08-28",
    "fxPct": -0.703,
    "equityRel": 0.766,
    "defenseRel": -0.044,
-   "wikiPct": 86
+   "wikiPct": 86,
+   "media": 698
   },
   {
    "date": "2024-08-29",
    "fxPct": 0.14,
    "equityRel": -0.432,
    "defenseRel": 0.868,
-   "wikiPct": 91
+   "wikiPct": 91,
+   "media": 566
   },
   {
    "date": "2024-08-30",
    "fxPct": 0.14,
    "equityRel": -0.432,
    "defenseRel": 0.868,
-   "wikiPct": 81
+   "wikiPct": 81,
+   "media": 317
   },
   {
    "date": "2024-08-31",
    "fxPct": 0.14,
    "equityRel": -0.432,
    "defenseRel": 0.868,
-   "wikiPct": 79
+   "wikiPct": 79,
+   "media": 337
   },
   {
    "date": "2024-09-01",
    "fxPct": -0.909,
    "equityRel": -0.432,
    "defenseRel": 0.868,
-   "wikiPct": 72
+   "wikiPct": 72,
+   "media": 203
   },
   {
    "date": "2024-09-02",
    "fxPct": 0.683,
    "equityRel": -0.367,
    "defenseRel": 0.397,
-   "wikiPct": 94
+   "wikiPct": 94,
+   "media": 446
   },
   {
    "date": "2024-09-03",
    "fxPct": 1.074,
    "equityRel": 0.154,
    "defenseRel": 1.433,
-   "wikiPct": 106
+   "wikiPct": 106,
+   "media": 771
   },
   {
    "date": "2024-09-04",
    "fxPct": -0.167,
    "equityRel": -0.007,
    "defenseRel": -0.634,
-   "wikiPct": 95
+   "wikiPct": 95,
+   "media": 639
   },
   {
    "date": "2024-09-05",
    "fxPct": 0.571,
    "equityRel": 1.456,
    "defenseRel": -1.186,
-   "wikiPct": 81
+   "wikiPct": 81,
+   "media": 242
   },
   {
    "date": "2024-09-06",
    "fxPct": 0.571,
    "equityRel": 1.456,
    "defenseRel": -1.186,
-   "wikiPct": 83
+   "wikiPct": 83,
+   "media": 297
   },
   {
    "date": "2024-09-07",
    "fxPct": 0.571,
    "equityRel": 1.456,
    "defenseRel": -1.186,
-   "wikiPct": 82
+   "wikiPct": 82,
+   "media": 266
   },
   {
    "date": "2024-09-08",
    "fxPct": 0.572,
    "equityRel": 1.456,
    "defenseRel": -1.186,
-   "wikiPct": 75
+   "wikiPct": 75,
+   "media": 596
   },
   {
    "date": "2024-09-09",
    "fxPct": 1.061,
    "equityRel": -2.443,
    "defenseRel": 1.961,
-   "wikiPct": 82
+   "wikiPct": 82,
+   "media": 651
   },
   {
    "date": "2024-09-10",
    "fxPct": -0.176,
    "equityRel": 0.114,
    "defenseRel": 0.108,
-   "wikiPct": 79
+   "wikiPct": 79,
+   "media": 604
   },
   {
    "date": "2024-09-11",
    "fxPct": 0.433,
    "equityRel": -0.424,
    "defenseRel": -1.901,
-   "wikiPct": 86
+   "wikiPct": 86,
+   "media": 596
   },
   {
    "date": "2024-09-12",
    "fxPct": -1.383,
    "equityRel": 0.112,
    "defenseRel": -0.753,
-   "wikiPct": 90
+   "wikiPct": 90,
+   "media": 267
   },
   {
    "date": "2024-09-13",
    "fxPct": -1.383,
    "equityRel": 0.112,
    "defenseRel": -0.753,
-   "wikiPct": 82
+   "wikiPct": 82,
+   "media": 412
   },
   {
    "date": "2024-09-14",
    "fxPct": -1.383,
    "equityRel": 0.112,
    "defenseRel": -0.753,
-   "wikiPct": 76
+   "wikiPct": 76,
+   "media": 645
   },
   {
    "date": "2024-09-15",
    "fxPct": -0.397,
    "equityRel": 0.112,
    "defenseRel": -0.753,
-   "wikiPct": 76
+   "wikiPct": 76,
+   "media": 825
   },
   {
    "date": "2024-09-16",
    "fxPct": 0.99,
    "equityRel": -1.822,
    "defenseRel": 2.211,
-   "wikiPct": 88
+   "wikiPct": 88,
+   "media": 389
   },
   {
    "date": "2024-09-17",
    "fxPct": 1.006,
    "equityRel": -1.582,
    "defenseRel": -0.309,
-   "wikiPct": 90
+   "wikiPct": 90,
+   "media": 1201
   },
   {
    "date": "2024-09-18",
    "fxPct": -0.092,
    "equityRel": 0.937,
    "defenseRel": -0.292,
-   "wikiPct": 122
+   "wikiPct": 122,
+   "media": 2492
   },
   {
    "date": "2024-09-19",
    "fxPct": -0.156,
    "equityRel": -2.861,
    "defenseRel": 0.406,
-   "wikiPct": 197
+   "wikiPct": 197,
+   "media": 1649
   },
   {
    "date": "2024-09-20",
    "fxPct": -0.156,
    "equityRel": -2.861,
    "defenseRel": 0.406,
-   "wikiPct": 205
+   "wikiPct": 205,
+   "media": 1447
   },
   {
    "date": "2024-09-21",
    "fxPct": -0.156,
    "equityRel": -2.861,
    "defenseRel": 0.406,
-   "wikiPct": 184
+   "wikiPct": 184,
+   "media": 1153
   },
   {
    "date": "2024-09-22",
    "fxPct": 0.193,
    "equityRel": -2.861,
    "defenseRel": 0.406,
-   "wikiPct": 160
+   "wikiPct": 160,
+   "media": 1479
   },
   {
    "date": "2024-09-23",
    "fxPct": 0.071,
    "equityRel": 1.465,
    "defenseRel": -1.221,
-   "wikiPct": 169
+   "wikiPct": 169,
+   "media": 1992
   },
   {
    "date": "2024-09-24",
    "fxPct": -0.729,
    "equityRel": -1.301,
    "defenseRel": -0.291,
-   "wikiPct": 202
+   "wikiPct": 202,
+   "media": 2233
   },
   {
    "date": "2024-09-25",
    "fxPct": -0.414,
    "equityRel": 1.7,
    "defenseRel": -1,
-   "wikiPct": 193
+   "wikiPct": 193,
+   "media": 1855
   },
   {
    "date": "2024-09-26",
    "fxPct": -1.367,
    "equityRel": -1.66,
    "defenseRel": -1.348,
-   "wikiPct": 196
+   "wikiPct": 196,
+   "media": 1299
   },
   {
    "date": "2024-09-27",
    "fxPct": -1.367,
    "equityRel": -1.66,
    "defenseRel": -1.348,
-   "wikiPct": 166
+   "wikiPct": 166,
+   "media": 1384
   },
   {
    "date": "2024-09-28",
    "fxPct": -1.367,
    "equityRel": -1.66,
    "defenseRel": -1.348,
-   "wikiPct": 203
+   "wikiPct": 203,
+   "media": 3980
   },
   {
    "date": "2024-09-29",
    "fxPct": 0.222,
    "equityRel": -1.66,
    "defenseRel": -1.348,
-   "wikiPct": 352
+   "wikiPct": 352,
+   "media": 4009
   },
   {
    "date": "2024-09-30",
    "fxPct": 0.476,
    "equityRel": 2.796,
    "defenseRel": 0.094,
-   "wikiPct": 290
+   "wikiPct": 290,
+   "media": 2462
   },
   {
    "date": "2024-10-01",
    "fxPct": 1.035,
    "equityRel": -1.317,
    "defenseRel": 3.229,
-   "wikiPct": 287
+   "wikiPct": 287,
+   "media": 5763
   }
  ],
  "gov": [

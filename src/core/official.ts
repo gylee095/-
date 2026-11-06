@@ -25,6 +25,8 @@ export interface Official {
   vsUsual: number;
   levels: { label: string; level: number; levelLabel: string }[];
   why: string[];
+  /** 정할 때 함께 정한 전쟁 직전 대비 점수 — 하루 중 배포로 눈금이 바뀌어도 그날 숫자는 그대로 (11/6 검토) */
+  readiness?: Readiness;
 }
 
 export interface OfficialView {
@@ -57,18 +59,21 @@ function phaseRange(p: 1 | 2 | 3 | 4 | 5, s: ReadinessScale): [number, number] {
   return [readinessScore((p - 1 + 0.4) / 5, s), readinessScore(p / 5, s)];
 }
 
-export function makeReadiness(gauge: number): Readiness {
+export function makeReadiness(gauge: number, actualPhase: 1 | 2 | 3 | 4 | 5): Readiness {
   const { scale, anchors, quietScores } = CASEBOOK;
   const score = readinessScore(gauge, scale);
   const above = quietScores.filter((s) => s >= score).length;
   const quietAtOrAbovePct = Math.round((above / quietScores.length) * 100);
   // 평시 비율은 화면 문장에 쓰지 않는다: 외국 사례는 잰 신호가 한반도보다 훨씬 적어 평시 점수가 낮게 나온다 — 한국 점수와 바로 비교하면 겁을 준다 (11/6)
-  const phase = ([1, 2, 3, 4, 5] as const).find((p) => score <= phaseRange(p, scale)[1]) ?? 5;
+  // 단계는 점수에서 거꾸로 추정하지 않고 실제 판정 단계를 쓴다 (4단계 상한이 100 으로 잘려 5단계가 '4단계'로 나오던 문제 — 11/6 검토)
+  const phase = actualPhase;
   const [lo, hi] = phaseRange(phase, scale);
   const same = anchors.filter((a) => a.id !== "ukraine-2022" && a.phase === phase);
   const next = phase < 4 ? phaseRange((phase + 1) as 2 | 3 | 4, scale)[0] : undefined;
   const text =
-    score === 0
+    phase === 5
+      ? `전쟁 직전 대비 100점 — 교전 단계예요 (우크라이나 침공 전날 = 100을 넘어선 상황).`
+      : score === 0
       ? `전쟁 직전 대비 0점 — 한반도 평소 수준이에요.`
       : `전쟁 직전 대비 ${score}점 (우크라이나 침공 전날 = 100). ${phase}단계의 범위(${lo}~${hi}점) 안이에요.` +
         (same.length ? ` 같은 ${phase}단계였던 사례: ${same.map((a) => `${a.name} 전날 ${a.score}점${a.caught ? "" : "(규칙이 미리 못 잡음)"}`).join(", ")}.` : "") +
@@ -91,6 +96,7 @@ export function makeOfficial(w: WarRisk, now: number, reason: Official["reason"]
     vsUsual: w.vsUsual,
     levels: w.domains.map((d) => ({ label: d.label, level: d.level, levelLabel: d.levelLabel })),
     why: w.phaseReasons.slice(0, 4),
+    readiness: makeReadiness(w.gauge.now, w.phase),
   };
 }
 
@@ -144,7 +150,7 @@ export function applyOfficial(w: WarRisk, off: Official | undefined, prev: Offic
     vsUsual: off.vsUsual,
     headline: `전쟁 위험 ${off.phase}단계(${off.phaseLabel}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(off.clash30d.point)}, 전면전 ${fmtRiskPct(off.war30d.point)}`,
     live: w,
-    official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS, readiness: makeReadiness(off.gauge.now) },
+    official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS, readiness: off.readiness ?? makeReadiness(off.gauge.now, off.phase) },
   };
 }
 

@@ -65,3 +65,20 @@ describe("사람에게 보이는 숫자", () => {
     expect(idx).toMatch(/updateOfficial\(store, st\.warRisk\.live, report\.at\)/);
   });
 });
+
+describe("전쟁 직전 대비 점수 (11/6 self-verify)", () => {
+  it("화면 점수는 정해 둔 오늘의 판정에서 나오고, 5분 계산값이 흔들려도 그대로", async () => {
+    const { makeReadiness } = await import("../src/core/official.js");
+    const off = makeOfficial({ ...w(2, 3.8), gauge: { now: 0.36, usual: 0.08 } }, D8, "daily");
+    const a = applyOfficial({ ...w(2, 4.0, 1), gauge: { now: 0.39, usual: 0.08 } }, off, undefined);
+    const b = applyOfficial({ ...w(2, 3.8), gauge: { now: 0.31, usual: 0.08 } }, off, undefined);
+    expect(a.official!.readiness.score).toBe(b.official!.readiness.score);
+    expect(a.official!.readiness.score).toBe(makeReadiness(0.36, 2).score);
+  });
+  it("문장의 단계는 실제 판정 단계 (5단계를 4단계로 말하지 않는다)", async () => {
+    const { makeReadiness } = await import("../src/core/official.js");
+    expect(makeReadiness(1, 5).text).toMatch(/교전/);
+    expect(makeReadiness(0.8, 4).text).toMatch(/4단계/);
+    expect(makeReadiness(0.36, 2).text).toMatch(/2단계의 범위/);
+  });
+});

@@ -3,7 +3,8 @@
 //
 // 실행: npx tsx scripts/score-cases.ts [--no-write]
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { readinessScore, replayCase, scoreCase, FORECAST_DAYS, type CaseFile, type CaseScore, type ReplayDay } from "../src/core/casereplay.js";
+import { assessWarRisk } from "../src/core/warrisk.js";
+import { isQuietDay, readinessScore, replayCase, scoreCase, FORECAST_DAYS, type CaseFile, type CaseScore, type ReplayDay } from "../src/core/casereplay.js";
 import { PHASE_LABEL, type Phase } from "../src/core/warrisk.js";
 
 const DIR = new URL("../data/cases/", import.meta.url);
@@ -59,16 +60,17 @@ const retrieved = cases.map((c) => c.retrieved).sort().pop();
 // ── 전쟁 직전 대비 점수 눈금: 우크라이나 침공 전날 판정 = 100 ──
 const ukr = results.find((r) => r.c.id === "ukraine-2022")!;
 const eveOf = (r: (typeof results)[number]) => r.replay.filter((d) => !r.c.truthDate || d.date < r.c.truthDate).pop()!;
-const scale = { usualGauge: 0.08, eveGauge: eveOf(ukr).gauge };
+// 0점 = 운영 규칙이 정한 '평소' 눈금 자리 (값을 베껴 쓰지 않고 규칙에서 읽는다)
+const usualGauge = assessWarRisk({ now: Date.now(), board: [], briefs: [], patterns: [] }).gauge.usual;
+const scale = { usualGauge, eveGauge: eveOf(ukr).gauge };
+if (!(scale.eveGauge - scale.usualGauge >= 0.05)) throw new Error(`눈금이 퇴화했다: 우크라이나 전날 ${scale.eveGauge} ≤ 평소 ${scale.usualGauge} — 자료를 확인할 것`);
 const anchors = results.filter((r) => r.c.truthDate).map((r) => {
   const e = eveOf(r);
   return { id: r.c.id, name: r.c.name, eve: e.date, phase: e.phase, score: readinessScore(e.gauge, scale), caught: r.score.caught };
 });
 // 평시로 보는 날들(정답 30일 전보다 앞선 날 + 전쟁 안 난 사례 전체)의 점수 — "평시에 이 점수 이상이 얼마나 흔했나"
-// 평시 = 채점과 같은 엄격 기준 (정답 30일 전보다 앞선 날 + 전쟁 안 난 사례 전체)
-const isQuiet = (r: (typeof results)[number], date: string) =>
-  !r.c.truthDate || Math.round((Date.parse(r.c.truthDate) - Date.parse(date)) / 86400_000) > FORECAST_DAYS;
-const quietScores = results.flatMap((r) => r.replay.filter((d) => isQuiet(r, d.date)).map((d) => readinessScore(d.gauge, scale))).sort((a, b) => a - b);
+// 평시 = 채점과 같은 정의 (isQuietDay)
+const quietScores = results.flatMap((r) => r.replay.filter((d) => isQuietDay(r.c, d.date)).map((d) => readinessScore(d.gauge, scale))).sort((a, b) => a - b);
 const card = { ruleVersion: "1.0", retrieved, forecastDays: FORECAST_DAYS, totals, scale, anchors, quietScores, cases: results.map((r) => r.score), signals };
 
 const gen = `// 자동 생성: scripts/score-cases.ts — 직접 고치지 말 것. 성적표: docs/CASEBOOK.md, 자료: data/cases/

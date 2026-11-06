@@ -5,6 +5,7 @@ import { DOMAINS, assessWarRisk, type DomainId, type Level, type Phase } from ".
 import { INDICATORS, INDICATOR_BY_ID, addToDay, dayBaseline, evaluate, type DayHistory } from "./indicators.js";
 import type { BoardRow } from "./state.js";
 import type { Reading } from "./types.js";
+import { articleRatio } from "./collectors/wiki.js";
 
 export type CaseOutcome = "war" | "attack" | "no_war";
 
@@ -77,11 +78,14 @@ export function caseBoard(c: CaseFile, date: string, mediaHist: DayHistory | und
     const id = "media.war_talk_24h";
     readings[id] = evaluate(INDICATOR_BY_ID[id], today.media, at, undefined, undefined, dayBaseline(mediaHist, date) ?? null);
   }
-  for (const g of c.gov) {
+  // 날짜순으로 덮어쓴다 (파일 순서를 믿지 않는다), 모르는 지표 id 는 바로 실패
+  for (const g of [...c.gov].sort((a, b) => a.date.localeCompare(b.date))) {
     if (g.date > date) continue;
-    readings[g.indicator] = evaluate(INDICATOR_BY_ID[g.indicator], g.value, at, undefined, { what: g.what });
+    const def = INDICATOR_BY_ID[g.indicator];
+    if (!def) throw new Error(`${c.id}: 모르는 지표 ${g.indicator}`);
+    readings[g.indicator] = evaluate(def, g.value, at, undefined, { what: g.what });
   }
-  const air = c.airspace.filter((a) => a.date <= date && dayDiff(date, a.date) < AIRSPACE_DAYS);
+  const air = c.airspace.filter((a) => a.date <= date && dayDiff(date, a.date) < AIRSPACE_DAYS).sort((a, b) => a.date.localeCompare(b.date));
   if (air.length) readings["air.civil_airborne"] = { indicator: "air.civil_airborne", value: 0, at, n: 0, state: "anomalous", meta: { what: air[air.length - 1].what } };
   return INDICATORS.map((d) => {
     const r = readings[d.id];
@@ -122,7 +126,29 @@ export interface ReadinessScale {
 
 export function readinessScore(gauge: number, s: ReadinessScale): number {
   const x = ((gauge - s.usualGauge) / (s.eveGauge - s.usualGauge)) * 100;
+  if (!Number.isFinite(x) || s.eveGauge <= s.usualGauge) return 0;
   return Math.max(0, Math.min(100, Math.round(x)));
+}
+
+/** 평시로 보는 날인가 — 채점과 성적표가 같은 정의를 쓴다: 정답 30일 전보다 앞선 날, 전쟁 안 난 사례는 전부 */
+export function isQuietDay(c: Pick<CaseFile, "truthDate">, date: string): boolean {
+  return !c.truthDate || dayDiff(c.truthDate, date) > FORECAST_DAYS;
+}
+
+/** 위키 조회수 배율 (날짜 → 문서별 '어제 ÷ 그 전 28일 중앙값'의 중앙값 ×100). 운영 지표처럼 어제 자료까지만 쓴다 — 오늘·미래 조회수는 들어가지 않는다 */
+export function wikiDaily(all: { name: string; series: Map<string, number> }[], from: string, to: string): Map<string, number> {
+  const out = new Map<string, number>();
+  for (let t = atOf(from) + 29 * DAY_MS; t <= atOf(to); t += DAY_MS) {
+    const yesterday = new Date(t - DAY_MS).toISOString().slice(0, 10);
+    const ratios = all.flatMap(({ name, series }) => {
+      const r = articleRatio(name, new Map([...series].filter(([k]) => k <= yesterday)));
+      return r ? [r.ratio] : [];
+    }).sort((a, b) => a - b);
+    if (ratios.length < 4) continue;
+    const m = ratios.length >> 1;
+    out.set(new Date(t).toISOString().slice(0, 10), Math.round((ratios.length % 2 ? ratios[m] : (ratios[m - 1] + ratios[m]) / 2) * 100));
+  }
+  return out;
 }
 
 export interface SignalScore {
@@ -170,7 +196,7 @@ export const FORECAST_DAYS = 30;
 export function scoreCase(c: CaseFile, replay: ReplayDay[]): CaseScore {
   const before = c.truthDate ? replay.filter((r) => r.date < c.truthDate!) : replay;
   const lead = (d?: string) => (d && c.truthDate ? dayDiff(c.truthDate, d) : undefined);
-  const inHorizon = (r: ReplayDay) => (c.truthDate ? dayDiff(c.truthDate, r.date) <= FORECAST_DAYS : false);
+  const inHorizon = (r: ReplayDay) => !isQuietDay(c, r.date);
   const quiet = before.filter((r) => !inHorizon(r));
   // 엄격 기준 (11/6 제3자 검토): 예보는 30일이므로 정답 30일 전보다 앞선 3단계 이상은 이어져 있어도 모두 헛경보다.
   // (한때 '정답까지 이어진 구간은 잡음'으로 셌더니 계속 켜져 있는 신호의 헛경보 31일이 숨었다.) 선행일은 그래서 최대 30일.
@@ -181,11 +207,10 @@ export function scoreCase(c: CaseFile, replay: ReplayDay[]): CaseScore {
   let flips = 0;
   for (let i = 1; i < before.length; i++) if (before[i].phase !== before[i - 1].phase) flips++;
 
-  const last = before[before.length - 1]?.date ?? c.end;
-  const board = caseBoard(c, last, undefined);
-  const mediaMeasured = c.days.some((d) => typeof d.media === "number");
-  const measuredIds = new Set(board.filter((r) => r.reading).map((r) => r.id));
-  if (mediaMeasured) measuredIds.add("media.war_talk_24h");
+  // 측정 범위: 채점한 날 중 한 번이라도 값이 있었던 지표 (마지막 하루만 보면 일찍 끝난 영공 신호 등이 빠진다 — 11/6 검토)
+  const measuredIds = new Set<string>();
+  for (const r of before) for (const b of caseBoard(c, r.date, undefined)) if (b.reading) measuredIds.add(b.id);
+  if (before.some((r) => typeof c.days.find((d) => d.date === r.date)?.media === "number")) measuredIds.add("media.war_talk_24h");
   const coverage = DOMAINS.map((d) => ({ domain: d.id, label: d.label, total: d.indicators.length, measured: d.indicators.filter((i) => measuredIds.has(i)).length }));
 
   const ids = [...new Set(replay.flatMap((r) => r.hot.map((h) => h.id)))];

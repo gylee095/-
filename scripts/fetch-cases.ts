@@ -4,8 +4,9 @@
 //
 // 실행: npx tsx scripts/fetch-cases.ts [사례 id]
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { articleRatio, parseWikiSeries, wikiUrl, WIKI_UA } from "../src/core/collectors/wiki.js";
-import type { CaseDay, CaseFile, CaseOutcome } from "../src/core/casereplay.js";
+import { pathToFileURL } from "node:url";
+import { parseWikiSeries, wikiUrl, WIKI_UA } from "../src/core/collectors/wiki.js";
+import { wikiDaily, type CaseDay, type CaseFile, type CaseOutcome } from "../src/core/casereplay.js";
 
 const CACHE = new URL("../.cache/cases/", import.meta.url);
 const OUT = new URL("../data/cases/", import.meta.url);
@@ -75,6 +76,7 @@ async function cached(name: string, url: string, headers: Record<string, string>
 }
 
 const safe = (s: string) => s.replace(/[^A-Za-z0-9]+/g, "_");
+export const localDate = (msUtc: number, timeZone: string) => new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(msUtc));
 
 /** 날짜 → 종가 */
 async function closes(q: Quote, from: string, to: string): Promise<Map<string, number>> {
@@ -94,7 +96,9 @@ async function closes(q: Quote, from: string, to: string): Promise<Map<string, n
   const r = text ? JSON.parse(text).chart?.result?.[0] : undefined;
   const ts: number[] = r?.timestamp ?? [];
   const cs: (number | null)[] = r?.indicators?.quote?.[0]?.close ?? [];
-  ts.forEach((t, i) => { const c = cs[i]; if (typeof c === "number") m.set(iso(t * 1000), c); });
+  // 날짜는 거래소 현지 날짜로 (11/6 검토: 런던 기준 환율 일봉은 여름에 23:00 UTC 라 UTC 날짜로 붙이면 하루 앞 날짜가 되어 미래 정보가 섞였다)
+  const tz: string = r?.meta?.exchangeTimezoneName ?? "UTC";
+  ts.forEach((t, i) => { const c = cs[i]; if (typeof c === "number") m.set(localDate(t * 1000, tz), c); });
   return m;
 }
 
@@ -107,12 +111,15 @@ function pct(series: Map<string, number>): Map<string, number> {
 }
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const pctOf = async (q: Quote, from: string, to: string) => pct(await closes(q, from, to));
+/** 구성 종목이 모두 있는 날만 평균한다 (휴장일이 달라 날마다 구성이 바뀌면 가짜 차이가 생긴다 — 11/6 검토) */
 const avgOn = (date: string, ms_: Map<string, number>[]) => {
-  const v = ms_.map((m) => m.get(date)).filter((x): x is number => typeof x === "number");
-  return v.length ? mean(v) : undefined;
+  const v = ms_.map((m) => m.get(date));
+  return v.every((x): x is number => typeof x === "number") ? mean(v as number[]) : undefined;
 };
+/** 휴장일 이어 쓰기는 이만큼까지만 (연휴 감안). 그보다 오래 끊기면 '측정 불가' */
+const CARRY_DAYS = 4;
 
-/** 날짜 → 그 전날까지 28일 중앙값 대비 배율의 중앙값 ×100. 어제 자료까지만 쓰는 운영 지표와 같게 하루 늦춘다 */
+/** 날짜 → 그 전날까지 28일 중앙값 대비 배율의 중앙값 ×100 (계산은 casereplay.ts 의 wikiDaily — 하루 늦춤을 테스트한다) */
 async function wikiSeries(articles: [string, string][], from: string, to: string): Promise<Map<string, number>> {
   const all: { series: Map<string, number>; name: string }[] = [];
   for (const [p, a] of articles) {
@@ -121,19 +128,7 @@ async function wikiSeries(articles: [string, string][], from: string, to: string
     const raw = parseWikiSeries(JSON.parse(text));
     all.push({ name: `${p}:${a}`, series: new Map([...raw].map(([k, v]) => [`${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`, v])) });
   }
-  const out = new Map<string, number>();
-  for (let t = ms(from) + 29 * DAY; t <= ms(to); t += DAY) {
-    const yesterday = iso(t - DAY);
-    const ratios = all.flatMap(({ name, series }) => {
-      const sub = new Map([...series].filter(([k]) => k <= yesterday));
-      const r = articleRatio(name, sub);
-      return r ? [r.ratio] : [];
-    }).sort((a, b) => a - b);
-    if (ratios.length < 4) continue;
-    const m = ratios.length >> 1;
-    out.set(iso(t), Math.round((ratios.length % 2 ? ratios[m] : (ratios[m - 1] + ratios[m]) / 2) * 100));
-  }
-  return out;
+  return wikiDaily(all, from, to);
 }
 
 async function gdelt(q: string, from: string, to: string): Promise<Map<string, number>> {
@@ -171,15 +166,21 @@ async function build(c: CaseConfig): Promise<CaseFile> {
 
   const days: CaseDay[] = [];
   const preroll: CaseFile["preroll"] = [];
-  const carry: Partial<CaseDay> = {}; // 휴장일에는 전 거래일 값을 쓴다 (운영 지표와 같다)
+  const carry: Partial<CaseDay> = {}; // 휴장일에는 전 거래일 값을 쓴다 (운영 지표와 같다), 단 CARRY_DAYS 까지만
+  const age: Partial<Record<"fxPct" | "equityRel" | "defenseRel", number>> = {};
+  const put = (k: "fxPct" | "equityRel" | "defenseRel", v: number | undefined) => {
+    if (typeof v === "number") { carry[k] = round(v); age[k] = 0; return; }
+    age[k] = (age[k] ?? 0) + 1;
+    if (age[k]! > CARRY_DAYS) delete carry[k];
+  };
   for (let t = ms(from); t <= ms(c.end); t += DAY) {
     const date = iso(t);
     const fxNow = fxs.map((m) => m.get(date)).filter((x): x is number => typeof x === "number");
-    if (fxNow.length) carry.fxPct = round(Math.max(...fxNow));
+    put("fxPct", fxNow.length ? Math.max(...fxNow) : undefined);
     const eq = equity.get(date), pr = avgOn(date, peers);
-    if (typeof eq === "number" && typeof pr === "number") carry.equityRel = round(eq - pr);
+    put("equityRel", typeof eq === "number" && typeof pr === "number" ? eq - pr : undefined);
     const d = avgOn(date, def), b = avgOn(date, base);
-    if (typeof d === "number" && typeof b === "number") carry.defenseRel = round(d - b);
+    put("defenseRel", typeof d === "number" && typeof b === "number" ? d - b : undefined);
     if (date < c.start) {
       if (media.has(date)) preroll.push({ date, media: media.get(date) });
       continue;
@@ -204,12 +205,24 @@ async function build(c: CaseConfig): Promise<CaseFile> {
   };
 }
 
-const only = process.argv[2];
-mkdirSync(CACHE, { recursive: true });
-mkdirSync(OUT, { recursive: true });
-for (const c of CASES.filter((x) => !only || x.id === only)) {
+async function main() {
+  const only = process.argv[2];
+  const todo = CASES.filter((x) => !only || x.id === only);
+  if (!todo.length) throw new Error(`사례 id 를 모릅니다: ${only} (있는 것: ${CASES.map((x) => x.id).join(", ")})`);
+  mkdirSync(CACHE, { recursive: true });
+  mkdirSync(OUT, { recursive: true });
+  for (const c of todo) {
   const out = await build(c);
+  // 받기 실패로 핵심 시계열이 통째로 비면 기존 파일을 덮어쓰지 않는다 (11/6 검토)
+  if (!out.days.some((d) => typeof d.fxPct === "number") || !out.days.some((d) => typeof d.wikiPct === "number")) {
+    console.error(`  ${c.id}: 통화·위키 자료가 비어 저장하지 않음 — 나중에 다시 실행`);
+    process.exitCode = 1;
+    continue;
+  }
   writeFileSync(new URL(`${c.id}.json`, OUT), JSON.stringify(out, null, 1) + "\n");
   const n = (k: keyof CaseDay) => out.days.filter((d) => typeof d[k] === "number").length;
   console.log(`  ${out.days.length}일 · 통화 ${n("fxPct")} 증시 ${n("equityRel")} 방산 ${n("defenseRel")} 위키 ${n("wikiPct")} 보도 ${n("media")} · 정부 ${out.gov.length} 영공 ${out.airspace.length}`);
 }
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) await main();

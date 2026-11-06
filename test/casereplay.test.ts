@@ -1,6 +1,6 @@
 // 사례집 재생: 운영 규칙을 그대로 쓰는지, 미래 정보를 쓰지 않는지, 채점이 맞는지
 import { describe, expect, it } from "vitest";
-import { caseBoard, readinessScore, replayCase, scoreCase, type CaseDay, type CaseFile } from "../src/core/casereplay.js";
+import { caseBoard, isQuietDay, readinessScore, replayCase, scoreCase, wikiDaily, type CaseDay, type CaseFile } from "../src/core/casereplay.js";
 
 const dates = (start: string, n: number) => Array.from({ length: n }, (_, i) => new Date(Date.parse(`${start}T00:00:00Z`) + i * 86400_000).toISOString().slice(0, 10));
 const mk = (over: Partial<CaseFile> = {}, day: (date: string) => Partial<CaseDay> = () => ({})): CaseFile => {
@@ -101,5 +101,64 @@ describe("재생과 채점", () => {
     const r = replayCase(c);
     expect(r.find((x) => x.date === "2022-02-20")!.hot.some((h) => h.id === "media.war_talk_24h")).toBe(true);
     expect(r.find((x) => x.date === "2022-02-19")!.hot.some((h) => h.id === "media.war_talk_24h")).toBe(false);
+  });
+});
+
+describe("검토 반영 (11/6 self-verify)", () => {
+  it("보도량: 앞날의 폭증은 그 전날 판정을 하나도 바꾸지 못한다 (미래 정보 금지)", () => {
+    const base = (date: string) => ({ media: 100 + (date.charCodeAt(9) % 3) });
+    const spike = (date: string) => ({ media: date >= "2022-02-20" ? 5000 : base(date).media });
+    const a = replayCase(mk({}, base)), b = replayCase(mk({}, spike));
+    const pick = (r: typeof a) => r.filter((x) => x.date < "2022-02-20").map((x) => [x.phase, x.gauge, x.hot.map((h) => h.id).join()]);
+    expect(pick(b)).toEqual(pick(a));
+  });
+  it("위키: 날짜 t 의 값은 t 당일과 그 뒤 조회수가 바뀌어도 그대로 (하루 늦춤)", () => {
+    const ds = dates("2022-01-01", 50);
+    const mkSeries = (bump: boolean) => ["a", "b", "c", "d"].map((name) => ({ name, series: new Map(ds.map((d) => [d, bump && d >= "2022-02-10" ? 9999 : 100 + (d.charCodeAt(9) % 5)])) }));
+    const a = wikiDaily(mkSeries(false), ds[0], ds[ds.length - 1]), b = wikiDaily(mkSeries(true), ds[0], ds[ds.length - 1]);
+    expect(b.get("2022-02-10")).toBe(a.get("2022-02-10"));
+    expect(b.get("2022-02-11")).toBeGreaterThan(a.get("2022-02-11")!);
+  });
+  it("평시 정의는 정답 31일 전까지, 30일 전부터는 예보 구간", () => {
+    expect(isQuietDay({ truthDate: "2022-03-01" }, "2022-01-29")).toBe(true);
+    expect(isQuietDay({ truthDate: "2022-03-01" }, "2022-01-30")).toBe(false);
+    expect(isQuietDay({ truthDate: undefined }, "2022-02-28")).toBe(true);
+  });
+  it("신호별 성적도 엄격 기준 — 선행 30일, 평시 켜진 날 10", () => {
+    const c = mk({ gov: [us("2022-01-20", 3)] });
+    const sig = scoreCase(c, replayCase(c)).signals.find((x) => x.id === "official.us_travel_level_kr")!;
+    expect(sig.leadDays).toBe(30);
+    expect(sig.quietHotDays).toBe(10);
+  });
+  it("정부 사건은 파일 순서가 아니라 날짜 순서로, 모르는 지표는 실패", () => {
+    const c = mk({ gov: [us("2022-02-15", 1), us("2022-02-10", 3)] });
+    expect(caseBoard(c, "2022-02-16", undefined).find((r) => r.id === "official.us_travel_level_kr")!.reading!.value).toBe(1);
+    expect(() => caseBoard(mk({ gov: [{ ...us("2022-02-10", 3), indicator: "official.nope" }] }), "2022-02-11", undefined)).toThrow();
+  });
+  it("시장·위키 네 신호가 모두 지표로 들어가고, 측정 범위는 채점한 모든 날 기준", () => {
+    const c = mk({ airspace: [{ date: "2022-01-05", what: "x", source: "x" }] }, () => ({ fxPct: 0, equityRel: 0, defenseRel: 0, wikiPct: 100 }));
+    const board = caseBoard(c, "2022-01-10", undefined);
+    for (const id of ["market.usdkrw_change_pct", "market.kr_equity_rel_pct", "market.defense_rel_pct", "psych.wiki_korea_attention"]) expect(board.find((r) => r.id === id)!.reading).toBeDefined();
+    const cov = scoreCase(c, replayCase(c)).coverage;
+    expect(cov.find((x) => x.domain === "military")!.measured).toBe(1); // 1/5 영공 사건 — 마지막 날엔 꺼져 있어도 센다
+  });
+  it("눈금이 퇴화하면 점수는 0 (NaN·뒤집힘 없음)", () => {
+    expect(readinessScore(0.5, { usualGauge: 0.08, eveGauge: 0.08 })).toBe(0);
+    expect(readinessScore(0.5, { usualGauge: 0.08, eveGauge: 0.05 })).toBe(0);
+  });
+});
+
+describe("화면 자료가 지금 규칙·자료와 같은가", () => {
+  it("casebook_data.ts 는 data/cases 를 지금 규칙으로 다시 채점한 결과와 같다 (다르면 npx tsx scripts/score-cases.ts)", async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const { CASEBOOK } = await import("../src/core/casebook_data.js");
+    const dir = new URL("../data/cases/", import.meta.url);
+    const files = readdirSync(dir).filter((f) => f.endsWith(".json") && f !== "events.json" && f !== "scorecard.json");
+    const scores = files.map((f) => { const c = JSON.parse(readFileSync(new URL(f, dir), "utf8")) as CaseFile; return scoreCase(c, replayCase(c)); });
+    expect(scores.filter((s) => s.caught).length).toBe(CASEBOOK.totals.caught);
+    expect(scores.reduce((a, s) => a + s.falseAlarmDays, 0)).toBe(CASEBOOK.totals.falseAlarmDays);
+    expect(scores.reduce((a, s) => a + s.quietDays, 0)).toBe(CASEBOOK.totals.quietDays);
+    const ukr = scores.find((s) => s.id === "ukraine-2022")!;
+    expect(ukr.eveLevel).toBe(CASEBOOK.anchors.find((a) => a.id === "ukraine-2022")!.phase);
   });
 });

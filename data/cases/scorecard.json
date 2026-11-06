@@ -519,7 +519,7 @@
      "domain": "military",
      "label": "군사 동향",
      "total": 13,
-     "measured": 0
+     "measured": 1
     },
     {
      "domain": "nkwords",
@@ -663,7 +663,7 @@
      "domain": "military",
      "label": "군사 동향",
      "total": 13,
-     "measured": 0
+     "measured": 1
     },
     {
      "domain": "nkwords",
@@ -1052,14 +1052,6 @@
      "quietHotDays": 16
     },
     {
-     "id": "market.usdkrw_change_pct",
-     "label": "원·달러 환율 변동 (전일 대비 %)",
-     "first": "2025-06-12",
-     "leadDays": 1,
-     "hotDays": 1,
-     "quietHotDays": 0
-    },
-    {
      "id": "psych.wiki_korea_attention",
      "label": "세계의 한반도 관심 (위키백과 조회수, 평소 대비)",
      "hotDays": 1,
@@ -1070,6 +1062,12 @@
      "label": "한국 증시만의 움직임 (일본·대만 대비 %p)",
      "hotDays": 1,
      "quietHotDays": 1
+    },
+    {
+     "id": "market.usdkrw_change_pct",
+     "label": "원·달러 환율 변동 (전일 대비 %)",
+     "hotDays": 0,
+     "quietHotDays": 0
     }
    ]
   }
@@ -1114,16 +1112,6 @@
    "quietHotDays": 9,
    "quietTotal": 421,
    "quietRatePct": 2.1
-  },
-  {
-   "id": "market.usdkrw_change_pct",
-   "label": "원·달러 환율 변동 (전일 대비 %)",
-   "caught": 2,
-   "warTotal": 5,
-   "medianLead": 30,
-   "quietHotDays": 12,
-   "quietTotal": 421,
-   "quietRatePct": 2.9
   },
   {
    "id": "official.jp_risk_level_kr",
@@ -1194,6 +1182,16 @@
    "quietHotDays": 7,
    "quietTotal": 421,
    "quietRatePct": 1.7
+  },
+  {
+   "id": "market.usdkrw_change_pct",
+   "label": "원·달러 환율 변동 (전일 대비 %)",
+   "caught": 1,
+   "warTotal": 5,
+   "medianLead": 30,
+   "quietHotDays": 12,
+   "quietTotal": 421,
+   "quietRatePct": 2.9
   }
  ]
 }

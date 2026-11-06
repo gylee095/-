@@ -214,8 +214,8 @@
   {
    "date": "2021-01-18",
    "fxPct": 0.373,
-   "equityRel": 0.521,
-   "defenseRel": -0.717,
+   "equityRel": 0.139,
+   "defenseRel": 0.076,
    "wikiPct": 107,
    "media": 639
   },
@@ -438,8 +438,8 @@
   {
    "date": "2021-02-15",
    "fxPct": 0.233,
-   "equityRel": 0.555,
-   "defenseRel": -0.506,
+   "equityRel": 0.005,
+   "defenseRel": -0.644,
    "wikiPct": 101,
    "media": 870
   },
@@ -765,7 +765,7 @@
   },
   {
    "date": "2021-03-28",
-   "fxPct": 0.075,
+   "fxPct": 0.209,
    "equityRel": -0.276,
    "defenseRel": -0.44,
    "wikiPct": 94,
@@ -773,7 +773,7 @@
   },
   {
    "date": "2021-03-29",
-   "fxPct": 0.149,
+   "fxPct": 0.075,
    "equityRel": 1.27,
    "defenseRel": 1.068,
    "wikiPct": 103,
@@ -781,7 +781,7 @@
   },
   {
    "date": "2021-03-30",
-   "fxPct": 0.33,
+   "fxPct": 0.149,
    "equityRel": -0.835,
    "defenseRel": 0.925,
    "wikiPct": 100,
@@ -789,7 +789,7 @@
   },
   {
    "date": "2021-03-31",
-   "fxPct": -0.181,
+   "fxPct": 0.33,
    "equityRel": 0.302,
    "defenseRel": -0.589,
    "wikiPct": 105,
@@ -797,7 +797,7 @@
   },
   {
    "date": "2021-04-01",
-   "fxPct": 0.779,
+   "fxPct": -0.181,
    "equityRel": -1.229,
    "defenseRel": 0.772,
    "wikiPct": 155,
@@ -821,7 +821,7 @@
   },
   {
    "date": "2021-04-04",
-   "fxPct": 0.198,
+   "fxPct": 0.779,
    "equityRel": -1.229,
    "defenseRel": 0.772,
    "wikiPct": 189,
@@ -829,15 +829,15 @@
   },
   {
    "date": "2021-04-05",
-   "fxPct": 0.186,
-   "equityRel": -1.325,
-   "defenseRel": 0.64,
+   "fxPct": 0.198,
+   "equityRel": -1.229,
+   "defenseRel": 0.772,
    "wikiPct": 219,
    "media": 1889
   },
   {
    "date": "2021-04-06",
-   "fxPct": 0.741,
+   "fxPct": 0.186,
    "equityRel": -1.468,
    "defenseRel": 0.378,
    "wikiPct": 249,
@@ -845,7 +845,7 @@
   },
   {
    "date": "2021-04-07",
-   "fxPct": 0.555,
+   "fxPct": 0.741,
    "equityRel": 1.092,
    "defenseRel": 0.738,
    "wikiPct": 290,
@@ -853,7 +853,7 @@
   },
   {
    "date": "2021-04-08",
-   "fxPct": -0.165,
+   "fxPct": 0.555,
    "equityRel": -0.463,
    "defenseRel": -0.128,
    "wikiPct": 252,
@@ -877,7 +877,7 @@
   },
   {
    "date": "2021-04-11",
-   "fxPct": 0.775,
+   "fxPct": -0.165,
    "equityRel": -0.208,
    "defenseRel": -1.732,
    "wikiPct": 278,
@@ -885,7 +885,7 @@
   },
   {
    "date": "2021-04-12",
-   "fxPct": 0.211,
+   "fxPct": 0.775,
    "equityRel": 1.562,
    "defenseRel": -0.52,
    "wikiPct": 275,
@@ -893,7 +893,7 @@
   },
   {
    "date": "2021-04-13",
-   "fxPct": 0.332,
+   "fxPct": 0.211,
    "equityRel": -0.167,
    "defenseRel": -0.573,
    "wikiPct": 368,
@@ -901,7 +901,7 @@
   },
   {
    "date": "2021-04-14",
-   "fxPct": 0.126,
+   "fxPct": 0.332,
    "equityRel": 1.065,
    "defenseRel": 1.666,
    "wikiPct": 378,
@@ -909,7 +909,7 @@
   },
   {
    "date": "2021-04-15",
-   "fxPct": 0.085,
+   "fxPct": 0.126,
    "equityRel": -0.906,
    "defenseRel": 0.74,
    "wikiPct": 297,
@@ -933,7 +933,7 @@
   },
   {
    "date": "2021-04-18",
-   "fxPct": 0.231,
+   "fxPct": 0.085,
    "equityRel": 0.214,
    "defenseRel": -0.185,
    "wikiPct": 124,
@@ -941,7 +941,7 @@
   },
   {
    "date": "2021-04-19",
-   "fxPct": 0.417,
+   "fxPct": 0.231,
    "equityRel": -0.331,
    "defenseRel": 0.543,
    "wikiPct": 122,
@@ -949,7 +949,7 @@
   },
   {
    "date": "2021-04-20",
-   "fxPct": 0.722,
+   "fxPct": 0.417,
    "equityRel": 0.788,
    "defenseRel": -0.894,
    "wikiPct": 123,
@@ -957,7 +957,7 @@
   },
   {
    "date": "2021-04-21",
-   "fxPct": 0.5,
+   "fxPct": 0.722,
    "equityRel": -0.501,
    "defenseRel": 0.272,
    "wikiPct": 132,
@@ -965,7 +965,7 @@
   },
   {
    "date": "2021-04-22",
-   "fxPct": -0.371,
+   "fxPct": 0.5,
    "equityRel": 0.778,
    "defenseRel": -3.992,
    "wikiPct": 142,
@@ -989,7 +989,7 @@
   },
   {
    "date": "2021-04-25",
-   "fxPct": -0.791,
+   "fxPct": -0.371,
    "equityRel": -0.794,
    "defenseRel": -0.998,
    "wikiPct": 62,
@@ -997,7 +997,7 @@
   },
   {
    "date": "2021-04-26",
-   "fxPct": 0.191,
+   "fxPct": -0.791,
    "equityRel": 0.227,
    "defenseRel": -0.69,
    "wikiPct": 63,
@@ -1005,7 +1005,7 @@
   },
   {
    "date": "2021-04-27",
-   "fxPct": -0.261,
+   "fxPct": 0.191,
    "equityRel": -0.149,
    "defenseRel": -0.147,
    "wikiPct": 62,
@@ -1013,7 +1013,7 @@
   },
   {
    "date": "2021-04-28",
-   "fxPct": 0.076,
+   "fxPct": -0.261,
    "equityRel": -1.038,
    "defenseRel": 0.87,
    "wikiPct": 65,
@@ -1021,7 +1021,7 @@
   },
   {
    "date": "2021-04-29",
-   "fxPct": 0.492,
+   "fxPct": 0.076,
    "equityRel": 0.146,
    "defenseRel": 0.568,
    "wikiPct": 53,
@@ -1045,7 +1045,7 @@
   },
   {
    "date": "2021-05-02",
-   "fxPct": 0.627,
+   "fxPct": 0.492,
    "equityRel": 0.402,
    "defenseRel": 1.482,
    "wikiPct": 45,
@@ -1053,15 +1053,15 @@
   },
   {
    "date": "2021-05-03",
-   "fxPct": -0.301,
+   "fxPct": 0.627,
    "equityRel": 0.402,
-   "defenseRel": 1.135,
+   "defenseRel": 1.482,
    "wikiPct": 41,
    "media": 1047
   },
   {
    "date": "2021-05-04",
-   "fxPct": -0.024,
+   "fxPct": -0.301,
    "equityRel": 2.445,
    "defenseRel": 0.083,
    "wikiPct": 48,
@@ -1069,7 +1069,7 @@
   },
   {
    "date": "2021-05-05",
-   "fxPct": 0.096,
+   "fxPct": -0.024,
    "equityRel": 0.627,
    "defenseRel": -0.876,
    "wikiPct": 43,
@@ -1077,7 +1077,7 @@
   },
   {
    "date": "2021-05-06",
-   "fxPct": 0.041,
+   "fxPct": 0.096,
    "equityRel": -0.03,
    "defenseRel": 0.157,
    "wikiPct": 49,
@@ -1101,7 +1101,7 @@
   },
   {
    "date": "2021-05-09",
-   "fxPct": -0.658,
+   "fxPct": 0.041,
    "equityRel": -0.285,
    "defenseRel": 0.161,
    "wikiPct": 60,
@@ -1109,7 +1109,7 @@
   },
   {
    "date": "2021-05-10",
-   "fxPct": 0.959,
+   "fxPct": -0.658,
    "equityRel": 1.359,
    "defenseRel": 1.199,
    "wikiPct": 59,
@@ -1117,7 +1117,7 @@
   },
   {
    "date": "2021-05-11",
-   "fxPct": -0.147,
+   "fxPct": 0.959,
    "equityRel": -0.056,
    "defenseRel": -0.583,
    "wikiPct": 65,
@@ -1125,7 +1125,7 @@
   },
   {
    "date": "2021-05-12",
-   "fxPct": 0.584,
+   "fxPct": -0.147,
    "equityRel": 1.421,
    "defenseRel": 0.291,
    "wikiPct": 68,
@@ -1133,9 +1133,9 @@
   },
   {
    "date": "2021-05-13",
-   "fxPct": -0.084,
-   "equityRel": -0.324,
-   "defenseRel": -0.756,
+   "fxPct": 0.584,
+   "equityRel": 1.421,
+   "defenseRel": 0.291,
    "wikiPct": 75,
    "media": 1128
   },

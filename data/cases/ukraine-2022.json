@@ -440,7 +440,7 @@
    "date": "2021-12-27",
    "fxPct": 0.425,
    "equityRel": 0.539,
-   "defenseRel": -0.216,
+   "defenseRel": -0.196,
    "wikiPct": 74,
    "media": 2334
   },
@@ -448,7 +448,6 @@
    "date": "2021-12-28",
    "fxPct": 0.299,
    "equityRel": 0.871,
-   "defenseRel": 0.399,
    "wikiPct": 71,
    "media": 2645
   },
@@ -472,7 +471,7 @@
    "date": "2021-12-31",
    "fxPct": 0.752,
    "equityRel": 0.441,
-   "defenseRel": 0.558,
+   "defenseRel": -0.295,
    "wikiPct": 67,
    "media": 3750
   },
@@ -480,7 +479,7 @@
    "date": "2022-01-01",
    "fxPct": 0.752,
    "equityRel": 0.441,
-   "defenseRel": 0.558,
+   "defenseRel": -0.295,
    "wikiPct": 76,
    "media": 1506
   },
@@ -488,7 +487,7 @@
    "date": "2022-01-02",
    "fxPct": 0.752,
    "equityRel": 0.441,
-   "defenseRel": 0.558,
+   "defenseRel": -0.295,
    "wikiPct": 63,
    "media": 1268
   },
@@ -496,7 +495,7 @@
    "date": "2022-01-03",
    "fxPct": 0.61,
    "equityRel": 1.065,
-   "defenseRel": 0.33,
+   "defenseRel": -0.295,
    "wikiPct": 69,
    "media": 2573
   },
@@ -607,8 +606,8 @@
   {
    "date": "2022-01-17",
    "fxPct": 0.745,
-   "equityRel": -1.719,
-   "defenseRel": 0.441,
+   "equityRel": -1.589,
+   "defenseRel": 2.237,
    "wikiPct": 175,
    "media": 4024
   },
@@ -887,8 +886,8 @@
   {
    "date": "2022-02-21",
    "fxPct": 1.625,
-   "equityRel": -8.33,
-   "defenseRel": 0.357,
+   "equityRel": -2.383,
+   "defenseRel": 0.678,
    "wikiPct": 205,
    "media": 19036
   },

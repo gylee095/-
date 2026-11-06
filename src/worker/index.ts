@@ -2,7 +2,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
-import { ICON_SVG, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
+import { ICON_SVG, OPS_MANIFEST, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
 import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
 import { buyPage, failPage, successPage, termsPage } from "./buy.js";
@@ -12,7 +12,7 @@ import { OPSNAP_PREFIX, loadOpsSnaps, setOpsSnapshotMaker, snapSig } from "../co
 
 // 운영자 알림을 보낼 때 그 순간의 대시보드 전체를 얼린다 (손님 리포트와 같은 freezeState) — notify.ts 가 부른다
 setOpsSnapshotMaker(async (store, env) => freezeState((await buildState(store as D1Store, Date.now() - 72 * 3600_000, (env as Env).DISABLED_SOURCES)) as unknown as Record<string, unknown>));
-import { ICON_PNG_BASE64 } from "./icons.js";
+import { ICON_OPS_PNG_BASE64, ICON_PNG_BASE64 } from "./icons.js";
 import { mePage } from "./me.js";
 import { pushBody, situationFromRecords } from "../core/pushtext.js";
 import { fmtRiskPct } from "../core/warrisk.js";
@@ -74,7 +74,7 @@ export async function markStaging(res: Response, url: URL): Promise<Response> {
   const type = res.headers.get("content-type") ?? "";
   const headers = new Headers(res.headers);
   headers.set("x-robots-tag", "noindex, nofollow");
-  if (url.pathname === "/manifest.webmanifest") {
+  if (url.pathname === "/manifest.webmanifest" || url.pathname === "/manifest-ops.webmanifest") {
     const m = (await res.json()) as { name: string; short_name: string };
     return new Response(JSON.stringify({ ...m, name: `${m.name} (시험)`, short_name: `시험 ${m.short_name}` }), { status: res.status, headers });
   }
@@ -247,6 +247,9 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   }
   if (url.pathname === "/ops") return new Response(DASHBOARD_HTML, { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
   if (url.pathname === "/me") return new Response(mePage(), { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
+  // 운영자 앱 (11/6): 손님 앱과 따로 홈 화면에 추가하는 운영자 알림 목록. 이름 '운영자', 빨강 아이콘
+  if (url.pathname === "/ops/app") return new Response(mePage(true), { headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
+  if (url.pathname === "/manifest-ops.webmanifest") return new Response(JSON.stringify(OPS_MANIFEST), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "no-cache" } });
   if (url.pathname.startsWith("/ops/r/") && req.method === "GET") {
     // 운영자 알림의 '그때 화면' (11/6): 서명이 맞으면 그 순간에 얼린 대시보드를 시계를 그 시각에 고정해 보여 준다. 실시간은 /ops
     const id = decodeURIComponent(url.pathname.slice(7));
@@ -302,6 +305,8 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   }
   if (url.pathname === "/og.jpg") return new Response(Uint8Array.from(atob(OG_JPG_BASE64), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" } });
   const iconSize = { "/icon-180.png": 180, "/apple-touch-icon.png": 180, "/apple-touch-icon-precomposed.png": 180, "/icon-192.png": 192, "/icon-512.png": 512 }[url.pathname];
+  const opsIcon = { "/icon-ops-180.png": 180, "/icon-ops-192.png": 192, "/icon-ops-512.png": 512 }[url.pathname];
+  if (opsIcon) return new Response(Uint8Array.from(atob(ICON_OPS_PNG_BASE64[opsIcon]), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } });
   if (iconSize) return new Response(Uint8Array.from(atob(ICON_PNG_BASE64[iconSize]), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } });
   if (url.pathname === "/icon.svg") return new Response(ICON_SVG, { headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" } });
   // ── 유료 알림 (2026-11-04, 결제사 페이앱 11-05): 4,900원 1회 → 결제완료 통보 → 활성화 코드 → 휴대폰에서 코드로 켜기 ──

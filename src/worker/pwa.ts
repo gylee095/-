@@ -3,6 +3,7 @@ export const WEB_MANIFEST = {
   name: "한반도 조기경보",
   short_name: "조기경보",
   description: "한반도 전쟁 위험 단계가 바뀌는 순간 알려 드립니다 — 받은 리포트는 알림함에",
+  id: "/me",
   start_url: "/me",
   scope: "/",
   display: "standalone",
@@ -13,6 +14,21 @@ export const WEB_MANIFEST = {
     { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
     { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+  ],
+};
+
+/** 운영자 앱 (11/6): 손님 앱과 따로 설치 — 시작 주소·이름·아이콘이 다르다 */
+export const OPS_MANIFEST = {
+  ...WEB_MANIFEST,
+  id: "/ops/app",
+  name: "한반도 조기경보 운영자",
+  short_name: "운영자",
+  description: "운영자 알림 목록 · 실시간 대시보드",
+  start_url: "/ops/app",
+  icons: [
+    { src: "/icon-ops-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+    { src: "/icon-ops-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+    { src: "/icon-ops-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
   ],
 };
 

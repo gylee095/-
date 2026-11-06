@@ -131,7 +131,7 @@ table{width:100%;max-width:100%;table-layout:fixed;border-collapse:collapse;font
 .foot{font-size:12px;color:var(--mute);margin-top:20px}
 .leaflet-container{background:var(--chip);font:inherit}.leaflet-tooltip{font-weight:700;font-size:12px}.leaflet-control-attribution{font-size:9px!important;line-height:1.2}
 </style></head><body><div class="wrap">
-<div class="top"><b>🇰🇷 한반도 조기경보</b><span id="upd"></span></div>
+<div class="top"><b>🇰🇷 한반도 조기경보</b><span id="upd"></span><a id="toinbox" href="/ops/app" style="display:none;margin-left:8px;font-size:13px">📬 운영자 알림</a></div>
 <div id="app"></div>
 <details id="login" class="card" style="display:none"><summary>운영자 로그인 — 지금은 공개 화면으로 열려 있어요</summary><p style="font-size:13px;color:var(--mute)">운영자만 씁니다. 보는 데는 필요 없어요. 비밀값을 넣으면 이 휴대폰의 알림이 운영자용으로 올라가요.</p><input id="tok" type="password" autocomplete="current-password" placeholder="접속 비밀값"><button class="btn" onclick="saveTok()">확인</button></details>
 </div>
@@ -522,6 +522,7 @@ function abPanel(ab){var A=ab.a,B=ab.b;if(!B)return "";
     '<div style="font-size:13px;color:var(--mute);margin:4px 0 10px">A = 본 서버가 5분마다 남긴 최신 판정'+(A?' ('+esc(kst(A.at))+')':' (아직 없음)')+' · B = 이 시험 서버 코드가 같은 데이터로 지금 낸 판정. '+(diff?'<b style="color:#ff5a4e">다른 칸이 있어요 (●)</b>':'<b>지금은 결과가 같아요</b>')+'</div>'+t+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;margin-top:10px"><div><b>A의 이유</b><br>'+why(A)+'</div><div><b>B의 이유</b><br>'+why(B)+'</div></div></div>'}
 function render(){
+  try{var tb=document.getElementById("toinbox");if(tb)tb.style.display=(!window.__KEW_REPORT__&&localStorage.getItem("kew_token"))?"inline":"none"}catch(e){}
   var st=ST,th=st.threat,evs=st.events,top=pickTop(evs);
   $("#upd").textContent="업데이트 "+when(st.lastCycle?st.lastCycle.at:st.now);
   var h="";
@@ -529,8 +530,8 @@ function render(){
   var RP=window.__KEW_REPORT__;
   // 운영자 알림의 그때 화면 (11/6): 손님 리포트와 똑같이 '← 알림 목록으로'. 실시간 대시보드는 알림 목록의 운영자 전용 버튼으로만
   if(RP&&RP.kind==="ops"){
-    if(!document.getElementById("backbar")){document.body.style.paddingBottom="84px";document.body.insertAdjacentHTML("beforeend",'<a id="backbar" href="/me" style="position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:1000;display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:15px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)">← 알림 목록으로</a>')}
-    h+='<div class="card" style="border:2px solid #ff3b30;margin-bottom:12px"><a href="/me" style="display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:14px;border-radius:12px;margin-bottom:10px">← 알림 목록으로</a><div style="font-size:13px;color:var(--mute)">📌 '+esc(kst(RP.at))+' 알림 때의 화면이에요 (지금 상황이 아니에요)</div><div style="font-weight:700;margin-top:2px">'+esc(RP.headline||"")+'</div></div>';
+    if(!document.getElementById("backbar")){document.body.style.paddingBottom="84px";document.body.insertAdjacentHTML("beforeend",'<a id="backbar" href="/ops/app" style="position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:1000;display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:15px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)">← 알림 목록으로</a>')}
+    h+='<div class="card" style="border:2px solid #ff3b30;margin-bottom:12px"><a href="/ops/app" style="display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:14px;border-radius:12px;margin-bottom:10px">← 알림 목록으로</a><div style="font-size:13px;color:var(--mute)">📌 '+esc(kst(RP.at))+' 알림 때의 화면이에요 (지금 상황이 아니에요)</div><div style="font-weight:700;margin-top:2px">'+esc(RP.headline||"")+'</div></div>';
   }
   else if(RP&&!document.getElementById("backbar")){document.body.style.paddingBottom="84px";document.body.insertAdjacentHTML("beforeend",'<a id="backbar" href="/me" style="position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:1000;display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:15px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)">← 알림 목록으로</a>')}
   if(RP&&RP.kind!=="ops")h+='<div class="card" style="border:2px solid #ff3b30;margin-bottom:12px"><a href="/me" style="display:block;text-align:center;background:#ff3b30;color:#fff;font-size:17px;font-weight:800;text-decoration:none;padding:14px;border-radius:12px;margin-bottom:10px">← 알림 목록으로</a><div style="font-size:13px;color:var(--mute);margin-top:6px">📌 '+esc(kst(RP.at))+' '+(RP.kind==="snapshot"?"가입 시점 리포트 — 이 화면은 그 시각의 상황이에요":RP.kind==="demo"?"🧪 예시 리포트 — 목록·화면 확인용, 내용은 만든 때의 상황을 복사했어요":"단계 변화 리포트 — 이 화면은 그 시각의 상황이에요")+'</div><div style="font-weight:700;margin-top:2px">'+esc(RP.headline)+'</div></div>';

@@ -7,8 +7,15 @@
 // 주의: 클라이언트 코드는 String.raw 안이라 템플릿 리터럴(백틱·${})을 쓰지 않는다.
 import { INSTALL_JS, ORDERS_JS, REFUND_CONSENT, SHELL_HEAD } from "./buy.js";
 
-export function mePage(): string {
-  return String.raw`${SHELL_HEAD}<title>내 알림함 — 한반도 조기경보</title>
+/**
+ * 알림함. ops=true 면 운영자 앱(/ops/app, 2026-11-06 사용자 결정): 홈 화면에 손님 앱과 따로 추가하는 운영자 전용 앱.
+ * 홈 화면 앱은 앱마다 저장 공간이 따로라 운영자 열쇠는 이 앱에만 남는다. 매니페스트·아이콘·이름도 따로(빨강 아이콘 '운영자').
+ */
+export function mePage(ops = false): string {
+  const head = ops
+    ? SHELL_HEAD.replace('href="/manifest.webmanifest"', 'href="/manifest-ops.webmanifest"').replace('href="/icon-180.png"', 'href="/icon-ops-180.png"') + '<meta name="apple-mobile-web-app-title" content="운영자">'
+    : SHELL_HEAD + '<meta name="apple-mobile-web-app-title" content="조기경보">';
+  return String.raw`${head}<title>${ops ? "운영자 알림 — 한반도 조기경보" : "내 알림함 — 한반도 조기경보"}</title>
 <meta name="robots" content="noindex">
 <script src="https://lite.payapp.kr/public/api/v2/payapp-lite.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -27,7 +34,7 @@ ol.g{padding-left:22px;margin:8px 0}ol.g li{margin:10px 0}
 .okline{color:var(--ok);font-weight:700}
 input.code-in{width:100%;padding:14px;font-size:18px;letter-spacing:1px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);margin:8px 0;text-transform:uppercase}
 </style></head><body><div class="wrap">
-<div class="top"><b>🇰🇷 한반도 조기경보</b> · 내 알림함<span id="ops"></span></div>
+<div class="top"><b>🇰🇷 한반도 조기경보</b> · ${ops ? "운영자 알림" : "내 알림함"}<span id="ops"></span></div>
 <div id="app"><div class="state">불러오는 중…</div></div>
 <div class="foot">알림과 리포트는 공개 정보를 자동으로 분석한 참고 정보이며 공식 안보 정보가 아닙니다. 대피 등 실제 행동은 정부 재난문자와 국민재난안전포털을 따르세요. <a href="/terms">이용약관·환불</a></div>
 </div>
@@ -129,6 +136,7 @@ async function pasteCode(){var t="";try{t=await navigator.clipboard.readText()}c
   try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 function saveCode(){var v=normCode($("#codein").value);if(!v){alert("코드 12자리를 확인해 주세요.");return}try{localStorage.setItem("kew_code",v)}catch(e){}CODE=v;manifestWithCode(v);render()}
 
+var OPSAPP=${ops ? "true" : "false"};
 var Q=new URLSearchParams(location.search),CODE=code(),OPEN=Q.get("r"),SIGN=Q.get("s"),SUMMARY=Q.get("summary")==="1",PAGE=0;
 // 앱처럼 (11/5): 목록을 누르면 그 순간의 '대시보드 전체'(/r/번호). 안 본 알림은 '새 알림'. 앱 아이콘 배지는 열면 지운다
 function seen(){try{return JSON.parse(localStorage.getItem("kew_seen")||"[]")}catch(e){return []}}
@@ -144,7 +152,8 @@ async function render(){
   // 운영자 (11/6): 운영자 알림 링크(?r=번호&s=서명)는 바로 그 알림의 그때 화면으로. 운영자 열쇠가 있는 기기는 운영자 알림 목록
   if(OPEN&&SIGN){markSeen(OPEN);location.replace("/ops/r/"+encodeURIComponent(OPEN)+"?s="+encodeURIComponent(SIGN));return}
   var OT=null;try{OT=localStorage.getItem("kew_token")}catch(e){}
-  if(OT)return renderOps(OT); // 운영자 열쇠가 있으면 결제 코드가 있어도 운영자 알림 목록 (단계 변화 알림도 거기 함께 쌓인다, 11/6)
+  if(OT)return renderOps(OT);
+  if(OPSAPP)return opsLogin(); // 운영자 앱인데 열쇠가 없으면 로그인 한 번 // 운영자 열쇠가 있으면 결제 코드가 있어도 운영자 알림 목록 (단계 변화 알림도 거기 함께 쌓인다, 11/6)
   if(!CODE){if(orders().length&&await checkPaid(false))return;return noCode()}
   manifestWithCode(CODE);clearBadge();
   // 알림을 눌러 들어왔으면 바로 그 리포트(대시보드 전체)로
@@ -173,6 +182,15 @@ async function render(){
   // 예전(요약만 있던) 리포트를 열 때
   if(SUMMARY&&OPEN){var id2=OPEN;OPEN=null;markSeen(id2);openReport(id2);var el=document.getElementById("r_"+id2);if(el)el.scrollIntoView({block:"start"})}
 }
+// 운영자 앱 첫 로그인 (이 앱에 한 번만): 비밀값을 붙여 넣으면 서버에 맞는지 물어보고 이 앱에 저장
+function opsLogin(msg){$("#app").innerHTML='<div class="state main"><h2>🔑 운영자 로그인</h2><p class="big" style="margin:4px 0 8px">이 운영자 앱에 <b>한 번만</b> 넣으면 돼요. 손님 앱과는 따로 저장돼요.</p>'+(msg?'<p class="err" style="margin:6px 0">'+esc(msg)+'</p>':'')+
+  '<input class="code-in" id="opskey" type="password" autocomplete="off" placeholder="운영자 비밀값" style="text-transform:none;letter-spacing:0">'+
+  '<button class="btn ghost" style="margin:4px 0 8px" onclick="opsPaste()">📋 붙여넣기</button><button class="btn" onclick="opsSave()">확인</button></div>'}
+async function opsPaste(){try{var t=await navigator.clipboard.readText();if(t)$("#opskey").value=t.trim()}catch(e){alert("붙여넣기를 할 수 없어요. 입력칸을 길게 눌러 붙여 넣어 주세요.")}}
+async function opsSave(){var k=($("#opskey").value||"").trim();if(!k)return;
+  var r=await fetch("/api/ops/inbox",{headers:{authorization:"Bearer "+k},cache:"no-store"}).catch(function(){return null});
+  if(!r||!r.ok)return opsLogin("비밀값이 맞지 않아요. 다시 확인해 주세요.");
+  try{localStorage.setItem("kew_token",k)}catch(e){}renderOps(k)}
 // 운영자 알림 목록 (11/6): 손님 알림함과 같은 모양 + 운영자 전용 '실시간 대시보드' 버튼
 async function renderOps(t){clearBadge();
   if(OPEN){try{var rr=await fetch("/api/ops/report-link?id="+encodeURIComponent(OPEN),{headers:{authorization:"Bearer "+t}});if(rr.ok){var jj=await rr.json();if(jj.url){markSeen(OPEN);location.replace(jj.url);return}}}catch(e){}OPEN=null}

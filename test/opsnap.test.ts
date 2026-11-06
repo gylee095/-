@@ -69,4 +69,20 @@ describe("운영자 알림 링크 = 그때 화면", () => {
     expect(ops).toMatch(/← 알림 목록으로/);
     expect(ops).not.toMatch(/실시간 대시보드/); // 그때 화면에는 실시간 버튼이 없다
   });
+
+  it("운영자 앱은 손님 앱과 따로 설치된다: 주소·이름·아이콘·시작 주소가 다르고, 열쇠가 없으면 로그인", async () => {
+    const { mePage } = await import("../src/worker/me.js");
+    const { OPS_MANIFEST, WEB_MANIFEST } = await import("../src/worker/pwa.js");
+    const ops = mePage(true), cust = mePage();
+    expect(ops).toContain('href="/manifest-ops.webmanifest"');
+    expect(ops).toContain('href="/icon-ops-180.png"');
+    expect(ops).toContain('content="운영자"');
+    expect(ops).toContain("var OPSAPP=true;");
+    expect(ops).toMatch(/if\(OPSAPP\)return opsLogin\(\)/);
+    expect(cust).toContain('href="/manifest.webmanifest"');
+    expect(cust).toContain("var OPSAPP=false;");
+    expect(OPS_MANIFEST).toMatchObject({ id: "/ops/app", start_url: "/ops/app", short_name: "운영자" });
+    expect(WEB_MANIFEST).toMatchObject({ id: "/me", start_url: "/me" });
+    expect(OPS_MANIFEST.icons[0].src).toBe("/icon-ops-192.png");
+  });
 });

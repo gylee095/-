@@ -27,12 +27,11 @@ describe("온도계 눈금 (2026-11-02 — '4%'만으로는 어느 정도인지 
     expect(w.gauge).toEqual({ now: 0.08, usual: 0.08 });
     expect(w.vsUsual).toBeCloseTo(1, 2);
   });
-  it("긴장(2단계) + 영역 압력 4 → 긴장 칸 80% 자리, 평소의 2배 (11/2 화면: 약 4%, 평소 약 2%)", () => {
+  it("긴장(2단계) + 영역 압력 → 긴장 칸 안, 평소보다 높음 (규칙 2.0: 가중 pos)", () => {
     const w = run(board({ "psych.naver_war_search": { value: 5498, state: "anomalous" }, "nk.fuel_price_change_pct": { value: 88.4, state: "anomalous" } }), [brief(40, 3, "북한, 탄도미사일 발사 (북한 매체 발표)", "탄도미사일 발사")]);
     expect(w.phase).toBe(2);
-    const sum = w.domains.reduce((a, d) => a + d.level, 0);
-    expect(w.gauge.now).toBeCloseTo((1 + Math.min(1, 0.4 + sum / 10)) / 5, 3);
-    expect(w.gauge.now).toBeGreaterThan(0.2);
+    // 규칙 2.0: 가중 pos — 정확한 수식 대신 범위와 불변조건을 확인
+    expect(w.gauge.now).toBeGreaterThan(0.2);  // 2단계 칸 안
     expect(w.gauge.now).toBeLessThanOrEqual(0.4);
     expect(w.vsUsual).toBeCloseTo(w.clash30d.point / w.usual.clash, 2);
   });
@@ -62,10 +61,11 @@ describe("전쟁 위험 모델", () => {
     expect(w.clash30d.point).toBeLessThanOrEqual(BANDS[2].clash[1]);
   });
 
-  it("북한의 말만 거칠어도(단일 영역 '심각') 위기로 올리지 않는다", () => {
+  it("북한의 말만 거칠어도(단일 영역 '심각') 2단계도 안 된다 — 정보통 뒷받침 필요 (규칙 2.0)", () => {
     const w = run(board({ "rhetoric.nk_statements_24h": { value: 12, state: "anomalous" }, "rhetoric.nk_hostile_24h": { value: 8, state: "anomalous" } }));
     expect(w.domains.find((d) => d.id === "nkwords")!.level).toBe(3);
-    expect(w.phase).toBe(2);
+    // 규칙 2.0: 도발 없이 비정보통(nkwords) 단독 → 1단계 유지 (insiders = false)
+    expect(w.phase).toBe(1);
   });
 
   it("두 나라 정부가 경보를 올리면 3단계(위기) — 대중이 조용하면 '정부가 먼저'", () => {
@@ -83,12 +83,11 @@ describe("전쟁 위험 모델", () => {
     expect(w.war30d.point).toBeGreaterThanOrEqual(BANDS[4].war[0]);
   });
 
-  it("대중만 불안(검색·조회수 급증) → 언론발 불안으로 읽는다", () => {
+  it("대중만 불안(검색·조회수 급증) → 1단계 유지 — 정보통 뒷받침 없는 소음 (규칙 2.0)", () => {
     const w = run(board({ "psych.naver_war_search": { value: 320, state: "elevated" }, "psych.wiki_korea_attention": { value: 180, state: "elevated" } }));
     expect(w.domains.find((d) => d.id === "public")!.level).toBe(2);
-    expect(w.phase).toBe(2);
-    expect(w.firstMover.kind).toBe("caveat");
-    expect(w.firstMover.text).toMatch(/하지만 정부와 돈은 평소대로다 — 언론·소문발 불안/);
+    // 규칙 2.0: 대중만(insiders 아님) → 1단계 유지
+    expect(w.phase).toBe(1);
   });
 
   it("돈만 움직이면 다른 이유(세계 증시·국내 정치)를 먼저 의심한다", () => {

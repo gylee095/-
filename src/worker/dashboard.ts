@@ -429,14 +429,7 @@ function whyChanged(w,c){if(!c)return "";
   else h+='<div class="ps">여섯 영역의 수준과 징후 상태가 그때와 같아서 확률도 그대로입니다. 확률은 영역 수준에서 나옵니다.</div>';
   if(c.modelChanges&&c.modelChanges.length&&!items.some(function(t){return /측정 변경/.test(t)}))h+='<div class="ps">그 사이 측정 방식 변경: '+esc(c.modelChanges.join(" · "))+'</div>';
   return h+'</div>'}
-// 전쟁 직전 대비 점수 (11/6 사용자 '정답·채점표가 있어야 믿는다'): 0 = 한반도 평소, 100 = 우크라이나 침공 전날. 외국 사례의 전날 점수를 눈금에 같이 찍는다
-function readinessBar(R){var pos=function(s){return Math.max(1,Math.min(99,s))};
-  var marks=R.anchors.map(function(a){return '<span title="'+esc(a.name)+'" style="position:absolute;left:'+pos(a.score)+'%;top:-3px;width:2px;height:16px;background:'+(a.caught?'var(--mute)':'#ff9f0a')+'"></span>'}).join("");
-  var list=R.anchors.slice().sort(function(a,b){return b.score-a.score}).map(function(a){return '<li>'+esc(a.name)+' 전날 <b>'+a.score+'점</b> · '+a.phase+'단계'+(a.caught?'':' <span style="color:#ff9f0a">(못 잡음)</span>')+'</li>'}).join("");
-  return '<div style="margin:12px 0 4px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b style="font-size:15px">전쟁 직전 대비 '+R.score+'점</b><span style="font-size:12px;color:var(--mute)">0 평소 · 100 우크라이나 침공 전날</span></div>'+
-    '<div style="position:relative;height:10px;margin:8px 0 6px;border-radius:5px;background:var(--line)"><div style="height:10px;border-radius:5px;width:'+Math.max(2,R.score)+'%;background:var(--l'+(R.score>=85?4:R.score>=55?3:R.score>=10?2:1)+')"></div>'+marks+'</div>'+
-    '<div style="font-size:13px;line-height:1.55">'+esc(R.text)+'</div>'+
-    '<details style="margin-top:4px;font-size:13px"><summary>외국 사례 전날 점수</summary><ul style="margin:6px 0 0;padding-left:18px">'+list+'</ul><div style="color:var(--mute);margin-top:4px">회색 = 규칙이 미리 잡은 사례, 주황 = 못 잡은 사례. 자세한 성적표: docs/CASEBOOK.md</div></details></div>'}
+// readinessBar 제거 (11/6 사용자: 새 정보 말고 기존 %의 정확도를 올려라)
 // 첫 화면 한 장: 지금 단계 · 30일 국지 충돌 확률 · 어제와 비교 · 왜 · 오를 조건 · 마지막 도발 · 클로드 의견 · 할 일 · 데이터 상태 (2026-11-02)
 function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평온","긴장","위기","임박","교전"],LV=["평소","주의","경계","심각"];
   var O=w.official;
@@ -446,7 +439,6 @@ function summary(st){var w=st.warRisk,c=st.vsYesterday,th=st.threat,names=["평�
   h+=whyPct(w);
   // 하루 한 번 정하는 숫자 (11/6): 어제 판정과 비교 — 무엇이 바뀌었고 의미 있는 변화인가. 이 숫자가 무엇인지도 밝힌다
   if(O){h+='<div class="pwhy" style="'+(O.change&&O.change.meaningful?'color:var(--l4);font-weight:700':'')+'">'+esc(O.change?O.change.text:'어제 판정 기록이 아직 없어요 — 내일부터 하루씩 비교해요.')+'</div>';
-    if(O.readiness)h+=readinessBar(O.readiness);
     h+='<div style="margin-top:6px;font-size:12.5px;line-height:1.55;color:var(--mute)">'+esc(O.note)+'<br>'+esc(O.basis)+'</div>'}
   else h+=whyChanged(w,c);
   var hot=w.domains.filter(function(d){return d.level>0}).sort(function(a,b){return b.level-a.level});

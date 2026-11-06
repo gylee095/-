@@ -254,10 +254,12 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
     if (L.military >= 2 && (L.money >= 2 || L.gov >= 1)) reasons.push("군사 움직임에 돈·정부가 반응했다");
     if (L.elite >= 2 && (L.military >= 1 || L.nkwords >= 1)) reasons.push("엘리트·큰손이 크게 움직이는데 북한 쪽 움직임이 겹쳤다");
     if (high >= 3 && insiders) reasons.push(`세 영역 이상이 동시에 경계 이상 (${domains.filter((d) => d.level >= 2).map((d) => d.label).join(", ")})이고 정부·돈·큰손 쪽도 움직였다`);
-  } else if (prov7.length || elevated >= 2 || high >= 1) {
+  // 규칙 2.0: 소음만으로는 2단계 안 됨 — 도발이 있거나 정보통(정부·돈·큰손)이 뒷받침해야
+  // 근거: 한국 10년 시장·검색만으로 차이 3.5%p (예측력 없음), 2단계 38%는 너무 흔해 의미 없음
+  } else if (prov7.length || ((elevated >= 2 || high >= 1) && insiders)) {
     phase = 2;
     // 2026-11-01: 군사·북한의 말·대중 불안이 함께 '경계'였지만 정부·시장은 평소 — 위기로 올리지 않고 이유를 남긴다
-    if (high >= 3) reasons.push(`세 영역이 경계(${domains.filter((d) => d.level >= 2).map((d) => d.label).join(", ")})지만 정부·돈·큰손은 평소라 2단계에 둔다 — 위기는 정보를 가진 쪽이나 돈의 확인이 있어야 한다`);
+    if (high >= 3 && !insiders) reasons.push(`세 영역이 경계(${domains.filter((d) => d.level >= 2).map((d) => d.label).join(", ")})지만 정부·돈·큰손은 평소라 2단계에 둔다 — 위기는 정보를 가진 쪽이나 돈의 확인이 있어야 한다`);
     if (prov7.length) reasons.push(`최근 7일 도발 ${prov7.length}건 (가장 최근: ${[...prov7].sort((a, b) => b.at - a.at)[0].headline})`);
     if (elevated >= 2) reasons.push(`평소와 다른 영역 ${elevated}개 (${domains.filter((d) => d.level >= 1).map((d) => d.label).join(", ")})`);
     else if (high >= 1) reasons.push(`${domains.find((d) => d.level >= 2)!.label} 영역이 경계 수준`);
@@ -265,9 +267,19 @@ export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): W
     reasons.push("최근 7일 도발 없음, 모든 영역이 평소 범위");
   }
 
-  // ── 확률: 단계 범위 안에서 영역 압력만큼 ──
-  const sumLevels = domains.reduce((a, d) => a + d.level, 0);
-  const pos = Math.min(1, 0.4 + sumLevels / 10);
+  // ── 확률: 단계 범위 안에서 영역 가중 압력만큼 (규칙 2.0: 사례집 기반 가중치) ──
+  // 근거는 docs/INDICATORS.md '영역 가중치 근거' 참고
+  const DOMAIN_WEIGHT: Record<DomainId, number> = {
+    gov: 2.0,      // 외국 6건에서 가장 먼저·정확히 선행 (우크라이나: 11일 전, 이란 2024-04: 수일 전 대사관 행동 제한)
+    elite: 1.0,    // 근거 없음 — 외국 사례·한국 재생 모두 미측정
+    money: 1.0,    // 일부 선행(환율·방산주)하나 헛경보도 많음; 한국 10년 시장만으로 차이 3.5%p의 일부
+    military: 1.5, // 외국 사례에서 영공 폐쇄·항행경보가 공격 1~2일 전 강한 신호 (이란 2024 양쪽)
+    nkwords: 1.0,  // 근거 없음 — 한국 재생에 장마당·매체 데이터 없음
+    public: 0.5,   // 한국 10년: 시장·위키·검색만으로 차이 3.5%p (평균 19.4%와 거의 같음, 예측력 없음); 외국: 가장 늦게 움직이고 헛경보 최다
+  };
+  const avgWeight = DOMAINS.reduce((a, d) => a + DOMAIN_WEIGHT[d.id], 0) / DOMAINS.length;
+  const weightedSum = domains.reduce((a, d) => a + d.level * DOMAIN_WEIGHT[d.id], 0);
+  const pos = Math.min(1, 0.4 + weightedSum / (10 * avgWeight));
   const band = (b: [number, number]): Band => ({ low: b[0], high: b[1], point: +(b[0] + (b[1] - b[0]) * pos).toFixed(2) });
   const clash30d = band(BANDS[phase].clash);
   const war30d = band(BANDS[phase].war);

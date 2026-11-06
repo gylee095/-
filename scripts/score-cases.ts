@@ -8,7 +8,7 @@ import { clusterCount, isQuietDay, phaseCalibration, readinessScore, recencyBase
 import { PHASE_LABEL, type Phase } from "../src/core/warrisk.js";
 
 const DIR = new URL("../data/cases/", import.meta.url);
-const NOT_CASE = new Set(["events.json", "scorecard.json"]);
+const NOT_CASE = new Set(["events.json", "scorecard.json", "scorecard-v1.json"]);
 const files = readdirSync(DIR).filter((f) => f.endsWith(".json") && !NOT_CASE.has(f)).sort();
 const cases: CaseFile[] = files.map((f) => JSON.parse(readFileSync(new URL(f, DIR), "utf8")));
 const ORDER = ["ukraine-2022", "russia-buildup-2021", "hamas-2023", "iran-israel-2024-04", "iran-israel-2024-10", "israel-iran-2025"];
@@ -128,11 +128,11 @@ const korea = kc && (() => {
   };
 })();
 
-const card = { ruleVersion: "1.0", retrieved, forecastDays: FORECAST_DAYS, totals, scale, anchors, quietScores, cases: results.map((r) => r.score), signals, korea };
+const card = { ruleVersion: "2.0", retrieved, forecastDays: FORECAST_DAYS, totals, scale, anchors, quietScores, cases: results.map((r) => r.score), signals, korea };
 
 const gen = `// 자동 생성: scripts/score-cases.ts — 직접 고치지 말 것. 성적표: docs/CASEBOOK.md, 자료: data/cases/
 // 외국 전쟁 사례 ${results.length}건을 지금 판정 규칙(1.0)으로 하루씩 재생한 결과에서 화면에 필요한 것만 담는다.
-export const CASEBOOK = ${JSON.stringify({ ruleVersion: "1.0", retrieved, scale, anchors, quietScores, totals: { cases: results.length, ...totals }, korea: korea && { from: korea.from, to: korea.to, phaseShare: korea.phaseShare, cal: korea.cal, falseAlarmDays: korea.falseAlarmDays, crisisDays: korea.crisisDays, truths: korea.truths, caught: korea.caught, noEvents: korea.noEvents, onlyEvents: korea.onlyEvents, recency: korea.recency } })} as const;
+export const CASEBOOK = ${JSON.stringify({ ruleVersion: "2.0", retrieved, scale, anchors, quietScores, totals: { cases: results.length, ...totals }, korea: korea && { from: korea.from, to: korea.to, phaseShare: korea.phaseShare, cal: korea.cal, falseAlarmDays: korea.falseAlarmDays, crisisDays: korea.crisisDays, truths: korea.truths, caught: korea.caught, noEvents: korea.noEvents, onlyEvents: korea.onlyEvents, recency: korea.recency } })} as const;
 `;
 
 const timeline = (replay: ReplayDay[], truth?: string) => replay.filter((r) => !truth || r.date < truth).map((r) => r.phase).join("");

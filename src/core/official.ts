@@ -37,8 +37,7 @@ export interface OfficialView {
   change: { meaningful: boolean; text: string; moved: string[] } | null;
   /** 이 숫자가 무엇이고 무엇이 아닌가 */
   basis: string;
-  /** 전쟁 직전 대비 점수 — 외국 전쟁 사례로 만든 눈금 (docs/CASEBOOK.md) */
-  readiness: Readiness;
+  // readiness 는 내부 계산용으로 Official 에 남지만 화면(OfficialView)에는 내보내지 않는다 (11/6 사용자: 새 정보 말고 기존 %의 정확도를 올려라)
 }
 
 export interface Readiness {
@@ -111,11 +110,8 @@ export function officialDue(cur: Official | undefined, w: WarRisk, confirmedPhas
 const T = CASEBOOK.totals;
 const K = CASEBOOK.korea as { from: string; to: string; phaseShare: Record<string, number>; cal: { byPhase: Record<string, { pct: number }> } } | undefined;
 const k1 = K?.cal.byPhase["1"]?.pct, k2 = K?.cal.byPhase["2"]?.pct, kShare = K?.phaseShare["2"];
-const KOREA_LINE = K && k1 !== undefined && k2 !== undefined && kShare !== undefined
-  ? ` 한반도 ${K.from.slice(0, 4)}~${K.to.slice(0, 4)}년은 일부 신호(시장·검색·도발 기록)로만 다시 돌렸어요: 2단계는 ${Math.round(kShare)}%의 날에 나오는 흔한 상태이고, 뒤 30일 안에 큰 도발(핵실험·ICBM·포격 등)이 난 비율은 ${Math.round(k2)}%(1단계 ${Math.round(k1)}%)예요. 이 차이는 대부분 '도발은 몰려서 일어난다'에서 나온 것이고, 규칙이 큰 도발을 미리 내다본 적은 없어요. 이 비율은 충돌·전쟁 확률이 아니에요.`
-  : "";
 const BASIS =
-  `이 %는 1999~2026년 남북 충돌 8번의 빈도로 정한 단계별 범위 안의 판단값이고, 아직 결과로 맞추지 않았어요. 채점 결과(1차): 외국 전쟁 ${T.cases}건에서 공격 ${T.warCases}건 중 ${T.caught}건을 30일 안에 잡았고, 평시 ${T.quietDays}일 중 ${T.falseAlarmDays}일이 헛경보(3단계 이상)였어요.${KOREA_LINE}`;
+  `충돌 빈도 기반 판단값 — 외국 전쟁 ${T.warCases}건 중 ${T.caught}건 감지, 한반도 큰 도발 예측은 아직 못 함.`;
 
 function changeText(prev: Official | undefined, off: Official): OfficialView["change"] {
   if (!prev) return null;
@@ -155,7 +151,7 @@ export function applyOfficial(w: WarRisk, off: Official | undefined, prev: Offic
     vsUsual: off.vsUsual,
     headline: `전쟁 위험 ${off.phase}단계(${off.phaseLabel}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(off.clash30d.point)}, 전면전 ${fmtRiskPct(off.war30d.point)}`,
     live: w,
-    official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS, readiness: off.readiness ?? makeReadiness(off.gauge.now, off.phase) },
+    official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS },
   };
 }
 

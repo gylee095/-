@@ -5,7 +5,7 @@
 // 실행: npx tsx scripts/korea-replay.ts   (네이버 과거 검색량은 서버의 /api/history-source 로 받는다 — KEW_SECRET 필요, 읽기 전용)
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { avgOn, cached, carryForward, pctOf, y } from "./fetch-cases.js";
+import { avgOn, cached, CARRY_DAYS, carryForward, pctOf, y } from "./fetch-cases.js";
 import { WIKI_BASKET, parseWikiSeries, wikiUrl, WIKI_UA } from "../src/core/collectors/wiki.js";
 import { NAVER_GROUPS } from "../src/core/collectors/naver.js";
 import { dangerOf, parseCsis } from "../src/core/provdanger.js";
@@ -51,7 +51,7 @@ async function wikiSeries(): Promise<Map<string, number>> {
   const all: { name: string; series: Map<string, number> }[] = [];
   for (const [p, a] of WIKI_BASKET) {
     const text = await cached(`wiki_${p}_${encodeURIComponent(a).replace(/[^A-Za-z0-9]+/g, "_")}_${FROM}_${KOREA.end}.json`, wikiUrl(p, a, ms(FROM), ms(KOREA.end)), { "User-Agent": WIKI_UA }, (j) => Array.isArray(j?.items));
-    if (!text) continue;
+    if (!text) throw new Error(`위키 문서를 못 받음: ${p}:${a} — 운영과 다른 묶음으로 채점하지 않는다`);
     const raw = parseWikiSeries(JSON.parse(text));
     all.push({ name: `${p}:${a}`, series: new Map([...raw].map(([k, v]) => [`${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`, v])) });
   }
@@ -64,6 +64,7 @@ async function events(): Promise<CaseEvent[]> {
   for (const p of parseCsis(html)) {
     if (p.date < FROM || p.date > KOREA.end) continue;
     const level = dangerOf(p) as CaseEvent["level"];
+    if (level < 2) continue; // 위험도 1 은 발사·포격 같은 실제 도발이 아니다 — 운영의 isProvocation 에 해당하지 않음
     const cur = best.get(p.date);
     if (!cur || level > cur.level) best.set(p.date, { date: p.date, level, headline: `북한 ${p.event}` });
   }
@@ -92,7 +93,7 @@ export async function buildKorea(): Promise<CaseFile & { truth: { date: string; 
   }
   const { MAJOR_DAYS } = await import("../src/core/tension_history.js");
   const gt = existsSync(new URL("../.cache/cases/gt-korea.json", import.meta.url)) ? JSON.parse(readFileSync(new URL("../.cache/cases/gt-korea.json", import.meta.url), "utf8")) : undefined;
-  const clashes = ((gt?.clashes ?? []) as any[]).filter((c) => c.date && c.confidence !== "not_found" && c.kind !== "warning_shots");
+  const clashes = ((gt?.clashes ?? []) as any[]).filter((c) => /^\d{4}-\d{2}-\d{2}$/.test(c.date ?? "") && c.date >= KOREA.start && c.date <= KOREA.end && c.confidence !== "not_found" && c.kind !== "warning_shots");
   const truth = [
     ...MAJOR_DAYS.filter((d) => d >= KOREA.start && d <= KOREA.end).map((d) => ({ date: d, what: "큰 도발 날 (CSIS 위험도 4 이상·시스템 기록)", kind: "major", source: "src/core/tension_history.ts MAJOR_DAYS" })),
     ...clashes.map((c) => ({ date: c.date, what: c.what, kind: c.kind, source: (c.sources ?? [])[0] ?? "" })),
@@ -106,7 +107,8 @@ export async function buildKorea(): Promise<CaseFile & { truth: { date: string; 
       "네이버 검색: 운영과 같은 불안 묶음 3개 (서버 /api/history-source)",
       "도발: CSIS Beyond Parallel 'Database: North Korean Provocations' → provdanger.ts 위험도",
       "정부 경보: 2017~2026 한국 대상 안보 사유 상향 없음으로 둠 (조사: .cache/cases/gt-korea.json advisories)",
-      "보도량·항공·GPS·항행경보·엘리트·북한 내부: 과거 자료 없음 → 측정 불가",
+      "보도량·항공·GPS·항행경보·엘리트·북한 내부·예측시장: 과거 자료 없음 → 측정 불가",
+      `휴장일 시장 값은 ${CARRY_DAYS}일까지 이어 씀 (금요일 움직임이 주말에도 켜져 있을 수 있음)`,
     ],
     retrieved: iso(Date.now()),
   };

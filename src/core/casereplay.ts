@@ -179,7 +179,9 @@ export function scoreMulti(replay: ReplayDay[], truthDates: string[]): MultiScor
   let flips = 0;
   for (let i = 1; i < replay.length; i++) if (replay[i].phase !== replay[i - 1].phase) flips++;
   const crisis = replay.filter((r) => r.phase >= 3);
-  const falseAlarmDays = crisis.filter((r) => !truths.some((t) => t > r.date && dayDiff(t, r.date) <= FORECAST_DAYS)).length;
+  const lastDay = replay[replay.length - 1]?.date ?? "";
+  // 뒤 30일을 다 볼 수 있는 날만 헛경보로 판정한다 (끝 30일은 결과를 아직 모른다)
+  const falseAlarmDays = crisis.filter((r) => dayDiff(lastDay, r.date) >= FORECAST_DAYS && !truths.some((t) => t > r.date && dayDiff(t, r.date) <= FORECAST_DAYS)).length;
   const inRange = truths.filter((t) => replay.length && t > replay[0].date && t <= replay[replay.length - 1].date);
   return {
     days: replay.length, phaseDays, crisisDays: crisis.length, falseAlarmDays, flips,
@@ -201,6 +203,28 @@ export function phaseCalibration(replay: ReplayDay[], truthDates: string[]): { b
   const byPhase: Record<number, { hit: number; n: number }> = {};
   for (const r of usable) { byPhase[r.phase] ??= { hit: 0, n: 0 }; byPhase[r.phase].n++; if (hit(r.date)) byPhase[r.phase].hit++; }
   return { base: { hit: usable.filter((r) => hit(r.date)).length, n: usable.length }, byPhase };
+}
+
+/** 단순 기준: 최근 7일 안에 위험도 min 이상 도발이 있었던 날 vs 없던 날, 뒤 30일 안 정답 비율 — 규칙이 이 기준보다 나은지 보는 잣대 */
+export function recencyBaseline(replay: ReplayDay[], events: CaseEvent[], truthDates: string[], min: number): { on: { hit: number; n: number }; off: { hit: number; n: number } } {
+  const truths = [...new Set(truthDates)];
+  const last = replay[replay.length - 1]?.date ?? "";
+  const ev = events.filter((e) => e.level >= min).map((e) => e.date);
+  const on = { hit: 0, n: 0 }, off = { hit: 0, n: 0 };
+  for (const r of replay) {
+    if (dayDiff(last, r.date) < FORECAST_DAYS) continue;
+    const b = ev.some((e) => e <= r.date && dayDiff(r.date, e) < 7) ? on : off;
+    b.n++;
+    if (truths.some((t) => t > r.date && dayDiff(t, r.date) <= FORECAST_DAYS)) b.hit++;
+  }
+  return { on, off };
+}
+
+/** 정답 날을 30일 묶음 국면으로 센다 — 도발은 몰려 일어나서 날 수는 독립 사건 수가 아니다 */
+export function clusterCount(dates: string[], gapDays = FORECAST_DAYS): number {
+  let n = 0, prev = "";
+  for (const d of [...new Set(dates)].sort()) { if (!prev || dayDiff(d, prev) > gapDays) n++; prev = d; }
+  return n;
 }
 
 /** 네이버 불안 검색 배율 — 운영 naverRatios/naverMetrics 와 같게: 묶음마다 어제 ÷ 그 전 28일 중앙값(평소 > 0), 묶음 중 가장 큰 값 ×100.

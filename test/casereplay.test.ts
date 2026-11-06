@@ -1,6 +1,7 @@
 // 사례집 재생: 운영 규칙을 그대로 쓰는지, 미래 정보를 쓰지 않는지, 채점이 맞는지
 import { describe, expect, it } from "vitest";
-import { caseBoard, isQuietDay, naverDaily, phaseCalibration, readinessScore, replayCase, scoreCase, scoreMulti, wikiDaily, type CaseDay, type CaseFile } from "../src/core/casereplay.js";
+import { dangerOf, parseCsis } from "../src/core/provdanger.js";
+import { caseBoard, clusterCount, isQuietDay, naverDaily, phaseCalibration, readinessScore, recencyBaseline, replayCase, scoreCase, scoreMulti, wikiDaily, type CaseDay, type CaseFile } from "../src/core/casereplay.js";
 
 const dates = (start: string, n: number) => Array.from({ length: n }, (_, i) => new Date(Date.parse(`${start}T00:00:00Z`) + i * 86400_000).toISOString().slice(0, 10));
 const mk = (over: Partial<CaseFile> = {}, day: (date: string) => Partial<CaseDay> = () => ({})): CaseFile => {
@@ -256,5 +257,35 @@ describe("한국 재생 (11/6)", () => {
     const r = naverDaily([g("a", "2022-02-01", 2), g("b", "2022-02-01", 1.5)], ds[0], ds[ds.length - 1]);
     expect(r.get("2022-02-01")).toBe(100);
     expect(r.get("2022-02-02")).toBe(400);
+  });
+});
+
+describe("한국 재생 검토 반영 (11/6)", () => {
+  it("입력 도발 기록의 위험도 4 이상 날과 정답 큰 도발 날이 같은 판본이다", async () => {
+    const { readFileSync, existsSync } = await import("node:fs");
+    const f = new URL("../data/korea/korea-2017-2026.json", import.meta.url);
+    if (!existsSync(f)) return;
+    const c = JSON.parse(readFileSync(f, "utf8")) as CaseFile & { truth: { date: string; kind: string }[] };
+    const input = (c.events ?? []).filter((e) => e.level >= 4 && e.date >= c.start && e.date <= c.end).map((e) => e.date).sort();
+    expect(input).toEqual(c.truth.filter((t) => t.kind === "major").map((t) => t.date).sort());
+  });
+  it("끝 30일의 3단계는 결과를 모르므로 헛경보로 세지 않는다", () => {
+    const c = mk({ events: [{ date: "2022-02-25", level: 5, headline: "x" }] }); // 창 끝은 3/1 — 전부 끝 30일 안
+    const s = scoreMulti(replayCase(c), []);
+    expect(s.crisisDays).toBeGreaterThan(0);
+    expect(s.falseAlarmDays).toBe(0);
+  });
+  it("단순 기준: 최근 7일 도발 있음/없음으로 나눠 뒤 30일 정답 비율을 센다", () => {
+    const c = mk({ events: [{ date: "2022-01-10", level: 4, headline: "x" }] });
+    const b = recencyBaseline(replayCase(c), c.events!, ["2022-01-12"], 4);
+    expect(b.on.n).toBe(7); // 1/10~1/16
+    expect(b.on.hit).toBe(2); // 1/10, 1/11
+    expect(b.off.n).toBe(23);
+    expect(clusterCount(["2022-01-01", "2022-01-20", "2022-03-30"])).toBe(2);
+  });
+  it("도발 표 파서와 위험도: 핵실험 5, 탄도미사일 3, 일본 상공 4", () => {
+    const row = (d: string, t: string, e: string, x: string) => `<tr><td>${d}</td><td>${t}</td><td>${e}</td><td>${x}</td></tr>`;
+    const provs = parseCsis(`<table><tbody>${row("2017-09-03", "Nuclear Provocation", "Nuclear Test", "6th")}${row("2022-03-01", "Missile", "Short-Range Ballistic Missile", "x")}${row("2022-10-04", "Missile", "Intermediate-Range Ballistic Missile", "flew over Japan")}${row("not-a-date", "x", "y", "z")}</tbody></table>`);
+    expect(provs.map(dangerOf)).toEqual([5, 3, 4]);
   });
 });

@@ -4,7 +4,7 @@
 // 실행: npx tsx scripts/score-cases.ts [--no-write]
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { assessWarRisk } from "../src/core/warrisk.js";
-import { isQuietDay, phaseCalibration, readinessScore, replayCase, scoreMulti, scoreCase, FORECAST_DAYS, type CaseFile, type CaseScore, type ReplayDay } from "../src/core/casereplay.js";
+import { clusterCount, isQuietDay, phaseCalibration, readinessScore, recencyBaseline, replayCase, scoreMulti, scoreCase, FORECAST_DAYS, type CaseFile, type CaseScore, type ReplayDay } from "../src/core/casereplay.js";
 import { PHASE_LABEL, type Phase } from "../src/core/warrisk.js";
 
 const DIR = new URL("../data/cases/", import.meta.url);
@@ -56,6 +56,9 @@ const totals = {
 };
 
 const retrieved = cases.map((c) => c.retrieved).sort().pop();
+// 창 전체가 이미 진행 중인 전쟁 안에 있는 사례 (events.json rules: 2023년 10월 이후 계속)
+const ONGOING_WAR = new Set(["iran-israel-2024-04", "iran-israel-2024-10"]);
+const quietExOngoing = results.filter((r) => !ONGOING_WAR.has(r.c.id)).reduce((a, r) => ({ quiet: a.quiet + r.score.quietDays, fa: a.fa + r.score.falseAlarmDays }), { quiet: 0, fa: 0 });
 
 // ── 전쟁 직전 대비 점수 눈금: 우크라이나 침공 전날 판정 = 100 ──
 const ukr = results.find((r) => r.c.id === "ukraine-2022");
@@ -89,14 +92,34 @@ const korea = kc && (() => {
   const s = scoreMulti(replay, kc.truth.map((t) => t.date));
   const cal = phaseCalibration(replay, major);
   const pctOf = (x: { hit: number; n: number }) => Math.round((x.hit / Math.max(1, x.n)) * 1000) / 10;
+  // 입력과 정답이 같은 도발 일지에서 나온다 → 도발 기록을 뺀 재생·기록만 넣은 재생·단순 기준과 나란히 본다 (11/6 검토)
+  const pair = (cc: CaseFile) => { const c2 = phaseCalibration(replayCase(cc), major); return { p1: pctOf(c2.byPhase[1]), n1: c2.byPhase[1].n, p2: pctOf(c2.byPhase[2]), n2: c2.byPhase[2].n }; };
+  const noEvents = pair({ ...kc, events: [] });
+  const onlyEvents = pair({ ...kc, days: kc.days.map((d) => ({ date: d.date })) });
+  const inPeriod = (kc.events ?? []).filter((e) => e.date >= kc.start && e.date <= kc.end);
+  const rec = (min: number) => { const b = recencyBaseline(replay, kc.events ?? [], major, min); return { min, on: pctOf(b.on), nOn: b.on.n, off: pctOf(b.off), nOff: b.off.n }; };
+  const why2 = { provOnly: 0, both: 0, signalOnly: 0 };
+  for (const r of replay.filter((x) => x.phase === 2)) {
+    const prov = r.reasons.some((x) => x.startsWith("최근 7일 도발"));
+    const sig = r.reasons.some((x) => x.startsWith("평소와 다른") || x.includes("경계 수준"));
+    if (prov && sig) why2.both++; else if (prov) why2.provOnly++; else why2.signalOnly++;
+  }
   const runs: { from: string; to: string; why: string }[] = [];
   replay.forEach((r, i) => {
     if (r.phase >= 3 && (i === 0 || replay[i - 1].phase < 3)) runs.push({ from: r.date, to: r.date, why: r.reasons[0] ?? "" });
     else if (r.phase >= 3) runs[runs.length - 1].to = r.date;
   });
   const years = (replay.length / 365.25);
+  // 결론 문장은 숫자가 뒷받침할 때만 쓴다 — 규칙·자료가 바뀌어 맞지 않으면 다시 쓰라고 표시한다 (11/6 검토)
+  const reactive = runs.every((r) => r.why.startsWith("최근 14일 중대 사건"));
+  const fullGap = pctOf(cal.byPhase[2]) - pctOf(cal.byPhase[1]);
+  const signalGap = noEvents.p2 - noEvents.p1, recGap = rec(4).on - rec(4).off;
+  const verdict = reactive && signalGap < fullGap && recGap > fullGap
+    ? `**결론: 지금 규칙은 큰 도발을 미리 내다보지 못했다.** 3단계는 모두 큰 사건 뒤의 반응이었다. 1·2단계 차이(${fullGap.toFixed(1)}%p)의 대부분은 "도발은 몰려서 일어난다"에서 나오고, 시장·위키·검색만으로는 차이가 ${signalGap.toFixed(1)}%p뿐이다. 단순 기준("최근 7일 안에 위험도 4 이상 도발")은 ${recGap.toFixed(1)}%p로 지금 규칙보다 잘 갈랐다.`
+    : "**결론 문장 자동 보류: 규칙·자료가 바뀌어 이전 결론이 숫자와 맞지 않는다. 아래 표를 보고 다시 쓸 것.**";
   return {
-    from: kc.start, to: kc.end, days: s.days, phaseShare: Object.fromEntries(Object.entries(s.phaseDays).map(([k, v]) => [k, Math.round((v / s.days) * 1000) / 10])),
+    verdict, reactive, from: kc.start, to: kc.end, days: s.days, usableDays: cal.base.n, phaseShare: Object.fromEntries(Object.entries(cal.byPhase).map(([k, v]) => [k, Math.round((v.n / cal.base.n) * 1000) / 10])),
+    noEvents, onlyEvents, recency: [rec(3), rec(4)], why2, eventDays: inPeriod.length, majorClusters: clusterCount(major), majorCount: major.length,
     crisisDays: s.crisisDays, falseAlarmDays: s.falseAlarmDays, flipsPerYear: Math.round(s.flips / years), runs,
     truths: s.truths.length, caught: s.truths.filter((t) => t.caught).length, caughtList: s.truths.filter((t) => t.caught),
     clashes: kc.truth.filter((t) => t.kind !== "major"), clashCal: clash.length ? phaseCalibration(replay, clash) : undefined,
@@ -109,7 +132,7 @@ const card = { ruleVersion: "1.0", retrieved, forecastDays: FORECAST_DAYS, total
 
 const gen = `// 자동 생성: scripts/score-cases.ts — 직접 고치지 말 것. 성적표: docs/CASEBOOK.md, 자료: data/cases/
 // 외국 전쟁 사례 ${results.length}건을 지금 판정 규칙(1.0)으로 하루씩 재생한 결과에서 화면에 필요한 것만 담는다.
-export const CASEBOOK = ${JSON.stringify({ ruleVersion: "1.0", retrieved, scale, anchors, quietScores, totals: { cases: results.length, ...totals }, korea: korea && { from: korea.from, to: korea.to, phaseShare: korea.phaseShare, cal: korea.cal, falseAlarmDays: korea.falseAlarmDays, crisisDays: korea.crisisDays, truths: korea.truths, caught: korea.caught } })} as const;
+export const CASEBOOK = ${JSON.stringify({ ruleVersion: "1.0", retrieved, scale, anchors, quietScores, totals: { cases: results.length, ...totals }, korea: korea && { from: korea.from, to: korea.to, phaseShare: korea.phaseShare, cal: korea.cal, falseAlarmDays: korea.falseAlarmDays, crisisDays: korea.crisisDays, truths: korea.truths, caught: korea.caught, noEvents: korea.noEvents, onlyEvents: korea.onlyEvents, recency: korea.recency } })} as const;
 `;
 
 const timeline = (replay: ReplayDay[], truth?: string) => replay.filter((r) => !truth || r.date < truth).map((r) => r.phase).join("");
@@ -121,8 +144,10 @@ const md = `# 외국 전쟁 사례집 — 성적표 (규칙 1.0)
 
 ## 한눈에
 
-- 공격이 있었던 사례 ${totals.warCases}건 중 **미리 잡은 것 ${totals.caught}건** ('잡음' = 공격 전 ${FORECAST_DAYS}일 안에 3단계 이상).
+- **한반도 10년 재생(주 시험):** 큰 도발을 미리 내다본 경우 없음. 아래 '한반도 10년 재생' 참고.
+- **외국 사례(보조, 정부 경보 위주):** 공격이 있었던 사례 ${totals.warCases}건 중 **미리 잡은 것 ${totals.caught}건** ('잡음' = 공격 전 ${FORECAST_DAYS}일 안에 3단계 이상).
 - 평시 구간 ${totals.quietDays}일 중 **헛경보 ${totals.falseAlarmDays}일** (3단계 이상).
+- 헛경보를 전쟁 진행 중 기간과 나누면: 가자 전쟁이 이미 진행 중이던 창(이란 2024년 4월·10월)을 빼면 평시 ${quietExOngoing.quiet}일 중 ${quietExOngoing.fa}일이다. 대표 숫자는 빼지 않은 엄격 기준을 쓴다.
 - 채점한 ${totals.days}일 동안 단계가 바뀐 횟수 ${totals.flips}번.
 
 | 사례 | 결과 | 판정 | 3단계 첫날 | 4단계 첫날 | 전날 단계 | 평시 헛경보 | 단계 변화 |
@@ -131,20 +156,36 @@ ${results.map(({ score: s }) => row([s.name, s.outcome === "no_war" ? "전쟁 �
 
 ${korea ? `## 한반도 10년 재생 (${korea.from} ~ ${korea.to}) — 주 시험
 
-지금 규칙(1.0)을 한반도 과거 ${korea.days}일에 하루씩 돌렸다. 시장·위키·네이버 검색·북한 도발(CSIS 도발 일지 → 운영과 같은 위험도)을 넣었고, 보도량·항공·정부 경보 등은 과거 자료가 없어 뺐다(아래 측정 범위).
+${korea.verdict}
+
+지금 규칙(1.0)을 한반도 과거 ${korea.days}일에 하루씩 돌렸다(뒤 30일을 다 볼 수 있는 ${korea.usableDays}일로 채점). 입력은 시장·위키·네이버 검색·북한 도발 기록(CSIS 도발 일지 ${korea.eventDays}일)뿐이고, 정답 '큰 도발'은 같은 일지에서 규칙이 위험도 4 이상으로 매긴 날(핵실험·ICBM·위성 발사·일본 상공 통과·포격·지뢰 등 ${korea.majorCount}일, 30일로 묶으면 ${korea.majorClusters}개 국면)이다. **입력과 정답이 같은 자료에서 나온다.**
 
 | 단계 | 날 비율 | 그 단계였던 날 뒤 30일 안에 큰 도발 | 날 수 |
 |---|---|---|---|
-${[1, 2, 3, 4, 5].filter((p) => korea.cal.byPhase[p]).map((p) => row([`${phaseName(p as Phase)}`, `${korea.phaseShare[p]}%`, `${korea.cal.byPhase[p].pct}%`, korea.cal.byPhase[p].n])).join("\n")}
-| 전체 | 100% | ${korea.cal.basePct}% | — |
+${[1, 2].filter((p) => korea.cal.byPhase[p]).map((p) => row([`${phaseName(p as Phase)}`, `${korea.phaseShare[p]}%`, `${korea.cal.byPhase[p].pct}%`, korea.cal.byPhase[p].n])).join("\n")}
+| 3단계(위기) | ${korea.phaseShare[3]}% | 2구간 중 1구간 (비율로 쓰기엔 표본이 없다) | ${korea.cal.byPhase[3]?.n ?? 0} |
+| 전체 | 100% | ${korea.cal.basePct}% | ${korea.usableDays} |
 
-- **3단계 이상은 ${korea.crisisDays}일**뿐이고 모두 큰 사건 **뒤의 반응**이었다: ${korea.runs.map((r) => `${r.from}~${r.to} (${r.why.slice(0, 40)})`).join(", ")}. 이 중 뒤 30일 안에 큰 도발이 없었던 날(헛경보) ${korea.falseAlarmDays}일.
-- 큰 도발·교전 ${korea.truths}번 중 30일 안에 3단계 이상이었던 것 ${korea.caught}번 — ${korea.caughtList.map((t) => t.date).join(", ") || "없음"} (앞선 큰 사건의 14일 경보가 이어진 경우). **미리 내다본 경우는 사실상 없다.**
-- 단계가 바뀐 횟수: 한 해 평균 ${korea.flipsPerYear}번 (하루 단위 원값, 대부분 1↔2단계).
-- 해석: 2단계(긴장)는 10년 중 ${korea.phaseShare[2]}%의 날에 나온 흔한 상태다. 2단계였던 날 뒤 30일 안에 큰 도발이 난 비율(${korea.cal.byPhase[2]?.pct}%)은 1단계(${korea.cal.byPhase[1]?.pct}%)보다 높아 단계가 정보를 조금 갖고 있다. 다만 '전쟁'이 아니라 '큰 도발'로 맞춘 값이다.
-${korea.clashCal ? `- 실제 교전·직접 공격 ${korea.clashes.length}번(조사): ${korea.clashes.map((c) => `${c.date} ${c.what.slice(0, 30)}`).join(" · ")}. 그 단계였던 날 뒤 30일 안에 교전: ${Object.entries(korea.clashCal.byPhase).map(([p, v]) => `${p}단계 ${Math.round((v.hit / Math.max(1, v.n)) * 1000) / 10}%`).join(", ")}.` : ""}
+### 이 차이가 규칙의 실력인가 — 나란히 비교
 
-측정 범위 (영역별 측정 / 전체 지표, 군사 동향은 지표 대신 도발 사건 ${kc!.events?.length ?? 0}일로 들어감): ${korea.coverage.map((d) => `${d.label} ${d.measured}/${d.total}`).join(" · ")}
+| 방식 | 낮은 쪽 | 높은 쪽 |
+|---|---|---|
+| 지금 규칙 전체 (1단계 / 2단계) | ${korea.cal.byPhase[1]?.pct}% | ${korea.cal.byPhase[2]?.pct}% |
+| 도발 기록을 뺀 규칙 — 시장·위키·검색만 (1단계 / 2단계) | ${korea.noEvents.p1}% | ${korea.noEvents.p2}% |
+| 도발 기록만 넣은 규칙 (1단계 / 2단계) | ${korea.onlyEvents.p1}% | ${korea.onlyEvents.p2}% |
+${korea.recency.map((r) => `| 단순 기준: 최근 7일 안에 위험도 ${r.min} 이상 (없음 / 있음, ${r.nOn}일) | ${r.off}% | ${r.on}% |`).join("\n")}
+
+- 시장·위키·검색만으로는 평균(${korea.cal.basePct}%)과 거의 차이가 없다. 이 신호들은 큰 도발을 미리 알려 주지 못했다.
+- 2단계의 이유: 도발 기록만 ${korea.why2.provOnly}일 · 도발+다른 신호 ${korea.why2.both}일 · 다른 신호만 ${korea.why2.signalOnly}일. 2단계(긴장)는 ${korea.phaseShare[2]}%의 날에 나오는 흔한 상태이고, 대부분 '최근 도발이 있었다'는 뜻이다.
+- **3단계는 ${korea.crisisDays}일(독립 구간 ${korea.runs.length}개)${korea.reactive ? "뿐이고 모두 큰 사건 뒤의 반응이다" : ""}**: ${korea.runs.map((r) => `${r.from}~${r.to}`).join(", ")}. 그중 뒤 30일 안에 큰 도발이 없었던 날(헛경보) ${korea.falseAlarmDays}일.
+- 큰 도발·교전 ${korea.truths}번 중 30일 전부터 3단계였던 것 ${korea.caught}번 — ${korea.caughtList.map((t) => t.date).join(", ") || "없음"}. ${korea.reactive ? "모두 앞선 큰 사건의 14일 경보가 이어진 경우로, **미리 내다본 경우는 없다.**" : ""}
+- 4·5단계는 나올 수 없다: 과거 정부 경보·교전 보도를 입력하지 못했다. 예측시장도 없어 규칙의 '돈' 경로가 운영보다 막혀 있다(시장 신호 감점이 항상 걸린다). '3단계가 드물다'는 규칙이 신중해서가 아니라 입력이 빠진 영향이 섞여 있다.
+- 정답 자료의 마지막 날: ${kc.truth[kc.truth.length - 1]?.date ?? "없음"}. 도발 일지가 늦게 갱신되면 최근 구간의 큰 도발이 덜 세어질 수 있다.
+- 단계가 바뀐 횟수: 한 해 평균 ${korea.flipsPerYear}번 (하루 단위 원값. 손님 알림은 확인 규칙을 거치므로 이보다 적다, 대부분 1↔2단계).
+${korea.clashes.length ? `- 실제 교전: 조사로 확인한 것은 ${korea.clashes.length}번뿐이다(${korea.clashes.map((c) => c.date).join(", ")}). 화면의 '30일 국지 충돌 %'를 결과로 맞추기에는 표본이 없다. 조사가 놓친 사건이 있을 수 있다.` : ""}
+- 같은 자료로 규칙을 만들었을 가능성: 규칙 일부(엘리트 영역 등)는 이 기간을 포함한 백테스트로 정해졌다. 독립 검증이 아니다.
+
+측정 범위 (영역별 측정 / 전체 지표, 군사 동향은 지표 대신 도발 기록으로 들어감): ${korea.coverage.map((d) => `${d.label} ${d.measured}/${d.total}`).join(" · ")}
 ` : ""}
 ## 전쟁 직전 대비 점수 (화면에 나가는 숫자)
 
@@ -156,7 +197,7 @@ ${anchors.map((a) => row([a.name, a.eve, phaseName(a.phase), a.score, a.caught ?
 
 평시로 보는 ${quietScores.length}일의 점수: 중앙값 ${quietScores[quietScores.length >> 1]}, 상위 10% ${quietScores[Math.floor(quietScores.length * 0.9)]}, 최고 ${quietScores[quietScores.length - 1]}.
 
-## 이 성적표로 말할 수 없는 것
+## 외국 사례로 말할 수 없는 것
 
 - **표본이 ${results.length}건이다.** 규칙이 낫다·못하다의 방향은 볼 수 있어도 확률을 맞출 만큼은 아니다.
 - **측정한 신호가 일부다** (아래 표). 군사 영역은 항공사 운항 중단·영공 폐쇄 외에는 재생하지 못했다. 그래서 군사 쪽 근거로 올라가는 경로는 시험되지 않았다.

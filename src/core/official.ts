@@ -109,10 +109,13 @@ export function officialDue(cur: Official | undefined, w: WarRisk, confirmedPhas
 }
 
 const T = CASEBOOK.totals;
-const K = (CASEBOOK as any).korea as { from: string; to: string; phaseShare: Record<string, number>; cal: { basePct: number; byPhase: Record<string, { pct: number; n: number }> } } | undefined;
-const KOREA_LINE = K ? ` 한반도 ${K.from.slice(0, 4)}~${K.to.slice(0, 4)}년을 같은 규칙으로 다시 돌려 보니, 2단계는 ${K.phaseShare["2"]}%의 날에 나온 흔한 상태였고, 2단계였던 날 뒤 30일 안에 큰 도발이 난 비율은 ${K.cal.byPhase["2"]?.pct}%(1단계 ${K.cal.byPhase["1"]?.pct}%)였어요.` : "";
+const K = CASEBOOK.korea as { from: string; to: string; phaseShare: Record<string, number>; cal: { byPhase: Record<string, { pct: number }> } } | undefined;
+const k1 = K?.cal.byPhase["1"]?.pct, k2 = K?.cal.byPhase["2"]?.pct, kShare = K?.phaseShare["2"];
+const KOREA_LINE = K && k1 !== undefined && k2 !== undefined && kShare !== undefined
+  ? ` 한반도 ${K.from.slice(0, 4)}~${K.to.slice(0, 4)}년은 일부 신호(시장·검색·도발 기록)로만 다시 돌렸어요: 2단계는 ${Math.round(kShare)}%의 날에 나오는 흔한 상태이고, 뒤 30일 안에 큰 도발(핵실험·ICBM·포격 등)이 난 비율은 ${Math.round(k2)}%(1단계 ${Math.round(k1)}%)예요. 이 차이는 대부분 '도발은 몰려서 일어난다'에서 나온 것이고, 규칙이 큰 도발을 미리 내다본 적은 없어요. 이 비율은 충돌·전쟁 확률이 아니에요.`
+  : "";
 const BASIS =
-  `이 %는 1999~2026년 남북 충돌 8번의 빈도로 정한 단계별 범위 안의 판단값이에요. % 자체는 아직 실제 결과로 맞추지 않았어요. 대신 단계 규칙은 외국 전쟁 ${T.cases}건으로 채점했어요(1차): 공격 ${T.warCases}건 중 ${T.caught}건을 30일 안에 미리 잡았고, 평시 ${T.quietDays}일 중 헛경보(3단계 이상)가 ${T.falseAlarmDays}일 있었어요. 외국 사례라 한반도 성적은 아니에요.${KOREA_LINE}`;
+  `이 %는 1999~2026년 남북 충돌 8번의 빈도로 정한 단계별 범위 안의 판단값이고, 아직 결과로 맞추지 않았어요. 채점 결과(1차): 외국 전쟁 ${T.cases}건에서 공격 ${T.warCases}건 중 ${T.caught}건을 30일 안에 잡았고, 평시 ${T.quietDays}일 중 ${T.falseAlarmDays}일이 헛경보(3단계 이상)였어요.${KOREA_LINE}`;
 
 function changeText(prev: Official | undefined, off: Official): OfficialView["change"] {
   if (!prev) return null;

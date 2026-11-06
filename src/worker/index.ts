@@ -5,7 +5,7 @@ import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscript
 import { ICON_SVG, OPS_MANIFEST, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
 import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
-import { buyPage, failPage, successPage, termsPage } from "./buy.js";
+import { SHELL_HEAD, buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
 import { readOnlyD1 } from "./readonly.js";
 import { OPSNAP_PREFIX, loadOpsSnaps, setOpsSnapshotMaker, snapSig } from "../core/opsnap.js";
@@ -291,6 +291,15 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   if (url.pathname === "/health") return json({ ok: true, configured: !!env.KEW_SECRET });
   // 운영자 로그인 링크 (2026-11-06): 비밀값을 잊었을 때. 링크에는 비밀값이 없고 '만료 시각 + 서명'만 있다 — 서명은 비밀값으로만 만들 수 있고 15분 안에 끝난다.
   // 저장소에 쓰지 않으므로 읽기 전용 시험 서버에서도 된다. 링크 만들기: node scripts/login-link.mjs [주소]
+  // 운영자 비밀값 복사 페이지 (11/6): 10분짜리 서명 링크로 열면 비밀값을 폰 클립보드에 복사하는 버튼을 준다 — 채팅·로그에 비밀값을 쓰지 않고
+  // 홈 화면 앱의 운영자 로그인 칸에 붙여 넣게 하려고. 링크 만들기: node scripts/login-link.mjs <주소> 의 /ops?login= 을 /ops/key?login= 로
+  if (url.pathname === "/ops/key" && req.method === "GET") {
+    const ok = env.KEW_SECRET ? await verifyLoginToken(env.KEW_SECRET, url.searchParams.get("login") ?? "", Date.now()) : false;
+    const page = ok
+      ? `<h1 style="font-size:22px">🔑 운영자 비밀값</h1><p class="mute">아래 버튼을 누르면 폰에 복사돼요. 그다음 조기경보 앱에서 제목을 5번 눌러 로그인 칸에 붙여 넣으세요. 이 링크는 10분 뒤 쓸 수 없어요.</p><button class="btn" id="cp">📋 비밀값 복사</button><p class="mute" id="done" style="display:none;margin-top:12px">✓ 복사했어요. 앱으로 가서 붙여 넣으세요.</p><script>var K=${JSON.stringify(env.KEW_SECRET).replace(/</g, "\\u003c")};document.getElementById("cp").onclick=function(){navigator.clipboard.writeText(K).then(function(){document.getElementById("done").style.display=""},function(){prompt("이 값을 길게 눌러 복사하세요",K)})}</script>`
+      : `<h1 style="font-size:22px">링크 시간이 지났어요</h1><p class="mute">새 링크를 받아 주세요.</p>`;
+    return new Response(`${SHELL_HEAD}<title>운영자 비밀값</title><meta name="robots" content="noindex"></head><body><div class="wrap" style="padding-top:24px">${page}</div></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" } });
+  }
   if (url.pathname === "/api/login" && req.method === "GET") {
     const ok = env.KEW_SECRET ? await verifyLoginToken(env.KEW_SECRET, url.searchParams.get("t") ?? "", Date.now()) : false;
     if (!ok) return json({ error: "로그인 링크가 맞지 않거나 시간이 지났어요. 새 링크를 받아 주세요." }, 401);

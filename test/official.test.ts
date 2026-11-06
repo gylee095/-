@@ -103,3 +103,16 @@ describe("전쟁 직전 대비 점수 — 저장값·범위 (11/6 self-verify 2�
     }
   });
 });
+
+describe("같은 단계 사례 문장 (11/6 self-verify 3바퀴)", () => {
+  it("우크라이나(100점 기준)는 비교 사례로 다시 나오지 않고, 못 잡은 사례에는 표시가 붙는다", async () => {
+    const { makeReadiness } = await import("../src/core/official.js");
+    const { CASEBOOK } = await import("../src/core/casebook_data.js");
+    for (const a of CASEBOOK.anchors.filter((x) => x.id !== "ukraine-2022" && x.phase < 5)) {
+      const t = makeReadiness((a.phase - 1 + 0.7) / 5, a.phase as 1 | 2 | 3 | 4).text;
+      expect(t).toContain(`${a.name} 전날 ${a.score}점${a.caught ? "" : "(규칙이 미리 못 잡음)"}`);
+      expect(t).not.toContain("우크라이나 침공 전날 100");
+    }
+    expect(makeReadiness(0.75, 4).text).not.toMatch(/단계가 되면/);
+  });
+});

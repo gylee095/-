@@ -4,7 +4,8 @@
 //
 // 실행: npx tsx scripts/fetch-cases.ts [사례 id]
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { parseWikiSeries, wikiUrl, WIKI_UA } from "../src/core/collectors/wiki.js";
 import { wikiDaily, type CaseDay, type CaseFile, type CaseOutcome } from "../src/core/casereplay.js";
 
@@ -89,7 +90,7 @@ async function closes(q: Quote, from: string, to: string): Promise<Map<string, n
   if (q.kind === "moex") {
     for (let start = 0; ; start += 100) {
       const url = `https://iss.moex.com/iss/history/engines/stock/markets/index/securities/${q.symbol}.json?from=${from}&till=${to}&start=${start}&iss.meta=off&history.columns=TRADEDATE,CLOSE`;
-      const text = await cached(`moex_${q.symbol}_${from}_${start}.json`, url, { "User-Agent": WIKI_UA }, (j) => Array.isArray(j?.history?.data));
+      const text = await cached(`moex_${q.symbol}_${from}_${start}.json`, url, { "User-Agent": WIKI_UA }, (j) => Array.isArray(j?.history?.data) && (start > 0 || j.history.data.length > 0));
       const rows: [string, number][] = text ? JSON.parse(text)?.history?.data ?? [] : [];
       for (const [d, c] of rows) if (typeof c === "number") m.set(d, c);
       if (rows.length < 100) break;
@@ -97,12 +98,13 @@ async function closes(q: Quote, from: string, to: string): Promise<Map<string, n
     return m;
   }
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(q.symbol)}?period1=${ms(from) / 1000}&period2=${ms(to) / 1000 + DAY / 1000}&interval=1d`;
-  const text = await cached(`yahoo_${safe(q.symbol)}_${from}.json`, url, { "User-Agent": "Mozilla/5.0" }, (j) => Array.isArray(j?.chart?.result?.[0]?.timestamp));
+  const text = await cached(`yahoo_${safe(q.symbol)}_${from}.json`, url, { "User-Agent": "Mozilla/5.0" }, (j) => (j?.chart?.result?.[0]?.timestamp?.length ?? 0) > 0);
   const r = text ? JSON.parse(text).chart?.result?.[0] : undefined;
   const ts: number[] = r?.timestamp ?? [];
   const cs: (number | null)[] = r?.indicators?.quote?.[0]?.close ?? [];
   // 날짜는 거래소 현지 날짜로 (11/6 검토: 런던 기준 환율 일봉은 여름에 23:00 UTC 라 UTC 날짜로 붙이면 하루 앞 날짜가 되어 미래 정보가 섞였다)
-  const tz: string = r?.meta?.exchangeTimezoneName ?? "UTC";
+  const tz: string | undefined = r?.meta?.exchangeTimezoneName;
+  if (!tz) { console.warn(`  ${q.symbol}: 거래소 시간대가 없어 비움 (날짜를 확정할 수 없음)`); return m; }
   ts.forEach((t, i) => { const c = cs[i]; if (typeof c === "number") m.set(localDate(t * 1000, tz), c); });
   return m;
 }
@@ -221,7 +223,7 @@ async function build(c: CaseConfig): Promise<CaseFile> {
 }
 
 async function main() {
-  const only = process.argv[2];
+  const only = process.argv.slice(2).find((a) => !a.startsWith("--"));
   const todo = CASES.filter((x) => !only || x.id === only);
   if (!todo.length) throw new Error(`사례 id 를 모릅니다: ${only} (있는 것: ${CASES.map((x) => x.id).join(", ")})`);
   mkdirSync(CACHE, { recursive: true });
@@ -230,6 +232,16 @@ async function main() {
   const out = await build(c);
   // 받기 실패로 핵심 시계열이 통째로 비면 기존 파일을 덮어쓰지 않는다 (11/6 검토)
   const empty = (["fxPct", "equityRel", "defenseRel", "wikiPct", "media"] as const).filter((k) => !out.days.some((d) => typeof d[k] === "number"));
+  // 부분 실패도 막는다: 기존 파일보다 측정 날이 줄어든 계열이 있으면 덮어쓰지 않는다
+  const prevFile = new URL(`${c.id}.json`, OUT);
+  const prev: CaseFile | undefined = existsSync(prevFile) ? JSON.parse(readFileSync(prevFile, "utf8")) : undefined;
+  const cnt = (f: CaseFile, k: keyof CaseDay) => f.days.filter((d) => typeof d[k] === "number").length;
+  const shrank = prev && prev.start === out.start && prev.end === out.end ? (["fxPct", "equityRel", "defenseRel", "wikiPct", "media"] as const).filter((k) => cnt(out, k) < cnt(prev, k)) : [];
+  if (shrank.length && !process.argv.includes("--force")) {
+    console.error(`  ${c.id}: ${shrank.join(", ")} 측정 날이 기존보다 줄어 저장하지 않음 (의도한 것이면 --force)`);
+    process.exitCode = 1;
+    continue;
+  }
   if (empty.length) {
     console.error(`  ${c.id}: ${empty.join(", ")} 자료가 통째로 비어 저장하지 않음 — 나중에 다시 실행`);
     process.exitCode = 1;
@@ -241,4 +253,6 @@ async function main() {
 }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) await main();
+// 직접 실행했을 때만 받기 시작 (테스트가 가져올 때는 실행하지 않는다). 심볼릭 링크 경로도 같게 본다
+const self = (p: string) => { try { return realpathSync(p); } catch { return p; } };
+if (process.argv[1] && self(fileURLToPath(import.meta.url)) === self(process.argv[1])) await main();

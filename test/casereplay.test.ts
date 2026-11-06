@@ -195,3 +195,28 @@ describe("검토 반영 2바퀴 (11/6 self-verify)", () => {
     expect(r.get("2022-02-06")).toBe(100); // 2/4 의 900 이 2/5 인 척 들어오지 않는다
   });
 });
+
+describe("검토 반영 3바퀴 (11/6 self-verify)", () => {
+  it("화면 문장에 나가는 건수(사례·공격·날 수·단계 변화)도 다시 채점한 값과 같다", async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const { CASEBOOK } = await import("../src/core/casebook_data.js");
+    const dir = new URL("../data/cases/", import.meta.url);
+    const s = readdirSync(dir).filter((f) => f.endsWith(".json") && f !== "events.json" && f !== "scorecard.json").map((f) => { const c = JSON.parse(readFileSync(new URL(f, dir), "utf8")) as CaseFile; return scoreCase(c, replayCase(c)); });
+    expect(s.length).toBe(CASEBOOK.totals.cases);
+    expect(s.filter((x) => x.outcome !== "no_war").length).toBe(CASEBOOK.totals.warCases);
+    expect(s.reduce((a, x) => a + x.days, 0)).toBe(CASEBOOK.totals.days);
+    expect(s.reduce((a, x) => a + x.flips, 0)).toBe(CASEBOOK.totals.flips);
+  });
+  it("실제 재생에서 나온 모든 날의 점수가 그 단계의 안내 범위 안에 있다 (눈금 식을 베끼지 않고 규칙 출력으로 확인)", async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const { makeReadiness } = await import("../src/core/official.js");
+    const dir = new URL("../data/cases/", import.meta.url);
+    for (const f of readdirSync(dir).filter((x) => x.endsWith(".json") && x !== "events.json" && x !== "scorecard.json")) {
+      for (const d of replayCase(JSON.parse(readFileSync(new URL(f, dir), "utf8")) as CaseFile)) {
+        const r = makeReadiness(d.gauge, d.phase);
+        const m = r.text.match(/범위\((\d+)~(\d+)점\)/);
+        if (m) { expect(r.score).toBeGreaterThanOrEqual(+m[1]); expect(r.score).toBeLessThanOrEqual(+m[2]); }
+      }
+    }
+  });
+});

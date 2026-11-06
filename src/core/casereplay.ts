@@ -219,7 +219,7 @@ export function scoreCase(c: CaseFile, replay: ReplayDay[]): CaseScore {
   if (replay.some((r) => before.includes(r) && r.mediaJudged)) measuredIds.add("media.war_talk_24h");
   const coverage = DOMAINS.map((d) => ({ domain: d.id, label: d.label, total: d.indicators.length, measured: d.indicators.filter((i) => measuredIds.has(i)).length }));
 
-  const ids = [...new Set(replay.flatMap((r) => r.hot.map((h) => h.id)))];
+  const ids = [...new Set(before.flatMap((r) => r.hot.map((h) => h.id)))]; // 정답일 당일·이후에만 켜진 신호는 표에 올리지 않는다
   const signals: SignalScore[] = ids.map((id) => {
     const on = before.filter((r) => r.hot.some((h) => h.id === id));
     const first = on.find(inHorizon)?.date;

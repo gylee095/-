@@ -622,12 +622,6 @@
      "leadDays": 7,
      "hotDays": 11,
      "quietHotDays": 6
-    },
-    {
-     "id": "market.defense_rel_pct",
-     "label": "방산주만의 움직임 (코스피 대비 %p)",
-     "hotDays": 0,
-     "quietHotDays": 0
     }
    ]
   },
@@ -866,12 +860,6 @@
      "label": "원·달러 환율 변동 (전일 대비 %)",
      "hotDays": 1,
      "quietHotDays": 1
-    },
-    {
-     "id": "psych.wiki_korea_attention",
-     "label": "세계의 한반도 관심 (위키백과 조회수, 평소 대비)",
-     "hotDays": 0,
-     "quietHotDays": 0
     }
    ]
   },
@@ -1062,12 +1050,6 @@
      "label": "한국 증시만의 움직임 (일본·대만 대비 %p)",
      "hotDays": 1,
      "quietHotDays": 1
-    },
-    {
-     "id": "market.usdkrw_change_pct",
-     "label": "원·달러 환율 변동 (전일 대비 %)",
-     "hotDays": 0,
-     "quietHotDays": 0
     }
    ]
   }

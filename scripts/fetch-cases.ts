@@ -55,15 +55,20 @@ const wait = (t: number) => new Promise((r) => setTimeout(r, t));
 const round = (x: number) => +x.toFixed(3);
 
 /** 같은 주소를 다시 받지 않는다 */
-async function cached(name: string, url: string, headers: Record<string, string>): Promise<string | undefined> {
+async function cached(name: string, url: string, headers: Record<string, string>, ok: (j: any) => boolean = () => true): Promise<string | undefined> {
   const file = new URL(name, CACHE);
-  if (existsSync(file)) return readFileSync(file, "utf8");
+  // 깨지거나 오류 본문인 캐시는 버리고 다시 받는다 (11/6 검토: 일시 오류가 영구 '측정 불가'로 굳지 않게)
+  const valid = (text: string) => { try { return ok(JSON.parse(text)); } catch { return false; } };
+  if (existsSync(file)) {
+    const text = readFileSync(file, "utf8");
+    if (valid(text)) return text;
+  }
   for (let i = 0; i < 3; i++) {
     try {
       const res = await fetch(url, { headers });
       if (res.ok) {
         const text = await res.text();
-        if (text.trimStart().startsWith("{")) {
+        if (valid(text)) {
           writeFileSync(file, text);
           return text;
         }
@@ -84,15 +89,15 @@ async function closes(q: Quote, from: string, to: string): Promise<Map<string, n
   if (q.kind === "moex") {
     for (let start = 0; ; start += 100) {
       const url = `https://iss.moex.com/iss/history/engines/stock/markets/index/securities/${q.symbol}.json?from=${from}&till=${to}&start=${start}&iss.meta=off&history.columns=TRADEDATE,CLOSE`;
-      const text = await cached(`moex_${q.symbol}_${from}_${start}.json`, url, { "User-Agent": WIKI_UA });
-      const rows: [string, number][] = text ? JSON.parse(text).history.data : [];
+      const text = await cached(`moex_${q.symbol}_${from}_${start}.json`, url, { "User-Agent": WIKI_UA }, (j) => Array.isArray(j?.history?.data));
+      const rows: [string, number][] = text ? JSON.parse(text)?.history?.data ?? [] : [];
       for (const [d, c] of rows) if (typeof c === "number") m.set(d, c);
       if (rows.length < 100) break;
     }
     return m;
   }
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(q.symbol)}?period1=${ms(from) / 1000}&period2=${ms(to) / 1000 + DAY / 1000}&interval=1d`;
-  const text = await cached(`yahoo_${safe(q.symbol)}_${from}.json`, url, { "User-Agent": "Mozilla/5.0" });
+  const text = await cached(`yahoo_${safe(q.symbol)}_${from}.json`, url, { "User-Agent": "Mozilla/5.0" }, (j) => Array.isArray(j?.chart?.result?.[0]?.timestamp));
   const r = text ? JSON.parse(text).chart?.result?.[0] : undefined;
   const ts: number[] = r?.timestamp ?? [];
   const cs: (number | null)[] = r?.indicators?.quote?.[0]?.close ?? [];
@@ -102,28 +107,38 @@ async function closes(q: Quote, from: string, to: string): Promise<Map<string, n
   return m;
 }
 
-/** 날짜 → 전 거래일 대비 % */
-function pct(series: Map<string, number>): Map<string, number> {
+/** 날짜 → 전 거래일 대비 %. 자료가 5일 넘게 끊긴 뒤의 첫날은 여러 날 변화라 만들지 않는다 (11/6 검토) */
+export function pct(series: Map<string, number>): Map<string, number> {
   const out = new Map<string, number>();
   const ds = [...series.keys()].sort();
-  for (let i = 1; i < ds.length; i++) out.set(ds[i], (series.get(ds[i])! / series.get(ds[i - 1])! - 1) * 100);
+  for (let i = 1; i < ds.length; i++) {
+    const prev = series.get(ds[i - 1])!;
+    if (prev <= 0 || (ms(ds[i]) - ms(ds[i - 1])) / DAY > 5) continue;
+    out.set(ds[i], (series.get(ds[i])! / prev - 1) * 100);
+  }
   return out;
 }
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const pctOf = async (q: Quote, from: string, to: string) => pct(await closes(q, from, to));
 /** 구성 종목이 모두 있는 날만 평균한다 (휴장일이 달라 날마다 구성이 바뀌면 가짜 차이가 생긴다 — 11/6 검토) */
-const avgOn = (date: string, ms_: Map<string, number>[]) => {
+export const avgOn = (date: string, ms_: Map<string, number>[]) => {
   const v = ms_.map((m) => m.get(date));
   return v.every((x): x is number => typeof x === "number") ? mean(v as number[]) : undefined;
 };
 /** 휴장일 이어 쓰기는 이만큼까지만 (연휴 감안). 그보다 오래 끊기면 '측정 불가' */
-const CARRY_DAYS = 4;
+export const CARRY_DAYS = 4;
+/** 오늘 값이 있으면 그 값, 없으면 CARRY_DAYS 일까지 지난 값 — 나이를 함께 돌려준다 */
+export function carryForward(prev: { v?: number; age: number }, today: number | undefined): { v?: number; age: number } {
+  if (typeof today === "number") return { v: today, age: 0 };
+  const age = prev.age + 1;
+  return age > CARRY_DAYS ? { age } : { v: prev.v, age };
+}
 
 /** 날짜 → 그 전날까지 28일 중앙값 대비 배율의 중앙값 ×100 (계산은 casereplay.ts 의 wikiDaily — 하루 늦춤을 테스트한다) */
 async function wikiSeries(articles: [string, string][], from: string, to: string): Promise<Map<string, number>> {
   const all: { series: Map<string, number>; name: string }[] = [];
   for (const [p, a] of articles) {
-    const text = await cached(`wiki_${p}_${safe(encodeURIComponent(a))}_${from}.json`, wikiUrl(p, a, ms(from), ms(to)), { "User-Agent": WIKI_UA });
+    const text = await cached(`wiki_${p}_${safe(encodeURIComponent(a))}_${from}.json`, wikiUrl(p, a, ms(from), ms(to)), { "User-Agent": WIKI_UA }, (j) => Array.isArray(j?.items));
     if (!text) continue;
     const raw = parseWikiSeries(JSON.parse(text));
     all.push({ name: `${p}:${a}`, series: new Map([...raw].map(([k, v]) => [`${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`, v])) });
@@ -136,7 +151,7 @@ async function gdelt(q: string, from: string, to: string): Promise<Map<string, n
   const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(q)}&mode=timelinevolraw&format=json&startdatetime=${f}000000&enddatetime=${t}235959`;
   const name = `gdelt_${safe(q)}_${f}.json`;
   const fresh = !existsSync(new URL(name, CACHE));
-  const text = await cached(name, url, { "User-Agent": WIKI_UA });
+  const text = await cached(name, url, { "User-Agent": WIKI_UA }, (j) => Array.isArray(j?.timeline?.[0]?.data));
   if (fresh) await wait(6000); // GDELT 는 5초에 한 번
   const out = new Map<string, number>();
   if (!text) return out;
@@ -167,16 +182,16 @@ async function build(c: CaseConfig): Promise<CaseFile> {
   const days: CaseDay[] = [];
   const preroll: CaseFile["preroll"] = [];
   const carry: Partial<CaseDay> = {}; // 휴장일에는 전 거래일 값을 쓴다 (운영 지표와 같다), 단 CARRY_DAYS 까지만
-  const age: Partial<Record<"fxPct" | "equityRel" | "defenseRel", number>> = {};
+  const st: Record<"fxPct" | "equityRel" | "defenseRel", { v?: number; age: number }> = { fxPct: { age: 0 }, equityRel: { age: 0 }, defenseRel: { age: 0 } };
   const put = (k: "fxPct" | "equityRel" | "defenseRel", v: number | undefined) => {
-    if (typeof v === "number") { carry[k] = round(v); age[k] = 0; return; }
-    age[k] = (age[k] ?? 0) + 1;
-    if (age[k]! > CARRY_DAYS) delete carry[k];
+    st[k] = carryForward(st[k], typeof v === "number" ? round(v) : undefined);
+    if (typeof st[k].v === "number") carry[k] = st[k].v; else delete carry[k];
   };
   for (let t = ms(from); t <= ms(c.end); t += DAY) {
     const date = iso(t);
-    const fxNow = fxs.map((m) => m.get(date)).filter((x): x is number => typeof x === "number");
-    put("fxPct", fxNow.length ? Math.max(...fxNow) : undefined);
+    // 통화가 여럿이면 모두 있는 날만 가장 약한 값 (구성이 날마다 바뀌지 않게 — 11/6 검토)
+    const fxNow = fxs.map((m) => m.get(date));
+    put("fxPct", fxNow.every((x): x is number => typeof x === "number") ? Math.max(...(fxNow as number[])) : undefined);
     const eq = equity.get(date), pr = avgOn(date, peers);
     put("equityRel", typeof eq === "number" && typeof pr === "number" ? eq - pr : undefined);
     const d = avgOn(date, def), b = avgOn(date, base);
@@ -214,8 +229,9 @@ async function main() {
   for (const c of todo) {
   const out = await build(c);
   // 받기 실패로 핵심 시계열이 통째로 비면 기존 파일을 덮어쓰지 않는다 (11/6 검토)
-  if (!out.days.some((d) => typeof d.fxPct === "number") || !out.days.some((d) => typeof d.wikiPct === "number")) {
-    console.error(`  ${c.id}: 통화·위키 자료가 비어 저장하지 않음 — 나중에 다시 실행`);
+  const empty = (["fxPct", "equityRel", "defenseRel", "wikiPct", "media"] as const).filter((k) => !out.days.some((d) => typeof d[k] === "number"));
+  if (empty.length) {
+    console.error(`  ${c.id}: ${empty.join(", ")} 자료가 통째로 비어 저장하지 않음 — 나중에 다시 실행`);
     process.exitCode = 1;
     continue;
   }

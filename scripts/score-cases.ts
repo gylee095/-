@@ -58,7 +58,8 @@ const totals = {
 const retrieved = cases.map((c) => c.retrieved).sort().pop();
 
 // ── 전쟁 직전 대비 점수 눈금: 우크라이나 침공 전날 판정 = 100 ──
-const ukr = results.find((r) => r.c.id === "ukraine-2022")!;
+const ukr = results.find((r) => r.c.id === "ukraine-2022");
+if (!ukr || !ukr.replay.length) throw new Error("ukraine-2022 자료가 없다 — npx tsx scripts/fetch-cases.ts 먼저 (눈금의 100점 기준)");
 const eveOf = (r: (typeof results)[number]) => r.replay.filter((d) => !r.c.truthDate || d.date < r.c.truthDate).pop()!;
 // 0점 = 운영 규칙이 정한 '평소' 눈금 자리 (값을 베껴 쓰지 않고 규칙에서 읽는다)
 const usualGauge = assessWarRisk({ now: Date.now(), board: [], briefs: [], patterns: [] }).gauge.usual;
@@ -110,6 +111,7 @@ ${anchors.map((a) => row([a.name, a.eve, phaseName(a.phase), a.score, a.caught ?
 - **표본이 ${results.length}건이다.** 규칙이 낫다·못하다의 방향은 볼 수 있어도 확률을 맞출 만큼은 아니다.
 - **측정한 신호가 일부다** (아래 표). 군사 영역은 항공사 운항 중단·영공 폐쇄 외에는 재생하지 못했다. 그래서 군사 쪽 근거로 올라가는 경로는 시험되지 않았다.
 - **사건 보도 판정을 쓰지 않았다.** 운영에서는 도발 보도가 군사 영역을 올린다. 사례에서는 그 제목들을 재현하지 못해 빠져 있다 — 실제 운영보다 군사 판정이 낮게 나올 수 있다.
+- **보도량 기준선이 운영보다 민감하다.** 운영은 하루에 여러 번 재서 하루 안 흔들림이 기준선에 들어가지만, 사례는 하루 한 값이라 그 몫이 0이다 — 보도량 신호가 운영보다 쉽게 켜진다.
 - **다른 나라를 재는 잣대다.** 운영 문턱은 한국 시장 기준이다. 러시아·이스라엘 시장의 평소 변동 폭은 다르다.
 - 정부 경보는 **안보 사유만** 센다. 코로나 사유 경보는 제외했다 (운영 규칙은 사유를 구분하지 못한다 — 아래 '발견').
 

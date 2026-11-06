@@ -162,3 +162,36 @@ describe("화면 자료가 지금 규칙·자료와 같은가", () => {
     expect(ukr.eveLevel).toBe(CASEBOOK.anchors.find((a) => a.id === "ukraine-2022")!.phase);
   });
 });
+
+describe("검토 반영 2바퀴 (11/6 self-verify)", () => {
+  it("화면 자료의 눈금·기준점·평시 점수까지 지금 규칙으로 다시 만든 값과 같다", async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const { CASEBOOK } = await import("../src/core/casebook_data.js");
+    const { assessWarRisk } = await import("../src/core/warrisk.js");
+    const dir = new URL("../data/cases/", import.meta.url);
+    const cases = readdirSync(dir).filter((f) => f.endsWith(".json") && f !== "events.json" && f !== "scorecard.json").map((f) => JSON.parse(readFileSync(new URL(f, dir), "utf8")) as CaseFile);
+    const eve = (c: CaseFile) => replayCase(c).filter((d) => !c.truthDate || d.date < c.truthDate).pop()!;
+    const ukr = cases.find((c) => c.id === "ukraine-2022")!;
+    expect(CASEBOOK.scale.usualGauge).toBe(assessWarRisk({ now: 0, board: [], briefs: [], patterns: [] }).gauge.usual);
+    expect(CASEBOOK.scale.eveGauge).toBe(eve(ukr).gauge);
+    for (const a of CASEBOOK.anchors) expect(readinessScore(eve(cases.find((c) => c.id === a.id)!).gauge, CASEBOOK.scale)).toBe(a.score);
+    const quiet = cases.flatMap((c) => replayCase(c).filter((d) => isQuietDay(c, d.date)).map((d) => readinessScore(d.gauge, CASEBOOK.scale))).sort((x, y) => x - y);
+    expect(quiet).toEqual([...CASEBOOK.quietScores]);
+  });
+  it("정부 사건은 고정 문턱 지표만 (사건 값을 '학습 중'으로 조용히 버리지 않는다)", () => {
+    expect(() => caseBoard(mk({ gov: [{ ...us("2022-02-10", 3), indicator: "media.war_talk_24h" }] }), "2022-02-11", undefined)).toThrow();
+  });
+  it("보도량이 기준선 학습 중이면 측정 범위에 넣지 않는다", () => {
+    const c = mk({}, () => ({ media: 100 }));
+    expect(scoreCase(c, replayCase(c)).coverage.find((x) => x.domain === "public")!.measured).toBe(1); // 기록이 쌓인 뒤엔 측정
+    const short = mk({ days: [{ date: "2022-01-01", media: 100 }], start: "2022-01-01", end: "2022-01-01", truthDate: "2022-01-02" });
+    expect(scoreCase(short, replayCase(short)).coverage.find((x) => x.domain === "public")!.measured).toBe(0);
+  });
+  it("위키: 어제 값이 빠진 문서는 그날 계산에서 뺀다", () => {
+    const ds = dates("2022-01-01", 40);
+    const full = (name: string) => ({ name, series: new Map(ds.map((d) => [d, 100])) });
+    const gap = { name: "g", series: new Map(ds.filter((d) => d !== "2022-02-05").map((d) => [d, d === "2022-02-04" ? 900 : 100])) };
+    const r = wikiDaily([full("a"), full("b"), full("c"), full("d"), gap], ds[0], ds[ds.length - 1]);
+    expect(r.get("2022-02-06")).toBe(100); // 2/4 의 900 이 2/5 인 척 들어오지 않는다
+  });
+});

@@ -83,13 +83,14 @@ export function caseBoard(c: CaseFile, date: string, mediaHist: DayHistory | und
     if (g.date > date) continue;
     const def = INDICATOR_BY_ID[g.indicator];
     if (!def) throw new Error(`${c.id}: 모르는 지표 ${g.indicator}`);
+    if (!def.absolute) throw new Error(`${c.id}: ${g.indicator} 는 고정 문턱 지표가 아니라 사건 값으로 판정할 수 없다`);
     readings[g.indicator] = evaluate(def, g.value, at, undefined, { what: g.what });
   }
   const air = c.airspace.filter((a) => a.date <= date && dayDiff(date, a.date) < AIRSPACE_DAYS).sort((a, b) => a.date.localeCompare(b.date));
   if (air.length) readings["air.civil_airborne"] = { indicator: "air.civil_airborne", value: 0, at, n: 0, state: "anomalous", meta: { what: air[air.length - 1].what } };
   return INDICATORS.map((d) => {
     const r = readings[d.id];
-    return { id: d.id, label: d.label, group: d.group, groupLabel: d.group, unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats, coverage: d.coverage, absolute: d.absolute, reading: r, stateLabel: r ? "측정" : "측정 불가", history: [] };
+    return { id: d.id, label: d.label, group: d.group, groupLabel: d.group, unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats, coverage: d.coverage, absolute: d.absolute, reading: r, stateLabel: !r ? "측정 불가" : r.state === "learning" ? "학습 중" : "측정", history: [] };
   });
 }
 
@@ -99,6 +100,8 @@ export interface ReplayDay {
   levels: Record<DomainId, Level>;
   /** 영역 수준의 합 */
   pressure: number;
+  /** 보도량이 기준선으로 실제 판정됐나 (학습 중이 아님) */
+  mediaJudged: boolean;
   /** 온도계 눈금 (WarRisk.gauge.now) — 전쟁 직전 대비 점수의 재료 */
   gauge: number;
   reasons: string[];
@@ -114,7 +117,8 @@ export function replayCase(c: CaseFile): ReplayDay[] {
     if (typeof d.media === "number") hist = addToDay(hist, d.media, atOf(d.date));
     const levels = Object.fromEntries(w.domains.map((x) => [x.id, x.level])) as Record<DomainId, Level>;
     const hot: ReplayDay["hot"] = board.flatMap((r): ReplayDay["hot"] => (r.reading?.state === "anomalous" ? [{ id: r.id, pts: 2 }] : r.reading?.state === "elevated" ? [{ id: r.id, pts: 1 }] : []));
-    return { date: d.date, phase: w.phase, levels, pressure: w.domains.reduce((a, x) => a + x.level, 0), gauge: w.gauge.now, reasons: w.phaseReasons, hot };
+    const mediaJudged = !!board.find((b) => b.id === "media.war_talk_24h")?.reading && board.find((b) => b.id === "media.war_talk_24h")!.reading!.state !== "learning";
+    return { date: d.date, phase: w.phase, mediaJudged, levels, pressure: w.domains.reduce((a, x) => a + x.level, 0), gauge: w.gauge.now, reasons: w.phaseReasons, hot };
   });
 }
 
@@ -141,6 +145,7 @@ export function wikiDaily(all: { name: string; series: Map<string, number> }[], 
   for (let t = atOf(from) + 29 * DAY_MS; t <= atOf(to); t += DAY_MS) {
     const yesterday = new Date(t - DAY_MS).toISOString().slice(0, 10);
     const ratios = all.flatMap(({ name, series }) => {
+      if (!series.has(yesterday)) return []; // 어제 값이 빠진 문서는 더 오래된 날을 '어제'로 착각하므로 뺀다 (11/6 검토)
       const r = articleRatio(name, new Map([...series].filter(([k]) => k <= yesterday)));
       return r ? [r.ratio] : [];
     }).sort((a, b) => a - b);
@@ -209,8 +214,9 @@ export function scoreCase(c: CaseFile, replay: ReplayDay[]): CaseScore {
 
   // 측정 범위: 채점한 날 중 한 번이라도 값이 있었던 지표 (마지막 하루만 보면 일찍 끝난 영공 신호 등이 빠진다 — 11/6 검토)
   const measuredIds = new Set<string>();
-  for (const r of before) for (const b of caseBoard(c, r.date, undefined)) if (b.reading) measuredIds.add(b.id);
-  if (before.some((r) => typeof c.days.find((d) => d.date === r.date)?.media === "number")) measuredIds.add("media.war_talk_24h");
+  // '학습 중'(기준선 부족)은 판정에 쓰이지 않았으므로 측정으로 세지 않는다
+  for (const r of before) for (const b of caseBoard(c, r.date, undefined)) if (b.reading && b.reading.state !== "learning") measuredIds.add(b.id);
+  if (replay.some((r) => before.includes(r) && r.mediaJudged)) measuredIds.add("media.war_talk_24h");
   const coverage = DOMAINS.map((d) => ({ domain: d.id, label: d.label, total: d.indicators.length, measured: d.indicators.filter((i) => measuredIds.has(i)).length }));
 
   const ids = [...new Set(replay.flatMap((r) => r.hot.map((h) => h.id)))];

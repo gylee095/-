@@ -82,3 +82,24 @@ describe("전쟁 직전 대비 점수 (11/6 self-verify)", () => {
     expect(makeReadiness(0.36, 2).text).toMatch(/2단계의 범위/);
   });
 });
+
+describe("전쟁 직전 대비 점수 — 저장값·범위 (11/6 self-verify 2바퀴)", () => {
+  it("정할 때 저장한 점수를 쓰고, 예전 기록(점수 없음)은 그 판정의 눈금으로 계산", async () => {
+    const { makeReadiness } = await import("../src/core/official.js");
+    const off = makeOfficial({ ...w(2, 3.8), gauge: { now: 0.36, usual: 0.08 } }, D8, "daily");
+    expect(off.readiness).toBeDefined();
+    const pinned = { ...off, readiness: { ...off.readiness!, score: 77 } };
+    expect(applyOfficial({ ...w(2, 4), gauge: { now: 0.39, usual: 0.08 } }, pinned, undefined).official!.readiness.score).toBe(77);
+    const old = { ...off, readiness: undefined };
+    expect(applyOfficial({ ...w(2, 4), gauge: { now: 0.39, usual: 0.08 } }, old, undefined).official!.readiness.score).toBe(makeReadiness(0.36, 2).score);
+  });
+  it("문장의 단계 범위는 그 단계에서 실제로 나올 수 있는 점수와 같다", async () => {
+    const { makeReadiness } = await import("../src/core/official.js");
+    for (const p of [2, 3] as const) {
+      const lo = makeReadiness((p - 1 + 0.4) / 5, p), hi = makeReadiness(p / 5, p);
+      expect(lo.text).toContain(`${p}단계의 범위(${lo.score}~${hi.score}점)`);
+      const next = makeReadiness((p + 0.4) / 5, (p + 1) as 3 | 4);
+      expect(lo.text).toContain(`${p + 1}단계가 되면 ${next.score}점 이상`);
+    }
+  });
+});

@@ -326,7 +326,7 @@
   0,
   0,
   0,
-  3,
+  0,
   3,
   3,
   3,
@@ -1040,8 +1040,8 @@
      "label": "방산주만의 움직임 (코스피 대비 %p)",
      "first": "2025-05-20",
      "leadDays": 24,
-     "hotDays": 5,
-     "quietHotDays": 2
+     "hotDays": 4,
+     "quietHotDays": 1
     },
     {
      "id": "media.war_talk_24h",
@@ -1144,6 +1144,16 @@
    "quietRatePct": 0
   },
   {
+   "id": "market.defense_rel_pct",
+   "label": "방산주만의 움직임 (코스피 대비 %p)",
+   "caught": 1,
+   "warTotal": 5,
+   "medianLead": 24,
+   "quietHotDays": 1,
+   "quietTotal": 421,
+   "quietRatePct": 0.2
+  },
+  {
    "id": "official.us_travel_level_kr",
    "label": "미 국무부 한국 여행경보 단계",
    "caught": 1,
@@ -1159,16 +1169,6 @@
    "caught": 1,
    "warTotal": 5,
    "medianLead": 30,
-   "quietHotDays": 2,
-   "quietTotal": 421,
-   "quietRatePct": 0.5
-  },
-  {
-   "id": "market.defense_rel_pct",
-   "label": "방산주만의 움직임 (코스피 대비 %p)",
-   "caught": 1,
-   "warTotal": 5,
-   "medianLead": 24,
    "quietHotDays": 2,
    "quietTotal": 421,
    "quietRatePct": 0.5

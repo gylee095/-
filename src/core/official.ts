@@ -63,7 +63,7 @@ export function makeReadiness(gauge: number, actualPhase: 1 | 2 | 3 | 4 | 5): Re
   const { scale, anchors, quietScores } = CASEBOOK;
   const score = readinessScore(gauge, scale);
   const above = quietScores.filter((s) => s >= score).length;
-  const quietAtOrAbovePct = Math.round((above / quietScores.length) * 100);
+  const quietAtOrAbovePct = quietScores.length ? Math.round((above / quietScores.length) * 100) : 0;
   // 평시 비율은 화면 문장에 쓰지 않는다: 외국 사례는 잰 신호가 한반도보다 훨씬 적어 평시 점수가 낮게 나온다 — 한국 점수와 바로 비교하면 겁을 준다 (11/6)
   // 단계는 점수에서 거꾸로 추정하지 않고 실제 판정 단계를 쓴다 (4단계 상한이 100 으로 잘려 5단계가 '4단계'로 나오던 문제 — 11/6 검토)
   const phase = actualPhase;

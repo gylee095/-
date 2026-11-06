@@ -65,6 +65,8 @@ npm run scan:dry
 사건(미사일·포격 보도) 감지 위에 **징후판**이 있다. 항공·해상·지진·항행경보·정부공식(재난문자 포함)·북한수사·북한 내부·언론템포·시장·인터넷·GPS·위성열점 등의 징후를 같은 시간대의 평소 값과 비교해 정상/상승/이상으로 판정하고, 독립된 영역이 동시에 흔들릴 때만 '패턴'(발사 준비, 서해 충돌 위험, 공역 통제 의심, 서방 경계 격상 …)으로 묶어 알린다. Claude 는 하루 2회 경쟁가설분석(ACH)으로 해석하고 자동 규칙이 모르는 조합을 찾는다. 자세한 근거·한계는 [docs/INDICATORS.md](docs/INDICATORS.md).
 
 ## 문서
+
+> **처음 이어받는다면:** `AGENTS.md` → `CLAUDE.md`(규칙 정본) → `docs/HANDOFF.md`(지금 상태·주소·배포·코드 지도·함정) → `docs/ROADMAP.md`(다음 일). 이 README 아래 내용은 초기(v0.1) 설명이라 일부 오래됐다 — 지금 상태는 HANDOFF 가 맞다.
 - [docs/INDICATORS.md](docs/INDICATORS.md) — 징후 카탈로그(왜 보는가), 패턴 규칙, 할 수 없는 것(피자 지수·실시간 위성·CCTV)
 - [docs/SOURCES.md](docs/SOURCES.md) — 데이터 소스 검증표, MCP 서버 조사, 지연 표기 원칙
 - [docs/DEPLOY.md](docs/DEPLOY.md) — 배포(Cloudflare/Cloud Run), 비밀값, 아이폰 푸시, Claude 예약 작업, 운영·장애 대응

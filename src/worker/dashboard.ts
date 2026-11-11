@@ -456,8 +456,10 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   h+='<div class="lead">지금 한반도 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
   var tot=R.signs+R.moves+R.context,PCT=Math.round(tot/39*100);
   h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+' '+PCT+'%</b><span>5단계 중</span></div>';
-  var LV=w.live&&w.live.proximity?w.live.proximity.index:null;
-  if(O&&LV!==null&&LV!==PCT)h+='<div style="font-size:12.5px;color:var(--mute)">숫자는 하루 한 번(오전 8시) 정해요. 지금 다시 계산하면 '+LV+'% — 단계가 바뀌면 바로 반영돼요.</div>';
+  // 숫자는 실시간 (11/12 사용자: 운영자 대시보드는 계속 바뀌는 게 맞다). 대신 오늘 아침 판정과 견줘 무엇이 달라졌는지 한 줄
+  var MG=O&&O.morning;
+  if(MG){var df=[["징조",R.signs-MG.signs],["움직임",R.moves-MG.moves],["배경",R.context-MG.context]].filter(function(x){return x[1]!==0}).map(function(x){return x[0]+" "+(x[1]>0?"+":"")+num(x[1])});
+    h+='<div style="font-size:12.5px;color:'+(PCT>MG.index?'var(--l4)':'var(--mute)')+'">'+(PCT===MG.index&&!df.length?'오늘 아침 8시 판정('+MG.index+'%)과 같아요':'오늘 아침 8시 '+MG.index+'% → 지금 '+PCT+'%'+(df.length?' ('+df.join(", ")+')':''))+' · 실시간</div>'}
   h+='<div style="font-size:13px;color:var(--mute);margin-top:2px">지켜보는 39개 항목 중 <b style="color:var(--fg)">'+num(tot)+'개</b>가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+')</div>';
   h+='<div style="display:flex;gap:4px;margin:8px 0 10px" role="img" aria-label="5단계 중 '+w.phase+'단계">'+[1,2,3,4,5].map(function(i){return '<span style="flex:1;height:8px;border-radius:4px;background:'+(i<=w.phase?col:'var(--chip)')+'"></span>'}).join("")+'</div>';
   var unkOf=function(L){var n=0;L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")n++})});return n};

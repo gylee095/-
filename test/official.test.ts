@@ -66,21 +66,17 @@ describe("사람에게 보이는 숫자", () => {
   });
 });
 
-describe("화면의 개수·% 도 하루 한 번 (11/12)", () => {
+describe("운영자 대시보드의 개수·% 는 실시간, 오늘 아침 값은 견줄 기준 (11/12)", () => {
   const prox = (index: number, moves: number) => ({ index, rubric: { signs: 0, moves, context: 6, phase: 2, layers: [], reason: "", surprise: false, watched: 0, waiting: 0, index }, series: [{ d: "x", i: index, c: 3 }], anchors: [{ name: "a" }], record: [{ lo: 0 }], vs: { days: 1 } }) as any;
-  it("오전 8시에 정한 % 를 하루 종일 보이고, 지금 계산은 live 에 따로 남긴다. 그래프·과거 목록은 지금 것을 쓴다", () => {
+  it("화면은 지금 계산을 보이고, 오전 8시에 정한 값은 official.morning 으로 붙는다", () => {
     const off = makeOfficial({ ...w(2, 3), proximity: prox(15, 0) }, D8, "daily");
     expect(off.proximity!.series).toEqual([]); // 저장은 가볍게
     const shown = applyOfficial({ ...w(2, 3), proximity: prox(17, 0.5) }, off, undefined);
-    expect(shown.proximity!.index).toBe(15);
-    expect(shown.proximity!.rubric.moves).toBe(0);
-    expect(shown.live.proximity!.index).toBe(17);
-    expect(shown.proximity!.series).toHaveLength(1);
-    expect(shown.proximity!.anchors).toHaveLength(1);
+    expect(shown.proximity!.index).toBe(17);
+    expect(shown.official!.morning).toEqual({ index: 15, signs: 0, moves: 0, context: 6 });
   });
-  it("이전 규칙으로 정한 판정(전조 기록 없음)이면 지금 계산을 그대로 보인다", () => {
-    const off = makeOfficial(w(2, 3.8), D8, "daily");
-    expect(applyOfficial({ ...w(2, 3), proximity: prox(17, 0.5) }, off, undefined).proximity!.index).toBe(17);
+  it("이전 규칙으로 정한 판정(전조 기록 없음)이면 아침 기준이 없다", () => {
+    expect(applyOfficial({ ...w(2, 3), proximity: prox(17, 0.5) }, makeOfficial(w(2, 3.8), D8, "daily"), undefined).official!.morning).toBeUndefined();
   });
 });
 

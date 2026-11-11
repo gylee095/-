@@ -39,6 +39,8 @@ export interface OfficialView {
   change: { meaningful: boolean; text: string; moved: string[] } | null;
   /** 이 숫자가 무엇이고 무엇이 아닌가 */
   basis: string;
+  /** 오늘 아침 판정 때의 켜진 비율·개수 (실시간 값과 견주는 기준) */
+  morning?: { index: number; signs: number; moves: number; context: number };
   // readiness 는 내부 계산용으로 Official 에 남지만 화면(OfficialView)에는 내보내지 않는다 (11/6 사용자: 새 정보 말고 기존 %의 정확도를 올려라)
 }
 
@@ -154,10 +156,10 @@ export function applyOfficial(w: WarRisk, off: Official | undefined, prev: Offic
     gauge: off.gauge,
     vsUsual: off.vsUsual,
     headline: `전쟁 위험 ${off.phase}단계(${off.phaseLabel}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(off.clash30d.point)}, 전면전 ${fmtRiskPct(off.war30d.point)}`,
-    // 화면의 개수·% 도 오늘의 판정 것으로 — 단, 같은 규칙으로 만든 것일 때만 (규칙이 바뀐 날은 지금 계산을 보인다)
-    ...(off.proximity?.rubric && w.proximity && "signs" in off.proximity.rubric ? { proximity: { ...off.proximity, series: w.proximity.series, anchors: w.proximity.anchors, record: w.proximity.record, vs: w.proximity.vs } } : {}),
     live: w,
-    official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS },
+    official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS,
+      // 운영자 대시보드의 개수·% 는 실시간으로 두고(11/12 사용자), 오늘 아침 값은 견줄 기준으로만 붙인다
+      ...(off.proximity?.rubric && "signs" in off.proximity.rubric ? { morning: { index: off.proximity.index, signs: off.proximity.rubric.signs, moves: off.proximity.rubric.moves, context: off.proximity.rubric.context } } : {}) },
   };
 }
 

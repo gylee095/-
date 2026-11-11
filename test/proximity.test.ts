@@ -138,8 +138,8 @@ describe("한반도 적용", () => {
 
 describe("위기 지수 채점표 (rubric.ts)", () => {
   const all = (s: "on" | "off") => Object.fromEntries(ALL_IDS.map((id) => [id, { s }]));
-  it("배점: 바탕 20 + 보이는 것 30 + 실제 행동 50 = 100, 모두 꺼지면 0, 모두 켜지면 100", () => {
-    expect(RUBRIC.map((l) => l.max)).toEqual([20, 30, 50]);
+  it("배점: 한반도 바탕 15 + 세계 정세 15 + 보이는 것 25 + 실제 행동 45 = 100, 모두 꺼지면 0, 모두 켜지면 100", () => {
+    expect(RUBRIC.map((l) => l.max)).toEqual([15, 15, 25, 45]);
     for (const l of RUBRIC) expect(l.groups.reduce((a, g) => a + g.max, 0), l.id).toBe(l.max);
     for (const g of RUBRIC.flatMap((l) => l.groups)) expect(g.items.reduce((a, i) => a + i.pts, 0), g.id).toBeGreaterThanOrEqual(g.max);
     expect(new Set(ALL_IDS).size).toBe(ALL_IDS.length);
@@ -149,15 +149,15 @@ describe("위기 지수 채점표 (rubric.ts)", () => {
   it("약한 신호는 절반, 못 본 것은 0점이고 '확인 대기'로 센다, 묶음마다 상한", () => {
     expect(scoreRubric({ ...all("off"), g_evac_order: { s: "on", w: 0.5 } }).index).toBe(5);
     const r = scoreRubric({ s_talks: { s: "on" } });
-    expect(r.index).toBe(4);
+    expect(r.index).toBe(3);
     expect(r.waiting).toBe(ALL_IDS.length - 1);
-    // 말·여론은 다 켜져도 8점까지
-    expect(scoreRubric({ ...all("off"), i_state_mobilization: { s: "on" }, i_leader_threat: { s: "on" }, i_pretext: { s: "on" }, i_news_surge: { s: "on" }, i_public_anxiety: { s: "on" } }).index).toBe(8);
+    // 말·여론은 다 켜져도 7점까지
+    expect(scoreRubric({ ...all("off"), i_state_mobilization: { s: "on" }, i_leader_threat: { s: "on" }, i_pretext: { s: "on" }, i_news_surge: { s: "on" }, i_public_anxiety: { s: "on" } }).index).toBe(7);
   });
   it("신호 한 묶음만으로는 위기(35)가 안 되고, 행동 신호 둘 미만이면 임박(60)이 안 된다", () => {
-    const base = Object.fromEntries(ALL_IDS.filter((i) => i.startsWith("s_")).map((i) => [i, { s: "on" as const }]));
+    const base = Object.fromEntries(ALL_IDS.filter((i) => i.startsWith("s_") || i.startsWith("w_")).map((i) => [i, { s: "on" as const }]));
     const one = scoreRubric({ ...all("off"), ...base, g_evac_order: { s: "on" }, g_leave_now: { s: "on" }, g_attacker_evac: { s: "on" } });
-    expect(one.index).toBe(RUBRIC_AT[3] - 1); // 바탕 20 + 사람 20 이지만 한 묶음뿐
+    expect(one.index).toBe(RUBRIC_AT[3] - 1); // 바탕 15 + 세계 15 + 사람 18 이지만 신호는 한 묶음뿐
     expect(one.capped).toMatch(/한 묶음/);
     const talk = scoreRubric({ ...all("on"), ...Object.fromEntries(ACTION_KEYS.map((k) => [k, { s: "off" as const }])) });
     expect(talk.index).toBe(RUBRIC_AT[4] - 1);
@@ -182,6 +182,9 @@ describe("위기 지수 채점표 (rubric.ts)", () => {
     expect(later.s_talks.s).toBe("off");
     expect(later.s_tests.s).toBe("on");
     expect(later.i_pretext.s).toBe("unk");
+    // 세계 정세 항목도 같은 방식
+    expect(s.w_us_war.s).toBe(BASE_SEED.items.w_us_war.v ? "on" : "off");
+    expect(koreaStatus([], [], NOW, parseChecks("w_us_war=0:종전 합의", NOW)).w_us_war.s).toBe("off");
     expect(BASE_TTL).toBeGreaterThan(30 * 86400_000);
   });
   it("과거 시점 검산: 2018년 가을은 평온, 한반도 위기 때는 '실제 행동'이 거의 없었고 우크라이나 전날은 임박", () => {

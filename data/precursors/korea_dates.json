@@ -1,16 +1,178 @@
 {
-  "note": "과거 시점을 위기 지수 채점표(src/core/rubric.ts)로 매기기 위한 입력. base = 그때 켜져 있던 바탕 항목(조사 담당이 아니라 작성자가 역사 기록으로 채운 것 — 출처 검증 전), case = 신호를 가져올 사례 파일, extra = 사례 파일에 없는 채점표 항목.",
-  "dates": [
-    { "id": "kr-2018-autumn", "name": "2018년 가을 (평양 정상회담 직후)", "when": "2018-10-01", "cls": "N", "base": ["s_tests"], "extra": [] },
-    { "id": "kr-2010-11-22", "name": "2010년 연평도 포격 전날", "when": "2010-11-22", "cls": "K", "base": ["s_talks", "s_casualty"], "case": "korea-yeonpyeong-2010", "extra": [] },
-    { "id": "kr-2015-08-19", "name": "2015년 8월 포격 교환 전날", "when": "2015-08-19", "cls": "K", "base": ["s_talks", "s_casualty"], "case": "korea-2015-08", "extra": [] },
-    { "id": "kr-2020-06", "name": "2020년 6월 연락사무소 폭파", "when": "2020-06-16", "cls": "N", "base": ["s_talks"], "case": "korea-2020-06", "extra": [] },
-    { "id": "kr-1994-06", "name": "1994년 6월 1차 핵위기", "when": "1994-06-15", "cls": "N", "base": ["s_talks"], "case": "korea-1994", "extra": [] },
-    { "id": "kr-2017-09", "name": "2017년 9월 '화염과 분노'", "when": "2017-09-15", "cls": "N", "base": ["s_talks", "s_tests", "s_casualty"], "case": "korea-2017", "extra": ["t_major_test", "t_provocation"] },
-    { "id": "kr-1976-08", "name": "1976년 도끼 살인·데프콘 3", "when": "1976-08-21", "cls": "N", "base": ["s_talks", "s_casualty"], "case": "korea-1976", "extra": [] },
-    { "id": "kr-2013-04", "name": "2013년 4월 '전시상황' 선언", "when": "2013-04-05", "cls": "N", "base": ["s_talks", "s_agreement", "s_tests", "s_casualty"], "case": "korea-2013", "extra": ["t_major_test", "t_provocation"] },
-    { "id": "kr-2024-10", "name": "2024년 10월 도로 폭파·무인기", "when": "2024-10-15", "cls": "N", "base": ["s_talks", "s_agreement", "s_doctrine", "s_friction", "s_tests"], "case": "korea-2024-10", "extra": ["t_provocation"] },
-    { "id": "ukraine-2022", "name": "우크라이나 침공 전날", "when": "2022-02-23", "cls": "W", "base": ["s_talks", "s_agreement", "s_doctrine", "s_friction", "s_tests", "s_casualty"], "case": "ukraine-2022", "extra": [] },
-    { "id": "india-pakistan-2001", "name": "인도–파키스탄 2002 (전쟁 안 남)", "when": "2002-05-31", "cls": "N", "base": ["s_talks", "s_agreement", "s_friction", "s_tests", "s_casualty"], "case": "india-pakistan-2001", "extra": [] }
-  ]
+ "note": "과거 시점을 위기 지수 채점표(src/core/rubric.ts)로 매기기 위한 입력. base = 그때 켜져 있던 바탕 항목(조사 담당이 아니라 작성자가 역사 기록으로 채운 것 — 출처 검증 전), case = 신호를 가져올 사례 파일, extra = 사례 파일에 없는 채점표 항목. world = 그때 켜져 있던 세계 정세 항목(같은 방식, 검증 전): 2010년 = 미국의 이라크·아프간 전쟁, 2015·2024년 = 러시아의 우크라이나 전쟁.",
+ "dates": [
+  {
+   "id": "kr-2018-autumn",
+   "name": "2018년 가을 (평양 정상회담 직후)",
+   "when": "2018-10-01",
+   "cls": "N",
+   "base": [
+    "s_tests"
+   ],
+   "extra": [],
+   "world": []
+  },
+  {
+   "id": "kr-2010-11-22",
+   "name": "2010년 연평도 포격 전날",
+   "when": "2010-11-22",
+   "cls": "K",
+   "base": [
+    "s_talks",
+    "s_casualty"
+   ],
+   "case": "korea-yeonpyeong-2010",
+   "extra": [],
+   "world": [
+    "w_us_war"
+   ]
+  },
+  {
+   "id": "kr-2015-08-19",
+   "name": "2015년 8월 포격 교환 전날",
+   "when": "2015-08-19",
+   "cls": "K",
+   "base": [
+    "s_talks",
+    "s_casualty"
+   ],
+   "case": "korea-2015-08",
+   "extra": [],
+   "world": [
+    "w_patron_war"
+   ]
+  },
+  {
+   "id": "kr-2020-06",
+   "name": "2020년 6월 연락사무소 폭파",
+   "when": "2020-06-16",
+   "cls": "N",
+   "base": [
+    "s_talks"
+   ],
+   "case": "korea-2020-06",
+   "extra": [],
+   "world": []
+  },
+  {
+   "id": "kr-1994-06",
+   "name": "1994년 6월 1차 핵위기",
+   "when": "1994-06-15",
+   "cls": "N",
+   "base": [
+    "s_talks"
+   ],
+   "case": "korea-1994",
+   "extra": [],
+   "world": []
+  },
+  {
+   "id": "kr-2017-09",
+   "name": "2017년 9월 '화염과 분노'",
+   "when": "2017-09-15",
+   "cls": "N",
+   "base": [
+    "s_talks",
+    "s_tests",
+    "s_casualty"
+   ],
+   "case": "korea-2017",
+   "extra": [
+    "t_major_test",
+    "t_provocation"
+   ],
+   "world": []
+  },
+  {
+   "id": "kr-1976-08",
+   "name": "1976년 도끼 살인·데프콘 3",
+   "when": "1976-08-21",
+   "cls": "N",
+   "base": [
+    "s_talks",
+    "s_casualty"
+   ],
+   "case": "korea-1976",
+   "extra": [],
+   "world": []
+  },
+  {
+   "id": "kr-2013-04",
+   "name": "2013년 4월 '전시상황' 선언",
+   "when": "2013-04-05",
+   "cls": "N",
+   "base": [
+    "s_talks",
+    "s_agreement",
+    "s_tests",
+    "s_casualty"
+   ],
+   "case": "korea-2013",
+   "extra": [
+    "t_major_test",
+    "t_provocation"
+   ],
+   "world": []
+  },
+  {
+   "id": "kr-2024-10",
+   "name": "2024년 10월 도로 폭파·무인기",
+   "when": "2024-10-15",
+   "cls": "N",
+   "base": [
+    "s_talks",
+    "s_agreement",
+    "s_doctrine",
+    "s_friction",
+    "s_tests"
+   ],
+   "case": "korea-2024-10",
+   "extra": [
+    "t_provocation"
+   ],
+   "world": [
+    "w_patron_war"
+   ]
+  },
+  {
+   "id": "ukraine-2022",
+   "name": "우크라이나 침공 전날",
+   "when": "2022-02-23",
+   "cls": "W",
+   "base": [
+    "s_talks",
+    "s_agreement",
+    "s_doctrine",
+    "s_friction",
+    "s_tests",
+    "s_casualty"
+   ],
+   "case": "ukraine-2022",
+   "extra": [],
+   "world": [
+    "w_us_assets_out",
+    "w_nuclear",
+    "w_markets"
+   ]
+  },
+  {
+   "id": "india-pakistan-2001",
+   "name": "인도–파키스탄 2002 (전쟁 안 남)",
+   "when": "2002-05-31",
+   "cls": "N",
+   "base": [
+    "s_talks",
+    "s_agreement",
+    "s_friction",
+    "s_tests",
+    "s_casualty"
+   ],
+   "case": "india-pakistan-2001",
+   "extra": [],
+   "world": [
+    "w_us_war",
+    "w_nuclear"
+   ]
+  }
+ ]
 }

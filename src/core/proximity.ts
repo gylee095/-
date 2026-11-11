@@ -126,7 +126,7 @@ export function koreaStatus(board: BoardRow[], briefs: EventBrief[], now: number
   const st = autoStatus(board, briefs, now);
   const age = checks ? now - checks.at : Infinity;
   for (const id of ALL_IDS) {
-    const isBase = id.startsWith("s_");
+    const isBase = id.startsWith("s_") || id.startsWith("w_");
     // 분석관 확인: 날마다 변하는 신호는 36시간, 천천히 변하는 바탕 항목은 45일 유효. 바탕은 확인이 없으면 코드에 적어 둔 값(BASE_SEED)
     const c = checks && age < (isBase ? BASE_TTL : CHECK_TTL) ? checks.items[id] : undefined, a = st[id];
     if (!c) {
@@ -182,7 +182,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const series = [...days.filter((x) => x.d !== today).map((x) => ({ d: x.d, i: x.i, c: x.c })), { d: today, i: p.index, c: p.clashPct }].slice(-120);
   const d1 = diff(1);
   const text =
-    `위기 지수 ${p.index}점 / 100 (0 = 2018년 가을 같은 평온 · 20부터 긴장 · 35부터 위기 · 60부터 임박 — 위기의 크기이지 전쟁 확률이 아니다). ` +
+    `위기 지수 ${p.index}점 / 100 (0 = 모든 항목이 꺼진 상태 · 20부터 긴장 · 35부터 위기 · 60부터 임박 — 위기의 크기이지 전쟁 확률이 아니다). ` +
     r.layers.map((l) => `${l.label} ${Math.round(l.pts)}/${l.max}`).join(" · ") + "." +
     (r.divergence ? ` ${r.divergence.text}` : "") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 ${Math.abs(d1)}점 ${d1 > 0 ? "높아요" : "낮아요"}.`);
@@ -305,6 +305,12 @@ export const ANALYST_GUIDE: Record<string, string> = {
   i_pretext: "'도발·학살' 주장, 자작극 의혹, '우리 국민 보호' 서사가 평소보다 격해짐",
   i_state_mobilization: "북한 관영매체의 전시 동원 서사 (입대 탄원 군중대회, 준전시 선포 보도)",
   t_deadline: "공개된 시한·날짜 조건의 만료가 임박",
+  w_us_war: "(세계·한 달에 한 번) 미국이 한반도 밖에서 전쟁·대규모 군사작전을 하고 있나",
+  w_us_assets_out: "(세계) 주한미군·인도태평양 전력(사드·패트리엇·항모·탄약)이 다른 곳으로 빠져 있나",
+  w_patron_war: "(세계) 러시아·중국이 전쟁 중이거나 북한이 파병했나",
+  w_taiwan: "(세계) 대만해협·동중국해에 봉쇄·대규모 포위 훈련 같은 군사 위기가 있나",
+  w_nuclear: "(세계) 강대국의 핵 위협, 핵실험 재개, 군비통제 조약 붕괴가 있나",
+  w_markets: "(세계) 금·유가·변동성 지수가 전쟁 공포로 급등했나",
   s_talks: "(바탕·한 달에 한 번) 남북·북미 사이에 열려 있는 대화 채널이 하나도 없나",
   s_agreement: "(바탕) 9·19 군사합의 등 충돌 방지 합의가 파기·효력 정지 상태인가",
   s_doctrine: "(바탕) 북한이 한국을 적대국으로 규정했거나 핵 선제사용을 법에 명시했나",

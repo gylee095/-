@@ -90,14 +90,14 @@ const telegraphed = loo.filter((x) => x.cls === "W" && !x.c.surprise);
 const logOdds = cases.map((c) => ({ c, lo: caseLogOdds(table, c, 1) }));
 const anchor = Math.max(...logOdds.map((x) => x.lo));
 // 과거 시점을 위기 지수 채점표로 매긴다 (운영 코드와 같은 함수) — 화면 눈금의 기준점
-const kd = read("data/precursors/korea_dates.json") as { dates: { id: string; name: string; when: string; cls: string; base: string[]; case?: string; extra: string[] }[] };
+const kd = read("data/precursors/korea_dates.json") as { dates: { id: string; name: string; when: string; cls: string; base: string[]; world?: string[]; case?: string; extra: string[] }[] };
 const anchors = kd.dates.map((d) => {
   const c = d.case ? all.find((x) => x.id === d.case) : undefined;
   if (d.case && !c) throw new Error(`korea_dates: 사례 ${d.case} 없음`);
   const st: Record<string, { s: "on" | "off" | "unk" }> = {};
-  for (const id of RUBRIC.flatMap((l) => l.groups.flatMap((g) => g.items.map((i) => i.id)))) st[id] = { s: id.startsWith("s_") ? "off" : c ? "unk" : "off" };
+  for (const id of RUBRIC.flatMap((l) => l.groups.flatMap((g) => g.items.map((i) => i.id)))) st[id] = { s: id.startsWith("s_") || id.startsWith("w_") ? "off" : c ? "unk" : "off" };
   if (c) for (const [h, o] of Object.entries(caseEvidence(c, 1))) st[h] = { s: o };
-  for (const id of [...d.base, ...d.extra]) st[id] = { s: "on" };
+  for (const id of [...d.base, ...(d.world ?? []), ...d.extra]) st[id] = { s: "on" };
   const r = scoreRubric(st);
   return { id: d.id, name: d.name, cls: d.cls, when: d.when, index: r.index, surprise: !!c?.surprise, layers: r.layers.map((l) => Math.round(l.pts)) };
 }).sort((a, b) => b.index - a.index);
@@ -150,8 +150,8 @@ md.push(``, `## 언제부터 잡혔나`, ``, `예고된 전쟁·공격 ${telegra
   `| 시점 | 잡은 수 |`, `|---|---|`, ...DAYS.map((d) => `| ${d}일 전 | ${telegraphed.filter((x) => (x.byDay[d] ?? -1) > 0).length}/${telegraphed.length} |`));
 
 md.push(``, `## 위기 지수의 기준점 — 과거 시점을 같은 채점표로`, ``,
-  `채점표는 \`src/core/rubric.ts\` (바탕 20 · 보이는 것 30 · 실제 행동 50). 0 = 모든 항목이 꺼진 상태, 20부터 긴장, 35부터 위기, 60부터 임박. 과거 시점의 바탕 항목은 \`data/precursors/korea_dates.json\` 에 손으로 적은 것이고(출처 검증 전), 신호는 사례 조사에서 가져왔다 — 조사에서 '모름'인 항목은 0점이라 실제보다 낮게 나올 수 있다(특히 1994년).`, ``,
-  `| 시점 | 위기 지수 | 바탕 | 보이는 것 | 실제 행동 |`, `|---|---|---|---|---|`, ...anchors.map((a) => `| ${a.name} | **${a.index}** | ${a.layers[0]} | ${a.layers[1]} | ${a.layers[2]} |`));
+  `채점표는 \`src/core/rubric.ts\` (한반도 바탕 15 · 세계 정세 15 · 보이는 것 25 · 실제 행동 45). 0 = 모든 항목이 꺼진 상태, 20부터 긴장, 35부터 위기, 60부터 임박. 과거 시점의 바탕 항목은 \`data/precursors/korea_dates.json\` 에 손으로 적은 것이고(출처 검증 전), 신호는 사례 조사에서 가져왔다 — 조사에서 '모름'인 항목은 0점이라 실제보다 낮게 나올 수 있다(특히 1994년).`, ``,
+  `| 시점 | 위기 지수 | 한반도 바탕 | 세계 정세 | 보이는 것 | 실제 행동 |`, `|---|---|---|---|---|---|`, ...anchors.map((a) => `| ${a.name} | **${a.index}** | ${a.layers[0]} | ${a.layers[1]} | ${a.layers[2]} | ${a.layers[3]} |`));
 
 md.push(``, `## 고정값 (사례를 보기 전에 정한 것)`, ``,
   `- 한 신호의 최대 배수 ${MODEL.CAP} · 같은 묶음 안 두 번째 신호부터 ${MODEL.DAMP}배씩 깎음 · 3단계 이상은 두 묶음 이상, 4단계는 정부·군사 묶음의 확인된 신호가 있어야 함`,

@@ -2,14 +2,15 @@
 //
 // 0점 = 모든 항목이 꺼진 상태. 기준 시점은 2018년 가을(평양 정상회담·9·19 군사합의 직후) — 같은 표로 매기면 5점.
 // 100점 = 모든 항목이 켜진 상태. 우크라이나 2022 침공 전날을 같은 표로 매기면 80점 안팎.
-// 세 층으로 나눈다:
-//   ① 바탕 20   — 오래 이어지는 구조적 긴장 (대화 단절·합의 파기 등). 천천히 변한다. '요즘 평균'과 비교하면 사라지는 부분.
-//   ② 보이는 것 30 — 말·선언·사건. 비용 없이 낼 수 있어 배점을 낮게 둔다.
-//   ③ 실제 행동 50 — 사람이 빠지고, 돈이 빠지고, 군이 움직인 것. 비용이 드는 행동이라 가장 무겁게 둔다. 대부분 우리가 직접 재는 숫자다.
+// 네 층으로 나눈다:
+//   ① 한반도 바탕 15 — 오래 이어지는 구조적 긴장 (대화 단절·합의 파기 등). 천천히 변한다. '요즘 평균'과 비교하면 사라지는 부분.
+//   ② 세계 정세 15 — 미국이 다른 전쟁에 묶였나, 주한미군 전력이 빠졌나, 북한의 후원국이 전쟁 중인가.
+//   ③ 보이는 것 25 — 말·선언·사건. 비용 없이 낼 수 있어 배점을 낮게 둔다.
+//   ④ 실제 행동 45 — 사람이 빠지고, 돈이 빠지고, 군이 움직인 것. 비용이 드는 행동이라 가장 무겁게 둔다. 대부분 우리가 직접 재는 숫자다.
 // 점수는 판단값이다 — 사례 42건 채점으로는 가중치를 데이터로 정하지 못했다(docs/PRECURSORS.md). 대신 표를 공개하고 과거 한반도의 날들로 검산한다.
 import type { Obs, SignalNow } from "./precursors.js";
 
-export type LayerId = "base" | "seen" | "action";
+export type LayerId = "base" | "world" | "seen" | "action";
 export interface RubricItem { id: string; pts: number; ko: string }
 export interface RubricGroup { id: string; label: string; max: number; items: RubricItem[] }
 export interface RubricLayer { id: LayerId; label: string; max: number; why: string; groups: RubricGroup[] }
@@ -22,29 +23,45 @@ export const ACTION_KEYS = ["g_evac_order", "g_leave_now", "g_regional_drawdown"
 
 export const RUBRIC: RubricLayer[] = [
   {
-    id: "base", label: "바탕", max: 20, why: "오래 이어지는 구조적 긴장 — 한 달에 한 번쯤 점검",
+    id: "base", label: "한반도 바탕", max: 15, why: "한반도에 오래 이어지는 구조적 긴장 — 한 달에 한 번쯤 점검",
     groups: [{
-      id: "S", label: "구조적 긴장", max: 20,
+      id: "S", label: "구조적 긴장", max: 15,
       items: [
-        { id: "s_talks", pts: 4, ko: "남북·북미 대화 채널이 모두 끊김" },
-        { id: "s_agreement", pts: 4, ko: "충돌 방지 합의(9·19 군사합의·정전협정)가 파기·효력 정지" },
+        { id: "s_talks", pts: 3, ko: "남북·북미 대화 채널이 모두 끊김" },
+        { id: "s_agreement", pts: 3, ko: "충돌 방지 합의(9·19 군사합의·정전협정)가 파기·효력 정지" },
         { id: "s_doctrine", pts: 3, ko: "북한이 한국을 '적대국'으로 규정하거나 핵 선제사용을 법·헌법에 명시" },
-        { id: "s_friction", pts: 3, ko: "접경의 상시 마찰 (확성기·전단·풍선·GPS 교란이 몇 달째)" },
-        { id: "s_tests", pts: 3, ko: "최근 12개월 안에 핵실험 또는 ICBM급 발사" },
-        { id: "s_casualty", pts: 3, ko: "최근 5년 안에 사상자가 난 남북 무력 충돌" },
+        { id: "s_friction", pts: 2, ko: "접경의 상시 마찰 (확성기·전단·풍선·GPS 교란이 몇 달째)" },
+        { id: "s_tests", pts: 2, ko: "최근 12개월 안에 핵실험 또는 ICBM급 발사" },
+        { id: "s_casualty", pts: 2, ko: "최근 5년 안에 사상자가 난 남북 무력 충돌" },
       ],
     }],
   },
   {
-    id: "seen", label: "보이는 것", max: 30, why: "말·선언·사건 — 누구나 볼 수 있고 비용 없이 낼 수 있다",
+    // 11/11 사용자: "전 세계가 3차 대전을 말하는 긴장 상황인데 평온이 나오면 안 된다" — 한반도 안쪽만 보던 것이 원인이었다.
+    // 미국이 다른 전쟁에 묶이고 주한미군 전력이 빠지면 억지력이 약해지고, 북한의 후원국이 전쟁 중이면 북한의 계산이 달라진다.
+    id: "world", label: "세계 정세", max: 15, why: "한반도 밖의 전쟁이 한반도의 억지력과 북한의 계산을 바꾼다 — 한 달에 한 번쯤 점검",
+    groups: [{
+      id: "X", label: "세계 정세", max: 15,
+      items: [
+        { id: "w_us_war", pts: 4, ko: "미국이 다른 지역에서 전쟁·대규모 군사작전 중" },
+        { id: "w_us_assets_out", pts: 3, ko: "주한미군·인도태평양 전력이 다른 곳으로 빠짐 (사드·패트리엇·항모·탄약)" },
+        { id: "w_patron_war", pts: 3, ko: "북한의 후원국(러시아·중국)이 전쟁 중이거나 북한이 파병" },
+        { id: "w_taiwan", pts: 2, ko: "대만해협·동중국해의 군사 위기" },
+        { id: "w_nuclear", pts: 2, ko: "강대국의 핵 위협·핵실험 재개·군비통제 붕괴" },
+        { id: "w_markets", pts: 1, ko: "세계 금융의 전쟁 공포 (금·유가·변동성 급등)" },
+      ],
+    }],
+  },
+  {
+    id: "seen", label: "보이는 것", max: 25, why: "말·선언·사건 — 누구나 볼 수 있고 비용 없이 낼 수 있다",
     groups: [
-      { id: "T", label: "사건·계기", max: 12, items: [
+      { id: "T", label: "사건·계기", max: 10, items: [
         { id: "t_trigger", pts: 8, ko: "사상자가 난 계기 사건과 보복 다짐" },
         { id: "t_major_test", pts: 5, ko: "최근 30일 안에 핵실험 또는 ICBM급 발사" },
         { id: "t_deadline", pts: 4, ko: "명시적 시한 임박" },
         { id: "t_provocation", pts: 2, ko: "최근 7일 안에 미사일 발사 등 도발" },
       ] },
-      { id: "D", label: "선언·태세", max: 10, items: [
+      { id: "D", label: "선언·태세", max: 8, items: [
         { id: "g_ultimatum", pts: 4, ko: "최후통첩·무력사용 공식 승인·단교" },
         { id: "g_intel_warning", pts: 4, ko: "정보당국의 '공격 임박' 공개 경고" },
         { id: "m_alert_level", pts: 3, ko: "군 경계태세 공식 격상" },
@@ -52,7 +69,7 @@ export const RUBRIC: RubricLayer[] = [
         { id: "m_exercise_cover", pts: 2, ko: "'훈련' 병력이 남거나 훈련 연장" },
         { id: "m_leadership", pts: 2, ko: "지도부의 이례적 동선" },
       ] },
-      { id: "I", label: "말·여론", max: 8, items: [
+      { id: "I", label: "말·여론", max: 7, items: [
         { id: "i_state_mobilization", pts: 3, ko: "관영매체의 전시 동원 서사" },
         { id: "i_leader_threat", pts: 2, ko: "최고지도자의 명시적 위협·명분 연설" },
         { id: "i_pretext", pts: 2, ko: "명분 만들기" },
@@ -62,9 +79,9 @@ export const RUBRIC: RubricLayer[] = [
     ],
   },
   {
-    id: "action", label: "실제 행동", max: 50, why: "사람·돈·군이 실제로 움직인 것 — 비용이 드는 행동이라 가장 무겁게",
+    id: "action", label: "실제 행동", max: 45, why: "사람·돈·군이 실제로 움직인 것 — 비용이 드는 행동이라 가장 무겁게",
     groups: [
-      { id: "P", label: "사람이 빠진다", max: 20, items: [
+      { id: "P", label: "사람이 빠진다", max: 18, items: [
         { id: "g_evac_order", pts: 10, ko: "제3국 대사관 철수 명령" },
         { id: "g_leave_now", pts: 8, ko: "자국민 '즉시 출국' 권고" },
         { id: "g_attacker_evac", pts: 8, ko: "공격하는 쪽이 자기 사람을 뺌" },
@@ -75,7 +92,7 @@ export const RUBRIC: RubricLayer[] = [
         { id: "m_civil_defense", pts: 4, ko: "민방위 조치·주민 소개" },
         { id: "a_fleet", pts: 2, ko: "서해 중국 어선이 빠짐" },
       ] },
-      { id: "W", label: "군이 움직인다", max: 18, items: [
+      { id: "W", label: "군이 움직인다", max: 16, items: [
         { id: "m_logistics", pts: 8, ko: "야전병원·혈액·연료·탄약의 전방 이동" },
         { id: "m_mobilization", pts: 7, ko: "예비군 동원·휴가 중단" },
         { id: "m_buildup", pts: 7, ko: "국경·전선에 병력·장비 집결" },
@@ -85,7 +102,7 @@ export const RUBRIC: RubricLayer[] = [
         { id: "a_launch_prep", pts: 2, ko: "발사 준비 정황 (발사 예고 항행경보·발사장 열점)" },
         { id: "m_cyber", pts: 2, ko: "정부·기반시설 사이버 공격" },
       ] },
-      { id: "F", label: "돈이 빠진다", max: 12, items: [
+      { id: "F", label: "돈이 빠진다", max: 11, items: [
         { id: "f_fx", pts: 3, ko: "원화 급락" },
         { id: "f_sovereign", pts: 3, ko: "국채·CDS 급등" },
         { id: "f_prediction", pts: 3, ko: "예측시장 전쟁 가격 급등" },
@@ -167,5 +184,9 @@ export const BASE_SEED: { asOf: string; items: Record<string, { v: 0 | 0.5 | 1; 
     s_friction: { v: 0.5, ev: "확성기는 2025년 6월 양쪽 모두 중단. 2026년 10월 김여정이 대남 확성기 재개 예고 — 군은 가동 미확인" },
     s_tests: { v: 0, ev: "최근 12개월 ICBM 발사·핵실험 보도 없음 (2026년 3월 고체연료 엔진 시험만)" },
     s_casualty: { v: 0, ev: "최근 5년 사상자가 난 남북 충돌 없음" },
+    w_us_war: { v: 1, ev: "미국·이스라엘의 대이란 전쟁 (2026년 2월 28일 시작) — 11월 초 협상 중, 종결 미확인" },
+    w_us_assets_out: { v: 1, ev: "2026년 3~8월 주한미군 사드 일부·패트리엇·탄약이 중동으로 이동 (복귀 여부 미확인)" },
+    w_patron_war: { v: 1, ev: "러시아–우크라이나 전쟁 계속 (11월 기준 종전 합의 없음)" },
+    w_taiwan: { v: 0, ev: "긴장은 높지만 침공·봉쇄 같은 군사 위기는 없음" },
   },
 };

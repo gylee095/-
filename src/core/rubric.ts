@@ -16,7 +16,9 @@ export interface RubricLayer { id: LayerId; label: string; max: number; why: str
 export const RUBRIC_VERSION = 3;
 /** 전쟁 전 공통 징조 9개 — 예고된 전쟁의 절반 이상에서 나타난 것 (자료가 바뀌어 목록이 달라지면 build-precursors 가 실패한다) */
 export const SIGNS = ["i_leader_threat", "i_pretext", "m_buildup", "m_border_fire", "g_ultimatum", "g_talks_collapse", "t_trigger", "g_intel_warning", "m_strategic_assets"];
-/** 단계가 시작되는 징조 수: 3개 긴장 · 5개 위기 · 7개 임박 */
+/** 단계가 시작되는 켜진 비율 %: 10 긴장 · 25 위기 · 50 임박 (교전은 실제 교전 보도) */
+export const PCT_AT: Record<number, number> = { 2: 10, 3: 25, 4: 50 };
+/** 실제 징조가 나타났다고 보는 수 (알림·기습 판단용): 징조 3개 */
 export const SIGNS_AT: Record<number, number> = { 2: 3, 3: 5, 4: 7 };
 /** 조용한 움직임이 이만큼 함께 켜지면: 3개 → 최소 긴장(기습 주의), 5개 → 최소 위기 */
 export const MOVES_AT = { watch: 3, crisis: 5 };
@@ -149,16 +151,17 @@ export function scoreRubric(status: Record<string, SignalNow | undefined>): Rubr
   });
   const of = (id: LayerId) => layers.find((l) => l.id === id)!.pts;
   const signs = of("signs"), moves = of("moves"), context = of("context");
-  const n = Math.floor(signs);
-  let phase: 1 | 2 | 3 | 4 = n >= SIGNS_AT[4] ? 4 : n >= SIGNS_AT[3] ? 3 : n >= SIGNS_AT[2] ? 2 : 1;
-  let reason = `전쟁 전 징조 9개 중 ${signs}개`;
-  // 임박은 말·사건만으로는 안 된다 — 사람·돈·군의 실제 움직임이 둘 이상 함께 있어야 한다
-  if (phase === 4 && moves < 2) { phase = 3; reason += " — 징조는 많지만 사람·돈·군의 움직임이 확인되지 않아 '임박'으로 올리지 않아요"; }
-  const surprise = moves >= MOVES_AT.watch && n < SIGNS_AT[2];
-  if (moves >= MOVES_AT.crisis && phase < 3) { phase = 3; reason = `조용한 움직임 ${moves}개가 함께 켜짐 (징조는 ${signs}개)`; }
-  else if (moves >= MOVES_AT.watch && phase < 2) { phase = 2; reason = `뉴스의 징조는 ${signs}개뿐인데 조용한 움직임 ${moves}개가 함께 켜짐 — 기습 주의`; }
-  else if (context >= CONTEXT_TENSE && phase < 2) { phase = 2; reason = `전쟁 전 징조는 9개 중 ${signs}개뿐이지만 배경이 불안해요 (배경 ${context}개 켜짐)`; }
-  return { signs, moves, context, index: pctOn(signs, moves, context), phase, layers, reason, surprise, watched, waiting };
+  // 단계는 켜진 비율(%)의 구간이다 (11/12 사용자: 단계마다 몇 %부터 몇 %인지 보여야 한다) — PCT_AT: 10%부터 긴장, 25%부터 위기, 50%부터 임박.
+  // 구간은 과거 시점을 같은 방식으로 센 값에 맞춘 판단값이다: 2018년 평화 3% · 연평도 포격 전날 8% | 2017년 18% · 2013년 21% | 2024년 10월 28% | 인도–파키스탄 2002 59% · 우크라이나 전날 64%.
+  const index = pctOn(signs, moves, context);
+  const phase: 1 | 2 | 3 | 4 = index >= PCT_AT[4] ? 4 : index >= PCT_AT[3] ? 3 : index >= PCT_AT[2] ? 2 : 1;
+  const surprise = moves >= MOVES_AT.watch && Math.floor(signs) < SIGNS_AT[2];
+  const reason = surprise
+    ? `뉴스의 징조는 ${signs}개뿐인데 조용한 움직임 ${moves}개가 함께 켜졌어요 — 기습 주의`
+    : signs === 0 && moves === 0 && context > 0
+    ? `전쟁 전 징조와 실제 움직임은 없고, 불안한 배경 ${context}개가 켜져 있어요`
+    : `전쟁 전 징조 ${signs}개 · 조용한 움직임 ${moves}개 · 불안한 배경 ${context}개가 켜져 있어요`;
+  return { signs, moves, context, index, phase, layers, reason, surprise, watched, waiting };
 }
 
 /** 켜진 비율 %: (징조 + 조용한 움직임 + 배경) ÷ 39 */

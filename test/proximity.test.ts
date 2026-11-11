@@ -1,6 +1,6 @@
 // 규칙 3.0 — 전조 모형과 한반도 적용 (proximity.ts · precursors.ts)
 import { describe, expect, it } from "vitest";
-import { clashOf, scoreRubric, RUBRIC, BASE_SEED, SIGNS, SIGNS_AT, MOVES_AT, CONTEXT_TENSE } from "../src/core/rubric.js";
+import { clashOf, scoreRubric, RUBRIC, BASE_SEED, SIGNS, PCT_AT } from "../src/core/rubric.js";
 import { ACTION_KEYS, INDEX_AT, MODEL, clashOfIndex as clashOfIndexOld, buildTable, caseEvidence, classOf, evaluate, ordinaryRate, rate, type CaseRecord, type SignalNow } from "../src/core/precursors.js";
 import { PRECURSOR_DATA } from "../src/core/precursor_data.js";
 import { ALL_IDS, AUTO_IDS, ANALYST_GUIDE, BASE_TTL, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
@@ -146,15 +146,16 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
     for (const id of IDS) expect(ALL_IDS, id).toContain(id); // 조사한 가설 33개는 모두 어딘가에 있다
     expect(scoreRubric(all("off"))).toMatchObject({ signs: 0, moves: 0, context: 0, phase: 1, index: 0, waiting: 0 });
   });
-  it("단계는 켜진 징조 수: 3개 긴장 · 5개 위기 · 7개 임박(움직임이 둘 이상 함께일 때만)", () => {
-    expect(scoreRubric(on(...SIGNS.slice(0, 2))).phase).toBe(1);
-    expect(scoreRubric(on(...SIGNS.slice(0, 3))).phase).toBe(2);
-    expect(scoreRubric(on(...SIGNS.slice(0, 5))).phase).toBe(3);
-    const talk = scoreRubric(on(...SIGNS));
-    expect(talk).toMatchObject({ signs: 9, phase: 3, index: 23 }); // 39개 중 9개 = 23%
-    expect(talk.reason).toMatch(/움직임이 확인되지 않아/);
-    expect(scoreRubric(on(...SIGNS.slice(0, 7), "g_evac_order", "m_logistics")).phase).toBe(4);
-    expect(SIGNS_AT).toEqual({ 2: 3, 3: 5, 4: 7 });
+  it("단계는 켜진 비율(%)의 구간: 10%부터 긴장 · 25%부터 위기 · 50%부터 임박", () => {
+    expect(PCT_AT).toEqual({ 2: 10, 3: 25, 4: 50 });
+    const some = (n: number) => on(...ALL_IDS.filter((i) => !RUBRIC.find((l) => l.id === "other")!.groups[0].items.some((x) => x.id === i)).slice(0, n));
+    expect(scoreRubric(some(3))).toMatchObject({ index: 8, phase: 1 });
+    expect(scoreRubric(some(4))).toMatchObject({ index: 10, phase: 2 });
+    expect(scoreRubric(some(9))).toMatchObject({ index: 23, phase: 2 });
+    expect(scoreRubric(some(10))).toMatchObject({ index: 26, phase: 3 });
+    expect(scoreRubric(some(20))).toMatchObject({ index: 51, phase: 4 });
+    expect(scoreRubric(some(39))).toMatchObject({ index: 100, phase: 4 });
+    for (let n = 0; n <= 39; n++) { const r = scoreRubric(some(n)); expect(r.phase).toBe(r.index >= 50 ? 4 : r.index >= 25 ? 3 : r.index >= 10 ? 2 : 1); }
   });
   it("약함·미확인은 반 개, 못 본 것은 세지 않고 '확인 대기'", () => {
     const r = scoreRubric({ ...all("off"), i_pretext: { s: "on", w: 0.5 }, m_buildup: { s: "on" }, g_ultimatum: undefined });
@@ -162,20 +163,18 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
     expect(r.waiting).toBe(1);
     expect(scoreRubric({}).waiting).toBe(ALL_IDS.length - RUBRIC.find((l) => l.id === "other")!.max);
   });
-  it("기습 감지: 뉴스의 징조는 없는데 측정값 셋이 함께 움직이면 긴장 + 기습 주의, 다섯이면 위기", () => {
+  it("기습 감지: 뉴스의 징조는 없는데 측정값 셋이 함께 움직이면 '기습 주의'로 표시한다 (알림은 phasealert 가 보낸다)", () => {
     const three = scoreRubric(on("f_capital_flight", "m_airspace", "f_fx"));
-    expect(three).toMatchObject({ signs: 0, moves: 3, phase: 2, surprise: true });
+    expect(three).toMatchObject({ signs: 0, moves: 3, surprise: true });
     expect(three.reason).toMatch(/기습 주의/);
-    expect(scoreRubric(on("f_capital_flight", "m_airspace")).phase).toBe(1);
-    expect(scoreRubric(on("f_capital_flight", "m_airspace", "f_fx", "g_leave_now", "m_gps_ew")).phase).toBe(3);
-    expect(MOVES_AT).toEqual({ watch: 3, crisis: 5 });
+    expect(scoreRubric(on("f_capital_flight", "m_airspace")).surprise).toBe(false);
+    expect(scoreRubric(on("f_capital_flight", "m_airspace", "f_fx", ...SIGNS.slice(0, 3))).surprise).toBe(false);
   });
-  it("배경은 세지 않지만 여럿 켜져 있으면 '평온'이라 부르지 않는다 — 위기로 올리지는 않는다", () => {
+  it("배경만 켜져 있어도 비율에 들어간다 — 지금(배경 6개)은 15%로 긴장", () => {
     const ctx = ALL_IDS.filter((i) => i.startsWith("s_") || i.startsWith("w_"));
-    expect(scoreRubric(on(...ctx.slice(0, CONTEXT_TENSE - 1))).phase).toBe(1);
-    const r = scoreRubric(on(...ctx));
-    expect(r).toMatchObject({ signs: 0, phase: 2, context: 12 });
-    expect(r.reason).toMatch(/배경이 불안/);
+    const r = scoreRubric(on(...ctx.slice(0, 6)));
+    expect(r).toMatchObject({ signs: 0, context: 6, index: 15, phase: 2 });
+    expect(r.reason).toMatch(/징조와 실제 움직임은 없고, 불안한 배경 6개/);
   });
   it("참고 신호(9개에 못 든 것)는 판정을 바꾸지 않는다", () => {
     const other = RUBRIC.find((l) => l.id === "other")!.groups[0].items.map((i) => i.id);

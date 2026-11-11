@@ -31,17 +31,17 @@
     {
       "h": "g_staff_restrict",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "g_regional_drawdown",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "g_attacker_evac",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "g_intel_warning",
@@ -96,7 +96,7 @@
     {
       "h": "m_exercise_cover",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "m_strategic_assets",
@@ -111,7 +111,7 @@
     {
       "h": "m_civil_defense",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "m_airspace",
@@ -136,7 +136,7 @@
     {
       "h": "m_border_fire",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "m_alert_level",
@@ -146,22 +146,22 @@
     {
       "h": "m_leadership",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "f_fx",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "f_equity",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "f_sovereign",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "f_safe_haven",
@@ -176,7 +176,7 @@
     {
       "h": "f_capital_flight",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "i_leader_threat",
@@ -201,12 +201,12 @@
     {
       "h": "i_state_mobilization",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "2차 조사에서도 찾지 못함."
     },
     {
       "h": "i_public_anxiety",

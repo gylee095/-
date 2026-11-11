@@ -4,181 +4,231 @@
   "outcome": "no_war",
   "onset": null,
   "window": [
-    "2023-11-01",
-    "2024-02-29"
+    "2023-10-23",
+    "2023-12-31"
   ],
   "attacker": "베네수엘라",
   "target": "가이아나",
   "kind": "interstate",
   "surprise": false,
-  "summary": "2023-12-03 베네수엘라가 에세키보 병합 국민투표를 치르고 병합 조치를 예고해 긴장이 높아졌으나 12/14 아가일 선언으로 무력 불사용에 합의해 전쟁으로 가지 않았다(경과·날짜는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "베네수엘라가 2023-10-23 에세키보 국민투표를 확정하고 12/3 투표 뒤 병합 지도·자원 개발 허가·편입 법령을 내놓아 긴장이 높아졌다. 접경 병력 증강 보도, 브라질의 호라이마 증강, 미·영의 가이아나 지원이 이어졌으나 교전은 없었고 12/14 세인트빈센트 회담에서 무력 불사용에 합의해 전쟁으로 가지 않았다. 12/28 영국 군함에 맞선 5,600명 '방어 훈련'이 창 안 마지막 고조였다. 대사관·시장 쪽은 찾지 못했다.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미검증 단서: 조지타운 주재 공관 철수 보도는 기억에 없음 — no 후보."
+      "what": "조지타운 주재 공관 철수 서술은 찾지 못함."
     },
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "g_staff_restrict",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "g_regional_drawdown",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "g_attacker_evac",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "g_intel_warning",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "12월 초 브라질 정보당국발 '며칠 내 군사 행동' 보도가 있었으나 브라질 육군은 '임박한 침공 징후는 아님'이라 밝혀 엇갈림 — 보류."
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 12/3 국민투표 뒤 마두로가 '과야나 에세키바'주 신설·석유 허가를 지시하고 해상 석유기업에 철수 시한을 줬다는 기억."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "시한부 최후통첩·단교·대사 소환 없음. 12/6 양국 외무장관 통화로 소통 채널 유지에 합의, 12/14 정상회담으로 이어짐.",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#Reported_military_buildup",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 결렬이 아니라 12/14 아가일 선언으로 무력 불사용에 합의 — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "결렬이 아니라 타결: 12/14 세인트빈센트 정상회담에서 무력 불사용·긴장 완화에 합의하고 3개월 안에 브라질에서 후속 회담을 열기로 함.",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#Diplomatic_discussions",
+      "confidence": "high"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 가이아나 접경 베네수엘라군 이동. 브라질의 호라이마 병력 증강, 2024-02 위성사진 보고라는 기억."
+      "status": "yes",
+      "first": "2023-12-06",
+      "lead": null,
+      "public_then": true,
+      "what": "10월부터 접경 활주로·병력 증강 보도, 가이아나 총리가 OAS에서 제기. 12/6 브라질 육군이 접경 베네수엘라군 증가 포착을 공개(확인일 기준).",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#Venezuela_authorises_development_in_Essequibo",
+      "confidence": "med"
     },
     {
       "h": "m_logistics",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "12/4 베네수엘라군이 접경 도로·교량·활주로 공사를 SNS에 공개 — 전투 지속 군수(야전병원·연료·탄약)인지는 불분명해 보류."
     },
     {
       "h": "m_mobilization",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "당사국의 예비군 소집은 찾지 못함(브라질이 11/29 기계화기병연대를 앞당겨 창설한 것은 제3국)."
     },
     {
       "h": "m_exercise_cover",
-      "status": "unknown",
-      "what": "미검증 단서: 12/28 영국 군함 도착에 맞서 마두로가 5천여 명 규모 '방어 훈련'을 지시했다는 기억."
+      "status": "yes",
+      "first": "2023-12-28",
+      "lead": null,
+      "public_then": true,
+      "what": "마두로가 12/28 영국 군함 HMS 트렌트의 가이아나 전개에 맞서 병력 5,600여 명의 '방어' 훈련을 지시(예정에 없던 훈련).",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#UK_military_involvement",
+      "confidence": "med"
     },
     {
       "h": "m_strategic_assets",
-      "status": "unknown",
-      "what": "미검증 단서: 영국 초계함 1척(12월 말)과 12/7 미 남부사령부–가이아나 합동 비행 정도였다는 기억."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "전략자산 집결 없음: 미 남부사령부의 12/7 합동 작전 발표와 영국 초계함 1척(HMS 트렌트, 12/24 발표)이 전부.",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#UK_military_involvement",
+      "confidence": "low"
     },
     {
       "h": "m_civil_defense",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "m_airspace",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "m_gps_ew",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "m_cyber",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "미검증 단서: 창 안에 교전은 없었다는 기억 — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "교전 없음. 12/6 가이아나 군 헬기 추락은 격추 징후가 없다고 발표됐고, '특수부대 200명 잠입'은 익명 소식통 주장뿐.",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#Guyanese_helicopter_crash",
+      "confidence": "med"
     },
     {
       "h": "m_alert_level",
       "status": "unknown",
-      "what": "미검증 단서: 12월 초 가이아나 대통령이 방위군 '완전 경계'를 밝혔다는 기억."
+      "what": "베네수엘라 국방장관의 '상시 경계'·'경계 유지' 발언은 있었으나 공식 경계태세 격상 명령인지 확인 못 함."
     },
     {
       "h": "m_leadership",
       "status": "unknown",
-      "what": "미검증 단서: 12/8 안보리 비공개 긴급회의, 카리브공동체 긴급 정상회의라는 기억."
+      "what": "찾지 못함."
     },
     {
       "h": "f_fx",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "f_equity",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "f_sovereign",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "f_safe_haven",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "f_prediction",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "f_capital_flight",
       "status": "unknown",
-      "what": "미검증 단서: 엑슨모빌은 철수하지 않겠다고 밝혔다는 기억 — no 후보."
+      "what": "찾지 못함."
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 마두로의 에세키보 병합 위협. 12/5 새 지도 공개·조치 발표(기억)."
+      "status": "yes",
+      "first": "2023-12-05",
+      "lead": null,
+      "public_then": true,
+      "what": "마두로가 12/5 에세키보 자원 개발 허가와 국영기업 지사 설치를 발표, 12/8 집회에서 편입 담당자 임명·법령 서명을 밝힘(병합 지도 공개).",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#Venezuela_authorises_development_in_Essequibo",
+      "confidence": "med"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "미검증 단서: 가이아나를 '엑슨모빌·미 남부사령부의 하수인'으로, 영국 함정을 '도발'로 규정했다는 기억."
+      "status": "yes",
+      "first": "2023-12-07",
+      "lead": null,
+      "public_then": true,
+      "what": "엑슨모빌·미 남부사령부 '횡포' 선전, 원주민이 가이아나 국기를 바꿔 다는 조작 영상(벨링캣이 위치 반박), 12/7 미 합동작전을 '도발'로 규정.",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#US_military_involvement",
+      "confidence": "med"
     },
     {
       "h": "i_state_mobilization",
       "status": "unknown",
-      "what": "미검증 단서: '에세키보는 우리 것' 국민투표 운동 — 전시 동원 서사에 해당하는지 확인 필요."
+      "what": "국민투표를 앞둔 애국심 호소 매체 운동은 확인 — 전시 동원 서사(입대 집회·전시 체제 선포)에 해당하는지는 불분명."
     },
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미검증 단서: 12월 초 국제 보도가 늘었다는 기억 — 정량 자료 확인 필요."
+      "what": "정량 근거를 찾지 못함."
     },
     {
       "h": "i_public_anxiety",
       "status": "unknown",
-      "what": "미검증 단서: 가이아나 접경 주민의 불안 보도가 있었는지 확인 필요."
+      "what": "찾지 못함."
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증 단서: 12/6 가이아나 군 헬기 추락(5명 사망)은 악천후 사고였고 보복 다짐은 없었다는 기억 — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "12/6 가이아나 군 헬기 추락(5명 사망)은 악천후 속 사고로 격추 징후 없다고 발표, 보복 다짐 없음.",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#Guyanese_helicopter_crash",
+      "confidence": "high"
     },
     {
       "h": "t_deadline",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 12/3 국민투표 날짜. 12/1 국제사법재판소 잠정조치 명령(기억)."
+      "status": "yes",
+      "first": "2023-10-23",
+      "lead": null,
+      "public_then": true,
+      "what": "10/23 선관위가 12/3 국민투표를 승인(11/1 대법원 확정) — 날짜가 박힌 병합 절차. 12/1 국제사법재판소가 현상 변경 금지 명령.",
+      "source": "https://en.wikipedia.org/wiki/Guyana%E2%80%93Venezuela_crisis_(2023%E2%80%932024)#Venezuela_announces_referendum",
+      "confidence": "med"
     }
   ],
-  "missed": "미검증: 이웃 강국(브라질)의 접경 증강과 역내 기구(카리브공동체·CELAC)의 신속 중재가 확전을 막은 요인으로 꼽혔다는 기억 — '제3국 중재 성사'라는 완화 신호는 코드북에 칸이 없다. 재조사 때 확인 필요.",
+  "missed": "이웃 강국(브라질)의 접경 증강·'영토 통과 불허' 선언과 CELAC·카리브공동체의 신속한 정상회담 중재, 국제사법재판소의 12/1 잠정조치가 확전을 막은 요인으로 서술된다 — 완화 신호는 코드북에 칸이 없다. 12월 초 브라질 정보당국발 '며칠 내 군사 행동' 보도와 브라질 육군의 '임박 징후 아님' 평가가 엇갈렸다.",
   "retrieved": "2026-11-11"
 }

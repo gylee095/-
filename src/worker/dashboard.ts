@@ -353,8 +353,8 @@ function drawTension(t){var el=$("#tchart");if(!el||!t||!t.view)return;var w=t.v
 function proxCard(p){
   var CL={G:"정부·외교",M:"군사 준비",F:"돈",I:"말·여론",T:"계기"};
   var d=function(x){return x===undefined||x===null?"기록 없음":x===0?"같음":(x>0?"▲ ":"▼ ")+Math.abs(x)+"점"};
-  var h='<div class="sec">전쟁 근접도 <span style="font-weight:400">· 실제 전쟁 직전과 얼마나 닮았나</span></div><div class="card tm">';
-  h+='<div class="th"><b>'+p.index+'점</b><span>조용한 날 0 · 가장 뚜렷했던 전쟁 전날 100</span></div>';
+  var h='<div class="sec">전쟁 근접도 <span style="font-weight:400">· 과거 전쟁·위기 직전과 얼마나 닮았나</span></div><div class="card tm">';
+  h+='<div class="th"><b>'+p.index+'점</b><span>조용한 날 0 · 전조가 가장 많이 켜졌던 위기 100</span></div>';
   h+='<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:14px;margin:6px 0"><span>어제 대비 <b>'+d(p.vs.d1)+'</b></span><span>7일 전 대비 <b>'+d(p.vs.d7)+'</b></span><span>30일 전 대비 <b>'+d(p.vs.d30)+'</b></span></div>';
   var se=p.series||[];
   if(se.length>=2){var W=300,H=64,mx=Math.max(20,Math.max.apply(null,se.map(function(x){return x.i})));var pts=se.map(function(x,k){return (k/(se.length-1)*W).toFixed(1)+","+(H-4-x.i/mx*(H-8)).toFixed(1)}).join(" ");
@@ -363,16 +363,16 @@ function proxCard(p){
   var on=p.signals.filter(function(x){return x.s==="on"});
   var row=function(x){var mark=x.s==="on"?'<b style="color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b>':x.s==="off"?'<span style="color:var(--mute)">○</span>':'<span style="color:var(--mute)">?</span>';
     var seen='전쟁 '+x.w[0]+'/'+(x.w[0]+x.w[1])+'건 · 안 난 위기 '+x.n[0]+'/'+(x.n[0]+x.n[1])+'건';
-    return '<li style="list-style:none;margin-left:-18px">'+mark+' '+esc(x.ko)+(x.weak?' <span style="color:var(--mute)">(약함)</span>':'')+' <span style="color:var(--mute);font-size:12px">×'+x.lr+'</span>'+(x.ev?' — <b>'+esc(x.ev)+'</b>':'')+(x.s==="unk"?' <span style="color:var(--mute)">(분석관 확인 대기)</span>':'')+'<div style="font-size:12px;color:var(--mute);margin-left:16px">'+seen+(x.lead!=null?' · 보통 '+x.lead+'일 전':'')+'</div></li>'};
+    return '<li style="list-style:none;margin-left:-18px">'+mark+' '+esc(x.ko)+(x.weak?' <span style="color:var(--mute)">(약함)</span>':'')+''+(x.ev?' — <b>'+esc(x.ev)+'</b>':'')+(x.s==="unk"?' <span style="color:var(--mute)">(분석관 확인 대기)</span>':'')+'<div style="font-size:12px;color:var(--mute);margin-left:16px">'+seen+(x.lead!=null?' · 보통 '+x.lead+'일 전':'')+'</div></li>'};
   h+='<div style="font-size:14px;margin-top:8px"><b>켜진 전조 '+p.on+'개</b> / 지켜보는 '+p.watched+'개'+(p.waiting?' · 분석관 확인 대기 '+p.waiting+'개':'')+'</div>';
   if(on.length)h+='<ul>'+on.map(row).join("")+'</ul>';
-  h+='<div style="font-size:13px;margin:6px 0">지금 신호 조합: 평소 <b>'+p.mix.ordinary+'%</b> · 전쟁 안 나는 위기 <b>'+p.mix.crisis+'%</b> · 국지 충돌 직전 <b>'+p.mix.clash+'%</b> · 전쟁 직전 <b>'+p.mix.war+'%</b></div>';
+  h+='<div style="font-size:13px;margin:6px 0">지금 신호 조합이 평소일 가능성 <b>'+p.mix.ordinary+'%</b> · 심각한 위기일 가능성 <b>'+(100-p.mix.ordinary)+'%</b></div>';
   var an=(p.anchors||[]).slice().sort(function(a,b){return b.index-a.index});
   if(an.length){h+='<details><summary>과거 사례와 같은 눈금으로 ('+an.length+'건)</summary><ul>'+an.map(function(a){return '<li style="list-style:none;margin-left:-18px"><b>'+a.index+'점</b> '+esc(a.name)+' <span style="color:var(--mute);font-size:12px">'+(a.cls==="N"?"전쟁 안 남":a.cls==="K"?"한반도 충돌":"전쟁·공격")+(a.when?' · '+esc(a.when):'')+'</span></li>'}).join("")+'<li style="list-style:none;margin-left:-18px"><b>'+p.index+'점</b> 지금 한반도</li></ul></details>'}
   var all="";["G","M","F","I","T"].forEach(function(c){var xs=p.signals.filter(function(x){return x.cluster===c});all+='<div style="font-weight:700;margin-top:8px">'+CL[c]+'</div><ul>'+xs.map(row).join("")+'</ul>'});
   h+='<details><summary>전조 '+p.signals.length+'개 모두 보기</summary>'+all+'</details>';
   var sc=p.score||{},cs=p.cases||{};
-  h+='<div class="mk">사례 '+((cs.W||0)+(cs.K||0)+(cs.N||0))+'건(전쟁·공격 '+(cs.W||0)+' · 한반도 충돌 '+(cs.K||0)+' · 전쟁 안 난 위기 '+(cs.N||0)+')에서 센 값이에요. 하나씩 빼고 채점하면 전쟁 '+(sc.wars||0)+'건 중 '+(sc.caught||0)+'건을 잡고, 안 난 위기 '+(sc.crises||0)+'건 중 '+(sc.falseAlarms||0)+'건을 잘못 짚었어요. ×숫자 = 전쟁 사례에서 보인 비율 ÷ 안 난 위기에서 보인 비율. 한반도 평소 빈도는 날마다 쌓이는 기록('+(p.learnedDays||0)+'일)으로 고쳐 가요. 기습('+(cs.Wsurprise||0)+'건)은 이 방식으로 못 잡아요.</div></div>';
+  h+='<div class="mk">이 점수는 <b>위기의 크기</b>예요. 전쟁이 난다는 뜻이 아니에요 — 사례 '+((cs.W||0)+(cs.K||0)+(cs.N||0))+'건을 채점해 보니 공개 전조만으로는 전쟁이 날 위기와 안 날 위기를 가르지 못했어요(전쟁 '+(sc.wars||0)+'건 중 '+(sc.caught||0)+'건만 맞히고, 안 난 위기 '+(sc.crises||0)+'건 중 '+(sc.falseAlarms||0)+'건을 잘못 짚음). 그래서 30일 확률은 "심각한 위기일 가능성 × 위기가 충돌로 번지는 비율(판단값)"로 계산해요. 4단계(임박)는 철수·병참·동원 같은 실제 행동이 둘 이상 확인될 때만 돼요. 한반도 평소 빈도는 날마다 쌓이는 기록('+(p.learnedDays||0)+'일)으로 고쳐 가요. 기습('+((cs.Wsurprise||0)+(cs.Ksurprise||0))+'건)은 이 방식으로 못 잡아요.</div></div>';
   return h}
 function fingerprints(f){var on=f.checks.filter(function(c){return c.status==="on"}),rest=f.checks.filter(function(c){return c.status!=="on"});
   var h='<div class="sec">전쟁 직전 지문 <span style="font-weight:400">· 다른 전쟁 직전에 보였던 것</span></div><div class="card tm">';

@@ -157,7 +157,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const onNames = p.signals.filter((s) => s.s === "on").map((s) => s.ko);
   const d1 = diff(1);
   const text =
-    `전쟁 근접도 ${p.index}점 (조용한 날 0 · 가장 뚜렷했던 전쟁 전날 100). ` +
+    `전쟁 근접도 ${p.index}점 (조용한 날 0 · 전조가 가장 많이 켜졌던 위기 100 — 위기의 크기이지 전쟁 확률이 아니다). ` +
     (onNames.length ? `켜진 전조 ${onNames.length}개: ${onNames.slice(0, 4).join(", ")}${onNames.length > 4 ? " 등" : ""}.` : "켜진 전조가 없어요.") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 ${Math.abs(d1)}점 ${d1 > 0 ? "높아요" : "낮아요"}.`);
   return {
@@ -184,7 +184,9 @@ const PHASE_HI: Record<number, number> = { 1: MODEL.PHASE[2], 2: MODEL.PHASE[3],
 export function withProximity(legacy: WarRisk, prox: ProximityView, briefs: EventBrief[], now: number): WarRisk & { proximity: ProximityView } {
   if (legacy.phase === 5) return { ...legacy, proximity: prox };
   const f = eventFloors(briefs, now);
-  const floor = f.serious14.length ? 3 : f.prov7.length ? 2 : 1;
+  // 공식 태세 변화·철수 보도(경보 단어)는 하나만 떠도 '평온'은 아니다 — 최소 2단계 (위기 3단계는 여전히 두 묶음 이상이 필요)
+  const wire = briefs.find((b) => now - b.at < 7 * DAY && now - b.at >= -3600_000 && (b.evacuation || b.posture?.some((x) => x.level >= 2)));
+  const floor = f.serious14.length ? 3 : f.prov7.length || wire ? 2 : 1;
   const phase = Math.max(prox.phase, floor) as Phase;
   const clash = Math.min(Math.max(prox.clashPct, PHASE_LO[phase]), PHASE_HI[phase]);
   const war = Math.min(prox.warPct, clash);
@@ -196,8 +198,8 @@ export function withProximity(legacy: WarRisk, prox: ProximityView, briefs: Even
     const byC = [...new Set(on.map((s) => CLUSTER_LABEL[s.cluster]))];
     reasons.push(`켜진 전조 ${on.length}개 (${byC.join("·")}): ${on.slice(0, 4).map((s) => `${s.ko}${s.weak ? "(약함)" : ""}`).join(", ")}${on.length > 4 ? " 등" : ""}`);
   } else reasons.push(`지켜보는 전조 ${prox.watched}개가 모두 꺼져 있다`);
-  if (floor > prox.phase) reasons.push(floor === 3 ? `최근 14일 중대 사건: ${f.serious14[0].headline}` : `최근 7일 도발 ${f.prov7.length}건 (가장 최근: ${[...f.prov7].sort((a, b) => b.at - a.at)[0].headline})`);
-  if (prox.phase >= 3) reasons.push(`신호 조합이 '전쟁 안 나는 위기' ${prox.mix.crisis}% · '전쟁 직전' ${prox.mix.war}% 에 가깝다`);
+  if (floor > prox.phase) reasons.push(floor === 3 ? `최근 14일 중대 사건: ${f.serious14[0].headline}` : !f.prov7.length && wire ? `경보 단어·철수 보도: ${wire.headline}` : `최근 7일 도발 ${f.prov7.length}건 (가장 최근: ${[...f.prov7].sort((a, b) => b.at - a.at)[0].headline})`);
+  if (prox.phase >= 3) reasons.push(`신호 조합이 과거의 심각한 위기와 닮았다 (평소일 가능성 ${prox.mix.ordinary}%)`);
   if (prox.clustersOn === 1 && on.length >= 2) reasons.push("한 묶음의 신호뿐이라 위기로 올리지 않는다 — 서로 다른 묶음 둘 이상이 켜져야 한다");
   return {
     ...legacy,
@@ -291,11 +293,11 @@ export function checklistText(p: ProximityView): string {
   const mark = (s: { s: Obs; weak: boolean }) => (s.s === "on" ? (s.weak ? "약함" : "켜짐") : s.s === "off" ? "꺼짐" : "미확인");
   const lines = p.signals.map((s) => {
     const guide = ANALYST_GUIDE[s.id];
-    return `${s.id} | ${s.ko} | ${mark(s)}${s.by === "analyst" ? "(분석관)" : ""} | ×${s.lr}${s.ev ? ` | ${s.ev}` : ""}${guide ? ` | 확인: ${guide}` : ""}`;
+    return `${s.id} | ${s.ko} | ${mark(s)}${s.by === "analyst" ? "(분석관)" : ""} | ${s.ev ? ` | ${s.ev}` : ""}${guide ? ` | 확인: ${guide}` : ""}`;
   });
   return [
     `전쟁 근접도 ${p.index}점 · 30일 국지 충돌 ${p.clashPct}% · 전면전 ${p.warPct}% · 켜진 전조 ${p.on}/${p.watched} · 분석관 확인 대기 ${p.waiting}개`,
-    "id | 전조 | 지금 | 전쟁 쪽 배수 | 근거 | 확인 방법(분석관 전용 항목)",
+    "id | 전조 | 지금 | 근거 | 확인 방법(분석관 전용 항목)",
     ...lines,
   ].join("\n");
 }

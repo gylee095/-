@@ -87,7 +87,7 @@ const telegraphed = loo.filter((x) => x.cls === "W" && !x.c.surprise);
 
 // ── 한반도 눈금: 기준점 ──
 const logOdds = cases.map((c) => ({ c, lo: caseLogOdds(table, c, 1) }));
-const anchor = Math.max(...logOdds.filter((x) => classOf(x.c) === "W").map((x) => x.lo));
+const anchor = Math.max(...logOdds.map((x) => x.lo));
 const quietLo = caseLogOdds(table, { id: "quiet", name: "", outcome: "no_war", onset: null, signals: HYPS.map((h) => ({ h: h.id, status: "no", source: "x" })) }, 1);
 const idx = (lo: number) => Math.round(Math.min(100, Math.max(0, ((lo - quietLo) / (anchor - quietLo)) * 100)));
 const anchors = logOdds.map((x) => ({ id: x.c.id, name: x.c.name, cls: classOf(x.c), when: x.c.onset ?? x.c.window?.[1] ?? "", index: idx(x.lo), surprise: !!x.c.surprise })).sort((a, b) => b.index - a.index);
@@ -111,6 +111,8 @@ md.push(`# 전쟁 전조 사례집 — 가중치와 성적표 (규칙 3.0)`, ``,
   `- 사례 ${cases.length}건: 전쟁·대규모 공격 ${W.length}건(그중 공개 전조 없이 온 기습 ${table.cases.Wsurprise}건) · 한반도 국지 충돌 ${K.length}건(기습 ${table.cases.Ksurprise}건) · 전쟁 안 난 위기 ${N.length}건.${excluded.length ? ` 계산에서 뺀 것 ${excluded.length}건(${excluded.map((c) => `${c.name}: ${c.outcome === "unverified" ? "사실 확인 안 됨" : "내전"}`).join(", ")}).` : ""}`,
   `- **하나씩 빼고 채점**(그 사례를 뺀 나머지로 가중치를 만든 뒤 그 사례의 전날 신호를 채점): 전쟁 ${posScores.length}건 중 **${caught.length}건**을 '전쟁 쪽'으로, 전쟁 안 난 위기 ${negScores.length}건 중 **${falseAlarm.length}건**을 잘못 '전쟁 쪽'으로 판정. 구분 능력(AUC) **${f1(AUC)}** (0.5 = 동전 던지기, 1.0 = 완벽).`,
   `- 예고된 전쟁 ${telegraphed.length}건만 보면 ${telegraphed.filter((x) => x.score > 0).length}건을 잡았다. 기습 ${table.cases.Wsurprise}건은 정의상 공개 전조가 없어 이 방식으로 잡을 수 없다 — 그 몫은 확률의 바닥으로 남긴다.`,
+  `- **결론(11/11): 공개 전조로 '전쟁이 날 위기'와 '안 날 위기'를 가르는 것은 동전 던지기보다 조금 나은 정도다.** 병력 집결·지도자 위협·경계태세 격상·전략자산 전개는 두 쪽에서 비슷하게 켜졌다. 그래서 운영 판정은 이 표의 '배수'를 쓰지 않는다 — 전조로는 "지금이 평소가 아니라 심각한 위기인가"까지만 판정하고, 위기가 30일 안에 충돌로 가는 비율(${MODEL.Q_CLASH * 100}%)과 전면전으로 가는 비율(${MODEL.Q_WAR * 100}%)은 고정 기저율(판단값)을 쓴다. 이 성적표는 그 결정의 근거로 남긴다.`,
+  `- '심각한 위기인가'의 판정은 사례집으로 검증하지 못했다 — 사례집에는 위기와 전쟁만 있고 '평소'가 없다. 한반도 기록이 쌓이면서 검증된다.`,
   `- 비교: 규칙 1.0·2.0 은 외국 공격 10건 중 3건을 잡았다(\`docs/CASEBOOK.md\`). 단 그쪽은 하루 단위 시장·검색 자료를 재생한 것이고 이쪽은 사건 기록을 코딩한 것이라 **같은 시험이 아니다** — 아래 '말할 수 없는 것'.`, ``);
 
 md.push(`## 가설별 가중치`, ``,
@@ -137,13 +139,14 @@ if (held.length) {
 md.push(``, `## 언제부터 잡혔나`, ``, `예고된 전쟁·공격 ${telegraphed.length}건 가운데, 그 시점까지 공개된 신호만으로 점수가 0보다 컸던 사례 수:`, ``,
   `| 시점 | 잡은 수 |`, `|---|---|`, ...DAYS.map((d) => `| ${d}일 전 | ${telegraphed.filter((x) => (x.byDay[d] ?? -1) > 0).length}/${telegraphed.length} |`));
 
-md.push(``, `## 한반도 눈금의 기준점 (전쟁 근접도 0~100)`, ``,
-  `0 = 지켜보는 전조가 모두 꺼진 조용한 날, 100 = 사례집에서 전날 신호가 가장 뚜렷했던 전쟁(${anchors[0]?.name ?? ""}). 각 사례의 전날(전쟁 안 난 위기는 창 전체) 신호를 지금 한반도 계산에 그대로 넣은 값이다.`, ``,
+md.push(``, `## 한반도 눈금의 기준점 (위기 수준 0~100)`, ``,
+  `0 = 지켜보는 전조가 모두 꺼진 조용한 날, 100 = 사례집에서 전조가 가장 많이·뚜렷하게 켜졌던 수준. **전쟁이 났는지와 무관한 '위기의 크기'다** — 전쟁 안 난 위기도 높게 나온다. 각 사례의 전날(전쟁 안 난 위기는 창 전체) 신호를 지금 한반도 계산에 그대로 넣은 값이다.`, ``,
   `| 사례 | 분류 | 근접도 |`, `|---|---|---|`, ...anchors.map((a) => `| ${a.name}${a.surprise ? " (기습)" : ""} | ${a.cls === "N" ? "전쟁 안 남" : a.cls === "K" ? "한반도 충돌" : "전쟁·공격"} | ${a.index} |`));
 
 md.push(``, `## 고정값 (사례를 보기 전에 정한 것)`, ``,
   `- 한 신호의 최대 배수 ${MODEL.CAP} · 같은 묶음 안 두 번째 신호부터 ${MODEL.DAMP}배씩 깎음 · 3단계 이상은 두 묶음 이상, 4단계는 정부·군사 묶음의 확인된 신호가 있어야 함`,
   `- 기저율: 30일 국지 충돌 ${MODEL.P_CLASH * 100}% · 전면전 ${MODEL.P_WAR * 100}% · 한반도가 '전쟁 안 나는 위기'인 날 ${MODEL.P_CRISIS * 100}%`,
+  `- 위기가 충돌·전면전으로 가는 비율은 사례가 아니라 고정값: ${MODEL.Q_CLASH * 100}% · ${MODEL.Q_WAR * 100}% (채점 결과를 본 뒤 11/11 에 정했다 — 사례를 보기 전에 정한 값이 아니다)`,
   `- 단계 문턱(30일 국지 충돌 %): 2단계 ${MODEL.PHASE[2]} · 3단계 ${MODEL.PHASE[3]} · 4단계 ${MODEL.PHASE[4]}`,
   `- 평소 빈도 사전값은 \`src/core/precursors.ts\` 의 \`BASE_HINT\` — 판단값이고, 매일 쌓이는 한반도 기록이 덮어 쓴다(사전값 무게 = ${MODEL.BASE_PRIOR_DAYS}일 치).`, ``,
   `## 말할 수 없는 것`, ``,

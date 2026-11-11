@@ -151,7 +151,10 @@ export const MODEL = {
   /** 한반도 충돌 비율을 '위기' 비율로 당기는 가짜 사례 수 */
   K_PRIOR: 2,
   /** 단계 문턱: 30일 국지 충돌 % */
-  PHASE: { 2: 3, 3: 8, 4: 25 } as Record<number, number>,
+  /** 심각한 위기가 30일 안에 국지 충돌 이상으로 가는 비율 · 전면전으로 가는 비율 (판단값: 국제 위기의 17%쯤이 전면전 — ICB; 한반도 위기 7번은 전면전 0번이라 절반으로 낮춤) */
+  Q_CLASH: 0.25,
+  Q_WAR: 0.08,
+  PHASE: { 2: 3, 3: 8, 4: 20 } as Record<number, number>,
 } as const;
 
 /**
@@ -250,7 +253,7 @@ function posterior(table: PrecursorTable, status: Record<string, SignalNow>, bas
   for (const h of table.hyps) {
     const st = status[h.id];
     if (!st || st.s === "unk") continue;
-    const o = ordinaryRate(h.id, base), pc = rate(h.n), pw = rate(h.w), pk = rateK(h);
+    const o = ordinaryRate(h.id, base), pc = rate([h.w[0] + h.n[0], h.w[1] + h.n[1], h.w[2] + h.n[2]]), pw = rate(h.w), pk = rateK(h);
     if (st.s === "on") {
       const wt = st.w ?? 1;
       A[h.cluster].push(capLog(pc / o) * wt); DW[h.cluster].push(capLog(pw / pc) * wt); DK[h.cluster].push(capLog(pk / pc) * wt);
@@ -260,15 +263,22 @@ function posterior(table: PrecursorTable, status: Record<string, SignalNow>, bas
   }
   const sum = (x: Record<ClusterId, number[]>) => CLUSTERS.reduce((a, c) => a + damped(x[c]), 0);
   const abnormal = sum(A), warLike = sum(DW), clashLike = sum(DK);
-  const piW = MODEL.P_WAR * (1 - sW), piK = MODEL.P_CLASH * (1 - sK), piC = MODEL.P_CRISIS;
+  // 11/11 채점 결과: 사례에서 뽑은 '전쟁 쪽 배수'(warLike)는 전쟁과 전쟁 안 난 위기를 가르지 못했다(하나씩 빼고 채점 AUC 0.6 안팎).
+  // 그래서 전조는 "지금이 심각한 위기인가"까지만 판정하고, 위기가 충돌·전쟁으로 가는 비율은 고정 기저율(Q_CLASH·Q_WAR)을 쓴다.
+  // warLike·clashLike 는 화면 참고용으로만 계산한다.
+  void clashLike;
   const surpriseW = MODEL.P_WAR * sW, surpriseK = MODEL.P_CLASH * sK;
-  const piO = 1 - MODEL.P_WAR - MODEL.P_CLASH - piC;
-  const tC = piC * Math.exp(abnormal), tK = piK * Math.exp(abnormal + clashLike), tW = piW * Math.exp(abnormal + warLike);
-  const Z = piO + surpriseW + surpriseK + tC + tK + tW;
+  const piS = MODEL.P_CRISIS, piO = 1 - piS - surpriseW - surpriseK;
+  const m = piS * Math.exp(abnormal);
+  const tW = m * MODEL.Q_WAR, tK = m * (MODEL.Q_CLASH - MODEL.Q_WAR), tC = m * (1 - MODEL.Q_CLASH);
+  const Z = piO + surpriseW + surpriseK + m;
   const war = (tW + surpriseW) / Z;
   const clash = war + (tK + surpriseK) / Z;
-  return { war, clash, abnormal, warLike, mix: { ordinary: (piO + surpriseW + surpriseK) / Z, crisis: tC / Z, clash: tK / Z, war: tW / Z }, logOddsW: Math.log(tW / (Z - tW)) };
+  return { war, clash, abnormal, warLike, mix: { ordinary: (piO + surpriseW + surpriseK) / Z, crisis: tC / Z, clash: tK / Z, war: tW / Z }, logOddsW: Math.log(m / (Z - m)) };
 }
+
+/** 4단계에 필요한 '행동' 신호: 철수·출국 권고·역내 감축·공격 측 철수·병참·동원·병력 집결 */
+export const ACTION_KEYS = ["g_evac_order", "g_leave_now", "g_regional_drawdown", "g_attacker_evac", "m_logistics", "m_mobilization", "m_buildup"];
 
 const pct = (x: number) => +(x * 100).toFixed(x < 0.01 ? 2 : 1);
 
@@ -289,9 +299,11 @@ export function evaluate(table: PrecursorTable, status: Record<string, SignalNow
   const clustersOn = new Set(onSignals.map((s) => s.cluster)).size;
   let clashPct = pct(now.clash), warPct = pct(now.war);
   // 신호 하나·한 묶음만으로는 '위기'가 되지 않는다. '임박'은 정부나 군사 묶음의 확인된 신호가 있어야 한다
-  const strong = onSignals.some((s) => (s.cluster === "G" || s.cluster === "M") && !s.weak && s.lr >= 2);
+  // '임박'(4단계)은 말·태세가 아니라 **비공개 정보를 가진 쪽의 행동과 실제 전쟁 준비**가 둘 이상 확인될 때만 (ACTION_KEYS).
+  // 사례 채점에서 배수로는 가르지 못했고, 한반도 위기(1994·2013·2017)는 위협·경계태세·전략자산이 다 켜지고도 전쟁이 없었다 — 문헌(그라보: 말보다 병참, 철수가 앞선다)을 따른 판단 규칙이다.
+  const actions = onSignals.filter((s) => !s.weak && ACTION_KEYS.includes(s.id)).length;
   if (clustersOn < 2) clashPct = Math.min(clashPct, MODEL.PHASE[3] - 0.1);
-  if (!strong) clashPct = Math.min(clashPct, MODEL.PHASE[4] - 0.1);
+  if (actions < 2) clashPct = Math.min(clashPct, MODEL.PHASE[4] - 0.1);
   warPct = Math.min(warPct, clashPct);
   const phase = clashPct >= MODEL.PHASE[4] ? 4 : clashPct >= MODEL.PHASE[3] ? 3 : clashPct >= MODEL.PHASE[2] ? 2 : 1;
   const span = (anchorLogOdds ?? 0) - quiet.logOddsW;

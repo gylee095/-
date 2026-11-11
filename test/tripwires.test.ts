@@ -60,7 +60,7 @@ describe("경보 단어 → 알림과 전쟁 판정", () => {
       globalThis.fetch = orig;
     }
   }
-  it("워치콘 격상 기사 한 건 → 바로 알림, 판정은 정부 '경계' → 3단계", async () => {
+  it("워치콘 격상 기사 한 건 → 바로 알림, 정부 '경계'지만 판정은 2단계 (규칙 3.0: 신호 하나로 위기가 되지 않는다)", async () => {
     const { r, store } = await cycleWith(["軍, 대북 정보감시태세 워치콘 2로 격상"]);
     expect(r.alerts).toHaveLength(1);
     const { buildState } = await import("../src/core/state.js");
@@ -68,7 +68,9 @@ describe("경보 단어 → 알림과 전쟁 판정", () => {
     const gov = st.warRisk.domains.find((d) => d.id === "gov")!;
     expect(gov.level).toBe(2);
     expect(gov.drivers[0]).toMatch(/경보 단어 '워치콘 격상'/);
-    expect(st.warRisk.phase).toBe(3);
+    // 규칙 3.0 (11/11): 워치콘·준전시 선포는 전쟁 없이도 반복됐다(1994·2013·2017) — 경계태세 하나만으로는 '위기'로 올리지 않는다
+    expect(st.warRisk.phase).toBe(2);
+    expect(st.warRisk.proximity!.signals.find((x) => x.id === "m_alert_level")!.s).toBe("on");
     expect(st.threat.lastProvocation).toBeNull(); // 북한 도발로 세지 않는다
   });
   it("외국 항공사 운항 중단 → 돈 '경계', 북한 전시 태세 → 군사 '경계'", async () => {

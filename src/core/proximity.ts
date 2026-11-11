@@ -192,7 +192,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const d1 = diff(1);
   const rec = recordFor(r.signs);
   const text =
-    `전쟁 전 징조 9개 중 ${r.signs}개 · 조용한 움직임 ${r.moves}개 · 배경 ${r.context}개. ${r.reason}.` +
+    `켜진 비율 ${r.index}% (39개 중 ${r.signs + r.moves + r.context}개: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/18 · 배경 ${r.context}/12). ${r.reason}.` +
     (rec ? ` 과거 기록: 징조가 ${rec.label} 켜졌던 ${rec.cases}건 중 ${rec.wars}건이 전쟁으로 갔다${rec.surprise ? ` — 그 ${rec.surprise}건은 공개 징조 없이 온 기습` : ""} (조사한 사례 안에서 — 확률이 아니다).` : "") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 징조가 ${d1 > 0 ? "늘었어요" : "줄었어요"}.`);
   return {
@@ -239,7 +239,7 @@ export function withProximity(legacy: WarRisk, prox: ProximityView, _briefs: Eve
     usual: { clash: prox.quiet.clashPct, war: prox.quiet.warPct },
     gauge: { now: +((phase - 1 + pos) / 5).toFixed(3), usual: 0.01 },
     vsUsual: +(clash / Math.max(0.1, prox.quiet.clashPct)).toFixed(2),
-    headline: `전쟁 전 징조 9개 중 ${r.signs}개 · ${phase}단계(${PHASE_LABEL[phase]}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(clash)}, 전면전 ${fmtRiskPct(war)}`,
+    headline: `${phase}단계(${PHASE_LABEL[phase]}) ${prox.index}% · 전쟁 전 징조 9개 중 ${r.signs}개 — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(clash)}, 전면전 ${fmtRiskPct(war)}`,
     proximity: prox,
   };
 }

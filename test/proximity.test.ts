@@ -151,7 +151,7 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
     expect(scoreRubric(on(...SIGNS.slice(0, 3))).phase).toBe(2);
     expect(scoreRubric(on(...SIGNS.slice(0, 5))).phase).toBe(3);
     const talk = scoreRubric(on(...SIGNS));
-    expect(talk).toMatchObject({ signs: 9, phase: 3, index: 100 });
+    expect(talk).toMatchObject({ signs: 9, phase: 3, index: 23 }); // 39개 중 9개 = 23%
     expect(talk.reason).toMatch(/움직임이 확인되지 않아/);
     expect(scoreRubric(on(...SIGNS.slice(0, 7), "g_evac_order", "m_logistics")).phase).toBe(4);
     expect(SIGNS_AT).toEqual({ 2: 3, 3: 5, 4: 7 });

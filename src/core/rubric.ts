@@ -118,7 +118,7 @@ export interface RubricScore {
   moves: number;
   /** 배경 항목 중 켜진 수 */
   context: number;
-  /** 0~100: 징조 9개 중 몇 개인가의 백분율 (기록·그래프용) */
+  /** 0~100 %: 징조 9 + 조용한 움직임 18 + 배경 12 = 39개 중 켜진 비율 (11/12 사용자: 단계 옆에 % 로) — 배점 없이 항목 하나를 1로 센다. 전쟁 확률이 아니다 */
   index: number;
   phase: 1 | 2 | 3 | 4;
   layers: ScoredLayer[];
@@ -158,8 +158,12 @@ export function scoreRubric(status: Record<string, SignalNow | undefined>): Rubr
   if (moves >= MOVES_AT.crisis && phase < 3) { phase = 3; reason = `조용한 움직임 ${moves}개가 함께 켜짐 (징조는 ${signs}개)`; }
   else if (moves >= MOVES_AT.watch && phase < 2) { phase = 2; reason = `뉴스의 징조는 ${signs}개뿐인데 조용한 움직임 ${moves}개가 함께 켜짐 — 기습 주의`; }
   else if (context >= CONTEXT_TENSE && phase < 2) { phase = 2; reason = `전쟁 전 징조는 9개 중 ${signs}개뿐이지만 배경이 불안해요 (배경 ${context}개 켜짐)`; }
-  return { signs, moves, context, index: Math.round((Math.min(9, signs) / 9) * 100), phase, layers, reason, surprise, watched, waiting };
+  return { signs, moves, context, index: pctOn(signs, moves, context), phase, layers, reason, surprise, watched, waiting };
 }
+
+/** 켜진 비율 %: (징조 + 조용한 움직임 + 배경) ÷ 39 */
+export const TOTAL_ITEMS = 9 + 18 + 12;
+export const pctOn = (signs: number, moves: number, context: number) => Math.round(((signs + moves + context) / TOTAL_ITEMS) * 100);
 
 /** 30일 국지 충돌 % (판단값 — 알림 문구용): 징조 수에 따라, 단계가 다른 이유로 올랐으면 그 단계의 최소값 */
 export function clashOf(signs: number, phase: number, quietPct: number): number {

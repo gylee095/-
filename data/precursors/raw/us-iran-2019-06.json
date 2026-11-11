@@ -1,17 +1,17 @@
 {
   "id": "us-iran-2019-06",
-  "name": "미국–이란 2019년 6월 위기 (유조선 피격·무인기 격추)",
+  "name": "미국–이란 2019년 5~6월 위기 (유조선 피격·무인기 격추)",
   "outcome": "no_war",
   "onset": null,
   "window": [
     "2019-05-05",
-    "2019-07-15"
+    "2019-06-30"
   ],
   "attacker": "미국 (잠재)",
   "target": "이란",
   "kind": "us_strike",
   "surprise": false,
-  "summary": "2019년 5~7월 미국–이란 위기: 유조선 피격과 6/20 이란의 미 RQ-4 무인기 격추 뒤 트럼프가 보복 공습을 취소해 전쟁으로 가지 않았다(경과는 의뢰서 기준). 이번 조사에서 출처로 확인한 것은 5/15 미국의 이라크 비필수 인력 철수 명령과 '임박한 위협' 설명, 당시 협상이 없었다는 점뿐이다. 웹 검색 한도가 소진돼 나머지 29개 가설은 unknown — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "2019년 5~6월 미국–이란 위기: 5/5 항모·B-52 전개 발표, 5/12·6/13 유조선 피격, 5/15 이라크 비필수 인력 철수령, 6/20 이란의 미 RQ-4 무인기 격추 뒤 트럼프가 보복 공습을 승인했다가 10분 전 취소해 전쟁으로 가지 않았다(위키백과·당시 보도로 확인). 전쟁이 안 났는데도 전략자산 증파, 역내 인력 철수, '임박한 위협' 경고, 경계태세 격상, 사이버 공격, FAA 비행 경고, 유가·전쟁보험료 급등, 지도자 위협 발언이 모두 나타났다 — 이 신호들만으로는 전쟁을 가르지 못한다는 반례다. 없었다고 확인된 것은 협상 결렬(협상 자체가 없었음)과 시한부 통첩이다.",
   "signals": [
     {
       "h": "g_evac_order",
@@ -21,12 +21,12 @@
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "5/15 미국이 이라크 여행경보를 최고 단계로 올린 것만 확인 — 대상국 이란에 대한 경보 변화는 확인 못 함"
+      "what": "5/12·5/15 미국의 이라크 여행 자제·최고 단계 경보만 확인 — 대상국 이란에 대한 경보 격상은 확인 못 함"
     },
     {
       "h": "g_staff_restrict",
       "status": "unknown",
-      "what": "미검증 단서: 5/12 주바그다드 미 대사관의 긴장 고조 보안 경보"
+      "what": "5/12 주바그다드 미 대사관의 '긴장 고조' 보안 경보(이라크 여행 자제)만 확인 — 직원 이동 제한·대피 지시는 확인 못 함"
     },
     {
       "h": "g_regional_drawdown",
@@ -34,7 +34,7 @@
       "first": "2019-05-15",
       "lead": null,
       "public_then": true,
-      "what": "미 국무부: 바그다드 대사관·에르빌 영사관 비필수 직원 철수 명령, 비자 업무 중단(5/15)",
+      "what": "미 국무부: 바그다드 대사관·에르빌 영사관 비필수 직원 철수 명령, 비자 업무 중단(5/15); 독일·네덜란드도 이라크 훈련 임무 중단",
       "source": "https://www.aljazeera.com/news/2019/5/15/us-orders-non-emergency-government-employees-to-leave-iraq",
       "confidence": "high"
     },
@@ -45,23 +45,28 @@
       "lead": null,
       "public_then": true,
       "what": "잠재 공격국 미국이 예상 교전권인 이라크에서 자국 비필수 직원을 뺌(5/15, g_regional_drawdown 과 같은 사건)",
-      "source": "https://www.cnbc.com/2019/05/15/washington-orders-some-us-government-employees-to-leave-iraq.html",
+      "source": "https://www.pbs.org/newshour/world/u-s-pulls-nonessential-embassy-staff-from-iraq-amid-mideast-tensions",
       "confidence": "med"
     },
     {
       "h": "g_intel_warning",
       "status": "yes",
-      "first": "2019-05-15",
+      "first": "2019-05-14",
       "lead": null,
       "public_then": true,
-      "what": "미 당국자들: 이란 혁명수비대가 지휘하는 이라크 민병대의 '임박한' 위협 정보라고 설명(5/15); 5/7 폼페이오 바그다드 급방문",
-      "source": "https://newsinfo.inquirer.net/?p=1119643",
-      "confidence": "med"
+      "what": "5/14 미 중부사령부: 이란 지원 세력의 '신빙성 있고 임박했을 수 있는 위협'; 5/15 당국자들도 '임박' 설명(1차의 5/15 를 먼저 나온 성명 날짜로 고침)",
+      "source": "https://www.aljazeera.com/news/2019/5/15/us-orders-non-emergency-government-employees-to-leave-iraq",
+      "confidence": "high"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증: 무력 시한·단교는 없었다는 기억. 이란의 5/8 '60일' 통보는 핵합의 이행 문제"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "시한부 통첩·무력사용 승인·단교 조치 없음 — 트럼프는 6/21 '서두르지 않는다', 조건 없는 대화 용의. 양국은 원래 미수교",
+      "source": "https://en.wikipedia.org/wiki/2019_Iranian_shoot-down_of_American_drone#Aborted_military_response",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
@@ -69,14 +74,19 @@
       "first": null,
       "lead": null,
       "public_then": null,
-      "what": "진행 중인 미·이란 협상이 없었음 — 5/15 트럼프 '이란이 곧 대화를 원할 것'(6월 중재 시도 등 이후 기간은 미검증)",
+      "what": "깨질 협상이 없었음 — 5/14 하메네이 '미국과 협상은 독', 6/13 아베가 전한 트럼프 메시지도 교환 거부(중재 시도일 뿐)",
       "source": "https://www.pbs.org/newshour/world/u-s-pulls-nonessential-embassy-staff-from-iraq-amid-mideast-tensions",
-      "confidence": "low"
+      "confidence": "med"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "미검증: 5/24 1,500명·6/17 1,000명 증파 발표 — 대규모 지상군 집결은 아니었다는 기억"
+      "status": "yes",
+      "first": "2019-05-24",
+      "lead": null,
+      "public_then": true,
+      "what": "5/24 미군 1,500명, 6/17 1,000명 중동 증파 발표(12만 명 파병 검토 보도도). 대규모 지상군 집결은 아님",
+      "source": "https://en.wikipedia.org/wiki/Iran%E2%80%93United_States_relations_during_the_first_Trump_administration#Gulf_of_Oman_incidents",
+      "confidence": "low"
     },
     {
       "h": "m_logistics",
@@ -95,8 +105,13 @@
     },
     {
       "h": "m_strategic_assets",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 5/5 링컨 항모전단·폭격기 전개 발표"
+      "status": "yes",
+      "first": "2019-05-05",
+      "lead": null,
+      "public_then": true,
+      "what": "5/5 볼턴: 링컨 항모전단·B-52 4대 중동 전개 발표; 5/10 상륙함 알링턴·패트리엇 포대 추가",
+      "source": "https://en.wikipedia.org/wiki/Iran%E2%80%93United_States_relations_during_the_first_Trump_administration#Escalation_in_tensions",
+      "confidence": "high"
     },
     {
       "h": "m_civil_defense",
@@ -105,8 +120,13 @@
     },
     {
       "h": "m_airspace",
-      "status": "unknown",
-      "what": "미검증 단서: 5월 중순 FAA 걸프 상공 경고, 6/20~21 FAA 비행 금지와 항공사 우회"
+      "status": "yes",
+      "first": "2019-06-21",
+      "lead": null,
+      "public_then": true,
+      "what": "6/20 격추 직후 미 FAA 가 '오인·오판 가능성' 경고, 다수 항공편이 테헤란 비행정보구역을 우회(날짜는 늦은 쪽)",
+      "source": "https://en.wikipedia.org/wiki/2019_Iranian_shoot-down_of_American_drone#Aborted_military_response",
+      "confidence": "med"
     },
     {
       "h": "m_gps_ew",
@@ -115,18 +135,33 @@
     },
     {
       "h": "m_cyber",
-      "status": "unknown",
-      "what": "미검증 단서: 6/20 미 사이버사령부의 이란 미사일 통제망 공격 보도"
+      "status": "yes",
+      "first": "2019-06-22",
+      "lead": null,
+      "public_then": true,
+      "what": "6/20 미 사이버사령부가 혁명수비대 미사일 통제 전산망을 공격(6/22 보도); 같은 날 미 국토안보부는 이란발 사이버 공격 증가 경고",
+      "source": "https://en.wikipedia.org/wiki/2019_Iranian_shoot-down_of_American_drone#Cyberattacks_and_sanctions",
+      "confidence": "high"
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 5/12·6/13 유조선 피격, 6/20 RQ-4 격추"
+      "status": "yes",
+      "first": "2019-05-12",
+      "lead": null,
+      "public_then": true,
+      "what": "5/12 푸자이라 앞 유조선 4척 피격, 5/14 후티의 사우디 송유관 드론 공격, 6/13 오만만 유조선 2척 피격, 6/20 RQ-4 격추",
+      "source": "https://en.wikipedia.org/wiki/Iran%E2%80%93United_States_relations_during_the_first_Trump_administration#Gulf_of_Oman_incidents",
+      "confidence": "high"
     },
     {
       "h": "m_alert_level",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2019-05-14",
+      "lead": null,
+      "public_then": true,
+      "what": "5/14 미 중부사령부: 이라크·시리아 연합군(OIR)이 '높은 경계 수준'에 있다고 공식 발표",
+      "source": "https://www.aljazeera.com/news/2019/5/15/us-orders-non-emergency-government-employees-to-leave-iraq",
+      "confidence": "med"
     },
     {
       "h": "m_leadership",
@@ -140,8 +175,13 @@
     },
     {
       "h": "f_equity",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2019-05-13",
+      "lead": null,
+      "public_then": true,
+      "what": "5/12 유조선 피격 뒤 두바이 증시 4%·사우디 3.6% 급락(2019년 최대 낙폭). 미·이란이 아닌 걸프 이웃 증시라 정의에 느슨하게 해당",
+      "source": "https://en.wikipedia.org/wiki/May_2019_Gulf_of_Oman_incident#Economic_effects",
+      "confidence": "low"
     },
     {
       "h": "f_sovereign",
@@ -150,8 +190,13 @@
     },
     {
       "h": "f_safe_haven",
-      "status": "unknown",
-      "what": "미검증 단서: 6/13 유조선 피격·6/20 격추 때 유가 급등"
+      "status": "yes",
+      "first": "2019-06-13",
+      "lead": null,
+      "public_then": true,
+      "what": "6/13 유조선 피격 직후 유가 4% 급등(종가 +2%); 6/21 로 끝난 주 WTI 9% 상승(무인기 격추·금리 기대)",
+      "source": "https://en.wikipedia.org/wiki/June_2019_Gulf_of_Oman_incident#Economic",
+      "confidence": "med"
     },
     {
       "h": "f_prediction",
@@ -160,18 +205,33 @@
     },
     {
       "h": "f_capital_flight",
-      "status": "unknown",
-      "what": "미검증 단서: 5/18 엑손모빌의 바스라 유전 외국인 직원 철수, 해상 전쟁보험료 급등"
+      "status": "yes",
+      "first": "2019-06-13",
+      "lead": null,
+      "public_then": true,
+      "what": "6/13 피격 뒤 걸프 초대형 유조선 전쟁위험 보험료가 5만→18만5천 달러로 급등(블룸버그), 5월 사건 때 이미 한 차례 인상",
+      "source": "https://en.wikipedia.org/wiki/June_2019_Gulf_of_Oman_incident#Economic",
+      "confidence": "med"
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 5/19 트럼프 '싸우길 원하면 이란의 공식적 종말' 트윗"
+      "status": "yes",
+      "first": "2019-05-20",
+      "lead": null,
+      "public_then": true,
+      "what": "5/20 트럼프: 무슨 일이 생기면 '큰 무력으로 대응'; 6/21 충돌 시 '본 적 없는 말살'. 5월 피격 직후에도 '나쁜 문제' 경고",
+      "source": "https://en.wikipedia.org/wiki/Iran%E2%80%93United_States_relations_during_the_first_Trump_administration#Gulf_of_Oman_incidents",
+      "confidence": "med"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2019-06-13",
+      "lead": null,
+      "public_then": true,
+      "what": "6/13 미국은 유조선 공격을 이란 소행으로 지목('미군·이익 방어'), 이란은 '외교를 방해하려는 위장 작전'이라 맞섬(5월 사건도 같음)",
+      "source": "https://en.wikipedia.org/wiki/June_2019_Gulf_of_Oman_incident#Iran",
+      "confidence": "med"
     },
     {
       "h": "i_state_mobilization",
@@ -181,7 +241,7 @@
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "5/15 철수 명령이 여러 통신·방송에 실린 것만 확인 — 보도량 급증의 측정 근거 없음"
+      "what": "5/15 철수령·6/20 공습 취소가 세계 주요 매체에 실린 것만 확인 — 보도량 측정 근거 없음"
     },
     {
       "h": "i_public_anxiety",
@@ -190,15 +250,25 @@
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 6/20 RQ-4 격추(사상자 없음) 뒤 트럼프가 공습을 승인했다가 취소"
+      "status": "yes",
+      "first": "2019-06-20",
+      "lead": null,
+      "public_then": true,
+      "what": "6/20 이란이 미 RQ-4 무인기 격추(사상자 없음) → 트럼프 '큰 실수', 보복 공습을 승인했다가 실행 10분 전 취소",
+      "source": "https://en.wikipedia.org/wiki/2019_Iranian_shoot-down_of_American_drone#Aborted_military_response",
+      "confidence": "med"
     },
     {
       "h": "t_deadline",
-      "status": "unknown",
-      "what": "미검증 단서: 이란의 5/8 '60일' 시한(7/7 만료)"
+      "status": "yes",
+      "first": "2019-05-08",
+      "lead": null,
+      "public_then": true,
+      "what": "5/8 로하니: 유럽 등에 핵합의 구제 '60일 시한'(7/7 만료) — 넘기면 고농축 재개. 군사 통첩이 아닌 핵합의 시한",
+      "source": "https://en.wikipedia.org/wiki/Iran%E2%80%93United_States_relations_during_the_first_Trump_administration#Escalation_in_tensions",
+      "confidence": "low"
     }
   ],
-  "missed": "5/14 연합군 대변인은 '이란 측 위협 증가는 없다'고 해 미 정부 경고와 엇갈렸다(동맹 내부 평가 불일치). 미국은 같은 날 대상국이 아닌 이라크의 여행경보를 최고 단계로 올렸다. 6/20 공습 승인 뒤 취소(의뢰서 단서, 미검증)는 '실행 직전 취소'라는 별도 유형이다.",
+  "missed": "5/14 연합군 대변인(영국 장성)은 '이란 측 위협 증가는 없다'고 해 미 중부사령부 경고와 공개적으로 엇갈렸다(동맹 내부 평가 불일치). 5/15 독일·네덜란드가 이라크 훈련 임무를 중단했다. 5월 미 해사청(MARAD)의 선박 경보, 6/22 미 국토안보부의 이란발 사이버 공격 경고도 칸이 없다. 6/20 공습 승인 뒤 10분 전 취소는 '실행 직전 취소'라는 별도 유형이다. 6/26 미 공군참모총장은 이란군 태세에 '큰 변화 없다'고 했다.",
   "retrieved": "2026-11-11"
 }

@@ -11,22 +11,27 @@
   "target": "이란",
   "kind": "interstate",
   "surprise": false,
-  "summary": "2025-06-13 이스라엘이 이란 핵·군사 시설을 공습해 12일간 교전했고 6/22 미국이 핵시설을 타격했다(개시일은 의뢰서 기준 — 이번 조사에서 따로 출처 확인을 못 했다). 출처로 확인한 공개 전조는 6/11 미국의 바그다드 대사관 비필수 인력 철수 명령과 바레인·쿠웨이트·역내 군인 가족 출국 허가뿐이다. 웹 검색 한도가 소진돼 나머지 31개 가설은 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "2025-06-13 새벽 이스라엘이 이란 핵·군사 시설과 지휘부를 공습해 12일간 교전했고 6/22 미국이 핵시설 3곳을 타격, 6/24 휴전했다(위키백과로 개시일 확인). 공개 전조는 길게는 3월 말 미 B-2 전개·트럼프의 '합의 없으면 폭격'과 2개월 시한, 짧게는 6/11 미국의 바그다드 대사관 철수령·군인 가족 출국 허가, 6/12 주이스라엘 미 대사관 이동 제한·트럼프의 '곧 큰 충돌 가능' 발언·IAEA 불이행 결의·시한 만료였다. 반면 6/15 6차 회담이 그대로 잡혀 있었고, 이스라엘의 예비군 소집·비상사태·영공 폐쇄는 모두 공습과 동시에 나와 이란에는 전술적 기습이 됐다.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미검증: 테헤란 주재 대사관 철수는 개전 뒤였다는 기억 — 출처 확인 못 함"
+      "what": "테헤란 주재 제3국 대사관의 개시 전 철수는 찾지 못함(인도 학생 대피 등은 6/17 이후)"
     },
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "미검증: 이란 여행경보는 창 이전부터 최고 단계(상시) — 창 안의 새 문구는 확인 못 함"
+      "what": "이란 여행경보는 창 이전부터 최고 단계(상시) — 창 안의 새 격상은 확인 못 함"
     },
     {
       "h": "g_staff_restrict",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 6/12 주이스라엘 미 대사관의 직원 이동 제한 공지"
+      "status": "yes",
+      "first": "2025-06-12",
+      "lead": 1,
+      "public_then": true,
+      "what": "6/12 주이스라엘 미 대사관 보안 경보: 직원·가족의 텔아비브·예루살렘·베에르셰바 밖 이동 금지(보복 예상 지역, 대상국 이란 아님)",
+      "source": "https://edition.cnn.com/2025/06/12/middleeast/iran-threatens-nuclear-escalation-iaea-intl",
+      "confidence": "med"
     },
     {
       "h": "g_regional_drawdown",
@@ -45,28 +50,43 @@
       "lead": 2,
       "public_then": true,
       "what": "공격국 이스라엘의 후원국 미국이 예상 보복권(이라크·걸프)에서 자국 외교관·군인 가족을 뺌(6/11, g_regional_drawdown 과 같은 사건)",
-      "source": "https://abc7news.com/post/state-department-orders-departure-nonessential-staff-baghdad-embassy/16724896/",
+      "source": "https://www.pbs.org/newshour/world/u-s-prepares-to-move-nonessential-personnel-from-baghdad-embassy-due-to-potential-regional-unrest",
       "confidence": "med"
     },
     {
       "h": "g_intel_warning",
-      "status": "unknown",
-      "what": "미검증 단서: 6/12 트럼프 '이스라엘의 공격이 일어날 수 있다' 발언, 미 당국자발 공격 준비 보도"
+      "status": "yes",
+      "first": "2025-06-12",
+      "lead": 1,
+      "public_then": true,
+      "what": "6/12 트럼프: 중동에서 '대규모 충돌'이 '곧' 일어날 수 있다; CNN '이스라엘 공습 임박 정보 경고가 늘어 철수령'",
+      "source": "https://www.cnn.com/2025/06/12/middleeast/israel-iran-strikes-intl-hnk",
+      "confidence": "med"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 트럼프의 '2개월 시한' 서한(3월 보도), 3/30 '합의 없으면 폭격' 발언"
+      "status": "yes",
+      "first": "2025-03-30",
+      "lead": 75,
+      "public_then": true,
+      "what": "트럼프 서한(3/7 공개)의 '2개월 안 합의, 아니면 군사 행동' 통첩이 창 내내 유효, 3/30 '합의 없으면 폭격' 재확인. 통첩 주체는 미국",
+      "source": "https://en.wikipedia.org/wiki/Iran%E2%80%93United_States_relations_during_the_second_Trump_administration#Bilateral_talks",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "6/11 보도는 미·이란 핵협상 '교착'까지만 확인. 6/15 6차 회담이 잡혀 있었다는 단서는 미검증"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "미·이란 협상은 깨지지 않은 상태 — 6/9 이란이 미국안 거부했지만 6/12 오만이 6/15 6차 회담 확인; 공습 뒤에야 중단",
+      "source": "https://edition.cnn.com/2025/06/12/middleeast/iran-threatens-nuclear-escalation-iaea-intl",
+      "confidence": "med"
     },
     {
       "h": "m_buildup",
       "status": "unknown",
-      "what": "공중·미사일전이라 지상 병력 집결과 맞지 않음 — '없었다'는 근거 출처는 확보 못 함"
+      "what": "공중·미사일전이라 지상 병력 집결과 맞지 않음 — 없었다는 서술도 찾지 못함"
     },
     {
       "h": "m_logistics",
@@ -75,8 +95,13 @@
     },
     {
       "h": "m_mobilization",
-      "status": "unknown",
-      "what": "미검증: 이란 대비 이스라엘 예비군 소집은 6/13 개전 당일이었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "이란 대비 이스라엘 예비군 '수만 명' 소집은 공습 개시와 함께(6/13) — 개시 전 동원령은 없었음",
+      "source": "https://www.cnn.com/2025/06/12/middleeast/israel-iran-strikes-intl-hnk",
+      "confidence": "med"
     },
     {
       "h": "m_exercise_cover",
@@ -85,18 +110,33 @@
     },
     {
       "h": "m_strategic_assets",
-      "status": "unknown",
-      "what": "미검증 단서: 3월 말 B-2 디에고가르시아 전개, 4월 항모 2척 체제·사드/패트리엇 증파"
+      "status": "yes",
+      "first": "2025-03-27",
+      "lead": 78,
+      "public_then": true,
+      "what": "3/27 미 공군: B-2 스텔스 폭격기를 디에고가르시아로 전개 확인(2020년 이후 최대). 공식 명분은 예멘 작전, 이란 압박 해석 병존",
+      "source": "https://en.wikipedia.org/wiki/March%E2%80%93May_2025_United_States_attacks_in_Yemen#Third_week_(27_March_%E2%80%93_2_April)",
+      "confidence": "med"
     },
     {
       "h": "m_civil_defense",
-      "status": "unknown",
-      "what": "미검증: 이스라엘 비상사태 선포는 공습 개시 시각(6/13)이었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "이스라엘의 특별비상사태·휴교·집회 금지는 공습 개시와 동시(6/13) — 개시 전 민방위 조치는 없었음",
+      "source": "https://www.cnn.com/2025/06/12/middleeast/israel-iran-strikes-intl-hnk",
+      "confidence": "med"
     },
     {
       "h": "m_airspace",
-      "status": "unknown",
-      "what": "미검증: 이란·이라크·요르단·이스라엘 영공 폐쇄는 6/13 당일이었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "이스라엘·이란·이라크·요르단 영공 폐쇄와 항공사 우회·결항은 6/13 공습 뒤 — 개시 전 폐쇄 없음",
+      "source": "https://en.wikipedia.org/wiki/Twelve-Day_War#International",
+      "confidence": "med"
     },
     {
       "h": "m_gps_ew",
@@ -110,13 +150,18 @@
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "미검증: 이스라엘–이란 직접 교전은 2024-10 이후 없었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "이스라엘–이란 직접 교전은 2024-10 이후 없었고 6/13 은 '기습'으로 시작(후티의 대이스라엘 발사는 상시 수준)",
+      "source": "https://en.wikipedia.org/wiki/Twelve-Day_War",
+      "confidence": "low"
     },
     {
       "h": "m_alert_level",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "개시 전 공식 경계태세 격상은 찾지 못함(이스라엘 비상사태 선포는 6/13 개시와 동시)"
     },
     {
       "h": "m_leadership",
@@ -141,12 +186,12 @@
     {
       "h": "f_safe_haven",
       "status": "unknown",
-      "what": "의뢰서 단서(미검증): 6/11 대사관 철수 보도 직후 유가 급등"
+      "what": "의뢰서 단서(미검증): 6/11 대사관 철수 보도 직후 유가 급등 — 열리는 출처에서 확인 못 함"
     },
     {
       "h": "f_prediction",
       "status": "unknown",
-      "what": "의뢰서 단서(미검증): 6/11~12 폴리마켓 '이스라엘의 이란 공격' 확률 급등"
+      "what": "폴리마켓에 공습 시점 시장이 있었음(내부자 베팅 사후 기소) — 6/11~12 가격 급등 수치는 확인 못 함"
     },
     {
       "h": "f_capital_flight",
@@ -155,13 +200,18 @@
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 3/30 트럼프 '합의 안 하면 폭격', 네타냐후의 반복 위협"
+      "status": "yes",
+      "first": "2025-03-30",
+      "lead": 75,
+      "public_then": true,
+      "what": "3/30 트럼프: 합의 안 하면 '본 적 없는 폭격'; 5/16 '빨리 움직여라', 6/12 재경고. 이스라엘은 5월 단독 타격 위협(날짜 미확인)",
+      "source": "https://en.wikipedia.org/wiki/Iran%E2%80%93United_States_relations_during_the_second_Trump_administration#Bilateral_talks",
+      "confidence": "med"
     },
     {
       "h": "i_pretext",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "5/9 폭스 '비밀 핵시설' 보도·6/12 IAEA 결의가 명분으로 쓰였으나 공격국의 '명분 만들기'로 볼 근거는 불충분"
     },
     {
       "h": "i_state_mobilization",
@@ -171,24 +221,34 @@
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "6/11 대사관 철수 기사가 다수 매체에 실린 것만 확인 — 보도량 급증 여부는 측정 근거 없음"
+      "what": "6/11~12 철수령·'이스라엘 공습 가능' 기사가 AP·CNN·알자지라에 실린 것만 확인 — 보도량 측정 근거 없음"
     },
     {
       "h": "i_public_anxiety",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "주유소 줄·식료품 비축은 개전 뒤 보도 — 개시 전 상황은 확인 못 함"
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증: 사상자가 난 계기 사건 없이 '선제' 공격이었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "사상자가 난 계기 사건 없음 — 네타냐후는 핵 위협을 이유로 든 '선제' 공격이라 했고 위키도 '기습'으로 서술",
+      "source": "https://en.wikipedia.org/wiki/Twelve-Day_War#Iranian_nuclear_program",
+      "confidence": "med"
     },
     {
       "h": "t_deadline",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 트럼프 60일 시한 만료(6/12), 6/12 IAEA 이사회 결의, 6/15 회담 예정"
+      "status": "yes",
+      "first": "2025-06-12",
+      "lead": 1,
+      "public_then": true,
+      "what": "백악관이 준 2개월(60일) 협상 시한이 공습 전날 만료 — 트럼프 '오늘이 61일째'. 시한 존재는 3~4월부터 공개, 6/15 회담도 예정",
+      "source": "https://en.wikipedia.org/wiki/Twelve-Day_War#Iranian_nuclear_program",
+      "confidence": "med"
     }
   ],
-  "missed": "6/22 미국 공습의 전조(의뢰서 단서 — 이번 조사에서 미검증): 6월 중순 공중급유기 수십 대의 대서양 횡단, 6/21 B-2 이동 보도, 트럼프의 '2주 안에 결정' 발언 뒤 며칠 만에 타격. 6/12 IAEA 이사회의 이란 의무 불이행 결의와 해상 보안 경고(UKMTO)도 코드북에 칸이 없는 전조 후보 — 모두 재조사 때 날짜 확인 필요.",
+  "missed": "코드북에 칸이 없는 전조: ① 6/12 IAEA 이사회의 이란 의무 불이행 결의(20년 만) — 국제기구의 공식 판정이 명분이 됨, ② 6/11 영국 해사무역기구(UKMTO)의 '군사 활동 격화 가능' 선박 경고, ③ 5/20 CNN '미 정보: 이스라엘이 핵시설 타격 준비'(익명 당국자, 최종 결정은 불명), ④ 협상 일정(6/15)을 유지한 채 친 공격 — 회담 예정이 안전 신호가 아니었다. 폴리마켓에는 공습 시점 시장이 있었고 이스라엘 공군 장교의 내부정보 베팅이 사후 기소됐다(개전 전 가격 급등 수치는 확인 못 함). 6/22 미국 공습의 전조(급유기 이동 등)는 이번에도 미검증.",
   "retrieved": "2026-11-11"
 }

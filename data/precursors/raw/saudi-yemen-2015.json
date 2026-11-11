@@ -11,22 +11,27 @@
   "target": "예멘 (후티·살레 세력)",
   "kind": "interstate",
   "surprise": false,
-  "summary": "2015-03-26 사우디가 이끄는 연합군이 예멘 후티 세력을 공습하며 내전에 개입했다(개시일·경과는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이고 surprise 값도 의뢰서 설명(2월 사나 대사관 폐쇄, 후티의 아덴 진격, 3/24~25 국경 집결 보도)에 따른 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "2015-03-26(현지 새벽, 워싱턴 발표는 3/25 밤) 사우디가 이끄는 연합군이 예멘 후티 세력을 공습하며 내전에 개입했다(위키백과·BBC 로 확인, 늦은 날짜 채택). 전조는 두 겹이었다: 2월 미·영·프·독·사우디가 사나 대사관을 닫고 유엔 중재 협상이 깨졌으며, 마지막 1주일에는 아덴 공항 전투·대통령궁 공습(3/19), 후티 총동원령(3/21), 사우디 외무장관의 '필요한 조치' 경고(3/23), 사우디 국경 집결 보도(3/24), 하디의 개입 요청과 피신(3/25)이 이어졌다. 유가 급등은 공습 뒤였다.",
   "signals": [
     {
       "h": "g_evac_order",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 2015-02 미·영·프 등 사나 주재 대사관 폐쇄"
+      "status": "yes",
+      "first": "2015-02-10",
+      "lead": 44,
+      "public_then": true,
+      "what": "2/10 미국: 사나 대사관 폐쇄, 대사·직원 2/11까지 철수. 영·프가 뒤따르고 2/13 독일·이탈리아도 공관 폐쇄",
+      "source": "https://www.aljazeera.com/news/middleeast/2015/02/closes-yemen-embassy-orders-ambassador-leave-150210162223469.html",
+      "confidence": "high"
     },
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "미검증 단서: 2월 대사관 폐쇄 때 미·영이 자국민에게 즉시 출국 권고"
+      "what": "미검증 단서: 2월 대사관 폐쇄 때 미·영이 자국민 즉시 출국 권고 — 연 출처에서 확인 못 함"
     },
     {
       "h": "g_staff_restrict",
       "status": "unknown",
-      "what": "미검증 단서: 1월 말 사나 미 대사관 대민 업무 중단"
+      "what": "미 대사관이 1월부터 대민 업무를 닫고 최소 인원으로 운영(알자지라 2/10) — 이동 제한·대피 지시는 확인 못 함"
     },
     {
       "h": "g_regional_drawdown",
@@ -35,28 +40,48 @@
     },
     {
       "h": "g_attacker_evac",
-      "status": "unknown",
-      "what": "미검증 단서: 사우디의 2월 사나 대사관 철수, 3/25 아덴 외교관 해군 철수"
+      "status": "yes",
+      "first": "2015-02-13",
+      "lead": 41,
+      "public_then": true,
+      "what": "2/13 사우디: 사나 대사관 운영 중단·직원 본국 철수(아랍국 중 처음). 3/25 하디가 사우디 외교단과 배로 아덴 탈출(후티 측 주장)",
+      "source": "https://www.bbc.com/news/world-middle-east-31457402",
+      "confidence": "high"
     },
     {
       "h": "g_intel_warning",
       "status": "unknown",
-      "what": "미검증: 3/24 미 당국자들이 사우디 집결을 '방어용일 수 있다'고 했다는 기억"
+      "what": "3/24 미 당국자발 사우디 국경 집결 보도는 있었으나 '공격 임박' 공개 경고는 찾지 못함"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 3/23 사우디 외무장관 '필요한 조치', 하디의 GCC·안보리 군사 개입 요청"
+      "status": "yes",
+      "first": "2015-03-23",
+      "lead": 3,
+      "public_then": true,
+      "what": "3/23 사우디 외무장관 '평화적으로 안 풀리면 필요한 조치'(시한 없는 조건부 경고), 하디 정부가 GCC 에 군사 개입 공식 요청",
+      "source": "https://www.bbc.com/news/world-middle-east-32022450",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증 단서: 유엔 중재 협상 교착, 2/6 후티의 헌법 선언"
+      "status": "yes",
+      "first": "2015-03-04",
+      "lead": 22,
+      "public_then": true,
+      "what": "유엔 중재(베노마르) 협상 붕괴: 2/28 남부운동 이탈, 3/4 하디가 후티 점령 하 사나 회담 불참 선언, 후티는 리야드 이전 거부",
+      "source": "https://en.wikipedia.org/wiki/Aftermath_of_the_Houthi_takeover_of_Yemen#Cross-factional_talks",
+      "confidence": "med"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 3/24~25 사우디가 예멘 국경에 중장비·포병 집결(미 당국자 인용 보도)"
+      "status": "yes",
+      "first": "2015-03-24",
+      "lead": 2,
+      "public_then": true,
+      "what": "후티 남진 중 사우디가 예멘 국경에 군사력 집결 — 미 정보 당국 확인(3월 말; 로이터 3/24 보도 날짜 기준)",
+      "source": "https://en.wikipedia.org/wiki/Aftermath_of_the_Houthi_takeover_of_Yemen#Saudi_Arabia",
+      "confidence": "med"
     },
     {
       "h": "m_logistics",
@@ -65,18 +90,23 @@
     },
     {
       "h": "m_mobilization",
-      "status": "unknown",
-      "what": "미검증 단서: 3/21 후티 측 총동원령"
+      "status": "yes",
+      "first": "2015-03-21",
+      "lead": 5,
+      "public_then": true,
+      "what": "3/21 후티 혁명위원회가 '총동원 상태' 선포(대상국 쪽) — 아덴 공항 전투·사나 모스크 폭탄 테러 직후",
+      "source": "https://en.wikipedia.org/wiki/Aftermath_of_the_Houthi_takeover_of_Yemen#Saudi_intervention",
+      "confidence": "high"
     },
     {
       "h": "m_exercise_cover",
       "status": "unknown",
-      "what": "미검증 단서: 3월 중순 후티의 사우디 국경 인근 대규모 훈련"
+      "what": "미검증 단서: 3월 중순 후티의 사우디 국경 인근 훈련"
     },
     {
       "h": "m_strategic_assets",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "개시 전 전략자산 집결은 찾지 못함(전투기 100대·이집트 군함 보도는 개시 뒤)"
     },
     {
       "h": "m_civil_defense",
@@ -85,8 +115,13 @@
     },
     {
       "h": "m_airspace",
-      "status": "unknown",
-      "what": "미검증 단서: 3/19 교전으로 아덴 공항 폐쇄"
+      "status": "yes",
+      "first": "2015-03-19",
+      "lead": 7,
+      "public_then": true,
+      "what": "3/19 교전으로 아덴 국제공항 폐쇄(13명 사망); 3/25 걸프에어 사나 노선 즉시 중단. 영공 제한 선포는 개시 뒤",
+      "source": "https://www.aljazeera.com/news/2015/03/clashes-southern-yemen-force-closure-airport-150319063004697.html",
+      "confidence": "med"
     },
     {
       "h": "m_gps_ew",
@@ -100,8 +135,13 @@
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 후티의 아덴 진격 — 3/19 아덴 공항 교전, 3/22 타이즈, 3/25 알아나드 기지"
+      "status": "yes",
+      "first": "2015-03-19",
+      "lead": 7,
+      "public_then": true,
+      "what": "내전 전선 급확대: 3/19 아덴 공항 전투·대통령궁 공습, 3/22 타이즈 함락, 3/25 알아나드 기지·라히즈·아덴 공항 함락",
+      "source": "https://en.wikipedia.org/wiki/Aftermath_of_the_Houthi_takeover_of_Yemen#Saudi_intervention",
+      "confidence": "high"
     },
     {
       "h": "m_alert_level",
@@ -110,8 +150,13 @@
     },
     {
       "h": "m_leadership",
-      "status": "unknown",
-      "what": "미검증 단서: 하디 대통령의 2/21 아덴 탈출, 3/25 아덴 관저 이탈"
+      "status": "yes",
+      "first": "2015-03-19",
+      "lead": 7,
+      "public_then": true,
+      "what": "3/19 대통령궁 공습으로 하디 대통령이 '안전한 곳'으로 대피; 3/25 아덴을 떠나 행방 불명 보도, 3/26 리야드 도착",
+      "source": "https://www.aljazeera.com/news/2015/03/clashes-southern-yemen-force-closure-airport-150319063004697.html",
+      "confidence": "high"
     },
     {
       "h": "f_fx",
@@ -121,7 +166,7 @@
     {
       "h": "f_equity",
       "status": "unknown",
-      "what": "미검증 단서: 3/25 사우디 증시 급락 보도 기억"
+      "what": "미검증 단서: 3/25 사우디 증시 급락 보도 기억 — 출처 확인 못 함"
     },
     {
       "h": "f_sovereign",
@@ -130,8 +175,13 @@
     },
     {
       "h": "f_safe_haven",
-      "status": "unknown",
-      "what": "미검증: 유가 급등은 주로 3/26 공습 개시 뒤였다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "브렌트유 약 6% 급등은 공습이 시작된 뒤(3/26) — 개시 전 급등은 확인되지 않음",
+      "source": "https://www.bbc.co.uk/news/world-us-canada-32061632",
+      "confidence": "med"
     },
     {
       "h": "f_prediction",
@@ -145,13 +195,23 @@
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 3/21 하디 연설, 3/22 후티 지도자의 동원 연설"
+      "status": "yes",
+      "first": "2015-03-22",
+      "lead": 4,
+      "public_then": true,
+      "what": "3/22 후티 지도자 압둘말리크 알후티 연설: 하디가 있는 남부로 전사를 보내겠다고 다짐; 3/21 하디 '사나 탈환' 공언",
+      "source": "https://www.cbsnews.com/news/isis-yemen-carnage-houthi-rebels-advance-in-aqap-territory-toward-hadi/",
+      "confidence": "med"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2015-03-23",
+      "lead": 3,
+      "public_then": true,
+      "what": "3/23 사우디 외무장관: 후티의 '침략'에서 역내를 지킨다 — 하디 정부의 개입 요청을 명분으로 삼음('합법 정부 수호')",
+      "source": "https://www.bbc.com/news/world-middle-east-32022450",
+      "confidence": "low"
     },
     {
       "h": "i_state_mobilization",
@@ -161,7 +221,7 @@
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미검증 단서: 3/22 안보리 긴급회의 전후 보도 증가"
+      "what": "3/22 안보리 긴급회의 전후 보도는 많았으나 '사우디 개입 위험' 보도량 급증의 근거는 없음"
     },
     {
       "h": "i_public_anxiety",
@@ -170,15 +230,20 @@
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증 단서: 3/19 아덴 대통령궁 공습, 3/25 후티의 아덴 접근과 하디 피신"
+      "status": "yes",
+      "first": "2015-03-19",
+      "lead": 7,
+      "public_then": true,
+      "what": "3/19 아덴 공항 전투(13명 사망)와 하디 대통령궁 공습 → 하디가 GCC·아랍연맹에 개입 요청, 3/23 사우디 '필요한 조치' 다짐",
+      "source": "https://www.bbc.co.uk/news/world-us-canada-32061632",
+      "confidence": "med"
     },
     {
       "h": "t_deadline",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "개입과 연결된 공개 시한은 찾지 못함(3/28~29 아랍연맹 정상회의는 시한이 아님)"
     }
   ],
-  "missed": "",
+  "missed": "코드북에 칸이 없는 전조: ① 지원받는 정부가 군사 개입을 공식 요청(하디 정부 3/23 GCC, 3/25 안보리·아랍연맹), ② 미·영 특수부대가 3/21~22 알아나드 기지 등에서 철수, ③ 3/22 유엔 안보리 긴급회의('내전 직전' 경고), ④ 사우디 대사관이 사나에서 아덴으로 옮김(2/26) — 상대 정권 불인정 신호.",
   "retrieved": "2026-11-11"
 }

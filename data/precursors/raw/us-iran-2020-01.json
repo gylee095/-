@@ -11,52 +11,92 @@
   "target": "이란 (이라크에 있던 쿠드스군 사령관)",
   "kind": "us_strike",
   "surprise": false,
-  "summary": "2020-01-03 미국이 바그다드 공항에서 솔레이마니를 드론으로 제거했고 1/8 이란이 미군 기지에 미사일을 쏜 뒤 진정돼 전쟁으로 번지지는 않았다(경과·날짜는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이고 surprise 값도 의뢰서 설명(12/27 K-1 피격·12/31 대사관 난입 뒤 보복 예고)에 따른 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "2020-01-03 새벽 미국이 바그다드 공항에서 솔레이마니를 드론으로 제거했고 1/8 이란이 이라크 내 미군 기지에 미사일을 쏜 뒤 더 번지지 않았다(위키백과로 개시일 확인). 공개 전조는 마지막 1주일에 몰려 있다: 12/27 K-1 기지 피격(미국인 사망) → 12/29 미 보복 공습 → 12/31 대사관 난입과 트럼프의 '경고가 아니라 위협', 82공수 급파 → 1/2 에스퍼의 '선제 행동' 예고. 반면 철수령·영공 폐쇄·유가 급등·기업 철수는 모두 공습 뒤에 나왔고, 표적(솔레이마니)과 시점은 미 국방부 안에서도 놀랄 만큼 비공개였다.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미검증: 제3국 대사관 감축은 1/3 이후였다는 기억"
+      "what": "제3국 대사관의 이란·이라크 철수 명령은 찾지 못함(미국 대사관은 12/31 '철수 계획 없음')"
     },
     {
       "h": "g_leave_now",
-      "status": "unknown",
-      "what": "미검증: 미국의 '이라크 즉시 출국' 권고는 1/3 공습 직후였다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "미 국무부의 '이라크 즉시 출국' 권고는 공습 뒤인 1/3(금), 영국·호주의 경보 상향은 1/4 — 개시 전에는 없었음",
+      "source": "https://www.npr.org/2020/01/02/793208096/iraqi-tv-says-top-iranian-military-leader-killed-in-rocket-strikes-on-iraqi-airp",
+      "confidence": "high"
     },
     {
       "h": "g_staff_restrict",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 12/31 바그다드 미 대사관 난입에 따른 봉쇄·영사 업무 중단"
+      "status": "yes",
+      "first": "2019-12-31",
+      "lead": 3,
+      "public_then": true,
+      "what": "12/31 민병대 난입으로 바그다드 미 대사관 봉쇄(lockdown) — 대사관 대변인 '봉쇄 중이나 철수는 아님'. 시위 경보가 아닌 무장 난입",
+      "source": "https://www.cnn.com/middleeast/live-news/iraq-us-embassy-protest-baghdad-live-updates-intl/index.html",
+      "confidence": "med"
     },
     {
       "h": "g_regional_drawdown",
-      "status": "unknown",
-      "what": "미검증: 이라크 비필수 인력 철수는 2019-05 부터 이어진 상태 — 창 안의 새 감축은 확인 못 함"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "창 안의 새 감축 없음: 12/31 미 국무부 '전원 안전, 철수 계획 없다'. 이라크 비필수 인력 철수령은 2019-05 부터(창 이전)",
+      "source": "https://www.voanews.com/a/middle-east_us-immediately-sending-more-troops-mideast/6181870.html",
+      "confidence": "med"
     },
     {
       "h": "g_attacker_evac",
-      "status": "unknown",
-      "what": "미검증: 미국 시민·석유 인력 철수는 1/3 이후였다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "미국이 자국민에게 이라크를 떠나라고 한 것은 공습 뒤(1/3), 셰브런의 미국인 석유 인력 철수는 1/6 — 개시 뒤에 처음",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Qasem_Soleimani#Iraqi_response",
+      "confidence": "med"
     },
     {
       "h": "g_intel_warning",
-      "status": "unknown",
-      "what": "미검증 단서: 1/2 에스퍼 국방장관 '추가 공격 징후, 선제 행동할 것 — 게임이 바뀌었다'"
+      "status": "yes",
+      "first": "2020-01-02",
+      "lead": 1,
+      "public_then": true,
+      "what": "1/2 에스퍼 미 국방장관: 이란·대리세력이 추가 공격을 계획 중일 수 있고 미국은 징후가 보이면 선제 행동(공습 몇 시간 전)",
+      "source": "https://www.rferl.org/a/iran-iraq-militia-attack-pmu-shaabi-baghdad-muhandis/30358151.html",
+      "confidence": "med"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증: 시한을 단 최후통첩은 없었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "시한부 통첩·공개 무력사용 승인 없음: 의회 8인회에 사전 통보도 없었고 전쟁권한법 통보는 공습 다음 날. 양국은 원래 미수교",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Qasem_Soleimani#Trump_briefing",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증: 미·이란 협상 자체가 없었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "미·이란 협상 자체가 없었음 — 2019-09 이란이 제재 해제 전에는 대화·정상 회동 없다고 밝힌 상태",
+      "source": "https://en.wikipedia.org/wiki/Iran%E2%80%93United_States_relations_during_the_first_Trump_administration#Escalation_in_tensions",
+      "confidence": "med"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "미검증 단서: 12/31 82공수 750명 쿠웨이트 급파 발표(소규모)"
+      "status": "yes",
+      "first": "2019-12-31",
+      "lead": 3,
+      "public_then": true,
+      "what": "12/31 에스퍼: 82공수 750명 즉시 중동 파견·여단 추가 대기, 해병 100명 대사관 증원(5월 이후 누적 1만4천). 대규모는 아님",
+      "source": "https://www.voanews.com/a/middle-east_us-immediately-sending-more-troops-mideast/6181870.html",
+      "confidence": "low"
     },
     {
       "h": "m_logistics",
@@ -66,17 +106,22 @@
     {
       "h": "m_mobilization",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "예비군 동원·휴가 중단은 찾지 못함(82공수 신속대응군 출동은 상비 전력)"
     },
     {
       "h": "m_exercise_cover",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "찾지 못함(이란·러·중 해상훈련 12/27~30 은 예정된 4일 훈련)"
     },
     {
       "h": "m_strategic_assets",
-      "status": "unknown",
-      "what": "미검증 단서: 2019-10-11 사우디에 전투비행대·패트리엇·사드 증파 발표"
+      "status": "yes",
+      "first": "2019-10-11",
+      "lead": 84,
+      "public_then": true,
+      "what": "10/11 까지 미국이 사우디에 3,000명 증파; 5월 이후 방공·미사일방어 체계와 정찰 자산을 추가 배치(12/31 VOA)",
+      "source": "https://en.wikipedia.org/wiki/Abqaiq%E2%80%93Khurais_attack#Related_security_issues",
+      "confidence": "low"
     },
     {
       "h": "m_civil_defense",
@@ -85,8 +130,13 @@
     },
     {
       "h": "m_airspace",
-      "status": "unknown",
-      "what": "미검증: FAA 의 이라크·이란·걸프 비행 금지는 1/7~8(개시 뒤)이었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "미 FAA 의 이란·이라크·걸프 상공 비행 금지와 항공사 우회·결항은 1/8 이란 미사일 보복 뒤 — 개시 전에는 없었음",
+      "source": "https://en.wikipedia.org/wiki/Ukraine_International_Airlines_Flight_752#Background",
+      "confidence": "med"
     },
     {
       "h": "m_gps_ew",
@@ -96,22 +146,32 @@
     {
       "h": "m_cyber",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "창 직전(9월 말) 미국의 대이란 사이버 작전이 10/16 보도됨 — 창 안의 새 공격은 찾지 못함"
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 10~12월 이라크 미군 기지 로켓 공격 증가, 12/27 K-1 피격, 12/29 미 보복 공습"
+      "status": "yes",
+      "first": "2019-12-27",
+      "lead": 7,
+      "public_then": true,
+      "what": "10월 말부터 이라크 내 미군 주둔 기지 로켓 공격 11회(미 당국자), 12/27 K-1 피격·미국인 사망, 12/29 미 보복 공습 25명 사망. 날짜는 K-1 기준",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Qasem_Soleimani#Prelude",
+      "confidence": "high"
     },
     {
       "h": "m_alert_level",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "개시 전 공식 경계태세 격상은 찾지 못함(이란 미사일 부대 태세 상향은 공습 뒤 포착)"
     },
     {
       "h": "m_leadership",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "트럼프는 마러라고에서 휴가 중이었고 벙커 이동·비상회의 연쇄 보도 없음(12/29 국방·국무장관·합참의장이 가서 1회 보고)",
+      "source": "https://www.cnn.com/2019/12/29/politics/us-strikes-iran-backed-militia-facilities-in-iraq-syria/index.html",
+      "confidence": "low"
     },
     {
       "h": "f_fx",
@@ -130,8 +190,13 @@
     },
     {
       "h": "f_safe_haven",
-      "status": "unknown",
-      "what": "미검증: 유가 급등은 1/3 공습 뒤였다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "유가 4% 넘는 급등은 1/3 공습 직후(석 달 만의 고점) — 개시 전 급등은 없었음",
+      "source": "https://www.bbc.com/news/world-middle-east-50979463",
+      "confidence": "med"
     },
     {
       "h": "f_prediction",
@@ -140,18 +205,33 @@
     },
     {
       "h": "f_capital_flight",
-      "status": "unknown",
-      "what": "미검증: 미국 석유 인력의 바스라 철수는 1/3 이었다는 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "미국 석유 인력 철수(셰브런 1/6 등)는 공습 뒤 — 개시 전 기업·자본 이탈 보도는 찾지 못함",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Qasem_Soleimani#Iraqi_response",
+      "confidence": "low"
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 12/31 트럼프 '이란은 큰 대가를 치를 것 — 경고가 아니라 위협' 트윗"
+      "status": "yes",
+      "first": "2019-12-31",
+      "lead": 3,
+      "public_then": true,
+      "what": "12/31 트럼프 트윗: 이란이 전적으로 책임진다, '매우 큰 대가를 치를 것 — 이것은 경고가 아니라 위협'",
+      "source": "https://www.voanews.com/a/middle-east_us-immediately-sending-more-troops-mideast/6181870.html",
+      "confidence": "high"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2019-12-29",
+      "lead": 5,
+      "public_then": true,
+      "what": "12/29 미 국방부 '방어적 정밀 타격', 폼페이오 '미국인을 위험에 빠뜨리는 이란 행동 좌시 않는다'; 12/31 '이란이 대사관 공격 조직'",
+      "source": "https://www.cnn.com/2019/12/29/politics/us-strikes-iran-backed-militia-facilities-in-iraq-syria/index.html",
+      "confidence": "med"
     },
     {
       "h": "i_state_mobilization",
@@ -161,7 +241,7 @@
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미검증 단서: 12/29 보복 공습·12/31 대사관 난입이 세계 주요 뉴스였다는 기억"
+      "what": "12/31 대사관 난입을 CNN 등이 실시간 중계했고 트럼프가 TV 보도에 격분했다는 보도만 확인 — 보도량 측정 근거 없음"
     },
     {
       "h": "i_public_anxiety",
@@ -170,15 +250,20 @@
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 12/27 K-1 로켓 공격(미국인 사망), 12/31 대사관 난입과 미국의 보복 다짐"
+      "status": "yes",
+      "first": "2019-12-27",
+      "lead": 7,
+      "public_then": true,
+      "what": "12/27 K-1 기지 로켓 공격으로 미국인 계약자 사망 → 12/29 미 보복 공습 → 12/31 대사관 난입, 트럼프 보복 다짐",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Qasem_Soleimani#Prelude",
+      "confidence": "high"
     },
     {
       "h": "t_deadline",
       "status": "unknown",
-      "what": "미검증: 명시적 시한은 없었다는 기억"
+      "what": "공습과 연결된 공개 시한은 찾지 못함"
     }
   ],
-  "missed": "미검증: 12/29 미국의 민병대 보복 공습이 이미 한 차례 있었다 — '보복의 연쇄가 진행 중'이라는 상태 자체가 전조였는지 재조사 때 확인 필요.",
+  "missed": "보복의 연쇄가 이미 돌고 있었다는 점(12/29 미 공습 뒤 에스퍼 '필요하면 추가 조치') 자체가 전조였다. 공격하는 쪽 국방장관이 전날 '선제 행동'을 공개 예고한 것도 코드북에 딱 맞는 칸이 없다(g_intel_warning 에 넣음). 9월 말 미국의 대이란 사이버 작전이 10/16 보도됐지만 창 직전 일이다. 이란·러시아·중국 해상훈련(12/27~30)은 예정된 훈련이라 세지 않았다.",
   "retrieved": "2026-11-11"
 }

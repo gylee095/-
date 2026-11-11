@@ -452,12 +452,18 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   var h='<div class="card sum">';
   if(!R){h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+'</b></div><div style="font-size:14px;color:var(--mute)">30일 안 국지 충돌 약 '+pct(w.clash30d.point)+'</div>';return h+'</div>'}
   var num=function(x){return x%1?x.toFixed(1):String(x)};
-  h+='<div style="display:flex;align-items:flex-end;gap:10px"><div style="flex:1;min-width:0"><div class="lead">전쟁 전 징조 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
-  h+='<div style="display:flex;align-items:flex-end;gap:8px"><b style="font-size:76px;line-height:.95;font-weight:800;letter-spacing:-3px;color:'+col+'">'+num(R.signs)+'</b><span style="font-size:17px;color:var(--mute);padding-bottom:8px">/ 9개</span></div></div>';
-  h+='<span style="flex:none;background:var(--chip);color:'+col+';font-weight:800;font-size:15px;border-radius:999px;padding:5px 12px;margin-bottom:10px">'+w.phase+'단계 '+esc(w.phaseLabel)+'</span></div>';
+  // 맨 위는 단계 (11/12 사용자: 큰 숫자 0 이 '위험 0점'으로 읽혔다) — 그 아래 세 계기판을 같은 크기로: 징조 · 조용한 움직임 · 배경
+  var MEAN={1:"전쟁 전 징조도, 불안한 배경도 거의 없어요.",2:"긴장된 상태예요.",3:"여러 징조가 함께 켜진 위기 상태예요.",4:"징조 대부분이 켜지고 실제 움직임도 확인됐어요.",5:"교전이 벌어지고 있어요."};
+  h+='<div class="lead">지금 한반도 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
+  h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+'</b><span>5단계 중</span></div>';
+  h+='<div style="display:flex;gap:4px;margin:8px 0 10px" role="img" aria-label="5단계 중 '+w.phase+'단계">'+[1,2,3,4,5].map(function(i){return '<span style="flex:1;height:8px;border-radius:4px;background:'+(i<=w.phase?col:'var(--chip)')+'"></span>'}).join("")+'</div>';
+  var unkOf=function(L){var n=0;L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")n++})});return n};
+  var stat=function(L,name,hot){var u=unkOf(L);return '<div style="flex:1;min-width:0;background:var(--chip);border-radius:12px;padding:10px 10px 8px"><div style="font-size:12.5px;color:var(--mute);font-weight:700">'+name+'</div><div style="font-size:26px;font-weight:800;line-height:1.15;color:'+(hot?col:'var(--fg)')+'">'+num(L.pts)+'<span style="font-size:13px;color:var(--mute);font-weight:400"> / '+L.max+'</span></div><div style="font-size:11.5px;color:var(--mute)">'+(u?'미확인 '+u:'모두 확인')+'</div></div>'};
+  h+='<div style="display:flex;gap:8px">'+stat(R.layers[0],"전쟁 전 징조",R.signs>=3)+stat(R.layers[1],"조용한 움직임",R.moves>=3)+stat(R.layers[2],"불안한 배경",R.context>=4)+'</div>';
   // 9칸: 징조 하나에 한 칸 — 켜짐(색) · 약함(반) · 꺼짐(회색) · 아직 확인 못 함(점선)
   var SI=R.layers[0].groups[0].items.slice().sort(function(a,b){var o=function(x){return x.s==="on"?(x.weak?1:0):x.s==="unk"?2:3};return o(a)-o(b)}),unkS=SI.filter(function(x){return x.s==="unk"}).length;
-  h+='<div style="display:flex;gap:4px;margin:12px 0 6px" role="img" aria-label="전쟁 전 징조 9개 중 '+num(R.signs)+'개 켜짐, '+unkS+'개 확인 대기">'+SI.map(function(x){return '<span style="flex:1;height:10px;border-radius:5px;box-sizing:border-box;'+(x.s==="on"?(x.weak?'background:linear-gradient(90deg,'+col+' 50%,var(--chip) 50%)':'background:'+col):x.s==="unk"?'border:1.5px dashed var(--mute)':'background:var(--chip)')+'"></span>'}).join("")+'</div>';
+  h+='<div style="font-size:13px;font-weight:700;margin-top:14px">전쟁 전 징조 9개</div>';
+  h+='<div style="display:flex;gap:4px;margin:6px 0 6px" role="img" aria-label="전쟁 전 징조 9개 중 '+num(R.signs)+'개 켜짐, '+unkS+'개 확인 대기">'+SI.map(function(x){return '<span style="flex:1;height:10px;border-radius:5px;box-sizing:border-box;'+(x.s==="on"?(x.weak?'background:linear-gradient(90deg,'+col+' 50%,var(--chip) 50%)':'background:'+col):x.s==="unk"?'border:1.5px dashed var(--mute)':'background:var(--chip)')+'"></span>'}).join("")+'</div>';
   if(unkS)h+='<div style="font-size:12.5px;color:var(--mute)">점선 '+unkS+'칸은 아직 확인하지 못한 징조예요 (분석관이 하루 두 번 확인).</div>';
   var an=(p.anchors||[]),find=function(re){return an.filter(function(a){return re.test(a.name)})[0]},aUk=find(/우크라이나/),a17=find(/2017/),a13=find(/2013/);
   h+='<div style="font-size:12.5px;color:var(--mute)">같은 방식으로 세면'+(aUk?' · 우크라이나 침공 전날 <b>'+aUk.signs+'</b>':'')+(a13?' · 2013년 위기 <b>'+a13.signs+'</b>':'')+(a17?' · 2017년 위기 <b>'+a17.signs+'</b>':'')+'</div>';

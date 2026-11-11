@@ -111,7 +111,8 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   const trigger = briefs.find((b) => now - b.at < 14 * DAY && !b.evacuation && !b.posture && b.danger.level >= 5);
   set("t_trigger", trigger ? "on" : "off", 1, trigger?.headline);
   // 채점표의 사건 항목: 최근 7일 도발 · 최근 30일 핵실험/ICBM급 (우리가 가진 사건 기록 안에서)
-  const prov = eventFloors(briefs, now).prov7;
+  // 실제 발사·포격만 센다 (인터넷 장애 같은 위험도 높은 다른 사건이 '도발'로 적히던 문제 — 11/12)
+  const prov = eventFloors(briefs, now).prov7.filter((b) => b.isProvocation);
   set("t_provocation", prov.length ? "on" : "off", 1, prov.length ? `최근 7일 도발 ${prov.length}건 — ${[...prov].sort((a, b) => b.at - a.at)[0].headline}` : undefined);
   const big = briefs.find((b) => now - b.at < 30 * DAY && !b.evacuation && !b.posture && /ICBM|대륙간탄도|핵실험|nuclear test/i.test(`${b.headline} ${b.weapon ?? ""}`));
   set("t_major_test", big ? "on" : "off", 1, big?.headline);
@@ -143,6 +144,8 @@ export function koreaStatus(board: BoardRow[], briefs: EventBrief[], now: number
     } else if (a?.s === "on") st[id] = { ...a, w: 0.5, ev: `${a.ev ?? ""}${ev ? ` — 분석관: ${ev}` : ""}`.slice(0, 120) };
     else st[id] = { s: "off", by: "analyst", ...(ev ? { ev } : {}) };
   }
+  // 대화 채널이 아예 없으면 '협상 결렬'은 일어날 수 없다 — 꺼짐으로 둔다 (코드북: 협상 자체가 없었으면 '없음')
+  if (st.g_talks_collapse?.s === "unk" && st.s_talks?.s === "on" && (st.s_talks.w ?? 1) >= 1) st.g_talks_collapse = { s: "off", by: "auto", ev: "진행 중인 협상이 없음" };
   return st;
 }
 

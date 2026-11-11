@@ -60,7 +60,7 @@ describe("경보 단어 → 알림과 전쟁 판정", () => {
       globalThis.fetch = orig;
     }
   }
-  it("워치콘 격상 기사 한 건 → 바로 알림, 정부 '경계'. 위기 지수에는 '군 경계태세 격상' 3점만 더해진다 (신호 하나로 위기가 되지 않는다)", async () => {
+  it("워치콘 격상 기사 한 건 → 바로 알림, 정부 '경계'. 판정에서는 '참고 신호'로만 켜진다 (전쟁 전 공통 징조 9개에 들지 못했다)", async () => {
     const { r, store } = await cycleWith(["軍, 대북 정보감시태세 워치콘 2로 격상"]);
     expect(r.alerts).toHaveLength(1);
     const { buildState } = await import("../src/core/state.js");
@@ -68,9 +68,10 @@ describe("경보 단어 → 알림과 전쟁 판정", () => {
     const gov = st.warRisk.domains.find((d) => d.id === "gov")!;
     expect(gov.level).toBe(2);
     expect(gov.drivers[0]).toMatch(/경보 단어 '워치콘 격상'/);
-    // 채점표 (11/11): 워치콘·준전시 선포는 전쟁 없이도 반복됐다(1994·2013·2017) — '보이는 것' 층의 3점짜리 항목이다
+    // 11/11: 군 경계태세 격상은 예고된 전쟁 16건 중 7건, 전쟁 안 난 위기 17건 중 12건에서 보였다 — 9개에 들지 못해 참고로만
     const item = st.warRisk.proximity!.rubric.layers.flatMap((l) => l.groups.flatMap((g) => g.items)).find((x) => x.id === "m_alert_level")!;
-    expect(item).toMatchObject({ s: "on", got: 3 });
+    expect(item).toMatchObject({ s: "on", got: 1 });
+    expect(st.warRisk.proximity!.rubric.signs).toBe(0);
     expect(st.warRisk.phase).toBeLessThan(3);
     expect(st.threat.lastProvocation).toBeNull(); // 북한 도발로 세지 않는다
   });

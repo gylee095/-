@@ -8,7 +8,7 @@ import type { EventBrief } from "./brief.js";
 import { kstDay } from "./store.js";
 import { PRECURSOR_DATA } from "./precursor_data.js";
 import { MODEL, evaluate, type Obs, type Proximity, type SignalNow } from "./precursors.js";
-import { BASE_SEED, INDEX_AT, RUBRIC, clashOfIndex, scoreRubric, type RubricScore } from "./rubric.js";
+import { BASE_SEED, RUBRIC, clashOf, scoreRubric, type RubricScore } from "./rubric.js";
 import { BANDS, PHASE_LABEL, eventFloors, fmtRiskPct, type Band, type Phase, type WarRisk } from "./warrisk.js";
 
 export const PROX_HIST_KEY = "prox:hist";
@@ -45,7 +45,7 @@ const DAY = 86400_000;
 /** 자동으로 볼 수 있는 가설 — 나머지는 분석관만 확인할 수 있다 */
 export const AUTO_IDS = new Set([
   "g_evac_order", "g_leave_now", "g_staff_restrict", "g_intel_warning", "m_buildup", "m_mobilization", "m_strategic_assets", "m_civil_defense", "m_airspace",
-  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep",
+  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark",
 ]);
 
 /** 징후판·보도에서 자동으로 읽은 한반도 상태 */
@@ -118,6 +118,7 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   // 실제 행동 측정값 중 가설 33개에 없던 것
   fromIndicators("a_fleet", ["sea.gfw_cn_change_pct"]);
   fromIndicators("a_launch_prep", ["navwarn.launch_notice_active", "thermal.launch_site_hotspots"]);
+  fromIndicators("a_nk_dark", ["internet.kp_outage_alerts_24h", "nk.pyongyang_lights_pct"]);
   return out;
 }
 
@@ -151,7 +152,7 @@ export interface ProximityView extends Proximity {
   /** 주식 차트처럼: 하루 한 점 (오래된 → 최근) */
   series: { d: string; i: number; c: number }[];
   /** 과거 사례를 같은 눈금에 놓은 기준점 */
-  anchors: { name: string; when: string; index: number; cls: string }[];
+  anchors: { name: string; when: string; index: number; cls: string; signs: number; moves: number; context: number }[];
   /** 쌓인 기록으로 평소 빈도를 고친 날 수 */
   learnedDays: number;
   /** 분석관 확인 시각 (없거나 오래됐으면 undefined) */
@@ -160,10 +161,15 @@ export interface ProximityView extends Proximity {
   waiting: number;
   /** 채점표 결과 — 화면의 점수·층·항목은 모두 여기서 나온다 */
   rubric: RubricScore;
+  /** 과거 기록: 징조 수 구간별 사례 수와 그중 전쟁으로 간 수 */
+  record: typeof PRECURSOR_DATA.record;
   score: typeof PRECURSOR_DATA.score;
   cases: typeof PRECURSOR_DATA.table.cases;
   text: string;
 }
+
+/** 지금 징조 수가 속한 과거 기록 구간 */
+export const recordFor = (signs: number) => PRECURSOR_DATA.record.find((b) => Math.floor(signs) >= b.lo && Math.floor(signs) <= b.hi);
 
 const dayAgo = (now: number, n: number) => kstDay(now - n * DAY);
 
@@ -172,29 +178,30 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   // 사례집 통계(가설별 '전쟁 몇 건 중 몇 건')는 항목 설명용으로만 쓴다. 점수·단계·확률은 채점표(rubric.ts)가 정한다
   const p0 = evaluate(PRECURSOR_DATA.table, status, hist?.base, PRECURSOR_DATA.anchorLogOdds);
   const r = scoreRubric(status);
-  const clashPct = clashOfIndex(r.index, p0.quiet.clashPct);
+  const clashPct = clashOf(r.signs, r.phase, p0.quiet.clashPct);
   const warPct = +Math.min(clashPct, p0.quiet.warPct + Math.max(0, clashPct - p0.quiet.clashPct) * (MODEL.Q_WAR / MODEL.Q_CLASH)).toFixed(clashPct < 5 ? 2 : 1);
-  const p = { ...p0, index: r.index, phase: r.phase, clashPct, warPct, on: r.on, watched: r.watched, parts: r.layers.map((l) => ({ cluster: "G" as const, label: l.label, pts: Math.round(l.pts) })) };
+  const p = { ...p0, index: r.index, phase: r.phase, clashPct, warPct, on: Math.ceil(r.signs + r.moves), watched: r.watched, parts: r.layers.map((l) => ({ cluster: "G" as const, label: l.label, pts: l.pts })) };
   const days = hist?.days ?? [];
   const at = (n: number) => days.find((x) => x.d === dayAgo(now, n));
   const diff = (n: number) => { const x = at(n); return x ? p.index - x.i : undefined; };
   const today = kstDay(now);
   const series = [...days.filter((x) => x.d !== today).map((x) => ({ d: x.d, i: x.i, c: x.c })), { d: today, i: p.index, c: p.clashPct }].slice(-120);
   const d1 = diff(1);
+  const rec = recordFor(r.signs);
   const text =
-    `위기 지수 ${p.index}점 / 100 (0 = 모든 항목이 꺼진 상태 · 20부터 긴장 · 35부터 위기 · 60부터 임박 — 위기의 크기이지 전쟁 확률이 아니다). ` +
-    r.layers.map((l) => `${l.label} ${Math.round(l.pts)}/${l.max}`).join(" · ") + "." +
-    (r.divergence ? ` ${r.divergence.text}` : "") +
-    (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 ${Math.abs(d1)}점 ${d1 > 0 ? "높아요" : "낮아요"}.`);
+    `전쟁 전 징조 9개 중 ${r.signs}개 · 조용한 움직임 ${r.moves}개 · 배경 ${r.context}개. ${r.reason}.` +
+    (rec ? ` 과거 기록: 징조가 ${rec.label} 켜졌던 ${rec.cases}건 중 ${rec.wars}건이 전쟁으로 갔다${rec.surprise ? ` — 그 ${rec.surprise}건은 공개 징조 없이 온 기습` : ""} (조사한 사례 안에서 — 확률이 아니다).` : "") +
+    (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 징조가 ${d1 > 0 ? "늘었어요" : "줄었어요"}.`);
   return {
     ...p,
     vs: { d1, d7: diff(7), d30: diff(30), days: days.length },
     series,
-    anchors: PRECURSOR_DATA.anchors.map(({ name, when, index, cls }) => ({ name, when, index, cls })),
+    anchors: PRECURSOR_DATA.anchors.map(({ name, when, index, cls, signs, moves, context }) => ({ name, when, index, cls, signs, moves, context })),
     learnedDays: days.length,
     checkedAt: checks && now - checks.at < CHECK_TTL ? checks.at : undefined,
     waiting: r.waiting,
     rubric: r,
+    record: PRECURSOR_DATA.record,
     score: PRECURSOR_DATA.score,
     cases: PRECURSOR_DATA.table.cases,
     text,
@@ -209,28 +216,27 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
 export function withProximity(legacy: WarRisk, prox: ProximityView, _briefs: EventBrief[] = [], _now = 0): WarRisk & { proximity: ProximityView } {
   if (legacy.phase === 5) return { ...legacy, proximity: { ...prox, index: 100 } };
   const phase = prox.phase as Phase, clash = prox.clashPct, war = prox.warPct;
-  const lo = phase === 1 ? 0 : INDEX_AT[phase], hi = phase === 4 ? 100 : INDEX_AT[phase + 1];
-  const pos = Math.min(0.95, Math.max(0.05, (prox.index - lo) / (hi - lo)));
-  const band = (a: number, b: number, point: number): Band => ({ low: +Math.min(a, point).toFixed(2), high: +Math.max(b, point).toFixed(2), point: +point.toFixed(2) });
   const r = prox.rubric;
-  const top = r.layers.flatMap((l) => l.groups.flatMap((g) => g.items)).filter((x) => x.got > 0).sort((a, b) => b.got - a.got);
+  const pos = Math.min(0.95, Math.max(0.05, (r.signs % 2) / 2 + 0.25));
+  const band = (a: number, b: number, point: number): Band => ({ low: +Math.min(a, point).toFixed(2), high: +Math.max(b, point).toFixed(2), point: +point.toFixed(2) });
+  const onOf = (id: string) => r.layers.find((l) => l.id === id)!.groups.flatMap((x) => x.items).filter((x) => x.got > 0).map((x) => `${x.ko.split(" (")[0]}${x.weak ? "(약함)" : ""}`);
   const reasons = [
-    `위기 지수 ${prox.index}점 = ${r.layers.map((l) => `${l.label} ${Math.round(l.pts)}`).join(" + ")}`,
-    top.length ? `점수를 준 항목: ${top.slice(0, 4).map((x) => `${x.ko}${x.weak ? "(약함)" : ""} +${+x.got.toFixed(1)}`).join(", ")}${top.length > 4 ? " 등" : ""}` : "켜진 항목이 없다",
-    ...(r.divergence ? [r.divergence.text] : []),
-    ...(r.capped ? [r.capped] : []),
+    r.reason,
+    ...(onOf("signs").length ? [`켜진 징조: ${onOf("signs").join(", ")}`] : []),
+    ...(onOf("moves").length ? [`조용한 움직임: ${onOf("moves").slice(0, 4).join(", ")}`] : ["사람·돈·군의 움직임은 평소대로"]),
+    ...(onOf("context").length ? [`배경: ${onOf("context").slice(0, 4).join(", ")}${onOf("context").length > 4 ? " 등" : ""}`] : []),
   ];
   return {
     ...legacy,
     phase,
     phaseLabel: PHASE_LABEL[phase],
     phaseReasons: reasons,
-    clash30d: band(clashOfIndex(lo, prox.quiet.clashPct), clashOfIndex(hi, prox.quiet.clashPct), clash),
+    clash30d: band(BANDS[phase].clash[0], BANDS[phase].clash[1], clash),
     war30d: band(BANDS[phase].war[0], BANDS[phase].war[1], war),
     usual: { clash: prox.quiet.clashPct, war: prox.quiet.warPct },
     gauge: { now: +((phase - 1 + pos) / 5).toFixed(3), usual: 0.01 },
     vsUsual: +(clash / Math.max(0.1, prox.quiet.clashPct)).toFixed(2),
-    headline: `위기 지수 ${prox.index}점 · ${phase}단계(${PHASE_LABEL[phase]}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(clash)}, 전면전 ${fmtRiskPct(war)}`,
+    headline: `전쟁 전 징조 9개 중 ${r.signs}개 · ${phase}단계(${PHASE_LABEL[phase]}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(clash)}, 전면전 ${fmtRiskPct(war)}`,
     proximity: prox,
   };
 }
@@ -322,13 +328,13 @@ export const ANALYST_GUIDE: Record<string, string> = {
 /** 분석관에게 주는 점검표 — 짧은 줄로 (토큰 절약) */
 export function checklistText(p: ProximityView): string {
   const mark = (x: { s: Obs; weak: boolean }) => (x.s === "on" ? (x.weak ? "약함" : "켜짐") : x.s === "off" ? "꺼짐" : "미확인");
-  const lines = p.rubric.layers.flatMap((l) => l.groups.flatMap((g) => g.items.map((x) => {
+  const lines = p.rubric.layers.flatMap((l) => l.groups.flatMap((gr) => gr.items.map((x) => {
     const guide = ANALYST_GUIDE[x.id];
-    return `${x.id} | ${l.label}·${g.label} | ${x.ko} | ${x.pts}점 | ${mark(x)}${x.by === "analyst" ? "(분석관)" : ""}${x.ev ? ` | ${x.ev}` : ""}${guide ? ` | 확인: ${guide}` : ""}`;
+    return `${x.id} | ${l.label}·${gr.label} | ${x.ko} | ${mark(x)}${x.by === "analyst" ? "(분석관)" : ""}${x.ev ? ` | ${x.ev}` : ""}${guide ? ` | 확인: ${guide}` : ""}`;
   })));
   return [
-    `위기 지수 ${p.index}점 (${p.rubric.layers.map((l) => `${l.label} ${Math.round(l.pts)}/${l.max}`).join(" · ")}) · 30일 국지 충돌 ${p.clashPct}% · 확인 대기 ${p.waiting}개`,
-    "id | 층·묶음 | 항목 | 배점 | 지금 | 근거 | 확인 방법(분석관 전용 항목)",
+    `전쟁 전 징조 9개 중 ${p.rubric.signs}개 · 조용한 움직임 ${p.rubric.moves}개 · 배경 ${p.rubric.context}개 · ${p.phase}단계 · 확인 대기 ${p.waiting}개`,
+    "id | 구분 | 항목 | 지금 | 근거 | 확인 방법(분석관 전용 항목)",
     ...lines,
   ].join("\n");
 }

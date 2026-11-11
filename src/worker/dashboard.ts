@@ -1,5 +1,5 @@
 // 모바일 우선 대시보드.
-// 순서 (11/11): 위기 지수 하나(단계·눈금·다섯 묶음의 몫·할 일) → '근거 전부 보기' 하나(과거 사례·분석관 글·사건·신호 숫자·자동 해설·시스템·실험 비교)
+// 순서 (11/11): 전쟁 전 징조 9개 중 몇 개(단계·과거 기록 한 줄) · 조용한 움직임 · 배경 · 할 일 → '근거 전부 보기' 하나(과거 기록·분석관 글·사건·신호 숫자·자동 해설·시스템·실험 비교)
 // 데이터는 /api/state 에서 토큰으로 조회. 지도는 Leaflet + Esri 회색 지도.
 // 주의: 아래 클라이언트 코드는 String.raw 템플릿 안에 있으므로 템플릿 리터럴(백틱·${})을 쓰지 않는다.
 export const DASHBOARD_HTML = String.raw`<!doctype html>
@@ -349,17 +349,17 @@ function drawTension(t){var el=$("#tchart");if(!el||!t||!t.view)return;var w=t.v
     tip.style.display="block";var left=px*r.width/W+8;if(left>r.width-200)left=px*r.width/W-208;tip.style.left=Math.max(0,left)+"px"}
   hit.addEventListener("pointermove",show);hit.addEventListener("pointerdown",show);hit.addEventListener("pointerleave",function(){tip.style.display="none";cross.setAttribute("visibility","hidden")})}
 // 전쟁 직전의 지문: 다른 전쟁 직전 공개적으로 보였던 것 중 지금 켜진 것 (켜짐을 위로)
-// 위기 지수의 기준점과 한계 (11/11): 과거 사례를 같은 눈금에 놓은 목록, 이 숫자가 무엇이고 무엇이 아닌가
+// 과거 기록과 한계 (11/11): 징조 수 구간별로 전쟁이 얼마나 났나, 과거 시점을 같은 방식으로 센 것, 이 숫자가 무엇이 아닌가
 function proxCard(p){
   var h='<div class="card tm">';
-  var an=(p.anchors||[]).slice().sort(function(a,b){return b.index-a.index});
   var se=p.series||[];
-  if(se.length>=2){var W=300,H=64,mx=Math.max(20,Math.max.apply(null,se.map(function(x){return x.i})));var pts=se.map(function(x,k){return (k/(se.length-1)*W).toFixed(1)+","+(H-4-x.i/mx*(H-8)).toFixed(1)}).join(" ");
-    h+='<div style="font-weight:700;font-size:14px">위기 지수 추이</div><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:64px;display:block" role="img" aria-label="위기 지수 추이"><polyline points="'+pts+'" fill="none" stroke="#ff3b30" stroke-width="2"/></svg><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-bottom:10px"><span>'+esc(se[0].d.slice(5))+'</span><span>하루 한 점 · '+se.length+'일</span><span>오늘</span></div>'}
-  else h+='<div class="mk" style="margin-bottom:10px">위기 지수 추이 그래프는 기록이 이틀 이상 쌓이면 나와요 (하루 한 점).</div>';
-  h+='<div style="font-weight:700;font-size:14px">과거 사례를 같은 눈금에 놓으면</div><ul>'+an.map(function(a){return '<li style="list-style:none;margin-left:-18px"><b>'+a.index+'</b> '+esc(a.name)+' <span style="color:var(--mute);font-size:12px">'+(a.cls==="N"?"전쟁 안 남":a.cls==="K"?"한반도 충돌":"전쟁·공격")+'</span></li>'}).join("")+'</ul>';
-  var sc=p.score||{},cs=p.cases||{};
-  h+='<div class="mk">위기 지수는 <b>채점표</b>로 매겨요: 한반도 바탕 15(구조적 긴장) + 세계 정세 15(미국이 다른 전쟁에 묶였나 등) + 보이는 것 25(말·선언·사건) + 실제 행동 45(사람·돈·군이 움직인 것). 모든 항목이 꺼지면 0점이고, 평양 정상회담 직후인 2018년 가을을 같은 표로 매기면 '+(((p.anchors||[]).filter(function(a){return /2018/.test(a.name)})[0]||{}).index||3)+'점이에요. 20점부터 긴장, 35점부터 위기(두 묶음 이상), 60점부터 임박(철수·병참·동원 같은 행동이 둘 이상)이에요. <b>위기의 크기이지 전쟁 확률이 아니에요</b> — 사례 '+((cs.W||0)+(cs.K||0)+(cs.N||0))+'건을 채점해 보니 공개 정보로는 전쟁이 날 위기와 안 날 위기를 가르지 못했어요. 그래서 항목별 점수는 판단값이고, 대신 표를 그대로 보여 드려요. 기습은 이 방식으로 못 잡아요.</div></div>';
+  if(se.length>=2){var W=300,H=64,pts=se.map(function(x,k){return (k/(se.length-1)*W).toFixed(1)+","+(H-4-Math.min(100,x.i)/100*(H-8)).toFixed(1)}).join(" ");
+    h+='<div style="font-weight:700;font-size:14px">켜진 징조 수의 추이</div><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:64px;display:block" role="img" aria-label="켜진 징조 수 추이"><polyline points="'+pts+'" fill="none" stroke="#ff3b30" stroke-width="2"/></svg><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-bottom:10px"><span>'+esc(se[0].d.slice(5))+'</span><span>하루 한 점 · '+se.length+'일</span><span>오늘</span></div>'}
+  else h+='<div class="mk" style="margin-bottom:10px">추이 그래프는 기록이 이틀 이상 쌓이면 나와요 (하루 한 점).</div>';
+  h+='<div style="font-weight:700;font-size:14px">과거 기록 — 징조가 많이 켜질수록 전쟁이 더 많이 났나</div><table style="width:100%;border-collapse:collapse;font-size:14px;margin:6px 0 10px">'+(p.record||[]).map(function(b){return '<tr><td style="padding:5px 0;border-top:1px solid var(--line)">징조 '+esc(b.label)+'</td><td style="padding:5px 0;border-top:1px solid var(--line);text-align:right">'+b.cases+'건 중 <b>'+b.wars+'건</b> 전쟁'+(b.surprise?' <span style="color:var(--mute)">(기습 '+b.surprise+')</span>':'')+'</td></tr>'}).join("")+'</table>';
+  h+='<div style="font-weight:700;font-size:14px">과거 시점을 같은 방식으로 세면</div><ul>'+(p.anchors||[]).map(function(a){return '<li style="list-style:none;margin-left:-18px"><b>'+a.signs+'개</b> '+esc(a.name)+' <span style="color:var(--mute);font-size:12px">움직임 '+a.moves+' · 배경 '+a.context+'</span></li>'}).join("")+'</ul>';
+  var cs=p.cases||{};
+  h+='<div class="mk">9개 징조는 조사한 예고된 전쟁 '+((cs.W||0)-(cs.Wsurprise||0))+'건 중 절반 이상에서 전쟁 전에 공개적으로 나타난 것이에요. 배점 없이 몇 개가 켜졌는지만 세요. <b>확률이 아니에요</b> — 조사한 사례에는 전쟁이 실제보다 많이 들어 있고, 9개를 고른 사례와 센 사례가 같아서 실제보다 좋게 보여요. 징조가 적어도 기습은 올 수 있어요(과거 '+(cs.Wsurprise||0)+'건). 그래서 뉴스와 무관하게 재는 \'조용한 움직임\'을 따로 봐요 — 이쪽은 과거 검증이 아직 없고 기록이 쌓이면서 확인돼요. 과거 시점의 배경 항목은 손으로 적은 것이라 검증 전이에요.</div></div>';
   return h}
 function fingerprints(f){var on=f.checks.filter(function(c){return c.status==="on"}),rest=f.checks.filter(function(c){return c.status!=="on"});
   var h='<div class="sec">전쟁 직전 지문 <span style="font-weight:400">· 다른 전쟁 직전에 보였던 것</span></div><div class="card tm">';
@@ -443,48 +443,40 @@ function whyChanged(w,c){if(!c)return "";
   return h+'</div>'}
 // readinessBar 제거 (11/6 사용자: 새 정보 말고 기존 %의 정확도를 올려라)
 // 첫 화면 한 장: 지금 단계 · 30일 국지 충돌 확률 · 어제와 비교 · 왜 · 오를 조건 · 마지막 도발 · 클로드 의견 · 할 일 · 데이터 상태 (2026-11-02)
-// 첫 화면 (11/11 사용자: 신호와 분석이 흩어져 있다 — 하나로 모아라): 위기 지수 하나 → 그 숫자가 뜻하는 단계 → 과거와 같은 눈금 → 다섯 묶음이 각각 몇 점을 보탰나.
-// 다른 잣대(긴장 온도계·전쟁 직전 지문·여섯 영역·도발 예측)는 화면에서 뺐다. 나머지는 '근거 전부 보기' 하나로 들어간다.
-function summary(st){var w=st.warRisk,c=st.vsYesterday,O=w.official,p=w.proximity;
+// 첫 화면 (11/11 사용자: "배점이 정답인지 모른다", "기습은 다른 신호로"): 배점 없이 센다.
+//   ① 전쟁 전 징조 9개 중 몇 개 (큰 숫자) + 과거 기록 한 줄  ② 조용한 움직임 몇 개 (기습 감지)  ③ 배경 (세지 않음)
+// 누르면 항목과 근거가 그대로 펼쳐진다. 나머지는 '근거 전부 보기' 하나로 들어간다.
+function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   var COL=["#34c759","#ffcc00","#ff9500","#ff3b30","#b3261e"],col=COL[w.phase-1]||COL[1];
-  var MEAN={1:"큰 움직임은 없어요.",2:"긴장된 상태예요.",3:"여러 신호가 함께 켜진 위기 상태예요.",4:"실제 전쟁 준비 행동이 확인됐어요.",5:"교전이 벌어지고 있어요."};
   var DO={1:"평소대로 지내면 됩니다.",2:"평소대로 지내면 됩니다. 시간이 날 때 가까운 대피소 위치만 확인해 두세요.",3:"비상용품(물·약·손전등·보조배터리)과 가족 연락 방법을 확인하고, 재난문자 수신을 켜 두세요.",4:"정부·지자체 안내를 따르고 대피소와 이동 경로를 확인하세요.",5:"재난문자·민방위 경보에 따라 바로 대피하세요."};
-  var ix=p?p.index:Math.round((w.gauge&&w.gauge.now||0)*100);
-  var h='<div class="card sum"><div style="display:flex;align-items:flex-end;gap:10px"><div style="flex:1;min-width:0"><div class="lead">위기 지수 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
-  h+='<div style="display:flex;align-items:flex-end;gap:8px"><b style="font-size:76px;line-height:.95;font-weight:800;letter-spacing:-3px;color:'+col+'">'+ix+'</b><span style="font-size:17px;color:var(--mute);padding-bottom:8px">/ 100</span></div></div>';
+  var h='<div class="card sum">';
+  if(!R){h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+'</b></div><div style="font-size:14px;color:var(--mute)">30일 안 국지 충돌 약 '+pct(w.clash30d.point)+'</div>';return h+'</div>'}
+  var num=function(x){return x%1?x.toFixed(1):String(x)};
+  h+='<div style="display:flex;align-items:flex-end;gap:10px"><div style="flex:1;min-width:0"><div class="lead">전쟁 전 징조 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
+  h+='<div style="display:flex;align-items:flex-end;gap:8px"><b style="font-size:76px;line-height:.95;font-weight:800;letter-spacing:-3px;color:'+col+'">'+num(R.signs)+'</b><span style="font-size:17px;color:var(--mute);padding-bottom:8px">/ 9개</span></div></div>';
   h+='<span style="flex:none;background:var(--chip);color:'+col+';font-weight:800;font-size:15px;border-radius:999px;padding:5px 12px;margin-bottom:10px">'+w.phase+'단계 '+esc(w.phaseLabel)+'</span></div>';
-  h+='<div style="font-size:17px;font-weight:700;margin-top:10px">'+esc(MEAN[w.phase]||"")+'</div>';
-  var cmp,bad=false,d1=p&&p.vs?p.vs.d1:undefined;
-  if(d1!==undefined&&d1!==null){bad=d1>=5;cmp=d1===0?"어제와 같음":"어제보다 "+Math.abs(d1)+"점 "+(d1>0?"높음":"낮음")}
-  else if(O&&O.change){cmp=O.change.meaningful?"어제와 단계가 달라짐":"어제와 같은 단계";bad=!!O.change.meaningful}
-  else if(c&&c.ago){bad=c.verdict==="worse";cmp=c.verdict==="worse"?"어제보다 나빠짐":c.verdict==="better"?"어제보다 나아짐":"어제와 비슷"}
-  else cmp="어제 기록은 아직 없음";
-  h+='<div style="font-size:14px;color:var(--mute)"><span style="'+(bad?'color:var(--l4);font-weight:700':'')+'">'+esc(cmp)+'</span> · 30일 안 국지 충돌 약 '+pct(w.clash30d.point)+' · 전면전 '+pct(w.war30d.point)+'</div>';
-  // 눈금 한 줄: 지금 위치와 과거 기준점
-  var pin=function(x,t){return '<span style="position:absolute;top:40px;left:'+x+'%;transform:translateX(-50%);font-size:11px;color:var(--mute);white-space:nowrap;text-align:center;line-height:1.2"><i style="display:block;width:1px;height:7px;background:var(--mute);margin:0 auto 2px"></i>'+esc(t)+'</span>'};
-  var an=(p&&p.anchors)||[],find=function(re){return an.filter(function(a){return re.test(a.name)})[0]},a17=find(/2017/),aUk=find(/우크라이나/),a18=find(/2018/);
-  h+='<div style="position:relative;height:70px;margin:20px 0 2px" role="img" aria-label="위기 지수 눈금: 지금 '+ix+'점">';
-  h+='<div style="position:absolute;left:0;right:0;top:26px;height:10px;border-radius:5px;background:linear-gradient(90deg,'+COL[0]+' 0 20%,'+COL[1]+' 20% 35%,'+COL[2]+' 35% 60%,'+COL[3]+' 60% 100%)"></div>';
-  h+='<div style="position:absolute;top:18px;left:'+Math.min(98,Math.max(1,ix))+'%;width:4px;height:26px;margin-left:-2px;border-radius:2px;background:var(--fg);box-shadow:0 0 0 3px var(--card)"><b style="position:absolute;top:-20px;left:50%;transform:translateX(-'+(ix<12?'20':ix>88?'80':'50')+'%);font-size:12px;white-space:nowrap">지금 '+ix+'</b></div>';
-  if(a18&&Math.abs(a18.index-ix)>8)h+=pin(Math.max(7,a18.index),"2018 평화");
-  if(a17&&Math.abs(a17.index-ix)>8)h+=pin(a17.index,"2017 위기");
-  if(aUk&&Math.abs(aUk.index-ix)>8)h+=pin(Math.min(90,aUk.index),"우크라이나 전날");
-  h+='</div><div style="display:flex;font-size:11px;color:var(--mute)"><span style="width:20%">평온</span><span style="width:15%">긴장</span><span style="width:25%">위기</span><span style="width:40%">임박</span></div>';
-  // 세 층이 각각 몇 점을 보탰나 (더하면 위 숫자): 바탕 20 · 보이는 것 30 · 실제 행동 50. 누르면 그 층의 채점표가 펼쳐진다
-  var R=p&&p.rubric;
-  if(R){
-    if(R.divergence)h+='<div style="margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--chip);font-size:14.5px;font-weight:700;border-left:4px solid '+(R.divergence.kind==="talk"?"var(--mute)":"var(--l4)")+'">'+esc(R.divergence.text)+'</div>';
-    var it=function(x){var mark=x.s==="on"?'<b style="color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b>':x.s==="off"?'<span style="color:var(--mute)">○</span>':'<span style="color:var(--mute)">?</span>';
-      return '<li style="list-style:none;margin:4px 0 4px -18px;font-size:13.5px;display:flex;gap:6px"><span style="flex:none">'+mark+'</span><span style="flex:1;min-width:0">'+esc(x.ko)+(x.weak?' <span style="color:var(--mute)">(약함·절반)</span>':'')+(x.s==="unk"?' <span style="color:var(--mute)">(확인 대기)</span>':'')+(x.ev&&x.s==="on"?'<br><span style="color:var(--mute);font-size:12.5px">'+esc(x.ev)+'</span>':'')+'</span><span style="flex:none;color:'+(x.got>0?'var(--fg)':'var(--mute)')+';font-weight:700">'+(x.got>0?'+'+(Math.round(x.got*10)/10):'')+'<span style="color:var(--mute);font-weight:400"> /'+x.pts+'</span></span></li>'};
-    h+='<h3 style="margin-top:18px">무엇이 이 점수를 만들었나</h3>';
-    h+=R.layers.map(function(L){var v=Math.round(L.pts),on=v>0,unk=0;L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")unk++})});
-      var notes=[];L.groups.forEach(function(g){g.items.filter(function(x){return x.got>0}).sort(function(a,b){return b.got-a.got}).forEach(function(x){notes.push(x.ko.split(" — ")[0].split(" (")[0])})});
-      var sub=on?notes.slice(0,2).join(" · ")+(notes.length>2?" 등 "+notes.length+"개":""):(L.id==="action"?"사람·돈·군이 평소대로예요":L.id==="seen"?"눈에 띄는 사건·선언이 없어요":L.id==="world"?"한반도 밖의 큰 전쟁 요인이 확인되지 않았어요":"구조적 긴장 요인이 확인되지 않았어요");
-      return '<details style="border-top:1px solid var(--line);padding:9px 0"><summary style="list-style:none;cursor:pointer"><div style="display:grid;grid-template-columns:84px 1fr 52px;gap:10px;align-items:center"><span style="font-size:15px;font-weight:700;color:var(--fg)">'+esc(L.label)+'</span><span style="height:8px;border-radius:4px;background:var(--chip);overflow:hidden"><i style="display:block;height:100%;border-radius:4px;width:'+Math.round(L.pts/L.max*100)+'%;background:'+col+'"></i></span><span style="font-size:15px;font-weight:800;text-align:right;color:var(--fg)">'+v+'<span style="color:var(--mute);font-weight:400;font-size:12px"> /'+L.max+'</span></span></div><div style="font-size:13px;color:var(--mute);margin:3px 0 0 94px">'+esc(sub)+(unk?' · 확인 대기 '+unk+'개':'')+'</div></summary><div style="font-size:12.5px;color:var(--mute);margin:8px 0 0">'+esc(L.why)+'</div>'+L.groups.map(function(g){return '<div style="font-size:13px;font-weight:700;margin:10px 0 2px">'+esc(g.label)+' <span style="color:var(--mute);font-weight:400">'+(Math.round(g.pts*10)/10)+' / '+g.max+'</span></div><ul style="margin:0;padding-left:18px">'+g.items.map(it).join("")+'</ul>'}).join("")+'</details>'}).join("");
-    if(R.capped)h+='<div class="calm" style="margin-top:8px">'+esc(R.capped)+'</div>'}
+  // 9칸: 징조 하나에 한 칸 — 켜짐(색) · 약함(반) · 꺼짐(회색) · 아직 확인 못 함(점선)
+  var SI=R.layers[0].groups[0].items.slice().sort(function(a,b){var o=function(x){return x.s==="on"?(x.weak?1:0):x.s==="unk"?2:3};return o(a)-o(b)}),unkS=SI.filter(function(x){return x.s==="unk"}).length;
+  h+='<div style="display:flex;gap:4px;margin:12px 0 6px" role="img" aria-label="전쟁 전 징조 9개 중 '+num(R.signs)+'개 켜짐, '+unkS+'개 확인 대기">'+SI.map(function(x){return '<span style="flex:1;height:10px;border-radius:5px;box-sizing:border-box;'+(x.s==="on"?(x.weak?'background:linear-gradient(90deg,'+col+' 50%,var(--chip) 50%)':'background:'+col):x.s==="unk"?'border:1.5px dashed var(--mute)':'background:var(--chip)')+'"></span>'}).join("")+'</div>';
+  if(unkS)h+='<div style="font-size:12.5px;color:var(--mute)">점선 '+unkS+'칸은 아직 확인하지 못한 징조예요 (분석관이 하루 두 번 확인).</div>';
+  var an=(p.anchors||[]),find=function(re){return an.filter(function(a){return re.test(a.name)})[0]},aUk=find(/우크라이나/),a17=find(/2017/),a13=find(/2013/);
+  h+='<div style="font-size:12.5px;color:var(--mute)">같은 방식으로 세면'+(aUk?' · 우크라이나 침공 전날 <b>'+aUk.signs+'</b>':'')+(a13?' · 2013년 위기 <b>'+a13.signs+'</b>':'')+(a17?' · 2017년 위기 <b>'+a17.signs+'</b>':'')+'</div>';
+  h+='<div style="font-size:16px;font-weight:700;margin-top:12px;line-height:1.45">'+esc(R.reason)+'</div>';
+  var rec=(p.record||[]).filter(function(b){var n=Math.floor(R.signs);return n>=b.lo&&n<=b.hi})[0];
+  if(rec)h+='<div style="font-size:13.5px;color:var(--mute);margin-top:6px">과거 기록: 징조가 '+esc(rec.label)+' 켜졌던 '+rec.cases+'건 중 <b>'+rec.wars+'건</b>이 전쟁으로 갔어요'+(rec.surprise?' — 그 '+rec.surprise+'건은 모두 공개 징조 없이 온 기습이에요. 그래서 아래 \'조용한 움직임\'을 따로 봐요':'')+'.</div>';
+  // 세 줄: 징조 · 조용한 움직임 · 배경. 누르면 항목과 근거
+  var it=function(x){var mark=x.s==="on"?'<b style="color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b>':x.s==="off"?'<span style="color:var(--mute)">○</span>':'<span style="color:var(--mute)">?</span>';
+    return '<li style="list-style:none;margin:4px 0 4px -18px;font-size:13.5px;display:flex;gap:6px"><span style="flex:none">'+mark+'</span><span style="flex:1;min-width:0">'+esc(x.ko)+(x.weak?' <span style="color:var(--mute)">(약함·미확인)</span>':'')+(x.s==="unk"?' <span style="color:var(--mute)">(확인 대기)</span>':'')+(x.ev&&x.s==="on"?'<br><span style="color:var(--mute);font-size:12.5px">'+esc(x.ev)+'</span>':'')+'</span></li>'};
+  var SUB={signs:function(L){return L.pts>0?"":"켜진 징조가 없어요"},moves:function(L){return R.surprise?"뉴스는 조용한데 측정값이 함께 움직여요 — 기습 주의":L.pts>0?"":"사람·돈·군이 평소대로예요"},context:function(L){return L.pts>0?"":"확인된 배경 요인이 없어요"},other:function(L){return ""}};
+  h+='<h3 style="margin-top:18px">자세히</h3>';
+  h+=R.layers.map(function(L){var unk=0,ons=[];L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")unk++;if(x.got>0)ons.push(x.ko.split(" (")[0]+(x.weak?"(약함)":""))})});
+    var sub=SUB[L.id](L)||ons.slice(0,2).join(" · ")+(ons.length>2?" 등 "+ons.length+"개":"");
+    var c2=L.id==="signs"?col:L.id==="moves"?(R.surprise?"var(--l4)":"var(--fg)"):"var(--mute)";
+    return '<details style="border-top:1px solid var(--line);padding:9px 0"><summary style="list-style:none;cursor:pointer"><div style="display:flex;align-items:baseline;gap:10px"><span style="flex:1;font-size:15px;font-weight:700;color:var(--fg)">'+esc(L.label)+'</span><span style="font-size:15px;font-weight:800;color:'+c2+'">'+num(L.pts)+'<span style="color:var(--mute);font-weight:400;font-size:12px"> / '+L.max+'개</span></span></div><div style="font-size:13px;color:var(--mute);margin-top:2px">'+esc(sub)+(unk&&L.id!=="other"?' · 확인 대기 '+unk+'개':'')+'</div></summary><div style="font-size:12.5px;color:var(--mute);margin:8px 0 0">'+esc(L.why)+'</div>'+L.groups.map(function(g){return (L.groups.length>1?'<div style="font-size:13px;font-weight:700;margin:10px 0 2px">'+esc(g.label)+'</div>':'')+'<ul style="margin:6px 0 0;padding-left:18px">'+g.items.map(it).join("")+'</ul>'}).join("")+'</details>'}).join("");
   h+='<div class="do" style="margin-top:14px"><b>지금 할 일</b>'+esc(DO[w.phase]||DO[2])+' <a href="https://www.safekorea.go.kr" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">대피소 찾기</a></div>';
+  h+='<div style="font-size:12.5px;color:var(--mute);margin-top:8px">참고: 30일 안 국지 충돌 약 '+pct(w.clash30d.point)+' · 전면전 '+pct(w.war30d.point)+' (판단값)</div>';
   var dh=st.dataHealth;
-  if(dh){h+='<div class="data"><span class="'+(dh.failing.length?'':'ok')+'">수집 정상 '+dh.ok+'/'+dh.total+'</span><span>마지막 수집 '+ago(st.lastCycle?st.lastCycle.at:st.now)+'</span>'+(p&&p.waiting?'<span>확인 대기 '+p.waiting+'개 — 확인되면 점수가 오를 수 있어요</span>':'')+'</div>';
+  if(dh){h+='<div class="data"><span class="'+(dh.failing.length?'':'ok')+'">수집 정상 '+dh.ok+'/'+dh.total+'</span><span>마지막 수집 '+ago(st.lastCycle?st.lastCycle.at:st.now)+'</span>'+(p.waiting?'<span>확인 대기 '+p.waiting+'개 — 확인되면 달라질 수 있어요</span>':'')+'</div>';
     if(dh.failing.length)h+='<div class="data fail">⚠ 지금 못 받는 것: '+dh.failing.map(function(f){return esc(f.name)}).join(", ")+'</div>'}
   return h+'</div>'}
 function warRiskDetail(w){var h='<div class="fm '+w.firstMover.kind+'"><b>누가 먼저 움직였나</b> · '+esc(w.firstMover.text)+'</div>';
@@ -627,7 +619,7 @@ function render(){
   if(window.__KEW_REPORT__)inner+=group("sys","데이터 출처","수집 상태 · 어디서 가져왔나",'<div class="card">'+health(st)+'</div>');
   else inner+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
   if(st.ab){var AB=st.ab,dif=!AB.a||AB.a.phase!==AB.b.phase||AB.a.clash.point!==AB.b.clash.point;inner+=group("ab","🧪 실험 비교 (시험 서버)",dif?"본 서버 규칙과 결과가 달라요":"본 서버 규칙과 결과가 같아요",abPanel(AB))}
-  if(st.warRisk&&st.warRisk.proximity)inner=group("prox","과거 사례와 기준","같은 눈금에 놓은 전쟁·위기 "+((st.warRisk.proximity.anchors||[]).length)+"건 · 이 숫자의 한계",safe(proxCard,st.warRisk.proximity,"위기 지수 기준"))+inner;
+  if(st.warRisk&&st.warRisk.proximity)inner=group("prox","과거 기록과 한계","징조 수별로 전쟁이 얼마나 났나 · 과거 시점 "+((st.warRisk.proximity.anchors||[]).length)+"개",safe(proxCard,st.warRisk.proximity,"과거 기록"))+inner;
   h+=group("all","근거 전부 보기","사건 · 신호 "+bd.length+"개 · 분석관 글 · 과거 사례 · 시스템",inner);
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;

@@ -5,7 +5,7 @@
 //  3) 사례를 하나씩 빼고(leave-one-out) 그 사례를 채점해 docs/PRECURSORS.md 성적표를 쓴다.
 //  --holdout: 봉인 사례(data/precursors/holdout/*.json)를 채점에만 쓴다 — 표에는 넣지 않는다. 규칙을 고정한 뒤 한 번만.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { RUBRIC, scoreRubric } from "../src/core/rubric.js";
+import { RUBRIC, SIGNS, scoreRubric } from "../src/core/rubric.js";
 import { CLUSTER_LABEL, MODEL, buildTable, caseEvidence, caseLogOdds, classOf, discrimination, warLikeness, type CaseRecord, type HypDef, type PrecursorTable } from "../src/core/precursors.js";
 
 const ROOT = new URL("../", import.meta.url);
@@ -99,17 +99,30 @@ const anchors = kd.dates.map((d) => {
   if (c) for (const [h, o] of Object.entries(caseEvidence(c, 1))) st[h] = { s: o };
   for (const id of [...d.base, ...(d.world ?? []), ...d.extra]) st[id] = { s: "on" };
   const r = scoreRubric(st);
-  return { id: d.id, name: d.name, cls: d.cls, when: d.when, index: r.index, surprise: !!c?.surprise, layers: r.layers.map((l) => Math.round(l.pts)) };
-}).sort((a, b) => b.index - a.index);
+  return { id: d.id, name: d.name, cls: d.cls, when: d.when, index: r.index, signs: r.signs, moves: r.moves, context: r.context, phase: r.phase, surprise: !!c?.surprise };
+}).sort((a, b) => b.signs - a.signs || b.moves - a.moves);
+
+// 전쟁 전 공통 징조: 예고된 전쟁의 절반 이상에서 전쟁 전에 공개적으로 나타난 것 — 코드의 목록(SIGNS)과 같아야 한다
+const signOn = (c: CaseRecord, h: string) => caseEvidence(c, 1)[h] === "on";
+const Wt = W.filter((c) => !c.surprise);
+const half = HYPS.filter((h) => Wt.filter((c) => signOn(c, h.id)).length >= Wt.length / 2).map((h) => h.id);
+if ([...half].sort().join() !== [...SIGNS].sort().join()) throw new Error(`공통 징조 목록이 자료와 다르다 — rubric.ts 의 SIGNS 를 고칠 것: ${half.join(" ")}`);
+const signCount = (c: CaseRecord) => SIGNS.filter((h) => signOn(c, h)).length;
+// 과거 기록: 징조 수 구간별 사례 수와 그중 전쟁 (기습 전쟁도 넣는다 — 적게 켜지고도 전쟁이 난 경우를 숨기지 않게)
+const BUCKETS: [number, number, string][] = [[0, 2, "2개 이하"], [3, 4, "3~4개"], [5, 6, "5~6개"], [7, 9, "7개 이상"]];
+const record = BUCKETS.map(([lo, hi, label]) => {
+  const inB = [...W, ...N].filter((c) => signCount(c) >= lo && signCount(c) <= hi);
+  return { lo, hi, label, cases: inB.length, wars: inB.filter((c) => classOf(c) === "W").length, surprise: inB.filter((c) => classOf(c) === "W" && c.surprise).length };
+});
 
 // ── 쓰기 ──
 writeFileSync(new URL("data/precursors/cases.json", ROOT), JSON.stringify({ codebook: codebook.version, built: today, cases: all }, null, 1) + "\n");
-const data = { table, anchorLogOdds: +anchor.toFixed(3), anchors: anchors.map(({ id, name, cls, when, index, surprise }) => ({ id, name, cls, when, index, surprise })),
+const data = { table, anchorLogOdds: +anchor.toFixed(3), anchors: anchors.map(({ id, name, cls, when, index, signs, moves, context, phase, surprise }) => ({ id, name, cls, when, index, signs, moves, context, phase, surprise })), record,
   score: { auc: +AUC.toFixed(3), caught: caught.length, wars: posScores.length, falseAlarms: falseAlarm.length, crises: negScores.length, surprise: loo.filter((x) => x.cls === "W" && x.c.surprise).length } };
 writeFileSync(new URL("src/core/precursor_data.ts", ROOT),
   `// 자동 생성: scripts/build-precursors.ts — 직접 고치지 말 것. 근거: data/precursors/cases.json, 성적표: docs/PRECURSORS.md\n` +
   `import type { PrecursorTable } from "./precursors.js";\n` +
-  `export const PRECURSOR_DATA: { table: PrecursorTable; anchorLogOdds: number; anchors: { id: string; name: string; cls: string; when: string; index: number; surprise: boolean }[]; score: { auc: number; caught: number; wars: number; falseAlarms: number; crises: number; surprise: number } } = ${JSON.stringify(data)};\n`);
+  `export const PRECURSOR_DATA: { table: PrecursorTable; anchorLogOdds: number; anchors: { id: string; name: string; cls: string; when: string; index: number; signs: number; moves: number; context: number; phase: number; surprise: boolean }[]; record: { lo: number; hi: number; label: string; cases: number; wars: number; surprise: number }[]; score: { auc: number; caught: number; wars: number; falseAlarms: number; crises: number; surprise: number } } = ${JSON.stringify(data)};\n`);
 
 const f1 = (x: number) => (Number.isFinite(x) ? x.toFixed(2) : "—");
 const frac = ([y, n, u]: [number, number, number]) => `${y}/${y + n}${u ? ` (모름 ${u})` : ""}`;
@@ -149,9 +162,16 @@ if (held.length) {
 md.push(``, `## 언제부터 잡혔나`, ``, `예고된 전쟁·공격 ${telegraphed.length}건 가운데, 그 시점까지 공개된 신호만으로 점수가 0보다 컸던 사례 수:`, ``,
   `| 시점 | 잡은 수 |`, `|---|---|`, ...DAYS.map((d) => `| ${d}일 전 | ${telegraphed.filter((x) => (x.byDay[d] ?? -1) > 0).length}/${telegraphed.length} |`));
 
-md.push(``, `## 위기 지수의 기준점 — 과거 시점을 같은 채점표로`, ``,
-  `채점표는 \`src/core/rubric.ts\` (한반도 바탕 15 · 세계 정세 15 · 보이는 것 25 · 실제 행동 45). 0 = 모든 항목이 꺼진 상태, 20부터 긴장, 35부터 위기, 60부터 임박. 과거 시점의 바탕 항목은 \`data/precursors/korea_dates.json\` 에 손으로 적은 것이고(출처 검증 전), 신호는 사례 조사에서 가져왔다 — 조사에서 '모름'인 항목은 0점이라 실제보다 낮게 나올 수 있다(특히 1994년).`, ``,
-  `| 시점 | 위기 지수 | 한반도 바탕 | 세계 정세 | 보이는 것 | 실제 행동 |`, `|---|---|---|---|---|---|`, ...anchors.map((a) => `| ${a.name} | **${a.index}** | ${a.layers[0]} | ${a.layers[1]} | ${a.layers[2]} | ${a.layers[3]} |`));
+md.push(``, `## 전쟁 전 공통 징조 9개 — 판정에 쓰는 것`, ``,
+  `예고된 전쟁 ${Wt.length}건 중 절반 이상에서 전쟁 전에 공개적으로 나타난 징조만 골랐다(규칙으로 고른 것 — 이 스크립트가 \`src/core/rubric.ts\` 의 SIGNS 와 같은지 확인한다). 배점 없이 몇 개가 켜졌는지만 센다.`, ``,
+  `| 징조 | 예고된 전쟁 ${Wt.length}건 중 | 전쟁 안 난 위기 ${N.length}건 중 |`, `|---|---|---|`,
+  ...SIGNS.map((h) => `| ${HYPS.find((x) => x.id === h)!.ko} | ${Wt.filter((c) => signOn(c, h)).length} | ${N.filter((c) => signOn(c, h)).length} |`), ``,
+  `### 과거 기록: 징조가 많이 켜질수록 전쟁이 더 많이 났나`, ``,
+  `| 켜진 징조 | 사례 | 그중 전쟁 | (그중 기습) |`, `|---|---|---|---|`, ...record.map((b) => `| ${b.label} | ${b.cases} | ${b.wars} | ${b.surprise} |`), ``,
+  `방향은 뚜렷하다. 다만 ① 9개를 고른 사례와 센 사례가 같아 실제보다 좋게 보이고, ② 조사한 사례에는 전쟁이 실제보다 많이 들어 있어(현실에서는 국제 위기의 17%쯤만 전면전) 비율을 확률로 읽으면 안 되며, ③ 사례가 구간마다 몇 건뿐이다.`, ``,
+  `### 과거 시점을 같은 방식으로`, ``,
+  `'조용한 움직임'과 '배경'은 판정의 보조다(\`src/core/rubric.ts\`). 과거 시점의 배경 항목은 \`data/precursors/korea_dates.json\` 에 손으로 적은 것이고(출처 검증 전), 조사에서 '모름'인 항목은 꺼진 것으로 세어 낮게 나올 수 있다.`, ``,
+  `| 시점 | 징조 (9개 중) | 조용한 움직임 | 배경 | 단계 |`, `|---|---|---|---|---|`, ...anchors.map((a) => `| ${a.name} | **${a.signs}** | ${a.moves} | ${a.context} | ${a.phase} |`));
 
 md.push(``, `## 고정값 (사례를 보기 전에 정한 것)`, ``,
   `- 한 신호의 최대 배수 ${MODEL.CAP} · 같은 묶음 안 두 번째 신호부터 ${MODEL.DAMP}배씩 깎음 · 3단계 이상은 두 묶음 이상, 4단계는 정부·군사 묶음의 확인된 신호가 있어야 함`,

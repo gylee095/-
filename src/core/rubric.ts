@@ -1,115 +1,110 @@
-// 위기 지수 채점표 (2026-11-11 사용자: "20점인 게 주관적인 게 마음에 안 든다 — 기준을 정해라", "보이는 현상만 채점하지 말고 우리가 재는 신호로 봐라")
+// 위기 판정 (2026-11-11 사용자: "배점이 정답인지 모른다 — 신빙성이 없다", "기습은 돈·엘리트의 움직임 같은 다른 신호로 잡아야 한다")
 //
-// 0점 = 모든 항목이 꺼진 상태. 기준 시점은 2018년 가을(평양 정상회담·9·19 군사합의 직후) — 같은 표로 매기면 5점.
-// 100점 = 모든 항목이 켜진 상태. 우크라이나 2022 침공 전날을 같은 표로 매기면 80점 안팎.
-// 네 층으로 나눈다:
-//   ① 한반도 바탕 15 — 오래 이어지는 구조적 긴장 (대화 단절·합의 파기 등). 천천히 변한다. '요즘 평균'과 비교하면 사라지는 부분.
-//   ② 세계 정세 15 — 미국이 다른 전쟁에 묶였나, 주한미군 전력이 빠졌나, 북한의 후원국이 전쟁 중인가.
-//   ③ 보이는 것 25 — 말·선언·사건. 비용 없이 낼 수 있어 배점을 낮게 둔다.
-//   ④ 실제 행동 45 — 사람이 빠지고, 돈이 빠지고, 군이 움직인 것. 비용이 드는 행동이라 가장 무겁게 둔다. 대부분 우리가 직접 재는 숫자다.
-// 점수는 판단값이다 — 사례 42건 채점으로는 가중치를 데이터로 정하지 못했다(docs/PRECURSORS.md). 대신 표를 공개하고 과거 한반도의 날들로 검산한다.
+// 배점을 없앴다. 계기판은 둘이고, 둘 다 '몇 개가 켜졌나'를 센다:
+//   ① 전쟁 전 징조 — 조사한 예고된 전쟁 16건 중 절반 이상에서 전쟁 전에 공개적으로 나타난 징조 9개(SIGNS). 고른 기준은 '절반 이상'이라는 규칙이고
+//      scripts/build-precursors.ts 가 자료와 맞는지 확인한다. 과거 기록: 5개 이상 켜졌던 17건 중 13건이 전쟁, 4개 이하 16건 중 3건 (docs/PRECURSORS.md).
+//   ② 조용한 움직임 — 뉴스와 무관하게 직접 재는 것(사람·돈·군이 평소를 벗어났나). 기습은 공개 징조가 없으므로 이쪽으로만 잡을 수 있다.
+//      과거 검증은 없다(욤키푸르 1973·한국전쟁 1950 때 공격 측이 자기 사람을 뺀 기록이 근거의 전부) — 기록이 쌓이면 '평소에 몇 개가 우연히 같이 켜지나'부터 알 수 있다.
+// 배경(한반도의 구조적 긴장·세계 정세)은 전쟁 전 징조가 아니므로 세지 않고 따로 보여 준다. 다만 배경이 여러 개 켜져 있으면 '평온'이라 부르지 않는다.
 import type { Obs, SignalNow } from "./precursors.js";
 
-export type LayerId = "base" | "world" | "seen" | "action";
+export type LayerId = "signs" | "moves" | "context" | "other";
 export interface RubricItem { id: string; pts: number; ko: string }
 export interface RubricGroup { id: string; label: string; max: number; items: RubricItem[] }
 export interface RubricLayer { id: LayerId; label: string; max: number; why: string; groups: RubricGroup[] }
 
-export const RUBRIC_VERSION = 2;
-/** 단계가 시작되는 점수: 20 긴장 · 35 위기 · 60 임박 */
-export const INDEX_AT: Record<number, number> = { 2: 20, 3: 35, 4: 60 };
-/** 임박(60점 이상)에 필요한 행동 신호 — 둘 이상 확인돼야 한다 */
-export const ACTION_KEYS = ["g_evac_order", "g_leave_now", "g_regional_drawdown", "g_attacker_evac", "m_logistics", "m_mobilization", "m_buildup"];
+export const RUBRIC_VERSION = 3;
+/** 전쟁 전 공통 징조 9개 — 예고된 전쟁의 절반 이상에서 나타난 것 (자료가 바뀌어 목록이 달라지면 build-precursors 가 실패한다) */
+export const SIGNS = ["i_leader_threat", "i_pretext", "m_buildup", "m_border_fire", "g_ultimatum", "g_talks_collapse", "t_trigger", "g_intel_warning", "m_strategic_assets"];
+/** 단계가 시작되는 징조 수: 3개 긴장 · 5개 위기 · 7개 임박 */
+export const SIGNS_AT: Record<number, number> = { 2: 3, 3: 5, 4: 7 };
+/** 조용한 움직임이 이만큼 함께 켜지면: 3개 → 최소 긴장(기습 주의), 5개 → 최소 위기 */
+export const MOVES_AT = { watch: 3, crisis: 5 };
+/** 배경 항목이 이만큼 켜져 있으면 '평온'이라 부르지 않는다 (최소 긴장) */
+export const CONTEXT_TENSE = 4;
+
+const g = (id: string, label: string, items: [string, string][]): RubricGroup => ({ id, label, max: items.length, items: items.map(([i, ko]) => ({ id: i, pts: 1, ko })) });
 
 export const RUBRIC: RubricLayer[] = [
   {
-    id: "base", label: "한반도 바탕", max: 15, why: "한반도에 오래 이어지는 구조적 긴장 — 한 달에 한 번쯤 점검",
-    groups: [{
-      id: "S", label: "구조적 긴장", max: 15,
-      items: [
-        { id: "s_talks", pts: 3, ko: "남북·북미 대화 채널이 모두 끊김" },
-        { id: "s_agreement", pts: 3, ko: "충돌 방지 합의(9·19 군사합의·정전협정)가 파기·효력 정지" },
-        { id: "s_doctrine", pts: 3, ko: "북한이 한국을 '적대국'으로 규정하거나 핵 선제사용을 법·헌법에 명시" },
-        { id: "s_friction", pts: 2, ko: "접경의 상시 마찰 (확성기·전단·풍선·GPS 교란이 몇 달째)" },
-        { id: "s_tests", pts: 2, ko: "최근 12개월 안에 핵실험 또는 ICBM급 발사" },
-        { id: "s_casualty", pts: 2, ko: "최근 5년 안에 사상자가 난 남북 무력 충돌" },
-      ],
-    }],
+    id: "signs", label: "전쟁 전 징조", max: 9, why: "예고된 전쟁 16건 중 절반 이상에서 전쟁 전에 공개적으로 나타난 징조 — 몇 개가 켜졌는지만 센다",
+    groups: [g("S9", "공통 징조 9개", [
+      ["i_leader_threat", "최고지도자의 명시적 위협·명분 연설"],
+      ["i_pretext", "명분 만들기 ('도발·학살' 주장, 자작극 의혹)"],
+      ["m_buildup", "국경·전선에 병력·장비 집결"],
+      ["m_border_fire", "전선 교전·포격 급증"],
+      ["g_ultimatum", "최후통첩·무력사용 공식 승인·단교"],
+      ["g_talks_collapse", "협상 결렬"],
+      ["t_trigger", "사상자가 난 계기 사건과 보복 다짐"],
+      ["g_intel_warning", "정보당국의 '공격 임박' 공개 경고"],
+      ["m_strategic_assets", "항모·폭격기·정찰기 등 전략자산 집결"],
+    ])],
   },
   {
-    // 11/11 사용자: "전 세계가 3차 대전을 말하는 긴장 상황인데 평온이 나오면 안 된다" — 한반도 안쪽만 보던 것이 원인이었다.
-    // 미국이 다른 전쟁에 묶이고 주한미군 전력이 빠지면 억지력이 약해지고, 북한의 후원국이 전쟁 중이면 북한의 계산이 달라진다.
-    id: "world", label: "세계 정세", max: 15, why: "한반도 밖의 전쟁이 한반도의 억지력과 북한의 계산을 바꾼다 — 한 달에 한 번쯤 점검",
-    groups: [{
-      id: "X", label: "세계 정세", max: 15,
-      items: [
-        { id: "w_us_war", pts: 4, ko: "미국이 다른 지역에서 전쟁·대규모 군사작전 중" },
-        { id: "w_us_assets_out", pts: 3, ko: "주한미군·인도태평양 전력이 다른 곳으로 빠짐 (사드·패트리엇·항모·탄약)" },
-        { id: "w_patron_war", pts: 3, ko: "북한의 후원국(러시아·중국)이 전쟁 중이거나 북한이 파병" },
-        { id: "w_taiwan", pts: 2, ko: "대만해협·동중국해의 군사 위기" },
-        { id: "w_nuclear", pts: 2, ko: "강대국의 핵 위협·핵실험 재개·군비통제 붕괴" },
-        { id: "w_markets", pts: 1, ko: "세계 금융의 전쟁 공포 (금·유가·변동성 급등)" },
-      ],
-    }],
-  },
-  {
-    id: "seen", label: "보이는 것", max: 25, why: "말·선언·사건 — 누구나 볼 수 있고 비용 없이 낼 수 있다",
+    id: "moves", label: "조용한 움직임", max: 18, why: "뉴스와 무관하게 직접 재는 것 — 사람·돈·군이 평소를 벗어났나. 기습은 이쪽으로만 잡을 수 있다",
     groups: [
-      { id: "T", label: "사건·계기", max: 10, items: [
-        { id: "t_trigger", pts: 8, ko: "사상자가 난 계기 사건과 보복 다짐" },
-        { id: "t_major_test", pts: 5, ko: "최근 30일 안에 핵실험 또는 ICBM급 발사" },
-        { id: "t_deadline", pts: 4, ko: "명시적 시한 임박" },
-        { id: "t_provocation", pts: 2, ko: "최근 7일 안에 미사일 발사 등 도발" },
-      ] },
-      { id: "D", label: "선언·태세", max: 8, items: [
-        { id: "g_ultimatum", pts: 4, ko: "최후통첩·무력사용 공식 승인·단교" },
-        { id: "g_intel_warning", pts: 4, ko: "정보당국의 '공격 임박' 공개 경고" },
-        { id: "m_alert_level", pts: 3, ko: "군 경계태세 공식 격상" },
-        { id: "g_talks_collapse", pts: 3, ko: "협상 결렬" },
-        { id: "m_exercise_cover", pts: 2, ko: "'훈련' 병력이 남거나 훈련 연장" },
-        { id: "m_leadership", pts: 2, ko: "지도부의 이례적 동선" },
-      ] },
-      { id: "I", label: "말·여론", max: 7, items: [
-        { id: "i_state_mobilization", pts: 3, ko: "관영매체의 전시 동원 서사" },
-        { id: "i_leader_threat", pts: 2, ko: "최고지도자의 명시적 위협·명분 연설" },
-        { id: "i_pretext", pts: 2, ko: "명분 만들기" },
-        { id: "i_news_surge", pts: 1, ko: "전쟁 관련 보도량 급증" },
-        { id: "i_public_anxiety", pts: 1, ko: "대중 불안 — 검색·사재기" },
-      ] },
+      g("P", "사람이 빠진다", [
+        ["g_evac_order", "제3국 대사관 철수 명령"],
+        ["g_leave_now", "자국민 '즉시 출국' 권고 (각국 여행경보)"],
+        ["g_staff_restrict", "대사관 직원 이동 제한·영사 경고"],
+        ["g_attacker_evac", "공격할 수 있는 쪽이 자기 사람을 뺌"],
+        ["g_regional_drawdown", "이웃 나라·역내 인력 감축"],
+        ["f_capital_flight", "부자·기업의 이탈 (기업 제트기 출국·외국인 대량 매도·주재원 철수)"],
+        ["m_airspace", "민항기 급감·항공사 운항 중단·영공 폐쇄"],
+        ["m_civil_defense", "민방위 조치·주민 소개"],
+        ["a_fleet", "서해 중국 어선이 빠짐"],
+      ]),
+      g("F", "돈이 빠진다", [
+        ["f_fx", "원화 급락"],
+        ["f_equity", "한국 증시만 급락"],
+        ["f_prediction", "예측시장 전쟁 가격 급등"],
+        ["f_safe_haven", "방산주·금 급등"],
+      ]),
+      g("W", "군이 움직인다", [
+        ["m_logistics", "야전병원·혈액·연료·탄약의 전방 이동"],
+        ["m_mobilization", "예비군 동원·휴가 중단"],
+        ["m_gps_ew", "GPS 교란·전자전 급증"],
+        ["a_launch_prep", "발사 준비 정황 (발사 예고 항행경보·발사장 열점)"],
+        ["a_nk_dark", "북한이 어두워짐 (인터넷 장애·평양 밤 불빛 감소)"],
+      ]),
     ],
   },
   {
-    id: "action", label: "실제 행동", max: 45, why: "사람·돈·군이 실제로 움직인 것 — 비용이 드는 행동이라 가장 무겁게",
+    id: "context", label: "배경", max: 12, why: "전쟁 전 징조는 아니지만 위험의 바탕 — 세지 않고 따로 보여 준다. 한 달에 한 번쯤 점검",
     groups: [
-      { id: "P", label: "사람이 빠진다", max: 18, items: [
-        { id: "g_evac_order", pts: 10, ko: "제3국 대사관 철수 명령" },
-        { id: "g_leave_now", pts: 8, ko: "자국민 '즉시 출국' 권고" },
-        { id: "g_attacker_evac", pts: 8, ko: "공격하는 쪽이 자기 사람을 뺌" },
-        { id: "g_regional_drawdown", pts: 6, ko: "이웃 나라·역내 인력 감축" },
-        { id: "f_capital_flight", pts: 5, ko: "부자·기업의 이탈 (기업 제트기 출국·주재원 철수)" },
-        { id: "m_airspace", pts: 5, ko: "항공사 운항 중단·영공 폐쇄·민항기 급감" },
-        { id: "g_staff_restrict", pts: 4, ko: "대사관 직원 이동 제한·대피 지시" },
-        { id: "m_civil_defense", pts: 4, ko: "민방위 조치·주민 소개" },
-        { id: "a_fleet", pts: 2, ko: "서해 중국 어선이 빠짐" },
-      ] },
-      { id: "W", label: "군이 움직인다", max: 16, items: [
-        { id: "m_logistics", pts: 8, ko: "야전병원·혈액·연료·탄약의 전방 이동" },
-        { id: "m_mobilization", pts: 7, ko: "예비군 동원·휴가 중단" },
-        { id: "m_buildup", pts: 7, ko: "국경·전선에 병력·장비 집결" },
-        { id: "m_border_fire", pts: 4, ko: "전선 교전·포격 급증" },
-        { id: "m_strategic_assets", pts: 3, ko: "정찰기·폭격기·항모 등 전략자산 집결" },
-        { id: "m_gps_ew", pts: 3, ko: "GPS 교란·전자전 급증" },
-        { id: "a_launch_prep", pts: 2, ko: "발사 준비 정황 (발사 예고 항행경보·발사장 열점)" },
-        { id: "m_cyber", pts: 2, ko: "정부·기반시설 사이버 공격" },
-      ] },
-      { id: "F", label: "돈이 빠진다", max: 11, items: [
-        { id: "f_fx", pts: 3, ko: "원화 급락" },
-        { id: "f_sovereign", pts: 3, ko: "국채·CDS 급등" },
-        { id: "f_prediction", pts: 3, ko: "예측시장 전쟁 가격 급등" },
-        { id: "f_equity", pts: 2, ko: "한국 증시만 급락" },
-        { id: "f_safe_haven", pts: 2, ko: "방산주·금 급등" },
-      ] },
+      g("X", "세계 정세", [
+        ["w_us_war", "미국이 다른 지역에서 전쟁·대규모 군사작전 중"],
+        ["w_us_assets_out", "주한미군·인도태평양 전력이 다른 곳으로 빠짐 (사드·패트리엇·항모·탄약)"],
+        ["w_patron_war", "북한의 후원국(러시아·중국)이 전쟁 중이거나 북한이 파병"],
+        ["w_taiwan", "대만해협·동중국해의 군사 위기"],
+        ["w_nuclear", "강대국의 핵 위협·핵실험 재개·군비통제 붕괴"],
+        ["w_markets", "세계 금융의 전쟁 공포 (금·유가·변동성 급등)"],
+      ]),
+      g("S", "한반도의 구조적 긴장", [
+        ["s_talks", "남북·북미 대화 채널이 모두 끊김"],
+        ["s_agreement", "충돌 방지 합의(9·19 군사합의·정전협정)가 파기·효력 정지"],
+        ["s_doctrine", "북한이 한국을 '적대국'으로 규정하거나 핵 선제사용을 법·헌법에 명시"],
+        ["s_friction", "접경의 상시 마찰 (확성기·전단·풍선·GPS 교란이 몇 달째)"],
+        ["s_tests", "최근 12개월 안에 핵실험 또는 ICBM급 발사"],
+        ["s_casualty", "최근 5년 안에 사상자가 난 남북 무력 충돌"],
+      ]),
     ],
+  },
+  {
+    id: "other", label: "참고 신호", max: 11, why: "전쟁 사례의 절반에 못 미쳐 9개에 들지 못한 것 — 판정에는 쓰지 않고 참고로만",
+    groups: [g("O", "참고", [
+      ["m_alert_level", "군 경계태세 공식 격상"],
+      ["m_exercise_cover", "'훈련' 병력이 남거나 훈련 연장"],
+      ["m_leadership", "지도부의 이례적 동선"],
+      ["m_cyber", "정부·기반시설 사이버 공격"],
+      ["f_sovereign", "국채·CDS 급등"],
+      ["i_state_mobilization", "관영매체의 전시 동원 서사"],
+      ["i_news_surge", "전쟁 관련 보도량 급증"],
+      ["i_public_anxiety", "대중 불안 — 검색·사재기"],
+      ["t_deadline", "명시적 시한 임박"],
+      ["t_major_test", "최근 30일 안에 핵실험 또는 ICBM급 발사"],
+      ["t_provocation", "최근 7일 안에 미사일 발사 등 도발"],
+    ])],
   },
 ];
 
@@ -117,63 +112,65 @@ export interface ScoredItem extends RubricItem { s: Obs; weak: boolean; got: num
 export interface ScoredGroup { id: string; label: string; max: number; pts: number; items: ScoredItem[] }
 export interface ScoredLayer { id: LayerId; label: string; max: number; why: string; pts: number; groups: ScoredGroup[] }
 export interface RubricScore {
+  /** 전쟁 전 징조 9개 중 켜진 수 (약함·미확인은 0.5) */
+  signs: number;
+  /** 조용한 움직임 중 켜진 수 (상승 수준은 0.5) */
+  moves: number;
+  /** 배경 항목 중 켜진 수 */
+  context: number;
+  /** 0~100: 징조 9개 중 몇 개인가의 백분율 (기록·그래프용) */
   index: number;
   phase: 1 | 2 | 3 | 4;
   layers: ScoredLayer[];
-  /** 말과 행동이 어긋나는가 — 화면 한 줄 */
-  divergence?: { kind: "talk" | "quiet_move" | "both"; text: string };
-  /** 켜진 항목 수 / 확인한 항목 수 / 아직 확인 못 한 항목 수 */
-  on: number;
+  /** 단계를 정한 이유 한 줄 */
+  reason: string;
+  /** 뉴스는 조용한데 측정값이 함께 움직임 */
+  surprise: boolean;
+  /** 확인한 항목 수 / 아직 확인 못 한 항목 수 (참고 신호 제외) */
   watched: number;
   waiting: number;
-  /** 왜 더 오르지 않았나 (제한 규칙이 걸렸을 때) */
-  capped?: string;
 }
 
-/** 채점: 켜짐 = 배점 전부, 약함(미확인·'상승' 수준) = 절반, 못 본 것은 0점이지만 '확인 대기'로 따로 센다. 묶음·층마다 상한 */
+/** 세기: 켜짐 = 1, 약함(미확인·'상승' 수준) = 0.5, 못 본 것은 0이지만 '확인 대기'로 따로 센다 */
 export function scoreRubric(status: Record<string, SignalNow | undefined>): RubricScore {
-  let on = 0, watched = 0, waiting = 0;
+  let watched = 0, waiting = 0;
   const layers: ScoredLayer[] = RUBRIC.map((L) => {
-    const groups = L.groups.map((g) => {
-      const items: ScoredItem[] = g.items.map((it) => {
+    const groups = L.groups.map((gr) => {
+      const items: ScoredItem[] = gr.items.map((it) => {
         const st = status[it.id];
         const s: Obs = st?.s ?? "unk";
         const weak = s === "on" && (st?.w ?? 1) < 1;
-        if (s === "unk") waiting++; else watched++;
-        if (s === "on") on++;
-        return { ...it, s, weak, got: s === "on" ? it.pts * (st?.w ?? 1) : 0, ev: st?.ev, by: st?.by };
+        if (L.id !== "other") { if (s === "unk") waiting++; else watched++; }
+        return { ...it, s, weak, got: s === "on" ? (weak ? 0.5 : 1) : 0, ev: st?.ev, by: st?.by };
       });
-      return { id: g.id, label: g.label, max: g.max, pts: Math.min(g.max, items.reduce((a, x) => a + x.got, 0)), items };
+      return { id: gr.id, label: gr.label, max: gr.max, pts: items.reduce((a, x) => a + x.got, 0), items };
     });
-    return { id: L.id, label: L.label, max: L.max, why: L.why, pts: Math.min(L.max, groups.reduce((a, g) => a + g.pts, 0)), groups };
+    return { id: L.id, label: L.label, max: L.max, why: L.why, pts: groups.reduce((a, x) => a + x.pts, 0), groups };
   });
-  const of = (id: LayerId) => layers.find((l) => l.id === id)!;
-  const moving = [...of("seen").groups, ...of("action").groups].filter((g) => g.pts > 0).length;
-  const actions = of("action").groups.flatMap((g) => g.items).filter((x) => x.s === "on" && !x.weak && ACTION_KEYS.includes(x.id)).length;
-  let total = layers.reduce((a, l) => a + l.pts, 0), capped: string | undefined;
-  // 신호 하나·한 묶음만으로는 '위기'가 되지 않는다. '임박'은 행동 신호가 둘 이상 확인돼야 한다
-  if (moving < 2 && total >= INDEX_AT[3]) { total = INDEX_AT[3] - 1; capped = "한 묶음의 신호뿐이라 위기(35점)로 올리지 않아요"; }
-  if (actions < 2 && total >= INDEX_AT[4]) { total = INDEX_AT[4] - 1; capped = "철수·병참·동원 같은 실제 행동이 둘 이상 확인되지 않아 임박(60점)으로 올리지 않아요"; }
-  const index = Math.round(Math.min(100, total));
-  const seen = of("seen").pts, act = of("action").pts;
-  const divergence: RubricScore["divergence"] =
-    seen >= 12 && act < 5 ? { kind: "talk", text: "말과 사건은 시끄러운데 사람·돈·군은 거의 움직이지 않았어요." }
-    : act >= 10 && seen < 8 ? { kind: "quiet_move", text: "겉은 조용한데 사람·돈·군이 움직이고 있어요 — 가장 주의해서 볼 모양이에요." }
-    : act >= 10 && seen >= 12 ? { kind: "both", text: "말·사건과 실제 행동이 함께 움직이고 있어요." }
-    : undefined;
-  return { index, phase: index >= INDEX_AT[4] ? 4 : index >= INDEX_AT[3] ? 3 : index >= INDEX_AT[2] ? 2 : 1, layers, divergence, on, watched, waiting, capped };
+  const of = (id: LayerId) => layers.find((l) => l.id === id)!.pts;
+  const signs = of("signs"), moves = of("moves"), context = of("context");
+  const n = Math.floor(signs);
+  let phase: 1 | 2 | 3 | 4 = n >= SIGNS_AT[4] ? 4 : n >= SIGNS_AT[3] ? 3 : n >= SIGNS_AT[2] ? 2 : 1;
+  let reason = `전쟁 전 징조 9개 중 ${signs}개`;
+  // 임박은 말·사건만으로는 안 된다 — 사람·돈·군의 실제 움직임이 둘 이상 함께 있어야 한다
+  if (phase === 4 && moves < 2) { phase = 3; reason += " — 징조는 많지만 사람·돈·군의 움직임이 확인되지 않아 '임박'으로 올리지 않아요"; }
+  const surprise = moves >= MOVES_AT.watch && n < SIGNS_AT[2];
+  if (moves >= MOVES_AT.crisis && phase < 3) { phase = 3; reason = `조용한 움직임 ${moves}개가 함께 켜짐 (징조는 ${signs}개)`; }
+  else if (moves >= MOVES_AT.watch && phase < 2) { phase = 2; reason = `뉴스의 징조는 ${signs}개뿐인데 조용한 움직임 ${moves}개가 함께 켜짐 — 기습 주의`; }
+  else if (context >= CONTEXT_TENSE && phase < 2) { phase = 2; reason = `전쟁 전 징조는 9개 중 ${signs}개뿐이지만 배경이 불안해요 (배경 ${context}개 켜짐)`; }
+  return { signs, moves, context, index: Math.round((Math.min(9, signs) / 9) * 100), phase, layers, reason, surprise, watched, waiting };
 }
 
-/** 지수 → 30일 국지 충돌 % (판단값): 0 = 평소 바닥 · 20 = 3% · 35 = 8% · 60 = 20% · 100 = 바닥 + 25% */
-export function clashOfIndex(index: number, quietPct: number): number {
-  const k: [number, number][] = [[0, quietPct], [INDEX_AT[2], 3], [INDEX_AT[3], 8], [INDEX_AT[4], 20], [100, 25 + quietPct]];
-  for (let i = 0; i < 4; i++) if (index <= k[i + 1][0]) return +(k[i][1] + ((index - k[i][0]) / (k[i + 1][0] - k[i][0])) * (k[i + 1][1] - k[i][1])).toFixed(1);
-  return +(25 + quietPct).toFixed(1);
+/** 30일 국지 충돌 % (판단값 — 알림 문구용): 징조 수에 따라, 단계가 다른 이유로 올랐으면 그 단계의 최소값 */
+export function clashOf(signs: number, phase: number, quietPct: number): number {
+  const byN = [quietPct, 1.5, 2, 3, 5, 8, 12, 20, 25, 25];
+  const floor = phase >= 4 ? 20 : phase === 3 ? 8 : phase === 2 ? 3 : 0;
+  return +Math.max(byN[Math.min(9, Math.floor(signs))], floor).toFixed(1);
 }
 
 /**
- * 바탕 항목의 지금 상태 — 천천히 변하므로 코드에 날짜·근거와 함께 적어 두고, 분석관이 확인하면 그 값이 덮어 쓴다(record_precursor_checks, 45일 유효).
- * 확인하지 못한 항목은 0점이고 화면에 '확인 대기'로 나온다 — 추측으로 켜지 않는다.
+ * 배경 항목의 지금 상태 — 천천히 변하므로 코드에 날짜·근거와 함께 적어 두고, 분석관이 확인하면 그 값이 덮어 쓴다(record_precursor_checks, 45일 유효).
+ * 확인하지 못한 항목은 세지 않고 화면에 '확인 대기'로 나온다 — 추측으로 켜지 않는다.
  */
 export const BASE_SEED: { asOf: string; items: Record<string, { v: 0 | 0.5 | 1; ev: string }> } = {
   asOf: "2026-11-11",

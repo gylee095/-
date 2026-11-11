@@ -11,17 +11,17 @@
   "target": "한국·미국",
   "kind": "korean_crisis",
   "surprise": false,
-  "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: ICBM 시험(7월·11월), 괌 포위사격 위협, 6차 핵실험(9/3), 9/21 주한미군 가족 대상 가짜 NEO 문자, 9/23 B-1B NLL 이북 비행, 11월 항모 3척, 12월 가족 철수 논의가 이어졌으나 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+  "summary": "ICBM 시험(7/4·7/28·11/28)과 6차 핵실험(9/3) 속에 트럼프 '화염과 분노'(8/8), 북의 괌 포위사격안(8월 중순 시한), 김정은 본인 성명(9/21), B-1B의 DMZ 최북단 비행(9/23), '선전포고' 공방(9/25)이 이어졌으나 전쟁은 없었다. 켜진 것은 지도자 위협·전략자산 시위·시한 예고였고, 당국은 '임박 징후 없음'이라 했으며 훈련은 예정대로 끝나고 전선 교전도 늘지 않았다. 대사관·가족 철수, 금융시장, 한국 내 불안은 기사를 열지 못해 unknown.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미검증 단서: 12월 초 그레이엄 의원이 가족 철수를 주장했으나 국방부는 '계획 없음'. 9/21 NEO 문자는 가짜"
+      "what": "미확인(관련 기사 못 엶). 미검증 단서: 12월 그레이엄 의원의 가족 철수 주장에 국방부 '계획 없음', 9/21 NEO 문자는 가짜"
     },
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "미검증 단서: 한국 여행경보 격상 없음(2018-01 새 제도에서 1단계). 미국의 북한 여행금지(9/1)는 억류 위험 사유"
+      "what": "미확인. 미검증 단서: 한국 여행경보 격상 없음"
     },
     {
       "h": "g_staff_restrict",
@@ -40,23 +40,43 @@
     },
     {
       "h": "g_intel_warning",
-      "status": "unknown",
-      "what": "미검증 단서: 폼페이오 CIA 국장 8/13 '임박한 징후 없다' 발언"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "임박 경고 없음: 틸러슨 8/9 '임박한 위협 없다', 한국군 당국자 '북이 타격을 준비하는 징후 없음', 괌 지사 '위협 없음'",
+      "source": "https://www.bbc.com/news/world-asia-40871416",
+      "confidence": "high"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 리용호 9/25 '미국이 선전포고' 주장, 백악관은 부인. 시한부 통첩은 없었던 것으로 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "통첩·무력 승인 없음: 리용호 9/25 '미국이 선전포고' 주장에 백악관 '선전포고한 적 없다'. 시한부 요구도 없었음",
+      "source": "https://edition.cnn.com/2017/09/25/politics/north-korea-fm-us-bombers/index.html",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증 단서: 공식 협상이 없었음(뉴욕 채널만)"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "결렬될 공식 협상이 없었음: 뉴욕 채널 접촉은 8월에도 유지, 틸러슨 9/30 '직접 접촉 중'(트럼프는 10/1 '시간 낭비')",
+      "source": "https://en.wikipedia.org/wiki/2017%E2%80%932018_North_Korea_crisis#Trump's_speech_at_UN_GA%2C_and_Kim_Jong_Un's_response",
+      "confidence": "med"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "미검증 단서: 매티스·던퍼드 '병력 태세 변화 없음', 한국군 '북 특이동향 없음' 발언으로 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "집결 징후 없음: 괌 위협 직후 한국군 당국자 '북이 타격을 준비하는 징후 없다'(8/9~10 보도). 병력 집결 자체를 다룬 출처는 아님",
+      "source": "https://edition.cnn.com/2017/08/09/politics/north-korea-considering-near-guam-strike/index.html",
+      "confidence": "low"
     },
     {
       "h": "m_logistics",
@@ -70,23 +90,38 @@
     },
     {
       "h": "m_exercise_cover",
-      "status": "unknown",
-      "what": "미검증 단서: UFG(8/21~31)·비질런트 에이스(12/4~8)가 예정대로 끝난 것으로 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "연장 없음: UFG는 8/21~31 예정대로, 전년보다 다소 축소(미군 1.75만 명)해 실시",
+      "source": "https://en.wikipedia.org/wiki/2017%E2%80%932018_North_Korea_crisis#Rhetorical_escalation_in_August_2017",
+      "confidence": "med"
     },
     {
       "h": "m_strategic_assets",
-      "status": "unknown",
-      "what": "미검증 단서: B-1B 전개(7/8·7/30·9/23 NLL 이북), 사드 잔여 발사대(9/7), 항모 3척 훈련(11/11~14)"
+      "status": "yes",
+      "first": "2017-08-31",
+      "lead": null,
+      "public_then": true,
+      "what": "미국: 8/31 B-1B 2대·F-35B 4대 모의 폭격, 9/23 B-1B가 21세기 들어 DMZ 최북단 동해 비행. 항모 3척 훈련(11월)은 미검증",
+      "source": "https://edition.cnn.com/2017/08/31/politics/us-bombers-korean-peninsula/index.html",
+      "confidence": "high"
     },
     {
       "h": "m_civil_defense",
-      "status": "unknown",
-      "what": "미검증 단서: 괌 8/11 비상행동수칙 배포, 일본 J얼럿(8/29·9/15)·대피훈련, 하와이 12/1 사이렌 재개"
+      "status": "yes",
+      "first": "2017-12-01",
+      "lead": null,
+      "public_then": true,
+      "what": "미국 하와이: 12/1 핵공격 경보 사이렌 시험을 30여 년 만에 재개·대피 훈련. 일본 J얼럿 대피 안내(8/29). 한국 쪽 조치는 미확인",
+      "source": "https://en.wikipedia.org/wiki/2018_Hawaii_false_missile_alert#Background",
+      "confidence": "med"
     },
     {
       "h": "m_airspace",
       "status": "unknown",
-      "what": "미검증 단서: 영공 폐쇄·운항 중단은 없고 에어프랑스(8월)·싱가포르항공 등이 항로를 우회"
+      "what": "미확인. 미검증 단서: 폐쇄·운항 중단 없이 일부 항공사 항로 우회"
     },
     {
       "h": "m_gps_ew",
@@ -100,13 +135,18 @@
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "미검증 단서: 11/13 JSA 귀순 병사 총격 1건 외 교전 급증은 없었던 것으로 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "급증 없음: 창 안 전선 사건은 11/13 JSA 귀순 병사 총격(북측 40여 발, 정전협정 위반) 1건",
+      "source": "https://en.wikipedia.org/wiki/2017%E2%80%932018_North_Korea_crisis#Armistice_violation_in_early_November_2017",
+      "confidence": "med"
     },
     {
       "h": "m_alert_level",
       "status": "unknown",
-      "what": "미검증 단서: 9/3 핵실험 직후 합참 감시·경계태세 격상 발표. 북측 공식 격상은 기억에 없음"
+      "what": "미확인. 미 국방부 9/25 '오늘 밤 싸울 태세'는 수사일 뿐 공식 격상 아님"
     },
     {
       "h": "m_leadership",
@@ -145,13 +185,23 @@
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 트럼프 8/8 '화염과 분노', 9/19 유엔 '완전 파괴', 김정은 9/21 본인 명의 성명"
+      "status": "yes",
+      "first": "2017-08-08",
+      "lead": null,
+      "public_then": true,
+      "what": "트럼프 8/8 '화염과 분노', 9/19 유엔 '완전 파괴'; 김정은 9/21 본인 명의 첫 성명 '사상 최고의 초강경 대응'",
+      "source": "https://en.wikipedia.org/wiki/2017%E2%80%932018_North_Korea_crisis#Rhetorical_escalation_in_August_2017",
+      "confidence": "high"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "미검증 단서: 북이 트럼프 발언을 '선전포고'로 규정하고 폭격기 격추 권리 주장(9/25)"
+      "status": "yes",
+      "first": "2017-09-25",
+      "lead": null,
+      "public_then": true,
+      "what": "리용호 외무상 9/25 '미국이 선전포고했으니 영공 밖 전략폭격기도 격추할 권리' 주장",
+      "source": "https://www.bbc.com/news/world-asia-41391978",
+      "confidence": "med"
     },
     {
       "h": "i_state_mobilization",
@@ -170,15 +220,25 @@
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증 단서: 창 안에 사상자 계기 사건 없음(웜비어 사망 6/19는 창 이전)"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "사상자 난 계기 사건 없음 — 미사일·핵실험과 말의 격화였고 JSA 총격(11/13)에도 보복 다짐 없음",
+      "source": "https://en.wikipedia.org/wiki/2017%E2%80%932018_North_Korea_crisis#Armistice_violation_in_early_November_2017",
+      "confidence": "med"
     },
     {
       "h": "t_deadline",
-      "status": "unknown",
-      "what": "미검증 단서: 8/10 전략군 '8월 중순까지 괌 포위사격안 완성·보고' 예고"
+      "status": "yes",
+      "first": "2017-08-10",
+      "lead": null,
+      "public_then": true,
+      "what": "북 전략군: 화성-12 4발 괌 포위사격안을 '8월 중순까지' 완성해 김정은 명령 대기 — 김정은 8/14~15 '미국 행동 지켜보겠다'며 보류",
+      "source": "https://edition.cnn.com/2017/08/09/politics/north-korea-considering-near-guam-strike/index.html",
+      "confidence": "med"
     }
   ],
-  "missed": "(미검증, 과제 설명 기준) 가짜 NEO 문자(9/21)처럼 철수 '소문·오경보'가 도는 것, 의회 인사의 가족 철수 공개 주장(12월)은 코드북에 없음.",
+  "missed": "코드북에 없음(미검증): 가짜 NEO 문자(9/21) 같은 철수 오경보, 의회 인사의 가족 철수 공개 주장(12월). 확인된 것: 표적이 한반도 밖(괌·일본·하와이)으로 옮겨가 민방위 신호가 한국이 아닌 그쪽에서 켜졌다는 점, 핵·ICBM 시험 자체가 코드북의 어느 항목에도 없다는 점.",
   "retrieved": "2026-11-11"
 }

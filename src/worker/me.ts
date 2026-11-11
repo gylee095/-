@@ -62,7 +62,7 @@ var SHARE_SVG='<svg class="share" viewBox="0 0 24 24" fill="none" stroke="curren
 
 // 지금 상황에 맞는 '한 가지 할 일'
 function stepCard(c,me,on){
-  if(on)return '<div class="state"><div class="okline">✓ 이 휴대폰으로 알림이 와요</div><div class="mute">단계가 올라가거나 내려갈 때만 울립니다. 평소엔 조용해요. 기기 '+me.devicesUsed+'/'+me.devicesMax+'대 사용 중</div>'+(me.devicesUsed<me.devicesMax?'<button class="btn ghost" style="margin-top:10px" onclick="shareFamily()">가족 휴대폰에도 켜기 ('+(me.devicesMax-me.devicesUsed)+'대 남음)</button>':'')+'</div>';
+  if(on)return '<div class="state"><div class="okline">✓ 이 휴대폰으로 알림이 와요</div><div class="mute">단계가 바뀌거나 실제 징조가 나타날 때, 그리고 월요일 아침 주간 요약 때 울립니다. 기기 '+me.devicesUsed+'/'+me.devicesMax+'대 사용 중</div>'+(me.devicesUsed<me.devicesMax?'<button class="btn ghost" style="margin-top:10px" onclick="shareFamily()">가족 휴대폰에도 켜기 ('+(me.devicesMax-me.devicesUsed)+'대 남음)</button>':'')+'</div>';
   var h='<div class="state main"><h2>마지막 한 단계: 이 폰에서 알림 켜기</h2>';
   var g=kewGuide(kewEnv(),"/me?code="+encodeURIComponent(c));
   if(g){setTimeout(function(){kewDrawQr("/me?code="+encodeURIComponent(c))},0);return '<div>'+g+'<p class="mute">활성화 코드 <b>'+esc(c)+'</b> — 주소에 들어 있어 따로 넣을 필요는 없어요.</p></div>'}

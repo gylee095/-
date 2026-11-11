@@ -1,0 +1,184 @@
+{
+  "id": "ethiopia-tigray-2020",
+  "name": "에티오피아 연방정부 → 티그라이 공세",
+  "outcome": "war",
+  "onset": "2020-11-04",
+  "window": [
+    "2020-08-06",
+    "2020-11-03"
+  ],
+  "attacker": "에티오피아 연방정부",
+  "target": "티그라이 지방정부(TPLF)",
+  "kind": "intrastate",
+  "surprise": false,
+  "summary": "2020-11-04 에티오피아 연방정부가 티그라이 지방정부(TPLF)를 상대로 군사 공세를 시작했다(개시일·경과는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이고 surprise 값도 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: 11/2 티그라이 수반이 연방군 공격 임박을 공개 경고, 10/30 국제위기그룹의 경고 브리핑이라는 기억."
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 10/7 연방 상원이 티그라이 지도부와의 관계 단절·예산 차단을 의결했다는 기억."
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "미검증 단서: 원로·종교계 중재가 성과 없이 끝났다는 기억 — 공식 협상이 있었는지 확인 필요."
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "미검증 단서: 10월 말 연방군·암하라 병력의 티그라이 접경 이동 보도라는 기억."
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 티그라이 특수부대·민병대 증원과 대규모 열병(8월)이라는 기억."
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미검증 단서: 영공 폐쇄·항공편 중단은 11/4 당일 이후였다는 기억 — no 후보."
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "미검증 단서: 티그라이 통신·인터넷 차단은 개시 당일(11/4)이었다는 기억 — no 후보."
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "미검증 단서: 티그라이 비상사태 선포는 개시 당일(11/4)이었다는 기억 — no 후보."
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 아비 총리와 티그라이 수반의 상호 경고 발언(10월~11월 초) — 날짜 확인 필요."
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 연방정부가 각지 폭력의 배후로 TPLF를 지목했다는 기억. 북부사령부 피습 주장은 개시 당일 밤."
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증 단서: 11/3~4 밤 TPLF의 북부사령부 기지 공격이 계기 — 개시일과 겹쳐 no 후보. 11/1 월레가 학살도 확인 필요."
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미검증 단서: 10/5 연방정부의 헌법상 임기 만료일 — TPLF가 이후 정통성을 인정하지 않겠다고 했다는 기억."
+    }
+  ],
+  "missed": "미검증: 9/9 티그라이의 독자 지방선거 강행, 9월 신권 화폐 교체, 10월 말 연방이 임명한 북부사령부 장성의 부임 거부 — 중앙–지방 권한 충돌형 전조로 코드북에 칸이 없다. 재조사 때 날짜 확인 필요.",
+  "retrieved": "2026-11-11"
+}

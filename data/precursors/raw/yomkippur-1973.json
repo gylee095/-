@@ -1,0 +1,189 @@
+{
+  "id": "yomkippur-1973",
+  "name": "이집트·시리아 → 이스라엘 기습 (욤키푸르 전쟁)",
+  "outcome": "war",
+  "onset": "1973-10-06",
+  "window": [
+    "1973-07-08",
+    "1973-10-05"
+  ],
+  "attacker": "이집트·시리아",
+  "target": "이스라엘",
+  "kind": "interstate",
+  "surprise": true,
+  "summary": "1973-10-06 이집트와 시리아가 속죄일에 이스라엘을 동시 기습했다(개시일은 의뢰서 기준이며 검색된 CIA 문서 날짜와 일치). 이번 조사에서 출처로 확인한 것은 소련이 10/3~5 이집트·시리아에서 자국민 가족을 급히 철수시킨 일(첩보로만 파악)과 이스라엘 군 정보국이 10/4에도 전쟁 가능성을 낮게 봤다는 점뿐이다. 웹 검색 한도가 한 번 검색한 뒤 소진돼 나머지 32개 가설은 unknown 이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "yes",
+      "first": "1973-10-04",
+      "lead": 2,
+      "public_then": false,
+      "what": "소련(공격 측 후원국)이 이집트·시리아에서 자국민 가족을 급히 공수 철수. 시작일은 10/3·10/4로 갈려 늦은 날 채택, 10/5까지 약 1천 명.",
+      "source": "https://www.cia.gov/readingroom/docs/1973-10-16B-CIA.pdf",
+      "confidence": "med"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "검색 확인: 이스라엘 군 정보국은 10/4에도 전쟁 가능성 '낮음' 평가. 다만 소련 측 언론 경고설이 있어 no 로 확정하지 못함."
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 최후통첩·단교는 없었다는 기억 — no 후보."
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "미검증 단서: 진행 중인 협상이 없었고 키신저가 11월 이후 회담을 구상 중이었다는 기억 — no 후보."
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 9월 하순부터 골란 전선 시리아군 증강, 수에즈 운하 이집트군 집결. 대부분 첩보로만 파악."
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미검증 단서: 이집트군 도하 장비의 운하 전방 이동이 항공정찰에 잡혔다는 기억(비공개)."
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 이집트가 9월 말 예비역을 소집했다가 10/4 일부 해제를 발표(기만), 이스라엘은 10/5 휴가 취소라는 기억."
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 이집트 '타흐리르 41' 훈련(10/1경 시작)이 도하 공격의 위장."
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "1973년에는 해당 수단 없음. 미조사."
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "1973년에는 해당 수단 없음. 미조사."
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미검증 단서: 9/13 시리아 상공 공중전(시리아기 다수 격추) 말고는 전선이 조용했다는 기억."
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 이스라엘군 10/5 부분 경계(상비군 최고 경계) — 당시 공개됐는지 확인 필요."
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미검증 단서: 10/5 이스라엘 내각 긴급 협의(비공개)라는 기억."
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "당시 예측시장 없음."
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 사다트의 9/28 연설은 의도적으로 절제됐다는 기억 — no 후보."
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 이집트의 '이스라엘 선제공격' 주장은 개전 당일이었다는 기억(당일이면 no)."
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 이집트 매체는 평시 분위기를 연출(기만)했다는 기억 — no 후보."
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "미검증 단서: 국제 관심은 오스트리아 쇠나우 인질 사건(9/28)에 쏠렸다는 기억 — no 후보."
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미검증 단서: 이스라엘 대중은 속죄일 휴일을 보내다 기습을 당했다는 기억 — no 후보."
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증 단서: 9/13 공중전 뒤 시리아의 보복 가능성 평가. 공개 보복 다짐이 있었는지 확인 필요."
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미검증 단서: 공개된 시한은 없었다는 기억 — no 후보."
+    }
+  ],
+  "missed": "기만이 핵심이었다(미검증, 재조사 필요): 훈련을 위장으로 쓰고 예비역 해제를 발표해 평시처럼 보이게 했다는 점. 공격 측 후원국의 자국민 철수가 가장 뚜렷한 막판 신호였지만 공개되지 않았다. 검색으로 확인: 이스라엘 군 정보국은 소련 민간인 철수를 10/5에야 알았고 그 전날까지 전쟁 가능성을 낮게 봤다.",
+  "retrieved": "2026-11-11"
+}

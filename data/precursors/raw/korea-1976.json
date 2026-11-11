@@ -1,0 +1,184 @@
+{
+  "id": "korea-1976",
+  "name": "판문점 도끼 살인 사건 (1976)",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "1976-08-18",
+    "1976-09-15"
+  ],
+  "attacker": "북한",
+  "target": "미국·한국(유엔군사령부)",
+  "kind": "korean_crisis",
+  "surprise": false,
+  "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 8/18 판문점 공동경비구역에서 북한군이 미군 장교를 살해했고, 데프콘 3 발령과 8/21 폴 버니언 작전(미루나무 절단)으로 이어졌으나 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: 미 WSAG 회의록(FRUS)에 '북한군 특이 이동 없음' 보고가 있는 것으로 기억"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 시한부 통첩은 없었고 미국이 군정위에서 사과·책임자 처벌을 요구한 것으로 기억"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "미검증 단서: 군정위 회의가 계속됨(8/19, 8/21 김일성 '유감' 전달), 9/6 JSA 분할 합의"
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "미검증 단서: 8/21 폴 버니언 작전에 800여 명 투입, 한미 지상군·포병 전방 대기"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 8/19 김일성 최고사령관 명령으로 인민군·노농적위대·붉은청년근위대 전투태세"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미검증 단서: 8/19~21 F-4(가데나)·F-111(아이다호) 전개, B-52(괌) 비행, 미드웨이 항모전단 출동"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미검증 단서: 평양 등화관제·주민 소개 보도가 있었던 것으로 기억"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "미확인(당시 관련 보도를 찾지 못함)"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "미확인(당시 관련 보도를 찾지 못함)"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미검증 단서: 8/18 사건 뒤 추가 교전 없음(8/21 작전 중에도 충돌 없음)"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "미검증 단서: 8/19 주한미군·한국군 데프콘 3, 같은 날 북 '전투태세' 명령"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미검증 단서: 8/18·19 워싱턴 특별행동그룹(WSAG) 긴급회의"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "당시 예측시장 없음"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 박정희 8/20 '미친 개에게는 몽둥이가 약' 연설"
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 북 방송이 '미군이 먼저 도발했다'고 주장(8/18~19)"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 8/19 평양방송이 전군·적위대 전투태세 명령을 대내 방송"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "미검증 단서: 사건 직후 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증 단서: 8/18 판문점에서 미군 장교 2명 피살(창 첫날)과 미국의 응징 방침"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미검증 단서: 명시적 시한 없음"
+    }
+  ],
+  "missed": "",
+  "retrieved": "2026-11-11"
+}

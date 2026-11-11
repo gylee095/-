@@ -1,0 +1,184 @@
+{
+  "id": "korea-2024-10",
+  "name": "평양 무인기 주장·남북 도로 폭파 위기 (2024년 10월)",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "2024-10-01",
+    "2024-11-15"
+  ],
+  "attacker": "북한",
+  "target": "한국",
+  "kind": "korean_crisis",
+  "surprise": false,
+  "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 북한이 10/11 한국 무인기의 평양 침투를 주장하고, 10/13 국경 부근 8개 포병여단에 '완전사격준비태세'를 지시했으며, 10/15 남북 연결 도로를 폭파했다. 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미확인. 미검증 단서: 대사관 철수 보도는 기억에 없음"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미검증 단서: 미 국무부 한국 여행경보는 1단계가 유지된 것으로 기억"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: 합참·국방부가 '실제 도발 임박 징후 없음' 취지로 밝힌 것으로 기억"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 10/9 총참모부 남북 도로·철길 완전 단절 통보, 10/11 외무성 '최후통첩' 성명(시한 없음), 10/17 헌법 '적대국' 공개"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "미검증 단서: 진행 중인 협상이 없었음"
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "미검증 단서: 8개 포병여단 사격대기 외 대규모 병력 집결은 기억에 없음(전선 방벽 공사는 4월부터)"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 10/16 관영매체 '청년 140만 명 입대·복대 탄원' — 선전이고 동원령은 아님"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미검증 단서: 11/3 B-1B 한미일 훈련(10/31 ICBM 대응), 11/13~15 프리덤 에지 항모 참가"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미검증 단서: 10/15~16 경기도가 파주·김포·연천을 위험구역으로 설정(전단 살포 차단) — 대피 조치는 미확인"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "미검증 단서: 합참 11/9 '북이 11/8~9 해주·개성 일대에서 GPS 교란, 선박·민항기 수십 대 영향'"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미검증 단서: 10/15 폭파 직후 한국군의 MDL 이남 대응사격 1건"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "미검증 단서: 10/13 관영매체 — 총참모부가 10/12 국경선 부근 8개 포병여단에 '완전사격준비태세' 예비지시"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미검증 단서: 10/14 김정은이 국방·안전 분야 협의회 소집(첫 공개)"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미검증 단서: 10월 원화 약세는 달러 강세·미 대선 요인으로 설명된 것으로 기억"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "미검증 단서: 10/14 코스피 상승 마감, 북 리스크 영향이 미미했던 것으로 기억"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미검증 단서: 10/14 국내 방산주 강세 보도"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 김정은 10/2 특수부대 시찰·10/7 국방종합대학 연설 '핵 사용 주저 않겠다', 10/17 2군단 '적국' 발언"
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 10/11 외무성 '한국 무인기 평양 침투(10/3·9·10)' 주장 — 이후 한국 특검이 실제 침투 여부를 수사"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 10/12~13 노동신문 1면에 무인기 사건 게재, 10/16 '140만 명 입대 탄원'"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "미검증 단서: 10월 중순 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미확인. 미검증 단서: 접경지 소음 피해 보도는 있었으나 사재기 보도는 기억에 없음"
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증 단서: 사상자 없음. 평양 상공 무인기(상징성)와 북의 보복 다짐(10/11~13)이 해당하는지 판단 필요"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미검증 단서: 명시적 시한 없음"
+    }
+  ],
+  "missed": "",
+  "retrieved": "2026-11-11"
+}

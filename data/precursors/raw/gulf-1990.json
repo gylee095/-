@@ -1,0 +1,194 @@
+{
+  "id": "gulf-1990",
+  "name": "이라크 → 쿠웨이트 침공",
+  "outcome": "war",
+  "onset": "1990-08-02",
+  "window": [
+    "1990-05-04",
+    "1990-08-01"
+  ],
+  "attacker": "이라크",
+  "target": "쿠웨이트",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "1990-08-02 이라크가 쿠웨이트를 침공해 점령했다(개시일은 검색으로 확인). 이번 조사에서 출처로 확인한 것은 7월 중순~하순 공화국수비대의 접경 집결(7월 말 약 10만 명), 7/25 사담–글래스피 미 대사 면담, 7/31 제다 회담과 그 결렬뿐이다. 웹 검색 한도가 한 번 검색한 뒤 소진돼 나머지 31개 가설은 unknown 이고 surprise 값도 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미검증 단서: 침공 전 제3국 대사관 철수는 없었고 서방인 수천 명이 발이 묶였다는 기억 — no 후보."
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미검증 단서: 침공 전 여행경보 격상은 없었다는 기억(영국항공 149편이 8/2 쿠웨이트 착륙) — no 후보."
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: CIA의 '전쟁 경고'(7/25경)·'공격 경고'(8/1)는 내부 보고였고 공개 경고는 없었다는 기억."
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 7/15~16 아지즈 외무장관의 아랍연맹 서한(쿠웨이트 비난). 시한을 단 최후통첩은 없었다는 기억."
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "yes",
+      "first": "1990-08-01",
+      "lead": 1,
+      "public_then": true,
+      "what": "사우디 제다에서 7/31 열린 이라크–쿠웨이트 회담이 결렬(이라크가 100억 달러 요구)되고 곧 침공. 결렬일은 늦은 날짜(8/1) 채택.",
+      "source": "https://www.wikipedia.com/wiki/Iraq-Kuwait_War",
+      "confidence": "med"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "1990-07-24",
+      "lead": 9,
+      "public_then": true,
+      "what": "공화국수비대가 7월 중순부터 쿠웨이트 접경에 집결, 7월 말 약 10만 명. 첫 날짜가 검색 자료(7/16)와 의뢰서(7/21~24)에서 달라 가장 늦은 7/24 채택(재확인 필요).",
+      "source": "https://www.wikipedia.com/wiki/Iraq-Kuwait_War",
+      "confidence": "low"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미검증 단서: 7월 말 연료·탄약·급수 차량의 전방 이동을 미 정보당국이 포착(비공개)했다는 기억."
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미검증 단서: 7/24 미국–UAE 급유기 훈련 정도였고 항모 증파는 침공 뒤였다는 기억 — no 후보."
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미검증 단서: 영공·공항은 침공 당일까지 정상 운영됐다는 기억(영국항공 149편 착륙) — no 후보."
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "1990년에는 민간 GPS 교란이라는 수단이 사실상 없었음. 미조사."
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "1990년에는 해당 수단이 사실상 없었음. 미조사."
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "미검증 단서: 쿠웨이트군이 7월 중순 경계를 올렸다가 침공 전에 낮췄다는 기억."
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미검증 단서: 7월 사담의 위협과 OPEC 합의로 유가가 올랐다는 기억."
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "당시 예측시장 없음."
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 7/17 사담 후세인의 연설에서 쿠웨이트·UAE 위협. 이번 검색에서는 출처를 찾지 못함."
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 쿠웨이트의 루마일라 유전 '도둑 채굴'·원유 과잉생산을 '경제 전쟁'이라 한 주장(7월 중순)."
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미검증 단서: 쿠웨이트 주민은 평온했고 다수가 여름휴가 중이었다는 기억 — no 후보."
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증 단서: 사상자가 난 계기 사건은 없었다는 기억 — no 후보."
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    }
+  ],
+  "missed": "7/25 사담–글래스피 미 대사 면담(날짜는 검색으로 확인): 미국이 국경 분쟁의 평화적 해결 원칙만 되풀이해 사담이 '묵인'으로 읽었다는 평가가 있다 — '억지하는 쪽의 모호한 신호'는 코드북에 칸이 없다. 공격 측 지도자가 중재자에게 무력을 쓰지 않겠다고 약속했다는 기만 여부는 재조사 필요(미검증).",
+  "retrieved": "2026-11-11"
+}

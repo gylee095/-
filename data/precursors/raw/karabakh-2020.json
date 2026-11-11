@@ -1,0 +1,246 @@
+{
+  "id": "karabakh-2020",
+  "name": "아제르바이잔 → 나고르노카라바흐 공세 (제2차 카라바흐 전쟁)",
+  "outcome": "war",
+  "onset": "2020-09-27",
+  "window": [
+    "2020-06-29",
+    "2020-09-26"
+  ],
+  "attacker": "아제르바이잔 (튀르키예 지원)",
+  "target": "아르메니아·나고르노카라바흐(아르차흐)",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "2020년 9월 27일 아제르바이잔이 튀르키예의 지원을 받아 나고르노카라바흐 접촉선에서 공세를 시작했고 당일 양측이 계엄을 선포했다. 7월 토부즈 국경 교전과 바쿠의 전쟁 요구 집회, 알리예프의 '협상 무의미' 선언, 튀르키예 합동훈련 뒤 F-16 잔류, 9/21 예비군 소집·트럭 징발, 9/25 미 대사관 이동 제한이 공개적으로 보였다. 반면 대사관 철수·영공 폐쇄·통화 급락 같은 신호는 개시 당일 이후에야 나타났고, 아르메니아 정보당국의 경고는 비공개였다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "제3국 대사관 철수 명령은 찾지 못함. 미 대사관은 9/25 직원 이동 제한만 냈다"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "최고 단계 여행경보 상향은 찾지 못함. 미 대사관 9/25 경보는 접경·압셰론 반도 밖 이동 자제 수준"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "yes",
+      "first": "2020-09-25",
+      "lead": 2,
+      "public_then": true,
+      "what": "주바쿠 미 대사관: 9/25 보안 경보로 직원·가족의 압셰론 반도 밖 이동 금지, 접경 긴장 고조 경고(주예레반 대사관도 접경 여행 자제)",
+      "source": "https://turan.az/en/politics/us-embassy-calls-us-citizens-do-not-leave-absheron-peninsula",
+      "confidence": "med"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "공개 경고는 찾지 못함. 아르메니아 정보당국의 '전쟁 위험 30%' 평가와 9/25 튀르키예 F-16 교신 감청은 비공개였고 사후에 공개"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "yes",
+      "first": "2020-07-07",
+      "lead": 82,
+      "public_then": true,
+      "what": "알리예프: 7/6 인터뷰(7/7 보도)에서 민스크그룹 협상은 '무의미'하고 사실상 없다, 실질 없으면 불참한다고 선언. 7/16 외무장관 경질",
+      "source": "https://www.tert.am/en/news/2020/07/07/nagorno-karabakh/3338261",
+      "confidence": "med"
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "전선 병력 집결은 양측이 상대를 지목한 주장뿐이고 위성·제3자 확인은 찾지 못함"
+    },
+    {
+      "h": "m_logistics",
+      "status": "yes",
+      "first": "2020-09-04",
+      "lead": 23,
+      "public_then": false,
+      "what": "튀르키예 군 수송기(C-130·CN-235·A400)가 9/4·9/18·9/25 아제르바이잔으로 인원·탄약 수송 — 코메르산트가 개전 뒤 군 소식통 인용 보도",
+      "source": "https://www.hetq.am/en/article/123302",
+      "confidence": "low"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "yes",
+      "first": "2020-09-21",
+      "lead": 6,
+      "public_then": true,
+      "what": "아제르바이잔: 9/21 동원·징집청이 예비군 '훈련' 소집 발표(사전 통보 없이 소집 보도), 같은 날 민간 픽업트럭 징발. 당국은 정례 훈련이라 설명",
+      "source": "https://oc-media.org/reservists-called-up-and-cars-confiscated-as-azerbaijan-condemns-armenian-provocation/",
+      "confidence": "med"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "yes",
+      "first": "2020-08-10",
+      "lead": 48,
+      "public_then": false,
+      "what": "튀르키예-아제르 합동훈련(7/29~8/10)에 온 튀르키예 F-16이 훈련 뒤에도 간자 기지에 잔류. 10월 위성사진과 알리예프 인터뷰로 확인",
+      "source": "https://www.middleeasteye.net/news/turkey-armenia-azerbaijan-f16-deterrent-against-attacks",
+      "confidence": "med"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "별도 전략자산 집결은 찾지 못함(튀르키예 F-16 잔류는 m_exercise_cover에 코딩)"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "m_airspace",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "what": "아제르바이잔 공항의 정기 여객편 수용 중단(9/30까지)은 개시 당일 9/27에야 발표됨. 개시 전 조치는 찾지 못함",
+      "source": "https://jam-news.net/hostilities-resume-around-karabakh-and-on-azerbaijan-armenia-border",
+      "confidence": "med"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "m_cyber",
+      "status": "yes",
+      "first": "2020-07-14",
+      "lead": 75,
+      "public_then": true,
+      "what": "7/13~14 토부즈 교전 중 아르메니아 정부·총리실 사이트(gov.am, primeminister.am)가 변조·마비. 아제르바이잔 해커 소행으로 보도(해커 주장 기반)",
+      "source": "https://arkatelecom.am/en/news/internet/azerbaijani_hackers_break_armenian_premier_and_government_s_websites_photo/",
+      "confidence": "med"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "yes",
+      "first": "2020-07-12",
+      "lead": 77,
+      "public_then": true,
+      "what": "7/12~16 토부즈·타부시 국경 교전(아제르 장성 포함 10여 명 전사). 9/16 아르메니아 병사, 9/21 아제르 병사 사망 등 9월 정전 위반 증가",
+      "source": "https://www.meydan.tv/en/article/azerbaijani-general-killed-in-border-clash/",
+      "confidence": "high"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "what": "아르메니아·아르차흐의 계엄·동원령과 아제르바이잔의 계엄은 모두 개시 당일 9/27 선포(아제르 부분동원 9/28). 그 전 공식 격상은 찾지 못함",
+      "source": "https://meduza.io/news/2020/09/27/v-armenii-ob-yavleno-voennoe-polozhenie-i-mobilizatsiya-iz-za-obstrelov-v-karabahe",
+      "confidence": "med"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_fx",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "what": "아르메니아 드람은 개전 시점 달러당 485.3이었고 510대로의 약세는 개전 뒤에 진행됨. 개시 전 급락 보도는 찾지 못함",
+      "source": "https://panarmenian.net/m/eng/news/288023/",
+      "confidence": "low"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "개시 전 증시 반응 보도를 찾지 못함"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "개시 전 국채·CDS 반응은 찾지 못함(아르메니아 채권 약세 보도는 개전 뒤)"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "yes",
+      "first": "2020-07-07",
+      "lead": 82,
+      "public_then": true,
+      "what": "알리예프: 7/6 인터뷰서 협상 무의미·'군사적 해법은 없다'는 중재국 비판, 9/19 TV 인터뷰 '아르메니아가 새 전쟁을 준비', 9/24 유엔 연설",
+      "source": "https://www.meydan.tv/en/article/no-need-for-meaningless-negotiations-in-nagorno-karabakh-aliyev-says/",
+      "confidence": "med"
+    },
+    {
+      "h": "i_pretext",
+      "status": "yes",
+      "first": "2020-09-19",
+      "lead": 8,
+      "public_then": true,
+      "what": "알리예프 9/19 '아르메니아가 접촉선에 병력을 모아 새 전쟁 준비' 주장, 국방부 9/21 '또 다른 도발' 발표. 9/27 공세는 '반격'이라 설명",
+      "source": "https://aircenter.az/en/single/azerbaijan-and-armenia-edge-towards-full-scale-war-consequences-and-risks-414",
+      "confidence": "med"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "관영매체 동원 서사는 확인 못 함(7/14 바쿠 전쟁 요구 집회는 자발적이었고 경찰이 해산)"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "t_trigger",
+      "status": "yes",
+      "first": "2020-07-14",
+      "lead": 75,
+      "public_then": true,
+      "what": "토부즈 교전에서 하시모프 소장 등 전사(7/14). 알리예프 '아르메니아 지도부가 전적 책임', 같은 날 밤 바쿠 수만 명이 전쟁·동원 요구",
+      "source": "https://www.meydan.tv/en/article/azerbaijani-general-killed-in-border-clash/",
+      "confidence": "med"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    }
+  ],
+  "missed": "민간 픽업트럭 징발(9/21, '군 지원용'). 시리아 용병 모집·이송 보도(7/17 쿠르드계 ANF 첫 보도, 9/24 SOHR '300여 명이 아프린에서 아제르바이잔으로'). 후원국 튀르키예의 무기 수출 급증(9월 한 달 7,700만 달러 — 개전 뒤 로이터 보도). 바쿠 수만 명의 전쟁·동원 요구 집회(7/14)와 그 직후 외무장관 경질(7/16) 같은 공격 측 국내 여론·인사 변화. 9/27 당일 아제르바이잔의 전국 인터넷 제한.",
+  "retrieved": "2026-11-11"
+}

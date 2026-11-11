@@ -1,0 +1,299 @@
+{
+  "id": "hamas-2023",
+  "name": "하마스 → 이스라엘 기습 (알아크사 홍수)",
+  "outcome": "attack",
+  "onset": "2023-10-07",
+  "window": [
+    "2023-07-09",
+    "2023-10-06"
+  ],
+  "attacker": "하마스",
+  "target": "이스라엘",
+  "kind": "nonstate_attack",
+  "surprise": true,
+  "summary": "2023-10-07 하마스가 가자에서 이스라엘 남부를 대규모 기습했다. 개시 전에 공개돼 있던 것은 9월 가자 접경 폭동과 IDF 공습, 9/12 하마스가 스스로 올린 침투 리허설 훈련 영상, 10/2 알아크사 관련 위협 정도였고, 접경 긴장은 9/28 중재로 오히려 가라앉았다. 대사관·여행경보·항공·시장 신호는 모두 공격 뒤에야 나왔고, 이집트의 사전 경고 주장·병력 서안 이동 같은 정황은 사후에 알려졌다. 웹 검색 한도가 소진돼 10개 가설은 확인하지 못하고 unknown 으로 두었다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "미국의 이스라엘 주재 비필수 인력·가족 출국 승인은 공격 뒤인 10/13~14에야 나옴. 개시 전 철수 명령 없음",
+      "source": "https://1tv.ge/lang/en/news/us-department-of-state-announces-authorized-departure-of-non-emergency-u-s-government-personnel-and-eligible-family-members",
+      "confidence": "high"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "미국의 이스라엘 여행경보 3단계 상향은 공격 뒤 10/11. 가자 4단계는 이전부터 상시 유지돼 새 신호가 아님",
+      "source": "https://www.axios.com/2023/10/11/us-raises-israel-advisory-level-3-reconsider-travel-hamas",
+      "confidence": "high"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "개시 전 대사관 직원 이동 제한·임박 경보는 찾지 못함"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "레바논 등 역내 여행금지·출국 권고는 전쟁이 난 뒤에야 나옴(개시 전 역내 감축 보도 없음)",
+      "source": "https://www.aol.com/us-state-department-warns-americans-033239380.html",
+      "confidence": "med"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "공개 경고 없음: 미 안보보좌관이 9/29 '중동은 20년 만에 가장 조용'. 이집트의 비공개 경고 주장은 공격 뒤에야 알려짐(양측 부인)",
+      "source": "https://www.nbcnews.com/politics/national-security/jake-sullivan-defends-saying-middle-east-region-was-quieter-days-hamas-rcna120490",
+      "confidence": "high"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "최후통첩·무력사용 공식 승인 없음. 하마스는 싸울 뜻이 없다는 인상을 주며 계획을 숨겼다(로이터 10/9)",
+      "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+      "confidence": "med"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "결렬 아님: 카타르·이집트·유엔 중재로 9/28 에레즈 검문소가 다시 열리고 접경 시위가 중단됨",
+      "source": "https://m.washingtontimes.com/news/2023/sep/28/israel-reopens-main-gaza-crossing-for-palestinian-/",
+      "confidence": "med"
+    },
+    {
+      "h": "m_buildup",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "공개·확인된 병력 집결 없음. 이스라엘은 하마스가 대결을 원치 않는다고 보았고 평시 태세에서 기습당함",
+      "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+      "confidence": "med"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "양측 공개 동원·휴가 중단 없음. 이스라엘은 오히려 10/5 특공 2개 중대를 가자 접경에서 서안으로 옮겼다는 보도(군: 통상 순환)",
+      "source": "https://www.cnn.co.jp/world/35212340.html",
+      "confidence": "med"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "yes",
+      "first": "2023-09-12",
+      "lead": 25,
+      "public_then": true,
+      "what": "하마스 등 합동훈련 '강한 기둥': 국경 관문 모형 폭파·기지 습격 연습 영상을 9/12 스스로 공개(정의의 '훈련 위장'에 느슨하게 해당)",
+      "source": "https://www.timesofisrael.com/hamas-drilled-in-plain-sight-posted-video-of-mock-assault-weeks-before-massacre/",
+      "confidence": "low"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "개시 전 역내 전략자산 증강 보도 없음. 미 안보보좌관은 9/29 '중동은 20년 만에 가장 조용'이라 평가",
+      "source": "https://www.nbcnews.com/politics/national-security/jake-sullivan-defends-saying-middle-east-region-was-quieter-days-hamas-rcna120490",
+      "confidence": "med"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "개시 전 민방위 조치·주민 소개 없음. 이스라엘 당국은 완전히 허를 찔렸다고 인정(로이터 10/9)",
+      "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+      "confidence": "med"
+    },
+    {
+      "h": "m_airspace",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "항공사들의 텔아비브 운항 중단은 공격 당일 이후(10/7~10)에 처음 나타남",
+      "source": "https://www.aljazeera.com/news/2023/10/10/major-international-airlines-suspend-flights-to-israel-amid-war-on-gaza",
+      "confidence": "high"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "yes",
+      "first": "2023-09-13",
+      "lead": 24,
+      "public_then": true,
+      "what": "9월 가자 접경 폭동 재개: 9/13 장벽 옆 폭발로 5~6명 사망, 이후 폭발물·방화와 IDF의 하마스 초소 드론 공습 반복(9/28 진정)",
+      "source": "https://www.thenationalnews.com/mena/2023/09/14/five-palestinians-in-gaza-killed-in-accidental-explosion-during-border-protest",
+      "confidence": "med"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "공식 경계태세 격상 없음. 이스라엘군은 10/7 전 가자 접경 배치에 변화가 없었다고 밝힘",
+      "source": "https://www.jns.org/israel-news/idf-did-not-divert-troops-to-judea-and-samaria-before-oct-7",
+      "confidence": "med"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_fx",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "위기발 급락 없음: 셰켈은 사법개편 탓에 연중 약세였고, 급락은 공격 뒤 10/9(중앙은행 300억 달러 매도 개입)",
+      "source": "https://www.cnbc.com/2023/10/09/shekel-israels-central-bank-sells-30-billion-in-foreign-reserves.html",
+      "confidence": "high"
+    },
+    {
+      "h": "f_equity",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "텔아비브 증시 급락(약 -7%)은 공격 다음 날인 10/8에 처음 나타남",
+      "source": "https://sg.finance.yahoo.com/news/bank-israel-sell-30-billion-051653226.html",
+      "confidence": "med"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "이스라엘 국채 가격 급락도 공격 뒤 10/8에 처음 나타남. 개시 전 급등 보도 없음",
+      "source": "https://sg.finance.yahoo.com/news/bank-israel-sell-30-billion-051653226.html",
+      "confidence": "med"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "개시 전 유가·금 급등 보도는 찾지 못함 (미검증 단서: 유가 급등은 공격 뒤 10/9)"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "최고지도부(하니예·신와르·데이프)의 명시적 위협 없음 — 평온을 연출. 부지도자 아루리의 8/25 '전면전 준비' 발언만 있었음(missed)",
+      "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+      "confidence": "med"
+    },
+    {
+      "h": "i_pretext",
+      "status": "yes",
+      "first": "2023-10-02",
+      "lead": 5,
+      "public_then": true,
+      "what": "하마스가 초막절 유대인들의 알아크사 진입을 두고 10/2 가자 집회·성명으로 '지역 전체에 불을 붙일 것' 경고(작전명 '알아크사 홍수')",
+      "source": "https://en.minanews.net/palestinians-rally-in-gaza-against-settlers-incursions-into-al-aqsa-mosque",
+      "confidence": "low"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "전쟁 임박 보도 급증 없음 — 9/28 접경 긴장이 풀린 뒤 미 정부가 9/29 '20년 만에 가장 조용'이라 할 만큼 관심이 낮았음",
+      "source": "https://www.nbcnews.com/politics/national-security/jake-sullivan-defends-saying-middle-east-region-was-quieter-days-hamas-rcna120490",
+      "confidence": "med"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "대중 불안 징후 없음 — 명절 아침의 완전한 기습이었고 당국도 예상하지 못했다고 인정(로이터 10/9)",
+      "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+      "confidence": "med"
+    },
+    {
+      "h": "t_trigger",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "사상자 난 단일 계기 사건과 보복 다짐이 아니라, 약 2년간 숨겨 준비한 계획 공격(로이터 10/9)",
+      "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+      "confidence": "med"
+    },
+    {
+      "h": "t_deadline",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "명시적 시한 없음. 시위 주최 측은 9/28 '합의를 안 지키면 재개'라고만 했고 날짜를 못 박지 않음",
+      "source": "https://www.algemeiner.com/2023/09/28/gaza-strip-riots-seem-to-simmer-down-as-crossing-into-israel-reopens/",
+      "confidence": "low"
+    }
+  ],
+  "missed": "①공개된 리허설: 하마스가 9/12 국경 관문 모형 폭파·기지 습격 훈련 영상을 직접 공개(AP 검증). ②역신호(기만): 9/28 에레즈 재개방·시위 중단으로 공격 9일 전 긴장이 풀림. ③이집트 정보당국의 '큰일이 준비 중' 사전 경고 주장 — 공격 뒤에 공개됐고 이집트·이스라엘 총리실은 부인(public_then=false 성격). ④표적 쪽 경계 저하: 명절 주간 병력의 서안 치중(10/5 특공 2개 중대 후와라 이동 보도, 군은 통상 순환이라 해명). ⑤부지도자 아루리의 8/25 '전면전 준비' 발언과 8/27 네타냐후의 '대가를 치를 것' 응수(https://jpost.com/israel-news/politics-and-diplomacy/article-756421).",
+  "retrieved": "2026-11-11"
+}

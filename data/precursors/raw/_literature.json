@@ -1,0 +1,735 @@
+{
+  "findings": [
+    {
+      "topic": "I&W 교리 — 군수(logistics)",
+      "claim": "그라보의 경고정보 교범은 군사 징후 장에 '군수는 전투의 여왕(Logistics is the Queen of Battles)' 절을 두고, 징후 목록에서 군수·수송 항목이 다른 어떤 주제와 같거나 더 많은 비중을 차지한다고 적는다.",
+      "hypotheses": ["m_logistics", "m_buildup"],
+      "direction": "supports",
+      "source": "Grabo 2002/2004, Anticipating Surprise: Analysis for Strategic Warning",
+      "url": "https://books.google.com/books/about/Anticipating_Surprise.html?id=uWbZZh8JjOUC",
+      "confidence": "med"
+    },
+    {
+      "topic": "I&W 교리 — 정치 징후 대 군사 징후",
+      "claim": "그라보: 의미 있는 군사 준비나 행동 능력이 뒷받침되지 않은 정치적 징후만으로는 일반적으로 신뢰할 수 없다(독자 발췌 인용, 원문 쪽수 미확인).",
+      "hypotheses": ["i_leader_threat", "i_pretext", "i_state_mobilization", "i_news_surge"],
+      "direction": "weakens",
+      "source": "Grabo 2004, Anticipating Surprise (reader excerpt)",
+      "url": "https://www.goodreads.com/book/show/20132351",
+      "confidence": "low"
+    },
+    {
+      "topic": "I&W 교리 — 시점 문제",
+      "claim": "그라보(CIA 공개 논문): 대규모 병력 전개와 군수 준비는 눈에 보이지만, 공격 직전의 추가 준비(통신보안 강화 등)는 숨길 수 있어 '능력이 갖춰졌다'는 판단과 '언제 치는가'는 별개의 문제다.",
+      "hypotheses": ["m_buildup", "m_logistics"],
+      "direction": "context",
+      "source": "Grabo, Strategic Warning: The Problem of Timing (CIA Studies in Intelligence)",
+      "url": "https://www.cia.gov/resources/csi/static/Strategic-Warning.pdf",
+      "confidence": "med"
+    },
+    {
+      "topic": "I&W 교리 — 지표 분류",
+      "claim": "1972년 '경고정보 편람'(CIA 공개)의 목차는 군수 외에 경제 지표, 민방위, 보안·방첩 준비를 별도 장으로 다룬다 — 민방위 조치는 교리상 정식 지표 부류다. (의료·혈액 준비에 대한 그라보 원문은 이번 조사에서 확인하지 못함.)",
+      "hypotheses": ["m_civil_defense", "m_logistics"],
+      "direction": "supports",
+      "source": "Grabo 1972, A Handbook of Warning Intelligence, Vol. 1 (CIA Reading Room)",
+      "url": "https://www.cia.gov/readingroom/node/1120907",
+      "confidence": "med"
+    },
+    {
+      "topic": "혈액·의료 물자 (우크라이나 2022)",
+      "claim": "로이터 2022-01-28: 미 관리 3명이 러시아 집결 병력에 혈액 등 부상자 치료 물자가 더해졌다며 '또 하나의 핵심 지표'라 했다(침공 27일 전). 다만 한 관리는 '절대적 지표는 아니다'라 했고 우크라이나 국방차관은 사실이 아니라고 부인했다.",
+      "hypotheses": ["m_logistics"],
+      "direction": "supports",
+      "source": "Reuters 2022-01-28 (syndicated), Russia moves blood supplies near Ukraine",
+      "url": "https://thestar.com.my/news/world/2022/01/29/exclusive-russia-moves-blood-supplies-near-ukraine-adding-to-us-concern-officials-say",
+      "confidence": "high"
+    },
+    {
+      "topic": "한반도 WATCHCON/DEFCON 이력",
+      "claim": "워치콘은 4단계(4=평시, 1=전시)이고, 1982년 2~3월 워치콘 1, 1999년 6월 연평해전 때 워치콘 2·데프콘 3, 2009년 5월 28일(2차 핵실험 뒤)과 2013년 3월 초에 워치콘 2로 올렸지만 어느 것도 전쟁으로 이어지지 않았다.",
+      "hypotheses": ["m_alert_level"],
+      "direction": "weakens",
+      "source": "Wikipedia 'WATCHCON'; Korea Times 2009-05-28, 2013-04-11",
+      "url": "https://en.wikipedia.org/wiki/WATCHCON",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — 경고 시간",
+      "claim": "작계 5027의 계획 전제는 북한 공격에 대한 '명확한 경고' 1~3일이며, 북한이 군사 활동을 가리면서 경고 시간이 약 10일에서 약 3일로 줄었다고 정리돼 있다.",
+      "hypotheses": ["m_buildup", "m_logistics", "m_mobilization"],
+      "direction": "context",
+      "source": "GlobalSecurity.org, OPLAN 5027 Major Theater War – West",
+      "url": "https://www.globalsecurity.org/military/ops/oplan-5027.htm",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — NEO 여유 시간",
+      "claim": "주한미군 비전투원 후송 안내문은 최악의 경우 후송 명령까지 남은 시간이 '몇 시간'뿐일 수 있다고 경고한다 — 철수 명령은 강한 신호지만 선행 시간이 짧을 수 있다.",
+      "hypotheses": ["g_evac_order"],
+      "direction": "context",
+      "source": "US Forces Korea Noncombatant Emergency Evacuation Instructions (Nautilus Institute)",
+      "url": "https://nautilus.org/napsnet/napsnet-special-reports/us-forces-korea-noncombatant-emergency-evacuation-instructions/?view=pdf",
+      "confidence": "med"
+    },
+    {
+      "topic": "기습 문헌 — 경고와 대응",
+      "claim": "베츠(1982): 기습은 정보기관이 경고하지 못해서가 아니라 지도부가 경고를 믿지 않거나 대응하지 않아서 성공한다 — '경고는 필요조건이지 충분조건이 아니며, 대응 없는 경고는 쓸모없다.'",
+      "hypotheses": ["g_intel_warning"],
+      "direction": "context",
+      "source": "Betts 1982, Surprise Attack: Lessons for Defense Planning (Brookings)",
+      "url": "https://www.brookings.edu/books/surprise-attack/",
+      "confidence": "med"
+    },
+    {
+      "topic": "기습 문헌 — 신호와 소음",
+      "claim": "월스테터(1962): 진주만 직전 미국은 정보가 부족하지 않았고, 결정적 신호가 서로 모순되거나 무관한 정보(소음) 속에 묻혔다. 보도량 같은 총량 지표는 소음도 함께 키운다.",
+      "hypotheses": ["i_news_surge"],
+      "direction": "context",
+      "source": "Wohlstetter 1962, Pearl Harbor: Warning and Decision (Stanford UP)",
+      "url": "https://en.wikipedia.org/wiki/Roberta_Wohlstetter",
+      "confidence": "med"
+    },
+    {
+      "topic": "기습 문헌 — 늑대 소년·기만",
+      "claim": "바르바로사·한국전·욤키푸르 사례 연구는 믿을 만한 경고 정보가 있었지만 잘못 해석됐다고 본다. 원인으로 '늑대 소년 증후군'(잦은 경보로 인한 둔감), 거부·기만, 불리한 신호 대 소음 비가 꼽힌다(9/11 전 과잉 경고가 결정권자를 둔감하게 만든 사례 포함).",
+      "hypotheses": ["g_intel_warning", "m_alert_level"],
+      "direction": "context",
+      "source": "Handel 1984 계열 정리 (Boston College Colloquium; CHDS NS4156 lecture)",
+      "url": "https://ejournals.bc.edu/index.php/colloquium/article/download/19889/13217/40465",
+      "confidence": "med"
+    },
+    {
+      "topic": "기습 문헌 — 기만의 비중",
+      "claim": "웨일리(1969)의 1914~1968년 17개 전쟁 168개 전투 분석: 전략적 기습을 달성한 61개 전투 중 소극적 보안만으로 설명되는 것은 4건뿐이고, 기만이 전략적 기습의 82%, 전술적 기습의 57%에서 주원인 또는 중요한 요인이었다.",
+      "hypotheses": ["m_exercise_cover", "g_talks_collapse"],
+      "direction": "context",
+      "source": "Whaley 1969, Stratagem: Deception and Surprise in War (CIA 요약)",
+      "url": "https://cia.gov/resources/csi/static/Deception.pdf",
+      "confidence": "med"
+    },
+    {
+      "topic": "후견국 철수 (욤키푸르 1973)",
+      "claim": "CIA 문서: 소련은 1973년 10월 3~4일 이집트에서 가족·민간 기술자 철수를 시작해 10월 5일까지 약 1,000명이 떠났다(개전 1~3일 전). 이스라엘 군정보는 10월 4일에도 전쟁 가능성을 '낮음'으로 평가했다.",
+      "hypotheses": ["g_attacker_evac"],
+      "direction": "supports",
+      "source": "CIA 1973-10-16 cable (CIA Reading Room); Ynet, CIA documents reveal immediate lead-up to Yom Kippur War",
+      "url": "https://www.cia.gov/readingroom/docs/1973-10-16B-CIA.pdf",
+      "confidence": "med"
+    },
+    {
+      "topic": "늑대 소년 (욤키푸르 1973)",
+      "claim": "1973년 10월 이집트의 병력 집결은 전쟁으로 이어지지 않았던 1973년 5월의 집결과 비슷해 보였고, 이것이 경고를 무시하게 만든 요인이었다 — 같은 집결·훈련 신호가 반복되면 변별력이 떨어진다.",
+      "hypotheses": ["m_buildup", "m_exercise_cover"],
+      "direction": "weakens",
+      "source": "Jewish Virtual Library, The Yom Kippur War: Background & Overview",
+      "url": "https://www.jewishvirtuallibrary.org/background-and-overview-yom-kippur-war",
+      "confidence": "med"
+    },
+    {
+      "topic": "기습 문헌 — 전술 경고",
+      "claim": "달(2013): 공격을 막은 사례는 '정밀한 전술 수준 경고'와 '받아들일 준비가 된 결정권자'가 함께 있었던 경우이고, 넓은 전략적 경고만으로는 행동에 충분하지 않았다.",
+      "hypotheses": ["g_intel_warning"],
+      "direction": "context",
+      "source": "Dahl 2013, Intelligence and Surprise Attack (Georgetown UP)",
+      "url": "https://www.start.umd.edu/publication/intelligence-and-surprise-attack-failure-and-success-pearl-harbor-911-and-beyond",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — 1950년 6월",
+      "claim": "CIA 발간 연구(Rose): 1950년 6월 내내 현지 보고는 북한의 전쟁 준비를 묘사했고 그중에는 접경 지역 민간인 소개도 있었으나, '모스크바가 평양을 통제한다'는 가정 때문에 무시됐다. 다만 다른 CIA 글은 당시 자료에 징후·경보라 부를 정보가 거의 없었다고 반박한다.",
+      "hypotheses": ["m_civil_defense"],
+      "direction": "supports",
+      "source": "Rose, Perceptions and Reality: Two Strategic Intelligence Mistakes in Korea, 1950 (CIA CSI)",
+      "url": "https://cia.gov/resources/csi/static/two-strategic-intel-mistakes.pdf",
+      "confidence": "med"
+    },
+    {
+      "topic": "선제공격 전쟁의 희소성",
+      "claim": "라이터(1995): 1816년 이후 '선제공격 전쟁'은 거의 일어나지 않았고, 2차 문헌이 전하는 그의 집계는 3건(1차대전, 중국의 한국전 개입, 1967년 6일 전쟁)뿐이다 — 상호 경계 격상이 곧바로 선제 전쟁으로 번지는 경로는 드물다.",
+      "hypotheses": ["m_alert_level", "m_mobilization"],
+      "direction": "context",
+      "source": "Reiter 1995, Exploding the Powder Keg Myth (International Security 20:2); Reiter, Good Authority",
+      "url": "https://goodauthority.org/news/should-you-worry-about-a-u-s-war-with-north-korea-not-really/",
+      "confidence": "med"
+    },
+    {
+      "topic": "정량 조기경보 — 뉴스량",
+      "claim": "샤드포(2014): 1900년 이후 166개국의 주간 신문 자료로 '몇 달 안의 전쟁 개시'를 최대 85% 신뢰도로 예측했고, 국가 간 전쟁은 1년 넘게 전부터, 내전은 6개월 전부터 예측이 개선됐다.",
+      "hypotheses": ["i_news_surge"],
+      "direction": "supports",
+      "source": "Chadefaux 2014, Early warning signals for war in the news (Journal of Peace Research 51:1)",
+      "url": "https://journals.sagepub.com/doi/abs/10.1177/0022343313507302",
+      "confidence": "high"
+    },
+    {
+      "topic": "정량 조기경보 — 뉴스량의 오경보",
+      "claim": "샤드포 초고(SSRN 2012): 대규모 전쟁의 70% 이상을 맞히면서 관측의 16%에서 오경보를 냈다. 학회 발표 자료는 전쟁의 71.23%에 대해 1주 전에 경고가 나왔다고 보고한다.",
+      "hypotheses": ["i_news_surge"],
+      "direction": "supports",
+      "source": "Chadefaux 2012 SSRN working paper; IPP conference slides",
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2197324",
+      "confidence": "med"
+    },
+    {
+      "topic": "금융시장 — 국채",
+      "claim": "샤드포(2017): 1816~2007년 국채 수익률로 본 결과, 시장 참여자는 개전 전에 전쟁 위험을 과소평가하고 개전 직후에 놀란다. 예측 실력은 지난 200년간 나아지지 않았고, 민주국가가 낀 전쟁일수록 충격이 크다.",
+      "hypotheses": ["f_sovereign", "f_equity", "f_fx"],
+      "direction": "weakens",
+      "source": "Chadefaux 2017, Market anticipations of conflict onsets (Journal of Peace Research 54:2)",
+      "url": "https://ideas.repec.org/a/sae/joupea/v54y2017i2p313-327.html",
+      "confidence": "high"
+    },
+    {
+      "topic": "금융시장 — 1914년",
+      "claim": "퍼거슨(2006): 세계 최대였던 런던 채권시장은 1914년 전쟁 위험을 매우 늦게 반영했다. 2차 정리에 따르면 사라예보 암살 2주 뒤에도 시장은 평온했고 타임스가 국제 금융 문제 가능성을 처음 언급한 것은 7월 22일(오스트리아 최후통첩 전날)이었다.",
+      "hypotheses": ["f_sovereign"],
+      "direction": "weakens",
+      "source": "Ferguson 2006, Political risk and the international bond market… (Economic History Review 59:1)",
+      "url": "https://ideas.repec.org/a/bla/ehsrev/v59y2006i1p70-112.html",
+      "confidence": "med"
+    },
+    {
+      "topic": "금융시장 — 반영 속도",
+      "claim": "2004~2020년 국채 사건 연구(Rexer·Kapstein·Rivera, NBER 학회 논문 인용): 분쟁 충격이 가격에 반영된 비율은 처음 14%에서 15일 뒤 75%로 오른다 — 시장은 사건을 '앞서' 알기보다 사건 뒤에 배운다.",
+      "hypotheses": ["f_sovereign"],
+      "direction": "weakens",
+      "source": "NBER conference paper f184565 (sovereign bond markets and conflict)",
+      "url": "https://conference.nber.org/conf_papers/f184565/f184565.pdf",
+      "confidence": "low"
+    },
+    {
+      "topic": "금융시장 — 주가의 '전쟁 퍼즐'",
+      "claim": "브루네 등(2015): 전쟁 전 단계가 있는 경우 전쟁 가능성이 오르면 주가가 내리고 실제 개전 때는 오히려 오른다. 기습으로 시작된 전쟁은 개전 때 주가가 내린다. 표본이 작다(2차 요약: 미국에 가장 비쌌던 6개 전쟁).",
+      "hypotheses": ["f_equity"],
+      "direction": "supports",
+      "source": "Brune, Hens, Rieger, Wang 2015, The war puzzle (International Review of Economics 62:1)",
+      "url": "https://econpapers.repec.org/RePEc:spr:inrvec:v:62:y:2015:i:1:p:1-21",
+      "confidence": "med"
+    },
+    {
+      "topic": "예측시장 — 이라크 2003",
+      "claim": "리·울퍼스·지체위츠(2003)는 예측시장 계약 '사담 증권'으로 전쟁 확률을 재서, 전쟁이 미국 주식 가치를 약 15% 낮추며 유가 충격은 약 1년 반 안에 사라질 것으로 시장이 본다고 추정했다 — 예측시장 가격이 전쟁 확률의 측정 도구로 쓰인 선례.",
+      "hypotheses": ["f_prediction", "f_equity", "f_safe_haven"],
+      "direction": "supports",
+      "source": "Leigh, Wolfers, Zitzewitz 2003, What Do Financial Markets Think of War in Iraq? (NBER WP 9587)",
+      "url": "https://www.nber.org/papers/w9587",
+      "confidence": "med"
+    },
+    {
+      "topic": "정량 조기경보 — 신문 주제(타이밍)",
+      "claim": "뮐러·라우(2018, APSR): 기존 문헌의 구조 변수는 '어디서' 분쟁이 나는지는 잘 맞히지만 '언제'에는 거의 보탬이 안 된다. 신문 주제의 국가 내 변화는 개시 시점을 예측하며, 평화롭던 나라에서 위험이 생길 때 특히 쓸모 있다.",
+      "hypotheses": ["i_news_surge"],
+      "direction": "supports",
+      "source": "Mueller & Rauh 2018, Reading Between the Lines (APSR 112:2)",
+      "url": "https://bse.eu/node/7715",
+      "confidence": "high"
+    },
+    {
+      "topic": "정량 조기경보 — '어려운 문제'",
+      "claim": "뮐러·라우(2022, JEEA): 400만 건 넘는 기사로 만든 모형에서 랜덤 포레스트는 분쟁 이력을 나무의 맨 위에 두고 신문 주제는 아래 마디에서 쓴다. 평화롭던 나라의 첫 분쟁은 드물어 예측이 어렵고('어려운 문제'), 이때는 사법·외교·경제·일상 같은 비폭력 주제가 더 중요해진다.",
+      "hypotheses": ["m_border_fire", "i_news_surge"],
+      "direction": "context",
+      "source": "Mueller & Rauh 2022, The Hard Problem of Prediction for Conflict Prevention (JEEA)",
+      "url": "https://bse.eu/research/publications/hard-problem-prediction-conflict-prevention",
+      "confidence": "high"
+    },
+    {
+      "topic": "정량 조기경보 — conflictforecast.org",
+      "claim": "conflictforecast.org 는 신문 주제 기반 예측을 매월 갱신하며 170개국 이상과 약 65,000개 격자(55×55km)를 다룬다. 표본 외 평가를 쓰고, 분쟁 이력이 없는 나라의 개시가 핵심 난제라고 명시한다.",
+      "hypotheses": ["i_news_surge"],
+      "direction": "context",
+      "source": "Mueller, Rauh, Seimon 2024, Introducing a global dataset on conflict forecasts and news topics (Data & Policy)",
+      "url": "https://www.cambridge.org/core/product/AADA08BD5FC80EDD01E5CEBA7434F6E0/core-reader",
+      "confidence": "med"
+    },
+    {
+      "topic": "정량 조기경보 — ViEWS",
+      "claim": "ViEWS(36개월 앞까지 월별 예측)는 개정 논문에서 이전 모형이 분쟁 지속 위험을 과대, 평화롭던 나라의 위험을 과소 추정했다고 인정했다. 헤그레(2023) 발표는 '진행 중인 분쟁에는 잘 맞지만 개시 예측은 매우 어렵다'고 정리하고, 변수 중요도에서 분쟁 이력이 가장 높다.",
+      "hypotheses": ["m_border_fire"],
+      "direction": "supports",
+      "source": "Hegre et al. 2021, ViEWS2020 (Journal of Peace Research); Hegre 2023 GDSD presentation",
+      "url": "https://journals.sagepub.com/doi/full/10.1177/0022343320962157",
+      "confidence": "med"
+    },
+    {
+      "topic": "정량 조기경보 — 예측 대회",
+      "claim": "ViEWS 격화 예측 대회(Vesco 등 2022) 결과: 대회 기간 동안 모형들은 사망자 수 '변화'를 기준 모형보다 잘 예측할 수 있었고, 매개변수 수백 개짜리 복잡한 모형이 개별 도구로는 가장 좋았다.",
+      "hypotheses": ["m_border_fire"],
+      "direction": "context",
+      "source": "Vesco, Hegre, Colaresi et al. 2022 (International Interactions 48:4); PRIO commentary",
+      "url": "https://www.prio.org/comments/585",
+      "confidence": "med"
+    },
+    {
+      "topic": "예측의 한계",
+      "claim": "세더만·바이드만(2017, Science): 분쟁 '위험'은 일찍 식별할 수 있지만 일어날지·어디서·언제를 꼭 집어 맞히는 것은 거의 불가능하며, 냉전 종식 같은 '역사적 우연'은 본질적으로 예측할 수 없다.",
+      "hypotheses": [],
+      "direction": "context",
+      "source": "Cederman & Weidmann 2017, Predicting armed conflict: Time to adjust our expectations? (Science 355)",
+      "url": "https://www.futurity.org/?p=1353312",
+      "confidence": "med"
+    },
+    {
+      "topic": "예측의 한계 — 유의성과 예측력",
+      "claim": "워드·그린힐·바케(2010): 통계적으로 유의한 변수가 좋은 예측 변수는 아니다. 1인당 GDP와 인구만 넣은 단순 모형이 유의한 변수를 더 넣은 복잡한 모형보다 표본 외 예측이 나았다 — 가중치는 표본 외(봉인 사례)로 검증해야 한다.",
+      "hypotheses": [],
+      "direction": "context",
+      "source": "Ward, Greenhill, Bakke 2010, The perils of policy by p-value (Journal of Peace Research 47:4)",
+      "url": "https://econpapers.repec.org/RePEc:sae:joupea:v:47:y:2010:i:4:p:363-375",
+      "confidence": "high"
+    },
+    {
+      "topic": "구조 모형 — 정치 불안정",
+      "claim": "골드스톤 등(2010, PITF): 1955~2003년 자료에서 변수 4개(정권 유형, 영아 사망률, 분쟁 중인 이웃, 국가 주도 차별)로 2년 앞의 정치 불안정을 80% 넘게(81.7%) 구분했다. 국가 간 전쟁이 아니라 내부 불안정 모형이며 방아쇠 사건은 쓰지 않는다.",
+      "hypotheses": [],
+      "direction": "context",
+      "source": "Goldstone et al. 2010, A Global Model for Forecasting Political Instability (AJPS 54:1)",
+      "url": "https://ideas.repec.org/a/wly/amposc/v54y2010i1p190-208.html",
+      "confidence": "med"
+    },
+    {
+      "topic": "사건 자료 — ICEWS",
+      "claim": "ICEWS(록히드 마틴 주계약)의 목표는 6~24개월 앞 정치 불안정 지표를 70~80% 정확도로 예측하는 것이었고, 관련 발표 자료는 기존 방법들이 약 80%(AUC 기준 포함)로 수렴한다고 적는다. 수치는 논문 본문이 아닌 발표 자료 기준이다.",
+      "hypotheses": [],
+      "direction": "context",
+      "source": "O'Brien 2010, Crisis Early Warning and Decision Support (International Studies Review 12:1); Schrodt slides",
+      "url": "https://en.wikipedia.org/wiki/Integrated_Crisis_Early_Warning_System",
+      "confidence": "low"
+    },
+    {
+      "topic": "사람 예측 — 슈퍼포캐스터",
+      "claim": "IARPA ACE 대회(2011~2015)에서 굿 저지먼트의 슈퍼포캐스터는 기밀 접근이 있는 정보분석관보다 30% 넘게 정확했다고 한다(주최 측 백서, 원자료 비공개). 문항은 대개 답이 10~90% 사이가 되도록 짜여 드문 사건에 대한 성과는 검증되지 않았다.",
+      "hypotheses": ["f_prediction"],
+      "direction": "supports",
+      "source": "Good Judgment Inc. 2021, Superforecasters: A Decade of Stochastic Dominance",
+      "url": "https://goodjudgment.com/wp-content/uploads/2021/10/Superforecasters-A-Decade-of-Stochastic-Dominance.pdf",
+      "confidence": "med"
+    },
+    {
+      "topic": "기저율 — ICB 위기",
+      "claim": "1945년 이후 ICB 국제 위기 가운데 약 4분의 1은 폭력이 없었고, 약 3분의 1은 소규모 충돌, 약 4분의 1은 심각한 충돌이었으며, 전면전에 이른 것은 17%였다(IGCC 2차 요약).",
+      "hypotheses": [],
+      "direction": "context",
+      "source": "UC IGCC blog, Revenge of the Experts: Building Better Conflict Predictions (ICB data)",
+      "url": "https://ucigcc.org/blog/revenge-of-the-experts-building-better-conflict-predictions/",
+      "confidence": "med"
+    },
+    {
+      "topic": "기저율 — 계기의 종류",
+      "claim": "ICB(1945년 이후): 직·간접 폭력 행위로 시작된 위기는 약 61%가 심각한 충돌·전면전으로 갔고, 비폭력 군사 행동으로 시작된 위기는 약 19%, 말·정치·경제 행위로 시작된 위기는 약 23%였다(뒤 두 값의 결과 정의는 원문 확인 필요). 지도자가 존립 위협으로 본 위기는 69%, 그보다 낮은 위협은 37%.",
+      "hypotheses": ["t_trigger", "m_border_fire"],
+      "direction": "supports",
+      "source": "UC IGCC blog, Revenge of the Experts (ICB data)",
+      "url": "https://ucigcc.org/blog/revenge-of-the-experts-building-better-conflict-predictions/",
+      "confidence": "med"
+    },
+    {
+      "topic": "기저율 — MID",
+      "claim": "1816~1992년 군사화된 국가 간 분쟁(MID) 2,035건 가운데 전쟁으로 번진 것은 80건(3.9%)이다. 영토 쟁점 분쟁은 7.3%, 그 밖의 쟁점은 2.5%(1,456건 중 36건)였다.",
+      "hypotheses": ["m_border_fire", "m_buildup"],
+      "direction": "context",
+      "source": "Hensel, Charting A Course To Conflict: Territorial Issues and Interstate Conflict, 1816-1992; Jones, Bremer, Singer 1996",
+      "url": "https://www.researchgate.net/publication/228537504_Charting_A_Course_To_Conflict_Territorial_Issues_and_Interstate_Conflict_1816-1992",
+      "confidence": "med"
+    },
+    {
+      "topic": "기저율 — 군비경쟁",
+      "claim": "샘플(1997)의 강대국 분쟁 표: 군비경쟁 중이던 분쟁 53건 중 14건(26%)이 전쟁으로 갔고, 군비경쟁이 없던 204건 중에서는 17건(8%)이었다.",
+      "hypotheses": [],
+      "direction": "context",
+      "source": "Sample 1997 (via S. Miller 2025, Simple tests for arms races and war)",
+      "url": "https://svmiller.com/blog/2025/08/simple-tests-for-arms-races-war/",
+      "confidence": "med"
+    },
+    {
+      "topic": "기저율 — 지속적 경쟁 관계",
+      "claim": "괴르츠·딜(1992): 지속적 경쟁 관계는 1816~1986년 MID의 약 45%, 1816년 이후 국가 간 전쟁의 절반 이상이 일어난 무대다. 극단적인 경쟁 관계는 고립된 분쟁 쌍보다 전쟁을 겪을 가능성이 거의 8배이고, 경쟁국 사이 분쟁은 전면전으로 번질 가능성이 약 2배다.",
+      "hypotheses": ["m_border_fire"],
+      "direction": "context",
+      "source": "Goertz & Diehl 1992, The empirical importance of enduring rivalries; Bercovitch & Regan summary",
+      "url": "https://www3.gmu.edu/programs/icar/ijps/vol4_1/bercovitch.htm",
+      "confidence": "med"
+    },
+    {
+      "topic": "비용 신호 이론 — 손 묶기 대 매몰 비용",
+      "claim": "피어론(1997): 신호는 국내 청중 비용을 만드는 '손 묶기'와 병력 동원처럼 미리 비용을 치르는 '매몰 비용'으로 나뉜다. 모형의 균형에서 지도자는 어느 쪽으로도 허세를 부리지 않으며, 손 묶기는 더 좋은 결과를 주지만 매몰 비용 신호보다 사전 전쟁 위험이 크다(후속 연구는 '허세 없음' 결과가 완전히 유지되지 않는다고 지적).",
+      "hypotheses": ["m_mobilization", "m_buildup", "m_logistics", "g_ultimatum", "t_deadline"],
+      "direction": "supports",
+      "source": "Fearon 1997, Signaling Foreign Policy Interests: Tying Hands versus Sinking Costs (JCR 41:1)",
+      "url": "https://ideas.repec.org/a/sae/jocore/v41y1997i1p68-90.html",
+      "confidence": "high"
+    },
+    {
+      "topic": "비용 신호 이론 — 공개 동원 대 비공개 동원",
+      "claim": "라이(2004, ICB 자료): 상대에게 정보를 숨기려는 '비공개 동원'은 전쟁으로 이어질 가능성이 높고, 외교적 우위를 얻으려는 공개 동원과 구별된다 — 떠들썩하게 알린 동원은 협상 신호, 숨긴 준비는 전쟁 준비에 가깝다.",
+      "hypotheses": ["m_mobilization", "m_exercise_cover", "m_logistics"],
+      "direction": "context",
+      "source": "Lai 2004, The Effects of Different Types of Military Mobilization on the Outcome of International Crises (JCR 48:2)",
+      "url": "https://ideas.repec.org/a/sae/jocore/v48y2004i2p211-229.html",
+      "confidence": "med"
+    },
+    {
+      "topic": "공격 측 철수 (우크라이나 2022)",
+      "claim": "NYT 보도(2022-01-17): 러시아 외교관 가족 등 18명이 2022년 1월 5일 키이우를 떠났고 며칠 사이 약 30명이 더 떠났다(침공 약 50일 전). 백악관은 러시아가 12월 말~1월 초 대사관 가족 철수를 준비한다는 정보가 있었다고 밝혔고, 러시아는 '정상 근무'라고 부인했다.",
+      "hypotheses": ["g_attacker_evac"],
+      "direction": "supports",
+      "source": "New York Times 2022-01-17 (via Kyiv Independent, Belsat, Reuters)",
+      "url": "https://kyivindependent.com/white-house-russia-was-preparing-evacuation-from-kyiv-embassy-amid-rising-tensions",
+      "confidence": "high"
+    },
+    {
+      "topic": "제3국 대사관 철수 (우크라이나 2022)",
+      "claim": "미 국무부는 2022년 1월 23일 '러시아 군사행동 위협이 계속된다'며 키이우 대사관 직원 가족에게 출국을 명령했다(침공 32일 전).",
+      "hypotheses": ["g_evac_order"],
+      "direction": "supports",
+      "source": "ABC News 2022-01-23, State Department orders diplomats' families to leave US Embassy",
+      "url": "https://www.goodmorningamerica.com/news/story/state-department-orders-diplomats-families-leave-us-embassy-82430098",
+      "confidence": "high"
+    },
+    {
+      "topic": "부자·전세기 이탈 (우크라이나 2022)",
+      "claim": "우크라인스카 프라우다(Flightradar24 기반): 2022년 2월 13일 하루에 전세기·개인기 최소 20편이 키이우를 떠났고 이는 6년 관측 중 최다였다(침공 11일 전). 아흐메토프는 1월 30일에 이미 떠났으며, 거명된 일부는 '출장'이라며 부인했다.",
+      "hypotheses": ["f_capital_flight"],
+      "direction": "supports",
+      "source": "Ukrainska Pravda 2022-02-13 (via The Moscow Times 2022-02-14)",
+      "url": "https://www.themoscowtimes.com/2022/02/14/ukrainian-oligarchs-flee-amid-fears-of-russian-attack-reports-a76369",
+      "confidence": "med"
+    },
+    {
+      "topic": "항공 보험·운항 중단 (우크라이나 2022)",
+      "claim": "2022년 2월 12일 세계 주요 보험사들이 48시간 안에 우크라이나 영공 항공기 보험을 중단하겠다고 통보했고 KLM은 같은 날 운항을 즉시 중단했다(침공 12일 전). 우크라이나 정부는 166억 흐리우냐(약 5억 9,200만 달러) 보증 기금을 만들어 운항을 유지하려 했다.",
+      "hypotheses": ["m_airspace"],
+      "direction": "supports",
+      "source": "Reinsurance News 2022-02; AIN 2022-02-14; Business Insurance",
+      "url": "https://www.reinsurancene.ws/ukraine-launches-592m-fund-for-flights-through-its-airspace-as-insurers-pull-cover/",
+      "confidence": "high"
+    },
+    {
+      "topic": "예측시장·집단 예측 (우크라이나 2022)",
+      "claim": "메타큘러스 커뮤니티의 '러시아가 2022년에 우크라이나를 침공' 확률은 12월 12일 35%, 1월 18일 52%, 2월 12일 65%, 2월 19일 75%였다. 반면 '러시아군이 2022년에 키이우 진입'은 2월 11일까지도 8%에 그쳐, 일어날지는 맞혔지만 규모는 과소평가했다.",
+      "hypotheses": ["f_prediction"],
+      "direction": "supports",
+      "source": "Metaculus Ukraine Conflict tournament page; LessWrong commentary",
+      "url": "https://metaculus.com/tournament/ukraine-conflict",
+      "confidence": "med"
+    },
+    {
+      "topic": "예측시장 (이스라엘→이란 2025-06)",
+      "claim": "한 보도에 따르면 폴리마켓은 2025년 6월 13일 이스라엘의 이란 공습 이틀 전 '6월 중 이스라엘의 이란 공격'을 88%로 매겼다. 별도의 '미국의 이란 공격(7월 전)' 시장은 3월 31일 35%에서 6월 16일 67%로 올랐다가 6월 17일 약 46%로 떨어졌다. 내부자 베팅 의혹 보도도 있어 수치·해석 모두 확인이 더 필요하다.",
+      "hypotheses": ["f_prediction"],
+      "direction": "supports",
+      "source": "We Are The Mighty 2025; Decrypt 2025-06, Polymarket Odds on US Strike Against Iran Spike, Then Fall",
+      "url": "https://decrypt.co/325506/polymarket-bets-on-us-strike-against-iran-spike-then-fall",
+      "confidence": "low"
+    },
+    {
+      "topic": "사이버 공격 (우크라이나 2022)",
+      "claim": "파괴형 악성코드 위스퍼게이트가 2022년 1월 13일 우크라이나 시스템에 심어졌고(침공 42일 전), 2월 23일 헤르메틱와이퍼가 수백 대를 지웠으며(1일 전), 비아샛 위성망 공격은 침공 약 1시간 전에 시작됐다.",
+      "hypotheses": ["m_cyber"],
+      "direction": "supports",
+      "source": "CFR, Tracking Cyber Operations and Actors in the Russia-Ukraine War; ESET, A year of wiper attacks in Ukraine",
+      "url": "https://www.cfr.org/blog/tracking-cyber-operations-and-actors-russia-ukraine-war",
+      "confidence": "high"
+    },
+    {
+      "topic": "GPS 교란 (우크라이나 2022)",
+      "claim": "호크아이 360은 2021년 11월 돈바스 접촉선 일대에서, 2022년 2월 침공 직전에는 우크라이나-벨라루스 국경에서 GPS 간섭을 탐지했고, OSCE 감시단 무인기도 2022년 2월 2일 교란을 겪었다. 다만 러시아는 2014년부터 우크라이나에서 GPS를 자주 교란해 왔으므로 '새 위치에 나타난 교란'만 변별력이 있다.",
+      "hypotheses": ["m_gps_ew"],
+      "direction": "supports",
+      "source": "GPS World, HawkEye 360 tech reveals early GPS interference in Ukraine; OSCE SMM spot report",
+      "url": "https://www.gpsworld.com/hawkeye-360-tech-reveals-early-gps-interference-in-ukraine/",
+      "confidence": "med"
+    },
+    {
+      "topic": "역내 인력 감축 (이스라엘→이란 2025-06)",
+      "claim": "2025년 6월 11일 미 국무부는 바그다드 대사관 비필수 인원 출국을 명령하고 바레인·쿠웨이트에는 출국을 허가했으며, 국방장관은 중동 전역 군인 가족의 자발적 출국을 허가했다 — 이스라엘의 이란 공습(6월 13일) 2일 전이다. 이라크 정부는 '철수가 필요한 안보 징후는 없다'고 했다.",
+      "hypotheses": ["g_regional_drawdown"],
+      "direction": "supports",
+      "source": "PBS NewsHour / AP 2025-06-11; ABC News 2025-06-11",
+      "url": "https://www.pbs.org/newshour/world/u-s-prepares-to-move-nonessential-personnel-from-baghdad-embassy-due-to-potential-regional-unrest",
+      "confidence": "high"
+    },
+    {
+      "topic": "협상 중의 공격 (이스라엘→이란 2025-06)",
+      "claim": "2025년 6월 11일 시점에 미-이란 6차 핵 협상이 그 주말 오만에서 잠정 예정돼 있었는데도 6월 13일 공습이 있었다 — 협상 일정이 살아 있다는 것은 안전의 증거가 아니며, '협상 결렬'이 없어도 공격은 일어난다.",
+      "hypotheses": ["g_talks_collapse"],
+      "direction": "weakens",
+      "source": "PBS NewsHour / AP 2025-06-11",
+      "url": "https://www.pbs.org/newshour/world/u-s-prepares-to-move-nonessential-personnel-from-baghdad-embassy-due-to-potential-regional-unrest",
+      "confidence": "med"
+    },
+    {
+      "topic": "공격 전 이상 거래 (2023-10-07)",
+      "claim": "잭슨·미츠(2023, 미심사 초고)는 10월 2일 MSCI 이스라엘 ETF 공매도 급증을 사전 정보 거래의 흔적으로 제시했으나, 텔아비브 증권거래소는 '부정확하다'고 반박했고 환산 오류로 추정 이익이 부풀려졌으며 이스라엘 증권당국도 의심 거래를 찾지 못했다고 했다.",
+      "hypotheses": ["f_equity"],
+      "direction": "weakens",
+      "source": "Jackson & Mitts 2023, Trading on Terror? (preprint); ETF Stream; Institutional Investor",
+      "url": "https://www.etfstream.com/articles/report-on-short-selling-of-blackrock-israel-etf-ahead-of-hamas-attack-flawed-tase-says",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — NEO는 정준 지표 (2017)",
+      "claim": "우드워드(2018): 트럼프는 2017년 주한미군 가족을 철수시키겠다는 트윗 초안을 썼으나 올리지 않았다. 북한은 비공식 경로로 그런 조치를 '미국의 공격 준비 신호'로 보겠다고 밝혀 둔 상태였고 국방부 지도부가 크게 놀랐다.",
+      "hypotheses": ["g_evac_order", "g_regional_drawdown"],
+      "direction": "supports",
+      "source": "Woodward 2018, Fear (via Stars and Stripes 2018-09-10)",
+      "url": "https://www.stripes.com/news/2018-09-10/woodward-trump-drafted-tweet-on-pulling-military-dependents-from-s-korea-1510220.html",
+      "confidence": "high"
+    },
+    {
+      "topic": "한반도 — NEO와 오판 (2017)",
+      "claim": "브룩스 전 주한미군사령관: 2017년 가을 북한의 오판으로 전쟁이 날 뻔했고(당시 연합훈련에 미군 34,000명), 설명 없이 한국 내 비전투원 전원에게 출국을 명령하는 것 같은 조치가 불씨가 될 수 있었다.",
+      "hypotheses": ["g_evac_order"],
+      "direction": "supports",
+      "source": "Brooks, PBS NewsHour interview; Asahi interview (via Asia Economy 2020-01-19)",
+      "url": "https://www.asiae.co.kr/en/article/2020011913142017120",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — NEO는 숨길 수 없다",
+      "claim": "코리아중앙데일리 기사는 '미국이 실제로 전쟁을 계획한다면 숨길 수 없는 것이 먼저 보였을 것 — 한국 내 미국인 철수'라는 발언을 인용한다(검색 요약상 오바마 발언으로 표기, 원문 확인 필요). NEO 부재는 미국발 공격 임박설에 대한 반증으로 쓰인다.",
+      "hypotheses": ["g_evac_order"],
+      "direction": "supports",
+      "source": "Korea JoongAng Daily, The last nuclear crisis in Korea was much scarier",
+      "url": "https://www.koreajoongangdaily.com/korea/the-last-nuclear-crisis-in-korea-was-much-scarier/11714298",
+      "confidence": "low"
+    },
+    {
+      "topic": "한반도 — 1994년",
+      "claim": "1994년 6월 위기 때 주한 미국 대사관은 미국인 수천 명의 철수 계획을 세우기 시작했고, 시걸은 예방적 조치 하나가 북한의 동원을 불러 양쪽 모두 원치 않는 전쟁으로 갈 위험이 있었다고 본다.",
+      "hypotheses": ["g_evac_order", "m_mobilization"],
+      "direction": "supports",
+      "source": "The Diplomat 2025-01, How Jimmy Carter Stopped the Second Korean War; Sigal (Arms Control Association)",
+      "url": "https://manage.thediplomat.com/2025/01/how-jimmy-carter-stopped-the-second-korean-war",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — 금융시장 무반응",
+      "claim": "김병연·롤랑(2014): 2000~2008년 약 20개 사건에서 한국 주식·환율·채권 스프레드는 긴장 고조에도 완화에도 거의 반응하지 않았다(유의한 창은 소수). 시장은 북한의 위협도, 협력 약속도 믿을 만하다고 보지 않는다.",
+      "hypotheses": ["f_equity", "f_fx", "f_sovereign"],
+      "direction": "weakens",
+      "source": "Kim & Roland 2014, How credible is the North Korean threat? (Economics of Transition 22:3)",
+      "url": "https://econpapers.repec.org/RePEc:bla:etrans:v:22:y:2014:i:3:p:433-459",
+      "confidence": "high"
+    },
+    {
+      "topic": "한반도 — 핵실험과 코스피",
+      "claim": "2006년 1차 핵실험 뒤 코스피가 실험 전날 종가를 되찾는 데 5영업일이 걸렸고 원화 약세는 그 창에서 1.6% 수준이었다. 2016년 5차 실험 당일 코스피는 1.25% 내렸는데 대부분 장 시작 전 하락이었다.",
+      "hypotheses": ["f_equity", "f_fx"],
+      "direction": "weakens",
+      "source": "KEIA (Ferrier), Provoking the Market: North Korea's Impact on the South Korean Economy",
+      "url": "https://keia.org/analysis/provoking-the-market-north-koreas-impact-on-the-south-korean-economy/",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — 지정학 위험의 상대 크기",
+      "claim": "황(2025)의 코스피·원/달러 사건 연구: 북한 군사 도발에 대한 즉각 반응은 시간이 갈수록 효과를 잃었고, 미중 무역 갈등과 일본 수출 규제가 더 큰 교란을 일으켰다.",
+      "hypotheses": ["f_equity", "f_fx"],
+      "direction": "weakens",
+      "source": "Hwang 2025, The Effects of Geopolitical Risk on Korea's Financial Market (Technium Social Sciences Journal)",
+      "url": "https://www.techniumscience.com/index.php/socialsciences/article/view/13303",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — 말만으로는 부족 (2024)",
+      "claim": "칼린·헤커(2024-01-11)는 김정은이 전쟁을 결심했다고 주장했지만, 반론은 전쟁을 준비하는 나라가 탄약·미사일을 러시아로 내보내지 않는다는 점을 들었고, 미 관리 5명은 CNN에 공격 준비 징후를 보지 못했다고 했다. 대다수 전문가는 동의하지 않았다.",
+      "hypotheses": ["i_leader_threat", "m_logistics", "g_intel_warning"],
+      "direction": "weakens",
+      "source": "Carlin & Hecker 2024, Is Kim Jong Un Preparing for War? (38 North); Roy, Lowy Interpreter; NBC News",
+      "url": "https://www.lowyinstitute.org/the-interpreter/north-korea-not-about-start-war",
+      "confidence": "high"
+    },
+    {
+      "topic": "한반도 — 훈련과 북한 반응",
+      "claim": "도라치오(2012)와 CSIS(차·이·임 2016): 한미 연합훈련은 북한의 평소와 다른 공격 행동을 유발하지 않았고, 북한 반응이 평소 수사·행동과 통계적으로 다르다는 증거는 거의 없었다(고강도 훈련 일부 예외). '북한은 늘 호전적'이라 기준선 자체가 높다.",
+      "hypotheses": ["i_leader_threat", "i_state_mobilization", "i_pretext"],
+      "direction": "weakens",
+      "source": "D'Orazio 2012, War Games (Journal of East Asian Studies); CSIS Beyond Parallel 2016",
+      "url": "https://beyondparallel.csis.org/do-u-s-rok-exercises-provoke-dprk/",
+      "confidence": "med"
+    },
+    {
+      "topic": "한반도 — '준전시상태' 선포",
+      "claim": "북한은 2013년 3월 30일 남북 관계가 '전시 상황'에 들어간다고 선언했고 2015년 8월에는 포격전 뒤 김정은이 '준전시상태'를 선포했지만 둘 다 전면전으로 이어지지 않았다. KCNA 스스로 과거에도 이런 선포가 있었다고 밝혔다.",
+      "hypotheses": ["m_alert_level", "i_state_mobilization"],
+      "direction": "weakens",
+      "source": "UPI 2015-08-21, Kim Jong Un declares semi-state of war; GlobalSecurity 2013-03-30",
+      "url": "https://www.upi.com/Top_News/World-News/2015/08/21/Kim-Jong-Un-declares-semi-state-of-war-after-exchange-of-fire/7941440164397/",
+      "confidence": "med"
+    }
+  ],
+  "base_rates": [
+    {
+      "what": "국제 위기(ICB, 1945년 이후)가 전면전에 이른 비율",
+      "value": "17% (폭력 없음 약 25%, 소규모 충돌 약 33%, 심각한 충돌 약 25%)",
+      "source": "UC IGCC blog, Revenge of the Experts (ICB data; 2차 요약)",
+      "url": "https://ucigcc.org/blog/revenge-of-the-experts-building-better-conflict-predictions/"
+    },
+    {
+      "what": "ICB 위기가 '심각한 충돌 또는 전면전'으로 간 비율 — 계기 종류별",
+      "value": "폭력 행위로 시작 약 61% / 비폭력 군사 행동으로 시작 약 19% / 말·정치·경제 행위로 시작 약 23% (뒤 두 값의 결과 정의는 원문 확인 필요)",
+      "source": "UC IGCC blog, Revenge of the Experts (ICB data)",
+      "url": "https://ucigcc.org/blog/revenge-of-the-experts-building-better-conflict-predictions/"
+    },
+    {
+      "what": "ICB 위기가 '심각한 충돌 또는 전면전'으로 간 비율 — 위협 인식별",
+      "value": "존립 위협으로 인식 약 69% / 그보다 낮은 위협 약 37%",
+      "source": "UC IGCC blog, Revenge of the Experts (ICB data)",
+      "url": "https://ucigcc.org/blog/revenge-of-the-experts-building-better-conflict-predictions/"
+    },
+    {
+      "what": "ICB 자료 규모",
+      "value": "국제 위기 496건·위기 행위자 1,100개(2019년까지, 한 출처) / 1918-12~2015년 국제 위기 476건·외교정책 위기 1,052건(Near Crisis 논문)",
+      "source": "ICB Project (Wikipedia); Near Crisis Project 2019 (CMPS)",
+      "url": "https://nearcrisisproject.poli-sci.utah.edu/_resources/documents/cmps-near-crises-2019.pdf"
+    },
+    {
+      "what": "군사화된 국가 간 분쟁(MID, 1816~1992)이 전쟁으로 번진 비율",
+      "value": "3.9% (2,035건 중 80건; 다른 COW 기술은 79건·4%)",
+      "source": "Hensel, Charting A Course To Conflict; Jones, Bremer, Singer 1996",
+      "url": "https://www.researchgate.net/publication/228537504_Charting_A_Course_To_Conflict_Territorial_Issues_and_Interstate_Conflict_1816-1992"
+    },
+    {
+      "what": "MID가 전쟁으로 번진 비율 — 쟁점별",
+      "value": "영토 쟁점 7.3% / 그 밖의 쟁점 2.5% (1,456건 중 36건)",
+      "source": "Hensel, Charting A Course To Conflict: Territorial Issues and Interstate Conflict, 1816-1992",
+      "url": "https://www.researchgate.net/publication/228537504_Charting_A_Course_To_Conflict_Territorial_Issues_and_Interstate_Conflict_1816-1992"
+    },
+    {
+      "what": "MID가 전쟁으로 발전한 건수(1816~1976)",
+      "value": "91건 (다자 전쟁이 여러 MID에서 나와 전쟁 수보다 많음)",
+      "source": "Gochman & Maoz 1984, Militarized Interstate Disputes, 1816-1976 (JCR)",
+      "url": "https://journals.sagepub.com/doi/10.1177/0022002784028004002"
+    },
+    {
+      "what": "강대국 분쟁이 전쟁으로 간 비율 — 군비경쟁 유무",
+      "value": "군비경쟁 중 26% (53건 중 14건) / 군비경쟁 없음 8% (204건 중 17건)",
+      "source": "Sample 1997 (via S. Miller 2025)",
+      "url": "https://svmiller.com/blog/2025/08/simple-tests-for-arms-races-war/"
+    },
+    {
+      "what": "지속적 경쟁 관계가 차지하는 몫",
+      "value": "1816~1986년 MID의 약 45%, 1816년 이후 국가 간 전쟁의 절반 이상; 전쟁 경험 가능성은 고립 분쟁 쌍의 최대 약 8배, 분쟁당 전면전 확전 가능성은 약 2배",
+      "source": "Goertz & Diehl 1992; Bercovitch & Regan summary",
+      "url": "https://www3.gmu.edu/programs/icar/ijps/vol4_1/bercovitch.htm"
+    },
+    {
+      "what": "지속적 경쟁 관계 자료 규모",
+      "value": "63개(1816~1992, Diehl & Goertz 2000) / 115개(1816~2001, Klein·Goertz·Diehl 2006)",
+      "source": "Diehl & Goertz 2000; Klein, Goertz, Diehl 2006 (2차 인용)",
+      "url": "https://www3.gmu.edu/programs/icar/ijps/vol4_1/bercovitch.htm"
+    },
+    {
+      "what": "선제·예방 전쟁이 주요 국가 간 전쟁(1816~1997, 79건)에서 차지하는 비율",
+      "value": "최선 추정 29% (코딩 규칙에 따라 19~33%); 1816~1900년은 15%",
+      "source": "Lindley & Schildkraut, The Practice of Pre-emptive and Preventive Wars",
+      "url": "https://academicweb.nd.edu/~dlindley/handouts/Pre-emptive%20and%20Preventive%20Wars.pdf"
+    },
+    {
+      "what": "뉴스 기반 전쟁 경고의 적중률과 오경보율",
+      "value": "대규모 전쟁의 70% 이상 적중 / 관측의 16%에서 오경보; 1주 전 경고가 나온 전쟁 71.23%",
+      "source": "Chadefaux 2012 (SSRN draft); conference slides",
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2197324"
+    },
+    {
+      "what": "분쟁 충격이 국채 가격에 반영되는 속도",
+      "value": "처음 14% → 15일 뒤 75%",
+      "source": "Rexer, Kapstein, Rivera (NBER conference paper f184565에서 인용)",
+      "url": "https://conference.nber.org/conf_papers/f184565/f184565.pdf"
+    },
+    {
+      "what": "한반도 — 워치콘 2 이상 격상 뒤 전쟁 발생",
+      "value": "확인된 격상 4회(1982 워치콘 1, 1999·2009·2013 워치콘 2) 중 전쟁 0회",
+      "source": "Wikipedia 'WATCHCON'; Korea Times 2009-05-28",
+      "url": "https://www.koreatimes.co.kr/southkorea/20090528/s-korea-us-upgrade-alert-after-nk-threat"
+    },
+    {
+      "what": "한반도 — 북한 사건에 대한 금융시장의 유의한 반응",
+      "value": "2000~2008년 약 20개 사건 중 유의한 사건 창은 소수(한 줌)",
+      "source": "Kim & Roland 2014 (2차 요약)",
+      "url": "https://eml.berkeley.edu/~groland/pubs/KimRolandKoreanthreat.pdf"
+    },
+    {
+      "what": "한반도 — 핵실험 뒤 코스피 회복 기간",
+      "value": "2006년 1차 핵실험: 5영업일 / 2016년 5차 핵실험 당일 -1.25%",
+      "source": "KEIA, Provoking the Market",
+      "url": "https://keia.org/analysis/provoking-the-market-north-koreas-impact-on-the-south-korean-economy/"
+    },
+    {
+      "what": "한반도 — 북한 공격에 대한 명확한 경고 시간(계획 전제)",
+      "value": "1~3일 (과거 약 10일에서 축소)",
+      "source": "GlobalSecurity.org, OPLAN 5027",
+      "url": "https://www.globalsecurity.org/military/ops/oplan-5027.htm"
+    },
+    {
+      "what": "미 국무부의 공관 철수(전쟁 아닌 사유 포함) 빈도",
+      "value": "1988년 이후 293회 이상(내란·자연재해·전쟁·테러 합계; 2차 인용, GAO 원문 미확인) — 철수 명령의 대다수는 국가 간 전쟁과 무관",
+      "source": "FAOA Journal (GAO-17-714 인용)",
+      "url": "https://faoajournal.substack.com/p/embassy-emergency-action-response"
+    },
+    {
+      "what": "우크라이나 2022 — 공개 전조의 선행 일수(침공 2022-02-24 기준)",
+      "value": "러시아 외교관 가족 철수 50일 / 위스퍼게이트 42일 / 미국 가족 철수 명령 32일 / 혈액 전방 이동 보도 27일 / 보험 중단 통보·KLM 중단 12일 / 전세기 20편 이탈 11일 / 헤르메틱와이퍼 1일",
+      "source": "위 findings 의 각 출처(날짜 차이는 직접 계산)",
+      "url": "https://www.cfr.org/blog/tracking-cyber-operations-and-actors-russia-ukraine-war"
+    }
+  ],
+  "new_hypotheses": [
+    {
+      "ko": "전쟁 준비와 모순되는 행동 (반대 징후)",
+      "def": "공격할 것으로 의심되는 쪽이 탄약·미사일을 제3국으로 대량 반출하거나 전방 부대를 빼는 등 임박한 전쟁과 양립하기 어려운 행동을 하는가. 있으면 위험을 낮추는 '음의 지표'로 센다.",
+      "evidence": "2024년 '김정은 전쟁 결심' 주장에 대한 핵심 반론이 북한의 대러시아 탄약·미사일 수출이었다.",
+      "url": "https://www.lowyinstitute.org/the-interpreter/north-korea-not-about-start-war"
+    },
+    {
+      "ko": "협상 일정이 살아 있는데 군사 준비가 계속됨 (협상 위장)",
+      "def": "회담 날짜가 잡혀 있거나 협상이 진행 중인데도 병력·자산 집결과 인력 철수가 멈추지 않는다. 코드북의 '협상 결렬'과 반대 방향의 신호.",
+      "evidence": "2025년 6월: 미-이란 6차 협상이 그 주말로 예정된 상태에서 6월 11일 역내 인력 감축, 6월 13일 공습. 웨일리 자료에서 전략적 기습의 82%에 기만이 관여.",
+      "url": "https://www.pbs.org/newshour/world/u-s-prepares-to-move-nonessential-personnel-from-baghdad-embassy-due-to-potential-regional-unrest"
+    },
+    {
+      "ko": "발표 없이 진행되는 동원 (비공개 동원)",
+      "def": "정부가 공표하지 않았는데 위성·현지 보도로 예비군 소집, 통신보안 강화, 부대 표식 제거 등이 드러난다. 공개 선언된 동원(협상 신호)과 구분해 따로 센다.",
+      "evidence": "Lai(2004): ICB 자료에서 정보를 숨기려는 비공개 동원이 전쟁으로 이어질 가능성이 높다. 그라보: 공격 직전 준비(통신보안 강화)는 숨겨진다.",
+      "url": "https://ideas.repec.org/a/sae/jocore/v48y2004i2p211-229.html"
+    },
+    {
+      "ko": "위기의 계기가 폭력이었는가 · 존립 위협으로 인식되는가 (위기 유형)",
+      "def": "위기를 연 첫 행위가 직·간접 폭력인지(대 말·정치·경제 행위), 그리고 당사국 지도부가 위협을 '존립'의 문제로 규정하는지. 개별 전조가 아니라 위기 전체의 사전 확률을 조정하는 분류 변수.",
+      "evidence": "ICB: 폭력으로 시작된 위기의 약 61%가 심각한 충돌·전면전으로 갔고 비폭력 계기는 19~23%; 존립 위협 인식 69% 대 37%.",
+      "url": "https://ucigcc.org/blog/revenge-of-the-experts-building-better-conflict-predictions/"
+    },
+    {
+      "ko": "구조적 배경 — 영토 쟁점·군비경쟁·지속적 경쟁 관계",
+      "def": "분쟁 쌍이 영토를 다투는지, 군비경쟁 중인지, 20년 이상 반복 충돌한 경쟁 관계인지. 전조가 아니라 기저 확률(사전 확률)을 정하는 고정 변수.",
+      "evidence": "MID→전쟁: 영토 7.3% 대 기타 2.5%; 군비경쟁 26% 대 8%; 경쟁 관계의 분쟁은 확전 가능성 약 2배.",
+      "url": "https://svmiller.com/blog/2025/08/simple-tests-for-arms-races-war/"
+    },
+    {
+      "ko": "새 위치에 나타난 전파 교란 (교란의 이동)",
+      "def": "평소 교란이 있던 곳이 아니라 새 국경 구간·축선에서 GPS 간섭이 처음 관측된다. 코드북 m_gps_ew 의 '급증'을 '위치 변화'로 좁힌 변형.",
+      "evidence": "호크아이 360: 2021년 11월에는 돈바스 접촉선, 2022년 2월 침공 직전에는 벨라루스 국경에서 간섭 탐지. 러시아는 2014년부터 상시 교란해 왔다.",
+      "url": "https://www.gpsworld.com/hawkeye-360-tech-reveals-early-gps-interference-in-ukraine/"
+    },
+    {
+      "ko": "국가 ETF·옵션의 비정상 공매도 (사전 정보 거래 흔적)",
+      "def": "표적국 국가 ETF나 대표 종목의 공매도 잔고·단기 옵션 거래가 며칠 사이 이례적으로 급증한다.",
+      "evidence": "2023년 10월 2일 MSCI 이스라엘 ETF 공매도 급증 주장(잭슨·미츠) — 거래소·당국이 반박했고 계산 오류가 있어 근거는 약함. 후보로만 기록.",
+      "url": "https://www.etfstream.com/articles/report-on-short-selling-of-blackrock-israel-etf-ahead-of-hamas-attack-flawed-tase-says"
+    },
+    {
+      "ko": "표적국·주재국 정부의 공개 부인 (해석 규칙)",
+      "def": "제3국의 경고·철수에 대해 표적국이나 주재국 정부가 '징후 없다'고 부인한다. 전조가 아니라 '부인은 반증으로 세지 않는다'는 해석 규칙 후보.",
+      "evidence": "우크라이나 국방차관은 2022년 1월 혈액 이동 보도를 부인했고, 이라크 정부는 2025년 6월 '철수할 안보 징후 없다'고 했으나 두 경우 모두 며칠~몇 주 뒤 공격이 있었다.",
+      "url": "https://thestar.com.my/news/world/2022/01/29/exclusive-russia-moves-blood-supplies-near-ukraine-adding-to-us-concern-officials-say"
+    }
+  ],
+  "surprise_rate": {
+    "claim": "'전쟁의 몇 %가 전략적 기습으로 시작됐는가'를 직접 잰 단일 문헌 값은 이번 조사에서 찾지 못했다. 가장 가까운 정량값은 웨일리(1969): 1914~1968년 17개 전쟁 168개 전투 가운데 61개(약 36%, 직접 나눈 값)가 전략적 기습을 달성했고 그 82%에 기만이 관여했으며, 지상 전투의 기습 비율은 1차대전 48%, 2차대전 68%였다(전투 단위이지 전쟁 단위가 아님). 대리 지표로 선제·예방 전쟁은 1816~1997년 주요 전쟁 79건의 29%(19~33%)다. 베츠·월스테터·달의 공통 결론은 '경고는 대개 있었고 실패는 해석·대응에서 났다'는 것이다. 베츠·캄의 '1939년 이후 주요 전쟁 대부분이 기습으로 시작' 진술은 원문을 확인하지 못해 싣지 않았다.",
+    "source": "Whaley 1969, Stratagem (CIA 요약); Lindley & Schildkraut; Betts 1982",
+    "url": "https://cia.gov/resources/csi/static/Deception.pdf"
+  },
+  "limitations": "2026-11-11 조사. (1) WebFetch 가 세션 네트워크 허용 목록 밖이라 실패했다(ucigcc.org, apps.dtic.mil, www.research-collection.ethz.ch, voxeu.org) — 모든 수치는 인용 URL 에 대한 WebSearch 결과 요약에서 가져왔고 원문 전문을 직접 읽어 대조하지 못했다. confidence 는 이를 반영해 낮춰 적었다. (2) 턴 공용 WebSearch 한도(200회)가 약 60회 검색 뒤 소진돼 다음은 확인하지 못했다: 베츠·캄의 기습 빈도 진술, Slantchev 2005·Snyder&Borghard 2011(청중 비용 비판), 쿠웨이트 1990·조지아 2008 사이버, 2024년 4월 이스라엘 GPS 스푸핑, 침공 전 러시아 증시·루블 수치, CSIS Beyond Parallel 도발 건수, 1994·2017년 원화·코스피 수치, GAO-17-714 본문 수치, 그라보의 의료 준비 원문. (3) 선행 일수는 보도 날짜에서 직접 계산했다. (4) 봉인 사례 3건은 조사·언급하지 않았다.",
+  "retrieved": "2026-11-11"
+}

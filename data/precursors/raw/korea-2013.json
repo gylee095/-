@@ -1,0 +1,184 @@
+{
+  "id": "korea-2013",
+  "name": "2013년 봄 한반도 위기",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "2013-02-12",
+    "2013-05-15"
+  ],
+  "attacker": "북한",
+  "target": "한국·미국",
+  "kind": "korean_crisis",
+  "surprise": false,
+  "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 3차 핵실험(2/12) 뒤 정전협정 '백지화', 3/26 '1호 전투근무태세', 3/30 '전시상황', 4/5 평양 공관 철수 검토 권고, 4/9 주한 외국인 대피 촉구, 개성공단 중단, 무수단 배치, B-2·B-52·F-22 비행이 이어졌으나 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미검증 단서: 북의 4/5 평양 공관 철수 권고·4/9 주한 외국인 대피 촉구에도 각국 대사관은 잔류·정상 운영으로 알려짐"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미검증 단서: 주한 미 대사관 4월 초 공지가 '여행경보 변경 없음·구체 위협 없음'이었던 것으로 기억"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미검증 단서: 주한 미 대사관이 보안 태세를 바꿀 이유가 없다고 공지한 것으로 기억"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "미검증 단서: 북이 4/8~9 개성공단 북측 근로자 약 5.3만 명 철수 — 자국 영토 안 조치라 정의에 맞는지 판단 필요"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: 백악관(4/1)·한국 국방부가 '대규모 동원·전면전 징후 없음'이라 밝힌 것으로 기억"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 3/5 정전협정 백지화 예고(3/11), 3/8 불가침 합의 폐기·판문점 직통전화 차단, 4/4 총참모부 '작전 최종 비준' 통고"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "미검증 단서: 진행 중인 협상이 없었음. 개성공단 실무회담 제안은 4/26 북이 거부"
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "미검증 단서: 백악관 4/1 '북한군의 대규모 이동·배치 변화는 보이지 않는다'"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 백악관 4/1 '대규모 동원 없음' 발언"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "미검증 단서: 키리졸브(3/11~21)·독수리(3/1~4/30)가 예정대로 끝난 것으로 기억"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미검증 단서: B-52(3월 중순 공개), B-2(3/28), F-22 오산(3/31), 이지스함·SBX, 괌 사드(4/3 발표)"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미검증 단서: 북 3월 공습 대피·등화관제 훈련, 평양 버스 위장망 보도"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "미검증 단서: 대규모 GPS 교란은 2010·11·12·16년으로 알려져 있고 2013년은 기억에 없음"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "미검증 단서: 3/20 방송사·은행 전산망 마비(3·20 사이버테러), 정부가 4/10 북 소행으로 발표"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미검증 단서: 교전·포격은 없었던 것으로 기억"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "미검증 단서: 3/26 최고사령부 '1호 전투근무태세', 3/30 '전시상황' 선언, 한미 4/10 워치콘 2 격상"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미검증 단서: 3/29 0시 30분 김정은 긴급 작전회의(미사일 사격대기 지시), 3/31 당 전원회의"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미검증 단서: 4월 초 원/달러 1,140원대(약 8개월 최고) — 엔저 영향도 거론됨"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "미검증 단서: 4/5 코스피 1,927(연중 최저권)·외국인 대량 순매도 — 엔저·현대차 리콜도 원인으로 거론"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미검증 단서: 한국 CDS가 4월 초 80bp대 후반으로 수개월 내 최고"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미검증 단서: 국내 방산주 급등 보도"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미검증 단서: GM CEO 4/4 '비상계획 수립' 발언, 외국 기업 철수는 없었던 것으로 기억"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 김정은 3/7 전방 섬 방어대 시찰 '전면전 준비', 3/29 '미제와 총결산할 때'"
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 북이 한미훈련·B-2 비행을 '핵전쟁 도발'로 규정"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 3월 평양 군민대회, 청년 입대 탄원 보도"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "미검증 단서: 3~4월 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미검증 단서: 서울 시민 평온·사재기 없음 보도가 많았던 것으로 기억"
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증 단서: 사상자 난 계기 사건 없음"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미검증 단서: 3/5 예고한 3/11 정전협정 백지화 시점, 평양 공관 안전보장 시한 4/10"
+    }
+  ],
+  "missed": "(미검증, 과제 설명 기준) 공격 측이 제3국 공관·외국인에게 '떠나라'고 권고(4/5, 4/9)하는 신호는 코드북에 없음 — g_attacker_evac(자기 사람을 뺌)과 다르다.",
+  "retrieved": "2026-11-11"
+}

@@ -1,0 +1,204 @@
+{
+  "id": "us-iran-2019-06",
+  "name": "미국–이란 2019년 6월 위기 (유조선 피격·무인기 격추)",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "2019-05-05",
+    "2019-07-15"
+  ],
+  "attacker": "미국 (잠재)",
+  "target": "이란",
+  "kind": "us_strike",
+  "surprise": false,
+  "summary": "2019년 5~7월 미국–이란 위기: 유조선 피격과 6/20 이란의 미 RQ-4 무인기 격추 뒤 트럼프가 보복 공습을 취소해 전쟁으로 가지 않았다(경과는 의뢰서 기준). 이번 조사에서 출처로 확인한 것은 5/15 미국의 이라크 비필수 인력 철수 명령과 '임박한 위협' 설명, 당시 협상이 없었다는 점뿐이다. 웹 검색 한도가 소진돼 나머지 29개 가설은 unknown — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "이란 주재 제3국 대사관 철수는 찾지 못함"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "5/15 미국이 이라크 여행경보를 최고 단계로 올린 것만 확인 — 대상국 이란에 대한 경보 변화는 확인 못 함"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미검증 단서: 5/12 주바그다드 미 대사관의 긴장 고조 보안 경보"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "yes",
+      "first": "2019-05-15",
+      "lead": null,
+      "public_then": true,
+      "what": "미 국무부: 바그다드 대사관·에르빌 영사관 비필수 직원 철수 명령, 비자 업무 중단(5/15)",
+      "source": "https://www.aljazeera.com/news/2019/5/15/us-orders-non-emergency-government-employees-to-leave-iraq",
+      "confidence": "high"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "yes",
+      "first": "2019-05-15",
+      "lead": null,
+      "public_then": true,
+      "what": "잠재 공격국 미국이 예상 교전권인 이라크에서 자국 비필수 직원을 뺌(5/15, g_regional_drawdown 과 같은 사건)",
+      "source": "https://www.cnbc.com/2019/05/15/washington-orders-some-us-government-employees-to-leave-iraq.html",
+      "confidence": "med"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "yes",
+      "first": "2019-05-15",
+      "lead": null,
+      "public_then": true,
+      "what": "미 당국자들: 이란 혁명수비대가 지휘하는 이라크 민병대의 '임박한' 위협 정보라고 설명(5/15); 5/7 폼페이오 바그다드 급방문",
+      "source": "https://newsinfo.inquirer.net/?p=1119643",
+      "confidence": "med"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증: 무력 시한·단교는 없었다는 기억. 이란의 5/8 '60일' 통보는 핵합의 이행 문제"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "진행 중인 미·이란 협상이 없었음 — 5/15 트럼프 '이란이 곧 대화를 원할 것'(6월 중재 시도 등 이후 기간은 미검증)",
+      "source": "https://www.pbs.org/newshour/world/u-s-pulls-nonessential-embassy-staff-from-iraq-amid-mideast-tensions",
+      "confidence": "low"
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "미검증: 5/24 1,500명·6/17 1,000명 증파 발표 — 대규모 지상군 집결은 아니었다는 기억"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 5/5 링컨 항모전단·폭격기 전개 발표"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미검증 단서: 5월 중순 FAA 걸프 상공 경고, 6/20~21 FAA 비행 금지와 항공사 우회"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "미검증 단서: 6/20 미 사이버사령부의 이란 미사일 통제망 공격 보도"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 5/12·6/13 유조선 피격, 6/20 RQ-4 격추"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미검증 단서: 6/13 유조선 피격·6/20 격추 때 유가 급등"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미검증 단서: 5/18 엑손모빌의 바스라 유전 외국인 직원 철수, 해상 전쟁보험료 급등"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 5/19 트럼프 '싸우길 원하면 이란의 공식적 종말' 트윗"
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "5/15 철수 명령이 여러 통신·방송에 실린 것만 확인 — 보도량 급증의 측정 근거 없음"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 6/20 RQ-4 격추(사상자 없음) 뒤 트럼프가 공습을 승인했다가 취소"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미검증 단서: 이란의 5/8 '60일' 시한(7/7 만료)"
+    }
+  ],
+  "missed": "5/14 연합군 대변인은 '이란 측 위협 증가는 없다'고 해 미 정부 경고와 엇갈렸다(동맹 내부 평가 불일치). 미국은 같은 날 대상국이 아닌 이라크의 여행경보를 최고 단계로 올렸다. 6/20 공습 승인 뒤 취소(의뢰서 단서, 미검증)는 '실행 직전 취소'라는 별도 유형이다.",
+  "retrieved": "2026-11-11"
+}

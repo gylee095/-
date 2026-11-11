@@ -1,0 +1,254 @@
+{
+  "id": "us-israel-iran-2026",
+  "name": "미국·이스라엘 → 이란 전쟁 (2026)",
+  "outcome": "war",
+  "onset": "2026-02-28",
+  "window": [
+    "2025-11-30",
+    "2026-02-27"
+  ],
+  "attacker": "미국·이스라엘",
+  "target": "이란",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "2026-02-28 미국('에픽 퓨리')과 이스라엘('포효하는 사자')이 이란을 합동 공습해 전쟁이 시작됐고 하메네이가 숨졌다 — 당일 복수 보도로 발생과 날짜를 확인했다. 1월 하순부터 항모 2척과 전투기 100여 대가 모였고(2003년 이후 최대), 2/19 트럼프의 '10~15일' 시한, 2/23 베이루트 대사관 철수 명령, 2/27 주이스라엘 대사관 출국 허가까지 전조가 공개적으로 쌓였지만 협상(2/26 제네바 3차)은 결렬되지 않은 채 공습이 시작됐다. 웹 검색 한도가 소진돼 19개 가설(이란 측 군사·민방위 조치, 환율·증시 등)은 검증하지 못하고 unknown 으로 두었다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "yes",
+      "first": "2026-01-14",
+      "lead": 45,
+      "public_then": true,
+      "what": "영국: 테헤란 대사관 직원 임시 철수·원격 운영(1/14 발표); 2/27 미 공습 위협 속에 다시 철수",
+      "source": "https://en.mercopress.com/2026/01/15/uk-pulls-diplomatic-staff-out-of-tehran-amid-mounting-tension",
+      "confidence": "med"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "yes",
+      "first": "2026-01-20",
+      "lead": 39,
+      "public_then": true,
+      "what": "독일 1/20 자국민에 이란 출국 권고; 미 가상대사관 2/6 출국 촉구, 폴란드 2/19 '즉시 출국', 인도 2/23 등 다수국",
+      "source": "https://aljazeera.com/news/2026/2/25/which-countries-are-urging-citizens-to-leave-iran-amid-us-threat-of-force",
+      "confidence": "med"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "2/27 주이스라엘 미 대사가 직원에게 '출국하려면 오늘' 통지한 것만 확인 — 이동 제한·대피 지시는 확인 못 함"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "yes",
+      "first": "2026-02-23",
+      "lead": 5,
+      "public_then": true,
+      "what": "미 국무부: 베이루트 대사관 비필수 인력·가족 철수 명령(2/23); 2/27 주이스라엘 대사관 출국 허가",
+      "source": "https://www.pbs.org/newshour/world/state-department-orders-nonessential-u-s-diplomats-to-leave-lebanon-as-tensions-with-iran-rise",
+      "confidence": "high"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "yes",
+      "first": "2026-02-23",
+      "lead": 5,
+      "public_then": true,
+      "what": "공격국 미국이 예상 보복권에서 자국 외교관을 뺌: 베이루트 철수 명령(2/23), 이스라엘 출국 허가(2/27) — g_regional_drawdown 과 같은 사건",
+      "source": "https://wtop.com/government/2026/02/state-department-orders-nonessential-us-diplomats-to-leave-lebanon-as-tensions-with-iran-soar/",
+      "confidence": "med"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "악시오스의 트럼프 측근 '수주 내 타격 90%' 보도만 확인(익명) — 당국의 공식 '임박' 경고는 확인 못 함"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "yes",
+      "first": "2026-02-19",
+      "lead": 9,
+      "public_then": true,
+      "what": "트럼프: 이란에 핵합의 시한 '10일, 최대 15일' 제시, 불응하면 '정말 나쁜 일' 경고(2/19)",
+      "source": "https://cyprus-mail.com/2026/02/20/trump-warns-iran-of-bad-things-if-no-deal-made-sets-deadline-of-10-15-days",
+      "confidence": "high"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "결렬 아님: 2/26 제네바 3차 회담 뒤 오만 '상당한 진전', 이란 '약 1주 뒤 다음 회담' — 협상 도중 공습",
+      "source": "https://www.arabnews.pk/middle-east/omans-foreign-minister-says-iran-and-us-made-significant-progress-in-talks-2634486",
+      "confidence": "high"
+    },
+    {
+      "h": "m_buildup",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "지상군 집결은 없었음 — 당시 보도가 '지상 침공용 병력 증강은 보이지 않는다'고 명시(해·공군 전력은 m_strategic_assets)",
+      "source": "https://www.foxnews.com/politics/built-weeks-war-inside-firepower-us-has-positioned-near-iran",
+      "confidence": "med"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "yes",
+      "first": "2026-01-23",
+      "lead": 36,
+      "public_then": true,
+      "what": "미국: 링컨 항모전단 1월 말 아라비아해 도착, 약 2주 뒤 포드 항모 추가 명령, 전투기 100여 대 — 2003년 이후 최대(AP 1/23·2/26)",
+      "source": "https://www.ksat.com/news/politics/2026/01/23/a-look-at-the-us-military-assets-in-the-middle-east/",
+      "confidence": "high"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_airspace",
+      "status": "yes",
+      "first": "2026-02-25",
+      "lead": 3,
+      "public_then": true,
+      "what": "KLM: 3/1부터 암스테르담–텔아비브 운항 중단 발표(2/25, '상업·운영상 이유'); 영공 폐쇄는 개전 당일",
+      "source": "https://centreforaviation.com/news/klm-to-suspend-tel-aviv-services-from-01-mar-2026-1349951",
+      "confidence": "med"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "리알화 급락 여부는 검색 결과를 얻지 못함"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "yes",
+      "first": "2026-02-27",
+      "lead": 1,
+      "public_then": true,
+      "what": "브렌트유 2/27 2~3% 올라 72달러대(7개월 최고) — 이란 협상·미 군사행동 우려가 원인, 연초 대비 약 20% 상승",
+      "source": "https://today.thefinancialexpress.com.bd/print/oil-prices-rise-2pc-as-us-iran-extend-talks-into-next-week-1772208806",
+      "confidence": "med"
+    },
+    {
+      "h": "f_prediction",
+      "status": "yes",
+      "first": "2026-02-07",
+      "lead": 21,
+      "public_then": true,
+      "what": "폴리마켓 '미국의 이란 타격' 2월 말 기한 확률 44%로 급등(2/7), 2/9 56% 보도; 2/22 엔 20%대로 내려감",
+      "source": "https://investor.wedbush.com/wedbush/article/predictstreet-2026-2-7-geopolitical-risk-pricing-iran-strike-odds-surge-as-polymarket-volume-hits-188m-milestone",
+      "confidence": "low"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "yes",
+      "first": "2026-02-19",
+      "lead": 9,
+      "public_then": true,
+      "what": "트럼프가 직접 '의미 있는 합의가 없으면 나쁜 일이 벌어진다, 열흘쯤 뒤 알게 될 것' 경고(2/19 평화위원회 회의)",
+      "source": "https://www.algemeiner.com/2026/02/19/trump-presses-iran-make-meaningful-deal-appears-set-10-day-deadline/",
+      "confidence": "high"
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "yes",
+      "first": "2026-02-19",
+      "lead": 9,
+      "public_then": true,
+      "what": "2/19 시한 발언 뒤 AP·로이터·알자지라 등이 전력 증강·각국 출국 권고를 연일 보도(보도량 수치는 확인 못 함)",
+      "source": "https://english.aawsat.com/node/5244845",
+      "confidence": "low"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증: 1월 이란 시위 유혈 진압과 트럼프의 개입 경고가 계기였다는 기억"
+    },
+    {
+      "h": "t_deadline",
+      "status": "yes",
+      "first": "2026-02-19",
+      "lead": 9,
+      "public_then": true,
+      "what": "트럼프의 '10~15일' 시한(2/19 제시, 3/1~6 만료 예정) — 만료 전인 9일째에 공습",
+      "source": "https://kmph.com/news/nation-world/trump-sets-1015-day-ultimatum-for-iran-to-make-a-deal-as-military-buildup-grows-state-department-air-force",
+      "confidence": "high"
+    }
+  ],
+  "missed": "협상이 진행 중인 대낮에 시작됐다(2025-06 은 새벽). 당시 보도에 '베이루트 미 대사관 감축은 역내 타격의 전조로 읽힌다'는 해석이 있었다. 악시오스가 전한 트럼프 측근의 '수주 내 타격 90%' 발언(익명·비공식), 여러 나라의 이스라엘·레바논 등 주변국 여행경보는 코드북에 맞는 칸이 없다. 예측시장은 2월 초에 올랐다가 개시 직전 '2월 말' 기한 확률이 20% 안팎으로 낮았다(기한형 시장의 한계).",
+  "retrieved": "2026-11-11"
+}

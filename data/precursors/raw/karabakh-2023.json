@@ -1,0 +1,222 @@
+{
+  "id": "karabakh-2023",
+  "name": "아제르바이잔 → 나고르노카라바흐 '대테러 작전'",
+  "outcome": "attack",
+  "onset": "2023-09-19",
+  "window": [
+    "2023-06-21",
+    "2023-09-18"
+  ],
+  "attacker": "아제르바이잔",
+  "target": "나고르노카라바흐(아르차흐)",
+  "kind": "intrastate",
+  "surprise": false,
+  "summary": "2023년 9월 19일 아제르바이잔이 지뢰 폭발 사망을 이유로 '국지적 대테러 작전'을 선언하고 나고르노카라바흐를 공격해 하루 만에 끝냈다. 9월 초부터 접촉선·국경의 병력 집결(아르메니아 총리 9/7 공개 경고, SNS 영상), 이스라엘 오브다 기지 화물기 급증, 9/1 국경 교전이 공개적으로 보였다. 그러나 공격 전날 구호 반입 합의가 이행돼 협상 결렬 신호는 없었고, 계기라던 지뢰 사건도 개시 당일 일이었다. 대사관·시장·민방위 항목은 검색 한도로 조사하지 못했다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "2023년 9월 개시 전 대사관 철수 명령은 찾지 못함"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "개시 전 최고 단계 여행경보 상향은 찾지 못함(검색된 미 대사관 경보는 2022년 9월 것)"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "개시 전 새 이동 제한·보안 경보는 찾지 못함(주예레반 미 대사관 접경 이동 제한은 2022년 9월부터 계속)"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "yes",
+      "first": "2023-09-07",
+      "lead": 12,
+      "public_then": true,
+      "what": "아르메니아 총리 파시냔: 9/7 '아제르바이잔이 접촉선·국경에 병력을 집결 중, 새 군사 도발 준비'라고 공개 경고. 제3국의 임박 경고는 찾지 못함",
+      "source": "https://www.globalsecurity.org/military/library/news/2023/09/mil-230907-rferl03.htm",
+      "confidence": "med"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "창 안의 시한부 최후통첩·무력사용 공식 승인은 찾지 못함"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "what": "결렬 아님: 9/17 바쿠와 카라바흐 지도부가 라친·아그담 동시 구호 반입에 합의, 9/18 적십자 트럭이 실제 진입(공격 전날)",
+      "source": "https://www.rferl.org/a/armenia-nagorno-karabakh-humanitarian-aid-azerbaijan/32597670.html",
+      "confidence": "med"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "2023-09-07",
+      "lead": 12,
+      "public_then": true,
+      "what": "9월 초 아제르바이잔군이 접촉선·아르메니아 국경에 병력·장비 집결. 파시냔 9/7, 국방차관 9/11 확인, 아제르 SNS 영상 유포. 바쿠는 부인",
+      "source": "https://www.rferl.org/a/armenia-azerbaijan-claims-troop-buildup-border/32582534.html",
+      "confidence": "med"
+    },
+    {
+      "h": "m_logistics",
+      "status": "yes",
+      "first": "2023-09-01",
+      "lead": 18,
+      "public_then": true,
+      "what": "아제르 실크웨이 화물기가 폭발물 수출 전용인 이스라엘 오브다 기지에 9/1~9/17 최소 6회 착륙(AP 항적 집계는 10월 보도, 헤트크는 당시 추적)",
+      "source": "https://timesofisrael.com/israeli-weapons-quietly-helped-azerbaijan-retake-nagorno-karabakh-sources-data/",
+      "confidence": "low"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "9/5~9/8 예비군 훈련은 국방부가 '2023년 계획' 훈련이라 발표했고 종료 뒤 귀가 — 정의상 제외. 별도 동원령은 찾지 못함"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "아제르바이잔이 9월 초 병력 이동을 '계획된 훈련'이라 해명했으나 훈련 연장·잔류 여부는 확인 못 함"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "yes",
+      "first": "2023-07-15",
+      "lead": 66,
+      "public_then": true,
+      "what": "아제르 국방부: 7/13부터 카라바흐 상공 민항기(AZAL 등) GPS 장애가 반복됐다고 발표(9/2, 9/18에도). 독립 확인 없는 한쪽 주장",
+      "source": "https://english.alarabiya.net/News/world/2023/07/15/Karabakh-separatists-pose-threat-to-flights-Azerbaijan",
+      "confidence": "low"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "yes",
+      "first": "2023-09-01",
+      "lead": 18,
+      "public_then": true,
+      "what": "9/1 아르메니아 소트크·노라바크 초소에 아제르군 드론·박격포 공격, 아르메니아 병사 3명 사망. 아제르 측도 3명 부상 주장",
+      "source": "https://thestar.com.my/news/world/2023/09/01/two-armenian-soldiers-killed-in-azerbaijani-shelling--defence-ministry",
+      "confidence": "high"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "창 안의 알리예프 직접 위협 발언은 찾지 못함(검색된 '철권' 발언 등은 개시 뒤)"
+    },
+    {
+      "h": "i_pretext",
+      "status": "yes",
+      "first": "2023-07-15",
+      "lead": 66,
+      "public_then": true,
+      "what": "아제르 국방부가 7월부터 '불법 아르메니아 무장조직이 민항기 GPS를 교란해 위협'이라고 반복 발표, 7/29 국방장관이 대응 조치 지시",
+      "source": "https://english.alarabiya.net/News/world/2023/07/15/Karabakh-separatists-pose-threat-to-flights-Azerbaijan",
+      "confidence": "med"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+      "h": "t_trigger",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "what": "계기로 내세운 지뢰 폭발(경찰 4명·민간인 2명 사망)은 개시 당일 9/19 새벽~오전에 일어났고 같은 날 13시경 작전 발표",
+      "source": "https://www.dailysabah.com/politics/azerbaijan-launches-anti-terror-op-after-6-killed-in-karabakh-blasts/news",
+      "confidence": "high"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "별도 검색 못 함(검색 한도 소진)"
+    }
+  ],
+  "missed": "장기 봉쇄로 대상 지역을 먼저 고립시킨 점. 9/9 카라바흐 '대통령 선거'를 바쿠가 불법으로 규정. 군 차량의 뒤집힌 'A' 표식 영상(9/9~10 SNS 확산; 조지아 팩트체크는 부대 식별 표식이라 설명). 아제르바이잔이 병력 이동을 '계획된 훈련'이라 해명하고 집결을 부인. 공격 전날 구호 합의 이행(안심 효과). 미 국무장관의 9/1 알리예프 통화(인도적 우려, 9/6 공개).",
+  "retrieved": "2026-11-11"
+}

@@ -1,0 +1,299 @@
+{
+  "id": "iran-israel-2024-04",
+  "name": "이란 → 이스라엘 첫 직접 공격 (2024-04)",
+  "outcome": "attack",
+  "onset": "2024-04-13",
+  "window": [
+    "2024-01-14",
+    "2024-04-12"
+  ],
+  "attacker": "이란",
+  "target": "이스라엘",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "4/1 다마스쿠스 이란 영사관 피격(혁명수비대 장성 2명 등 사망) 뒤 이란이 보복을 다짐했고 4/13 밤 드론·미사일로 이스라엘을 처음 직접 공격했다. 전조는 뚜렷하고 공개적이었다: 4/2 하메네이의 응징 다짐 → 4/4 이스라엘의 GPS 교란·휴가 중단·사재기 → 4/10 바이든의 공개 경고 → 4/11 미 대사관 직원 이동 제한·항공사 운항 중단 → 4/12 각국 여행 금지·미 전력 증파. 반면 대사관 철수 명령과 시장 급락은 없었다. 웹 검색 한도가 소진돼 10개 가설은 확인하지 못하고 unknown 으로 두었다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "이스라엘 주재 대사관 철수 명령은 없었음 — 미국은 4/11 '신중을 기해' 직원 이동만 제한",
+      "source": "https://globalnews.ca/news/10419116/us-embassy-israel-staff-travel",
+      "confidence": "med"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "yes",
+      "first": "2024-04-12",
+      "lead": 1,
+      "public_then": true,
+      "what": "프랑스: 이란·레바논·이스라엘·팔레스타인 여행 금지 권고, 인도: 이란·이스라엘 여행 자제, 러시아·영국도 경보, 독일: 이란 출국 권고(4/12)",
+      "source": "https://www.aljazeera.com/news/2024/4/12/france-india-russia-uk-issue-travel-warnings-over-israel-iran-tensions",
+      "confidence": "high"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "yes",
+      "first": "2024-04-11",
+      "lead": 2,
+      "public_then": true,
+      "what": "주이스라엘 미 대사관: 직원·가족의 텔아비브·예루살렘·베에르셰바 밖 개인 이동을 추후 통보 때까지 금지(4/11)",
+      "source": "https://globalnews.ca/news/10419116/us-embassy-israel-staff-travel",
+      "confidence": "high"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "yes",
+      "first": "2024-04-12",
+      "lead": 1,
+      "public_then": true,
+      "what": "프랑스: 테헤란 주재 외교관 가족을 귀국시키고 공무원의 역내 출장을 금지(4/12) — 이란 쪽 역보복을 예상한 감축",
+      "source": "https://www.aljazeera.com/news/2024/4/12/france-india-russia-uk-issue-travel-warnings-over-israel-iran-tensions",
+      "confidence": "med"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "yes",
+      "first": "2024-04-10",
+      "lead": 3,
+      "public_then": true,
+      "what": "바이든 4/10 '이란이 이스라엘에 중대한 공격을 위협하고 있다' 공개 발언, 같은 날 미 당국 '공격 임박' 보도; 4/12 '24~48시간 내' 전망",
+      "source": "https://m.washingtontimes.com/news/2024/apr/10/joe-biden-says-commitment-to-israel-is-ironclad-am/",
+      "confidence": "high"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "시한 있는 최후통첩·공식 무력사용 승인은 없었음 — 하메네이의 '응징' 다짐만 있었고 양국은 원래 미수교",
+      "source": "https://al-monitor.com/originals/2024/04/irans-khamenei-says-israel-will-be-punished-syria-consulate-bombing",
+      "confidence": "med"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "이란–이스라엘 사이에는 협상 자체가 없었음",
+      "source": "https://www.aljazeera.com/news/2024/4/12/france-india-russia-uk-issue-travel-warnings-over-israel-iran-tensions",
+      "confidence": "med"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "2024-04-12",
+      "lead": 1,
+      "public_then": true,
+      "what": "미 당국자: 이란이 이스라엘 공격용 미사일·드론을 다수 준비한 것을 확인(4/12 ABC). 국경 집결이 아니라 발사 준비라 정의에 느슨하게 해당",
+      "source": "https://ruralradio.com/kneb-am/abc_news/us-moving-assets-to-region-to-deter-iran-from-retaliatory-attack-on-israel-avoid-wider-conflict-officials-say-abcid7b21423a",
+      "confidence": "low"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "yes",
+      "first": "2024-04-04",
+      "lead": 9,
+      "public_then": true,
+      "what": "이스라엘군: 4/3 방공 예비군 소집, 4/4 모든 전투부대 휴가 일시 중단",
+      "source": "https://cyprus-mail.com/2024/04/04/israeli-military-halts-leave-for-all-combat-units-fearing-escalation-in-violence",
+      "confidence": "high"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "yes",
+      "first": "2024-04-12",
+      "lead": 1,
+      "public_then": true,
+      "what": "미국: 이란 보복에 대비해 중동에 추가 전력을 보낸다고 공개(4/12) — 탄도탄 방어 구축함·항공기 증파(바이든 '지난 한 주간')",
+      "source": "https://www.militarytimes.com/news/pentagon-congress/2024/04/12/more-us-troops-equipment-headed-to-middle-east-amid-iranian-threats/",
+      "confidence": "high"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "개시 전 민방위 지침 변동 없음: 군 대변인 4/4 '후방사령부 지침 그대로, 발전기·식량 비축 불필요'. 텔아비브 대피소 개방 보도는 미확인",
+      "source": "https://www.timesofisrael.com/amid-fears-of-iranian-attack-idf-says-no-need-to-buy-generators-stock-food-get-cash/",
+      "confidence": "low"
+    },
+    {
+      "h": "m_airspace",
+      "status": "yes",
+      "first": "2024-04-11",
+      "lead": 2,
+      "public_then": true,
+      "what": "루프트한자: 4/6부터 테헤란 운항 중단(4/10~11 공개·연장), 4/12 무렵 이란 영공 회피 발표; 오스트리아항공도 뒤따름",
+      "source": "https://www.thenationalnews.com/news/mena/2024/04/11/german-airline-lufthansa-suspends-flights-to-tehran-amid-security-fears",
+      "confidence": "high"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "yes",
+      "first": "2024-04-04",
+      "lead": 9,
+      "public_then": true,
+      "what": "4/4 텔아비브 등 이스라엘 중부에서 GPS 교란 급증(지도·택시 앱 오작동); 군이 위협 무력화용 GPS 차단을 인정",
+      "source": "https://www.rnz.co.nz/news/world/513538/israel-gps-disabled-and-idf-leave-cancelled-over-iran-threat",
+      "confidence": "high"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "이란–이스라엘 직접 전선은 없음. 개시 전 교전 급증 여부는 찾지 못함"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "yes",
+      "first": "2024-04-04",
+      "lead": 9,
+      "public_then": true,
+      "what": "이스라엘군 4/4 경계 강화 발표(휴가 중단·방공 증원); 이란도 전군 '최고 경계'에 들어갔다는 보도(4/5, 익명 이란 당국자)",
+      "source": "https://www.theweek.in/news/world/2024/04/04/israel-military-on-high-alert-after-irans-revenge-threat-cancels-leave-for-combat-units.amp.html",
+      "confidence": "med"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_fx",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "급락 아님: 공격 전 주 셰켈은 이란 우려로 약 -1.2% 약세에 그쳤고 공격 뒤 시장도 차분했음",
+      "source": "https://www.timesofisrael.com/tel-aviv-shares-suffer-moderate-decline-after-irans-unprecedented-attack-on-israel/",
+      "confidence": "low"
+    },
+    {
+      "h": "f_equity",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "급락 아님: 공격 전 주 TA-125 -1.1%·TA-90 -2.3%, 공격 뒤 첫 거래일도 소폭 하락",
+      "source": "https://www.timesofisrael.com/tel-aviv-shares-suffer-moderate-decline-after-irans-unprecedented-attack-on-israel/",
+      "confidence": "low"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "yes",
+      "first": "2024-04-12",
+      "lead": 1,
+      "public_then": true,
+      "what": "이란 보복 우려로 브렌트유가 공격 전 주 92.18달러(10월 이후 최고), 금이 4/12 온스당 2,400달러를 넘어 사상 최고",
+      "source": "https://fortune.com/2024/04/14/stock-market-oil-price-futures-trading-gold-bitcoin-crypto-israel-iran",
+      "confidence": "med"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "폴리마켓에 '이란이 4/12·4/14까지 대응?' 시장은 있었으나(거래 약 28만 달러) 가격 추이는 찾지 못함"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "yes",
+      "first": "2024-04-02",
+      "lead": 11,
+      "public_then": true,
+      "what": "하메네이 4/2 성명 '시온주의 정권은 우리 용사들 손에 응징당할 것', 4/10 이드 설교에서 '반드시 응징당해야 하고 그렇게 될 것'",
+      "source": "https://al-monitor.com/originals/2024/04/irans-khamenei-says-israel-will-be-punished-syria-consulate-bombing",
+      "confidence": "high"
+    },
+    {
+      "h": "i_pretext",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "조작·연출된 명분은 없었음 — 실제 영사관 피격(t_trigger)을 근거로 한 보복 예고",
+      "source": "https://aa.com.tr/en/middle-east/iran-s-khamenei-says-israel-will-be-punished-for-syria-consulate-attack/3181670",
+      "confidence": "med"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "yes",
+      "first": "2024-04-04",
+      "lead": 9,
+      "public_then": true,
+      "what": "4/4 무렵부터 '이스라엘, 이란의 보복 공격 대비' 국제 보도가 쏟아짐(성조지·로이터·AFP 등)",
+      "source": "https://stripes.com/theaters/middle_east/2024-04-04/israel-braces-potential-iran-attack-13488075.html",
+      "confidence": "med"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "yes",
+      "first": "2024-04-04",
+      "lead": 9,
+      "public_then": true,
+      "what": "이스라엘에서 생수·발전기 사재기(생수 판매 급증, 발전기 품절); 군 대변인이 4/4 '비축·현금 인출 필요 없다'며 진화",
+      "source": "https://www.timesofisrael.com/amid-fears-of-iranian-attack-idf-says-no-need-to-buy-generators-stock-food-get-cash/",
+      "confidence": "med"
+    },
+    {
+      "h": "t_trigger",
+      "status": "yes",
+      "first": "2024-04-01",
+      "lead": 12,
+      "public_then": true,
+      "what": "4/1 다마스쿠스 이란 영사관 공습으로 혁명수비대 장성 2명 등 7명 사망, 이란이 보복 다짐(4/2 하메네이 '응징')",
+      "source": "https://aa.com.tr/en/middle-east/iran-s-khamenei-says-israel-will-be-punished-for-syria-consulate-attack/3181670",
+      "confidence": "high"
+    },
+    {
+      "h": "t_deadline",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "공개된 시한·날짜 조건은 없었음 — 미 당국의 '24~48시간 내' 전망은 추정일 뿐 시한이 아님",
+      "source": "https://www.militarytimes.com/news/pentagon-congress/2024/04/12/more-us-troops-equipment-headed-to-middle-east-amid-iranian-threats/",
+      "confidence": "med"
+    }
+  ],
+  "missed": "①예측시장에 '이란이 4/12·4/14까지 대응할까' 시장이 열려 있었다(가격 추이는 못 찾음). ②미검증 단서(이번 조사에서 출처 확인 못함): 표적국 이스라엘이 해외 공관 다수를 임시 폐쇄(4/5 무렵), 공격 당일 아침 이란의 이스라엘 연관 선박 나포, 이란이 주변국에 사전 통보했다는 주장. ③방어 측 연합(미·영·프·요르단)의 요격 준비라는 '막는 쪽의 준비'는 코드북에 없다.",
+  "retrieved": "2026-11-11"
+}

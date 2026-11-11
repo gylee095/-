@@ -1,0 +1,184 @@
+{
+  "id": "korea-2020-06",
+  "name": "남북공동연락사무소 폭파 (2020년 6월)",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "2020-06-04",
+    "2020-06-30"
+  ],
+  "attacker": "북한",
+  "target": "한국",
+  "kind": "korean_crisis",
+  "surprise": false,
+  "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 북한이 6/16 개성 남북공동연락사무소를 폭파하고 군사행동 계획을 예고했다가 6/23~24 보류했다. 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미확인. 미검증 단서: 외국 공관 철수 보도는 기억에 없음. 연락사무소 남측 인원은 1/30 코로나로 이미 철수"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미검증 단서: 당시 각국 여행경보는 코로나 사유(3월 전 세계 4단계)뿐이었던 것으로 기억"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: 한국 국방부·합참이 '직접적 군사행동 징후 없음' 취지로 밝힌 것으로 기억"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 6/9 북이 남북 통신선 전면 차단·'대적 사업' 전환, 6/16 연락사무소 폭파"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "미검증 단서: 6/9 통신선 차단, 6/17 북이 남측 특사 제안 거부를 공개"
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "미검증 단서: 6/17 총참모부가 금강산·개성 재주둔 예고, 일부 GP 인원 관측 — 대규모 이동은 없었던 것으로 기억"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미확인. 미검증 단서: 6월 중순 B-52 동해 비행·미 정찰기 출격 보도"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미검증 단서: 창 안에 교전 없음(5/3 GP 총격은 창 이전)"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "미검증 단서: 6/17 총참모부 '전선 1호 전투근무체계 격상' 예고(6/23 보류), 6/16 한국군 감시·대비태세 강화"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미검증 단서: 6/14 새벽 청와대 긴급 화상 안보회의, 6/16 NSC 상임위 긴급회의, 6/23 김정은 중앙군사위 예비회의"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미검증 단서: 6/17 원/달러 6~7원 상승에 그친 것으로 기억"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "미검증 단서: 6/17 코스피 강보합(+0.1%)으로 영향이 미미했던 것으로 기억"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미검증 단서: CDS 변동이 미미했던 것으로 기억"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미검증 단서: 6/15~17 빅텍 등 국내 방산주 급등"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미확인(검색 한도 소진)"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 위협 담화는 김여정 명의(6/4·6/13·6/17)였고 김정은 본인 발언은 없었던 것으로 기억"
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 6/4 김여정 담화가 대북전단을 명분으로 군사합의 파기·연락사무소 폐쇄 위협"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 6/6경부터 각지 항의 군중집회, 노동신문 연일 보도, 대남 전단 살포 준비 선전"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "미검증 단서: 6/16 폭파 뒤 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미확인. 미검증 단서: 사재기 보도는 기억에 없음"
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증 단서: 사상자 없음. 폭파는 북측 자체 행동"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미검증 단서: 명시적 시한 없음"
+    }
+  ],
+  "missed": "",
+  "retrieved": "2026-11-11"
+}

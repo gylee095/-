@@ -1,0 +1,194 @@
+{
+  "id": "israel-iran-2025-06",
+  "name": "이스라엘 → 이란 공습 (12일 전쟁)",
+  "outcome": "war",
+  "onset": "2025-06-13",
+  "window": [
+    "2025-03-15",
+    "2025-06-12"
+  ],
+  "attacker": "이스라엘 (6/22 미국 가세)",
+  "target": "이란",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "2025-06-13 이스라엘이 이란 핵·군사 시설을 공습해 12일간 교전했고 6/22 미국이 핵시설을 타격했다(개시일은 의뢰서 기준 — 이번 조사에서 따로 출처 확인을 못 했다). 출처로 확인한 공개 전조는 6/11 미국의 바그다드 대사관 비필수 인력 철수 명령과 바레인·쿠웨이트·역내 군인 가족 출국 허가뿐이다. 웹 검색 한도가 소진돼 나머지 31개 가설은 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미검증: 테헤란 주재 대사관 철수는 개전 뒤였다는 기억 — 출처 확인 못 함"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미검증: 이란 여행경보는 창 이전부터 최고 단계(상시) — 창 안의 새 문구는 확인 못 함"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 6/12 주이스라엘 미 대사관의 직원 이동 제한 공지"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "yes",
+      "first": "2025-06-11",
+      "lead": 2,
+      "public_then": true,
+      "what": "미 국무부: 바그다드 대사관 비필수 인력 철수 명령, 바레인·쿠웨이트 출국 허가; 국방장관: 역내 군인 가족 자진 출국 허가(6/11)",
+      "source": "https://www.pbs.org/newshour/world/u-s-prepares-to-move-nonessential-personnel-from-baghdad-embassy-due-to-potential-regional-unrest",
+      "confidence": "high"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "yes",
+      "first": "2025-06-11",
+      "lead": 2,
+      "public_then": true,
+      "what": "공격국 이스라엘의 후원국 미국이 예상 보복권(이라크·걸프)에서 자국 외교관·군인 가족을 뺌(6/11, g_regional_drawdown 과 같은 사건)",
+      "source": "https://abc7news.com/post/state-department-orders-departure-nonessential-staff-baghdad-embassy/16724896/",
+      "confidence": "med"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: 6/12 트럼프 '이스라엘의 공격이 일어날 수 있다' 발언, 미 당국자발 공격 준비 보도"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 트럼프의 '2개월 시한' 서한(3월 보도), 3/30 '합의 없으면 폭격' 발언"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "6/11 보도는 미·이란 핵협상 '교착'까지만 확인. 6/15 6차 회담이 잡혀 있었다는 단서는 미검증"
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "공중·미사일전이라 지상 병력 집결과 맞지 않음 — '없었다'는 근거 출처는 확보 못 함"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미검증: 이란 대비 이스라엘 예비군 소집은 6/13 개전 당일이었다는 기억"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미검증 단서: 3월 말 B-2 디에고가르시아 전개, 4월 항모 2척 체제·사드/패트리엇 증파"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미검증: 이스라엘 비상사태 선포는 공습 개시 시각(6/13)이었다는 기억"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미검증: 이란·이라크·요르단·이스라엘 영공 폐쇄는 6/13 당일이었다는 기억"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미검증: 이스라엘–이란 직접 교전은 2024-10 이후 없었다는 기억"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미검증: 이스라엘이 평시처럼 보이려고 기만했다는 사후 보도 기억"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 6/11 대사관 철수 보도 직후 유가 급등"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 6/11~12 폴리마켓 '이스라엘의 이란 공격' 확률 급등"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 3/30 트럼프 '합의 안 하면 폭격', 네타냐후의 반복 위협"
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "6/11 대사관 철수 기사가 다수 매체에 실린 것만 확인 — 보도량 급증 여부는 측정 근거 없음"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증: 사상자가 난 계기 사건 없이 '선제' 공격이었다는 기억"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 트럼프 60일 시한 만료(6/12), 6/12 IAEA 이사회 결의, 6/15 회담 예정"
+    }
+  ],
+  "missed": "6/22 미국 공습의 전조(의뢰서 단서 — 이번 조사에서 미검증): 6월 중순 공중급유기 수십 대의 대서양 횡단, 6/21 B-2 이동 보도, 트럼프의 '2주 안에 결정' 발언 뒤 며칠 만에 타격. 6/12 IAEA 이사회의 이란 의무 불이행 결의와 해상 보안 경고(UKMTO)도 코드북에 칸이 없는 전조 후보 — 모두 재조사 때 날짜 확인 필요.",
+  "retrieved": "2026-11-11"
+}

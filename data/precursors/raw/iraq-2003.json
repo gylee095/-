@@ -1,0 +1,184 @@
+{
+  "id": "iraq-2003",
+  "name": "미국 주도 연합군 → 이라크 침공",
+  "outcome": "war",
+  "onset": "2003-03-20",
+  "window": [
+    "2002-12-20",
+    "2003-03-19"
+  ],
+  "attacker": "미국 주도 연합군",
+  "target": "이라크",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "2003-03-20 미국 주도 연합군이 이라크를 침공했다(개시일·경과는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이고 surprise 값도 의뢰서 설명(수개월 병력 증강, 3/17 48시간 최후통첩, 사찰단·공관 철수)에 따른 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 3/17~18 유엔 사찰단 철수, 여러 나라의 바그다드 공관 철수·폐쇄."
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 미·영 등의 이라크·주변국 여행경보 격상 — 날짜 확인 필요."
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미검증 단서: 2~3월 미 국무부가 쿠웨이트·이스라엘·시리아 등 공관의 가족·비필수 인력 출국을 허가·명령했다는 기억."
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "미검증 단서: 3/17 부시 연설이 기자·사찰단 등 외국인의 즉시 출국을 권고, 미국이 사찰단 철수를 통보했다는 기억."
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: 3/17 최후통첩 자체가 '48시간 뒤 공격'의 공개 예고."
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 3/17 부시가 사담 후세인에게 48시간 안에 떠나라고 최후통첩. 3/18 영국 의회 표결(기억)."
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "미검증 단서: 3/17 미·영·스페인이 안보리 2차 결의안을 철회하고 외교 종료를 선언했다는 기억."
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 12월 말~3월 쿠웨이트 등에 미·영군 대규모 집결(3월 중순 20만 명 이상이라는 기억)."
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미검증 단서: 병원선 컴포트 1월 출항, 야전병원·사전배치 물자 전개라는 기억."
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 1~2월 미 예비군·주방위군 대규모 소집과 전역 보류 조치라는 기억."
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "미검증 단서: 12월 카타르 '인터널 룩' 훈련 뒤 중부사령부 전방지휘소가 남았다는 기억 — 창 시작 전일 수 있음."
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "미검증 단서: 항모 5척 안팎, 3월 초 B-52의 영국 전개, 패트리엇 포대 배치라는 기억."
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미검증 단서: 이스라엘 방독면·밀폐실 준비 지시, 쿠웨이트 대피 훈련, 바그다드 참호·우물 준비라는 기억."
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 3월 중순 항공사들의 쿠웨이트·이스라엘 노선 중단, 전쟁보험료 인상(기억)."
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미검증 단서: 비행금지구역 공습이 개전 전 몇 달 동안 늘었다는 기억."
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "미검증 단서: 3월 중순 이라크가 전국을 4개 군관구로 나눠 전시 체제에 들어갔다는 기억."
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미검증 단서: 3/16 아조레스 미·영·스페인 정상 긴급 회담."
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미검증 단서: 이라크 디나르 암시장 환율 급락 여부 확인 필요."
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 1~3월 전쟁 우려로 세계 증시 약세(3월 중순 저점이라는 기억) — 전쟁 탓인지 확인 필요."
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미검증 단서: 유가가 2월 말 배럴당 약 40달러, 금이 2월 초 수년 만의 고점이라는 기억."
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "미검증 단서: 트레이드스포츠의 '사담 축출' 계약 가격이 올랐다는 기억(Leigh·Wolfers·Zitzewitz 연구)."
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미검증 단서: 걸프 주재 기업들의 주재원 철수, 바그다드의 달러 사재기라는 기억."
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 1/28 부시 국정연설, 3/17 대국민 연설."
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 2/5 파월 국무장관의 안보리 대량살상무기 발표(뒤에 근거 없음으로 판명)."
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 이라크 관영매체의 항전 연설·군중 열병 보도라는 기억."
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "미검증 단서: 몇 달 동안 세계 최대 뉴스였음 — 정량 자료 확인 필요."
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미검증 단서: 바그다드 주민의 식량 비축·피란, 이스라엘 방독면 배부 줄이라는 기억."
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "미검증 단서: 사상자가 난 직접 계기 사건은 없었다는 기억(예방 전쟁) — no 후보."
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "의뢰서 단서(미검증): 3/17 최후통첩의 48시간 시한(바그다드 시각 3/20 새벽 만료)."
+    }
+  ],
+  "missed": "미검증: 공격하는 쪽이 몇 달에 걸쳐 의회 승인·안보리 논의·병력 수송을 모두 공개적으로 진행한 '예고된 전쟁'이었다 — 유엔 사찰 일정과 터키 의회의 주둔 거부(3/1) 같은 제3국 절차가 시점을 좌우했는지 재조사 때 확인 필요.",
+  "retrieved": "2026-11-11"
+}

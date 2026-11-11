@@ -1,0 +1,204 @@
+{
+  "id": "iran-israel-2024-08",
+  "name": "하니예 암살 뒤 이란 보복 예고 (공격 없음, 2024-08)",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "2024-07-31",
+    "2024-08-31"
+  ],
+  "attacker": "이란",
+  "target": "이스라엘",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "7/31 테헤란에서 하니예가 암살되자 이란이 보복을 다짐했고 몇 주 동안 공격이 예상됐지만 8/31까지 이란의 직접 공격은 없었다(경과와 창은 의뢰서 기준). 이번 조사에서 출처로 확인한 것은 미국의 전력 증파(8/2~3), 이스라엘 증시 하락(8/5), '이스라엘이 이란 공격에 대비' 보도 급증, 계기 사건 네 가지뿐이다. 웹 검색 한도가 소진돼 나머지 가설은 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "미검증 단서: 캐나다가 8/7 이스라엘 주재 외교관의 자녀·보호자를 철수시키기로 결정"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "미검증 단서: 캐나다 8/3 이스라엘 '모든 여행 금지', 미국 7/31 레바논 4단계, 미·영·프 등 '레바논 즉시 출국' 권고"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "주이스라엘 대사관 직원 이동 제한 여부는 확인 못함"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "미검증 단서: 영국이 8/3 베이루트 대사관 직원 가족 철수, 스웨덴이 베이루트 대사관 임시 폐쇄"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "미검증 단서: 블링컨이 8/4 G7에 '24~48시간 내 공격 가능' 통보(악시오스), 백악관 8/12 '이번 주에라도 가능'"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증 단서: 시한 있는 최후통첩은 없었던 것으로 기억(맞다면 no)"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "미검증 단서: 이란–이스라엘 협상은 없음; 가자 휴전 협상은 8/15 도하에서 재개돼 창 안에서 결렬되지 않음"
+    },
+    {
+      "h": "m_buildup",
+      "status": "unknown",
+      "what": "미검증 단서: 미 당국이 이란의 미사일 발사대 이동·군사 훈련을 포착했다는 보도(8월 초)"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "이스라엘군 휴가 중단·예비군 소집 여부는 확인 못함"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "미검증 단서: 8월 중순 혁명수비대의 서부 지역 훈련 보도"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "yes",
+      "first": "2024-08-03",
+      "lead": null,
+      "public_then": true,
+      "what": "미 국방장관: 링컨 항모 전단·전투기 대대·탄도탄 방어 순양함·구축함을 중동과 유럽에 추가 배치 명령(8/2 발표, 8/3 보도)",
+      "source": "https://www.npr.org/2024/08/03/nx-s1-5062390/us-military-deployment-middle-east-israel-iran",
+      "confidence": "med"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "미검증 단서: 8월 초 이스라엘 병원들의 지하 시설 이전 준비, 지자체 대피소 개방"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "미검증 단서: 7/31~8/1부터 루프트한자·델타·유나이티드 등 텔아비브·베이루트 운항 중단, 요르단의 추가 연료 NOTAM"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "미검증 단서: 8월 초 이스라엘 중부로 GPS 교란이 다시 확대됐다는 보도"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "미검증 단서: 8/25 이스라엘의 선제 공습(전투기 약 100대)과 헤즈볼라의 로켓·드론 수백 발"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "미검증 단서: 8/25 이스라엘 국방장관이 48시간 전국 '후방 특별상황' 선포"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "미검증 단서: 8월 초 이스라엘 지도부용 예루살렘 지하 지휘소 준비 보도"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미검증 단서: 8월 초 셰켈 약세(세계 증시 급락과 겹쳐 귀속 불분명)"
+    },
+    {
+      "h": "f_equity",
+      "status": "yes",
+      "first": "2024-08-05",
+      "lead": null,
+      "public_then": true,
+      "what": "이란의 공격 우려로 이스라엘 증시가 연이틀 하락(8/5 블룸버그). 같은 날 세계 증시 급락과 겹쳐 귀속은 약함",
+      "source": "https://bnnbloomberg.ca/business/2024/08/05/israeli-stocks-extend-slide-as-fears-of-iran-attack-mount",
+      "confidence": "low"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "미검증 단서: 8/12 피치의 이스라엘 신용등급 강등, CDS 상승"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "미검증 단서: 7/31 하니예 피살 직후와 8/12 유가 급등"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "미검증 단서: 폴리마켓 '이란의 이스라엘 공격' 시장이 8월 초 급등했다가 하락"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증 단서: 하메네이 7/31 '가혹한 처벌', '복수는 우리의 의무' 성명"
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "미검증 단서: 조작된 명분이 아니라 실제 암살(t_trigger)에 근거 — 맞다면 no"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "미검증 단서: 7/31 잠카란 모스크에 '복수의 붉은 깃발' 게양"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "yes",
+      "first": "2024-08-05",
+      "lead": null,
+      "public_then": true,
+      "what": "'이스라엘, 또 한 번의 이란 공격에 대비' 보도가 8/3~5 잇따름(NPR·JTA 등)",
+      "source": "https://forward.com/fast-forward/640755/israel-braces-for-another-iranian-attack-with-defense-axis-still-being-assembled",
+      "confidence": "low"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "미검증 단서: 이스라엘 발전기·생필품 구매 급증, 베이루트 출국편 매진"
+    },
+    {
+      "h": "t_trigger",
+      "status": "yes",
+      "first": "2024-07-31",
+      "lead": null,
+      "public_then": true,
+      "what": "7/31 테헤란에서 하마스 지도자 하니예 암살, 이란이 보복 다짐 — 날짜는 의뢰서 기준이고 출처는 8/3 '이스라엘, 이란 공격 대비' 보도",
+      "source": "https://www.npr.org/2024/08/03/nx-s1-5062390/us-military-deployment-middle-east-israel-iran",
+      "confidence": "med"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "미검증 단서: 명시적 시한은 없었던 것으로 기억(맞다면 no)"
+    }
+  ],
+  "missed": "미검증 단서(재조사용): 이란이 보복을 가자 휴전 협상 진행과 연동해 미뤘다는 보도 — '예고만 하고 실행을 미루는' 유형. 8/25 이스라엘의 선제 공습과 헤즈볼라의 축소된 보복으로 압력이 일부 빠졌다는 해석. 전조가 거의 다 켜졌는데도 공격이 없었던 사례라 재조사 가치가 크다.",
+  "retrieved": "2026-11-11"
+}

@@ -112,7 +112,7 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   set("t_trigger", trigger ? "on" : "off", 1, trigger?.headline);
   // 채점표의 사건 항목: 최근 7일 도발 · 최근 30일 핵실험/ICBM급 (우리가 가진 사건 기록 안에서)
   // 실제 발사·포격만 센다 (인터넷 장애 같은 위험도 높은 다른 사건이 '도발'로 적히던 문제 — 11/12)
-  const prov = eventFloors(briefs, now).prov7.filter((b) => b.isProvocation);
+  const prov = eventFloors(briefs, now).prov7.filter((b) => b.isProvocation && b.danger.level >= 2); // 위험도 '관심'(1)은 발사·포격이 아니다 — 북한 인터넷 장애 경보가 여기 걸렸다
   set("t_provocation", prov.length ? "on" : "off", 1, prov.length ? `최근 7일 도발 ${prov.length}건 — ${[...prov].sort((a, b) => b.at - a.at)[0].headline}` : undefined);
   const big = briefs.find((b) => now - b.at < 30 * DAY && !b.evacuation && !b.posture && /ICBM|대륙간탄도|핵실험|nuclear test/i.test(`${b.headline} ${b.weapon ?? ""}`));
   set("t_major_test", big ? "on" : "off", 1, big?.headline);

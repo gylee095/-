@@ -7,7 +7,8 @@ import type { BoardRow } from "./state.js";
 import type { EventBrief } from "./brief.js";
 import { kstDay } from "./store.js";
 import { PRECURSOR_DATA } from "./precursor_data.js";
-import { CLUSTER_LABEL, INDEX_AT, MODEL, clashOfIndex, evaluate, type Obs, type Proximity, type SignalNow } from "./precursors.js";
+import { MODEL, evaluate, type Obs, type Proximity, type SignalNow } from "./precursors.js";
+import { BASE_SEED, INDEX_AT, RUBRIC, clashOfIndex, scoreRubric, type RubricScore } from "./rubric.js";
 import { BANDS, PHASE_LABEL, eventFloors, fmtRiskPct, type Band, type Phase, type WarRisk } from "./warrisk.js";
 
 export const PROX_HIST_KEY = "prox:hist";
@@ -35,12 +36,16 @@ export interface ProxHist {
 export const emptyHist = (): ProxHist => ({ v: 1, days: [], base: {} });
 
 const HYP_IDS = PRECURSOR_DATA.table.hyps.map((h) => h.id);
+/** 채점표의 모든 항목 (바탕 6 + 신호) */
+export const ALL_IDS = RUBRIC.flatMap((l) => l.groups.flatMap((g) => g.items.map((i) => i.id)));
+/** 바탕 항목의 분석관 확인이 유효한 시간 */
+export const BASE_TTL = 45 * 86400_000;
 const DAY = 86400_000;
 
 /** 자동으로 볼 수 있는 가설 — 나머지는 분석관만 확인할 수 있다 */
 export const AUTO_IDS = new Set([
   "g_evac_order", "g_leave_now", "g_staff_restrict", "g_intel_warning", "m_buildup", "m_mobilization", "m_strategic_assets", "m_civil_defense", "m_airspace",
-  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger",
+  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep",
 ]);
 
 /** 징후판·보도에서 자동으로 읽은 한반도 상태 */
@@ -105,16 +110,31 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   // ── 계기 ──
   const trigger = briefs.find((b) => now - b.at < 14 * DAY && !b.evacuation && !b.posture && b.danger.level >= 5);
   set("t_trigger", trigger ? "on" : "off", 1, trigger?.headline);
+  // 채점표의 사건 항목: 최근 7일 도발 · 최근 30일 핵실험/ICBM급 (우리가 가진 사건 기록 안에서)
+  const prov = eventFloors(briefs, now).prov7;
+  set("t_provocation", prov.length ? "on" : "off", 1, prov.length ? `최근 7일 도발 ${prov.length}건 — ${[...prov].sort((a, b) => b.at - a.at)[0].headline}` : undefined);
+  const big = briefs.find((b) => now - b.at < 30 * DAY && !b.evacuation && !b.posture && /ICBM|대륙간탄도|핵실험|nuclear test/i.test(`${b.headline} ${b.weapon ?? ""}`));
+  set("t_major_test", big ? "on" : "off", 1, big?.headline);
+  // 실제 행동 측정값 중 가설 33개에 없던 것
+  fromIndicators("a_fleet", ["sea.gfw_cn_change_pct"]);
+  fromIndicators("a_launch_prep", ["navwarn.launch_notice_active", "thermal.launch_site_hotspots"]);
   return out;
 }
 
 /** 자동 + 분석관. 분석관의 '켜짐'은 그대로, 자동이 켠 것을 분석관이 '없음'이라 하면 약함으로만 낮춘다(사실 자료를 말로 끄지 않게) */
 export function koreaStatus(board: BoardRow[], briefs: EventBrief[], now: number, checks?: AnalystChecks): Record<string, SignalNow> {
   const st = autoStatus(board, briefs, now);
-  const fresh = checks && now - checks.at < CHECK_TTL ? checks.items : {};
-  for (const id of HYP_IDS) {
-    const c = fresh[id], a = st[id];
-    if (!c) { if (!a) st[id] = { s: "unk" }; continue; }
+  const age = checks ? now - checks.at : Infinity;
+  for (const id of ALL_IDS) {
+    const isBase = id.startsWith("s_");
+    // 분석관 확인: 날마다 변하는 신호는 36시간, 천천히 변하는 바탕 항목은 45일 유효. 바탕은 확인이 없으면 코드에 적어 둔 값(BASE_SEED)
+    const c = checks && age < (isBase ? BASE_TTL : CHECK_TTL) ? checks.items[id] : undefined, a = st[id];
+    if (!c) {
+      const seed = isBase ? BASE_SEED.items[id] : undefined;
+      if (seed) st[id] = { s: seed.v ? "on" : "off", ...(seed.v === 0.5 ? { w: 0.5 } : {}), ev: seed.ev.slice(0, 120), by: "analyst" };
+      else if (!a) st[id] = { s: "unk" };
+      continue;
+    }
     const ev = c.ev?.slice(0, 90);
     if (c.v > 0) {
       if (a?.s === "on" && (a.w ?? 1) >= c.v) continue;
@@ -138,6 +158,8 @@ export interface ProximityView extends Proximity {
   checkedAt?: number;
   /** 분석관만 볼 수 있는데 아직 확인이 없는 가설 수 */
   waiting: number;
+  /** 채점표 결과 — 화면의 점수·층·항목은 모두 여기서 나온다 */
+  rubric: RubricScore;
   score: typeof PRECURSOR_DATA.score;
   cases: typeof PRECURSOR_DATA.table.cases;
   text: string;
@@ -147,83 +169,68 @@ const dayAgo = (now: number, n: number) => kstDay(now - n * DAY);
 
 export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: number, hist?: ProxHist, checks?: AnalystChecks): ProximityView {
   const status = koreaStatus(board, briefs, now, checks);
-  const p = evaluate(PRECURSOR_DATA.table, status, hist?.base, PRECURSOR_DATA.anchorLogOdds);
+  // 사례집 통계(가설별 '전쟁 몇 건 중 몇 건')는 항목 설명용으로만 쓴다. 점수·단계·확률은 채점표(rubric.ts)가 정한다
+  const p0 = evaluate(PRECURSOR_DATA.table, status, hist?.base, PRECURSOR_DATA.anchorLogOdds);
+  const r = scoreRubric(status);
+  const clashPct = clashOfIndex(r.index, p0.quiet.clashPct);
+  const warPct = +Math.min(clashPct, p0.quiet.warPct + Math.max(0, clashPct - p0.quiet.clashPct) * (MODEL.Q_WAR / MODEL.Q_CLASH)).toFixed(clashPct < 5 ? 2 : 1);
+  const p = { ...p0, index: r.index, phase: r.phase, clashPct, warPct, on: r.on, watched: r.watched, parts: r.layers.map((l) => ({ cluster: "G" as const, label: l.label, pts: Math.round(l.pts) })) };
   const days = hist?.days ?? [];
   const at = (n: number) => days.find((x) => x.d === dayAgo(now, n));
   const diff = (n: number) => { const x = at(n); return x ? p.index - x.i : undefined; };
   const today = kstDay(now);
   const series = [...days.filter((x) => x.d !== today).map((x) => ({ d: x.d, i: x.i, c: x.c })), { d: today, i: p.index, c: p.clashPct }].slice(-120);
-  const waiting = p.signals.filter((s) => s.s === "unk" && !AUTO_IDS.has(s.id)).length;
-  const onNames = p.signals.filter((s) => s.s === "on").map((s) => s.ko);
   const d1 = diff(1);
   const text =
-    `위기 지수 ${p.index}점 (조용한 날 0 · 20부터 긴장 · 45부터 위기 · 70부터 임박 — 위기의 크기이지 전쟁 확률이 아니다). ` +
-    (onNames.length ? `켜진 전조 ${onNames.length}개: ${onNames.slice(0, 4).join(", ")}${onNames.length > 4 ? " 등" : ""}.` : "켜진 전조가 없어요.") +
+    `위기 지수 ${p.index}점 / 100 (0 = 2018년 가을 같은 평온 · 20부터 긴장 · 35부터 위기 · 60부터 임박 — 위기의 크기이지 전쟁 확률이 아니다). ` +
+    r.layers.map((l) => `${l.label} ${Math.round(l.pts)}/${l.max}`).join(" · ") + "." +
+    (r.divergence ? ` ${r.divergence.text}` : "") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 ${Math.abs(d1)}점 ${d1 > 0 ? "높아요" : "낮아요"}.`);
   return {
     ...p,
     vs: { d1, d7: diff(7), d30: diff(30), days: days.length },
     series,
-    anchors: PRECURSOR_DATA.anchors.filter((a) => !a.surprise).map(({ name, when, index, cls }) => ({ name, when, index, cls })),
-    learnedDays: Math.max(0, ...Object.values(hist?.base ?? {}).map((x) => x[1])),
+    anchors: PRECURSOR_DATA.anchors.map(({ name, when, index, cls }) => ({ name, when, index, cls })),
+    learnedDays: days.length,
     checkedAt: checks && now - checks.at < CHECK_TTL ? checks.at : undefined,
-    waiting,
+    waiting: r.waiting,
+    rubric: r,
     score: PRECURSOR_DATA.score,
     cases: PRECURSOR_DATA.table.cases,
     text,
   };
 }
 
-const PHASE_LO: Record<number, number> = { 1: 0, 2: MODEL.PHASE[2], 3: MODEL.PHASE[3], 4: MODEL.PHASE[4] };
-const PHASE_HI: Record<number, number> = { 1: MODEL.PHASE[2], 2: MODEL.PHASE[3], 3: MODEL.PHASE[4], 4: 60 };
 
 /**
- * 규칙 3.0 판정: 단계와 확률은 전조 모형이 정하고, 실제 사건은 바닥을 준다(교전 → 5단계, 최근 14일 중대 사건 → 3단계 이상, 최근 7일 도발 → 2단계 이상).
- * 영역 수준·누가 먼저 움직였나 같은 설명은 이전 규칙(assessWarRisk)의 것을 그대로 둔다.
+ * 판정: 단계·확률은 위기 지수(채점표) 하나에서 나온다. 교전(5단계)만 이전 규칙의 사건 판정을 그대로 쓴다 — 그때 지수는 100.
+ * 영역 수준 같은 옛 설명은 그대로 남겨 두지만 화면에는 쓰지 않는다.
  */
-export function withProximity(legacy: WarRisk, prox0: ProximityView, briefs: EventBrief[], now: number): WarRisk & { proximity: ProximityView } {
-  let prox = prox0;
+export function withProximity(legacy: WarRisk, prox: ProximityView, _briefs: EventBrief[] = [], _now = 0): WarRisk & { proximity: ProximityView } {
   if (legacy.phase === 5) return { ...legacy, proximity: { ...prox, index: 100 } };
-  const f = eventFloors(briefs, now);
-  // 공식 태세 변화·철수 보도(경보 단어)는 하나만 떠도 '평온'은 아니다 — 최소 2단계 (위기 3단계는 여전히 두 묶음 이상이 필요)
-  const wire = briefs.find((b) => now - b.at < 7 * DAY && now - b.at >= -3600_000 && (b.evacuation || b.posture?.some((x) => x.level >= 2)));
-  const floor = f.serious14.length ? 3 : f.prov7.length || wire ? 2 : 1;
-  const phase = Math.max(prox.phase, floor) as Phase;
-  // 위기 지수 하나로 모은다: 사건 바닥은 지수를 그 단계의 시작점까지 올리고, 올린 만큼을 해당 묶음(도발·경보 → 군사, 중대 사건 → 계기)의 몫으로 적는다
-  const index = Math.max(prox.index, floor > 1 ? INDEX_AT[floor] : 0);
-  const bump = index - prox.index, bumpTo = floor === 3 ? "T" : "M";
-  const bumpNote = floor === 3 ? f.serious14[0]?.headline : f.prov7.length ? `최근 7일 도발 ${f.prov7.length}건` : wire?.headline;
-  const parts = prox.parts.map((x) => {
-    const mine = prox.signals.filter((g) => g.cluster === x.cluster && g.s === "on");
-    const notes = mine.slice(0, 2).map((g) => (g.ev && g.by === "analyst" ? g.ev : g.ko.split(" — ")[0]) + (g.weak ? " (약함)" : ""));
-    const extra = bump > 0 && x.cluster === bumpTo;
-    return { ...x, pts: x.pts + (extra ? bump : 0), notes: extra && bumpNote ? [bumpNote, ...notes].slice(0, 2) : notes };
-  });
-  prox = { ...prox, index, parts, text: prox.text.replace(/위기 지수 \d+점/, `위기 지수 ${index}점`) };
-  const clash = clashOfIndex(index, prox.quiet.clashPct);
-  const war = +Math.min(clash, prox.quiet.warPct + Math.max(0, clash - prox.quiet.clashPct) * (MODEL.Q_WAR / MODEL.Q_CLASH)).toFixed(clash < 5 ? 2 : 1);
-  const pos = Math.min(0.95, Math.max(0.05, (clash - PHASE_LO[phase]) / (PHASE_HI[phase] - PHASE_LO[phase])));
-  const band = (lo: number, hi: number, point: number): Band => ({ low: +Math.min(lo, point).toFixed(2), high: +Math.max(hi, point).toFixed(2), point: +point.toFixed(2) });
-  const on = prox.signals.filter((s) => s.s === "on");
-  const reasons: string[] = [];
-  if (on.length) {
-    const byC = [...new Set(on.map((s) => CLUSTER_LABEL[s.cluster]))];
-    reasons.push(`켜진 전조 ${on.length}개 (${byC.join("·")}): ${on.slice(0, 4).map((s) => `${s.ko}${s.weak ? "(약함)" : ""}`).join(", ")}${on.length > 4 ? " 등" : ""}`);
-  } else reasons.push(`지켜보는 전조 ${prox.watched}개가 모두 꺼져 있다`);
-  if (floor > prox.phase) reasons.push(floor === 3 ? `최근 14일 중대 사건: ${f.serious14[0].headline}` : !f.prov7.length && wire ? `경보 단어·철수 보도: ${wire.headline}` : `최근 7일 도발 ${f.prov7.length}건 (가장 최근: ${[...f.prov7].sort((a, b) => b.at - a.at)[0].headline})`);
-  if (prox.phase >= 3) reasons.push(`신호 조합이 과거의 심각한 위기와 닮았다 (평소일 가능성 ${prox.mix.ordinary}%)`);
-  if (prox.clustersOn === 1 && on.length >= 2) reasons.push("한 묶음의 신호뿐이라 위기로 올리지 않는다 — 서로 다른 묶음 둘 이상이 켜져야 한다");
+  const phase = prox.phase as Phase, clash = prox.clashPct, war = prox.warPct;
+  const lo = phase === 1 ? 0 : INDEX_AT[phase], hi = phase === 4 ? 100 : INDEX_AT[phase + 1];
+  const pos = Math.min(0.95, Math.max(0.05, (prox.index - lo) / (hi - lo)));
+  const band = (a: number, b: number, point: number): Band => ({ low: +Math.min(a, point).toFixed(2), high: +Math.max(b, point).toFixed(2), point: +point.toFixed(2) });
+  const r = prox.rubric;
+  const top = r.layers.flatMap((l) => l.groups.flatMap((g) => g.items)).filter((x) => x.got > 0).sort((a, b) => b.got - a.got);
+  const reasons = [
+    `위기 지수 ${prox.index}점 = ${r.layers.map((l) => `${l.label} ${Math.round(l.pts)}`).join(" + ")}`,
+    top.length ? `점수를 준 항목: ${top.slice(0, 4).map((x) => `${x.ko}${x.weak ? "(약함)" : ""} +${+x.got.toFixed(1)}`).join(", ")}${top.length > 4 ? " 등" : ""}` : "켜진 항목이 없다",
+    ...(r.divergence ? [r.divergence.text] : []),
+    ...(r.capped ? [r.capped] : []),
+  ];
   return {
     ...legacy,
     phase,
     phaseLabel: PHASE_LABEL[phase],
     phaseReasons: reasons,
-    clash30d: band(PHASE_LO[phase] || prox.quiet.clashPct, PHASE_HI[phase], clash),
+    clash30d: band(clashOfIndex(lo, prox.quiet.clashPct), clashOfIndex(hi, prox.quiet.clashPct), clash),
     war30d: band(BANDS[phase].war[0], BANDS[phase].war[1], war),
     usual: { clash: prox.quiet.clashPct, war: prox.quiet.warPct },
-    gauge: { now: +((phase - 1 + pos) / 5).toFixed(3), usual: +(Math.min(0.95, prox.quiet.clashPct / PHASE_HI[1]) / 5).toFixed(3) },
+    gauge: { now: +((phase - 1 + pos) / 5).toFixed(3), usual: 0.01 },
     vsUsual: +(clash / Math.max(0.1, prox.quiet.clashPct)).toFixed(2),
-    headline: `전쟁 위험 ${phase}단계(${PHASE_LABEL[phase]}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(clash)}, 전면전 ${fmtRiskPct(war)}`,
+    headline: `위기 지수 ${prox.index}점 · ${phase}단계(${PHASE_LABEL[phase]}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(clash)}, 전면전 ${fmtRiskPct(war)}`,
     proximity: prox,
   };
 }
@@ -275,9 +282,9 @@ export async function recordProx(store: Kv, prox: Proximity, phase: number, now:
 /** 분석관 부호 한 줄을 읽는다: "g_ultimatum=0 g_talks_collapse=1:북미 실무회담 결렬 선언(11/9) m_logistics=0.5:…" — 근거는 다음 id= 앞까지 */
 export function parseChecks(text: string, now: number): AnalystChecks {
   const items: AnalystChecks["items"] = {};
-  const re = /([a-z]_[a-z_]+)\s*=\s*(1|0\.5|0)(?::([^\n]*?))?(?=\s+[a-z]_[a-z_]+\s*=|\s*$)/gm;
+  const re = /([a-z]_[a-z_]+)\s*=\s*(1|0\.5|0)(?![\d.])(?::([^\n]*?))?(?=\s+[a-z]_[a-z_]+\s*=|\s*$)/gm;
   for (const m of text.matchAll(re)) {
-    if (!HYP_IDS.includes(m[1])) continue;
+    if (!ALL_IDS.includes(m[1])) continue;
     const ev = m[3]?.trim();
     items[m[1]] = { v: Number(m[2]) as 0 | 0.5 | 1, ...(ev ? { ev: ev.slice(0, 90) } : {}) };
   }
@@ -298,18 +305,24 @@ export const ANALYST_GUIDE: Record<string, string> = {
   i_pretext: "'도발·학살' 주장, 자작극 의혹, '우리 국민 보호' 서사가 평소보다 격해짐",
   i_state_mobilization: "북한 관영매체의 전시 동원 서사 (입대 탄원 군중대회, 준전시 선포 보도)",
   t_deadline: "공개된 시한·날짜 조건의 만료가 임박",
+  s_talks: "(바탕·한 달에 한 번) 남북·북미 사이에 열려 있는 대화 채널이 하나도 없나",
+  s_agreement: "(바탕) 9·19 군사합의 등 충돌 방지 합의가 파기·효력 정지 상태인가",
+  s_doctrine: "(바탕) 북한이 한국을 적대국으로 규정했거나 핵 선제사용을 법에 명시했나",
+  s_friction: "(바탕) 확성기·전단·풍선·GPS 교란 같은 접경 마찰이 몇 달째 이어지나",
+  s_tests: "(바탕) 최근 12개월 안에 핵실험이나 ICBM급 발사가 있었나",
+  s_casualty: "(바탕) 최근 5년 안에 사상자가 난 남북 충돌이 있었나",
 };
 
 /** 분석관에게 주는 점검표 — 짧은 줄로 (토큰 절약) */
 export function checklistText(p: ProximityView): string {
-  const mark = (s: { s: Obs; weak: boolean }) => (s.s === "on" ? (s.weak ? "약함" : "켜짐") : s.s === "off" ? "꺼짐" : "미확인");
-  const lines = p.signals.map((s) => {
-    const guide = ANALYST_GUIDE[s.id];
-    return `${s.id} | ${s.ko} | ${mark(s)}${s.by === "analyst" ? "(분석관)" : ""} | ${s.ev ? ` | ${s.ev}` : ""}${guide ? ` | 확인: ${guide}` : ""}`;
-  });
+  const mark = (x: { s: Obs; weak: boolean }) => (x.s === "on" ? (x.weak ? "약함" : "켜짐") : x.s === "off" ? "꺼짐" : "미확인");
+  const lines = p.rubric.layers.flatMap((l) => l.groups.flatMap((g) => g.items.map((x) => {
+    const guide = ANALYST_GUIDE[x.id];
+    return `${x.id} | ${l.label}·${g.label} | ${x.ko} | ${x.pts}점 | ${mark(x)}${x.by === "analyst" ? "(분석관)" : ""}${x.ev ? ` | ${x.ev}` : ""}${guide ? ` | 확인: ${guide}` : ""}`;
+  })));
   return [
-    `위기 지수 ${p.index}점 · 30일 국지 충돌 ${p.clashPct}% · 전면전 ${p.warPct}% · 켜진 전조 ${p.on}/${p.watched} · 분석관 확인 대기 ${p.waiting}개`,
-    "id | 전조 | 지금 | 근거 | 확인 방법(분석관 전용 항목)",
+    `위기 지수 ${p.index}점 (${p.rubric.layers.map((l) => `${l.label} ${Math.round(l.pts)}/${l.max}`).join(" · ")}) · 30일 국지 충돌 ${p.clashPct}% · 확인 대기 ${p.waiting}개`,
+    "id | 층·묶음 | 항목 | 배점 | 지금 | 근거 | 확인 방법(분석관 전용 항목)",
     ...lines,
   ].join("\n");
 }

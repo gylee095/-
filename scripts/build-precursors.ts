@@ -5,7 +5,8 @@
 //  3) 사례를 하나씩 빼고(leave-one-out) 그 사례를 채점해 docs/PRECURSORS.md 성적표를 쓴다.
 //  --holdout: 봉인 사례(data/precursors/holdout/*.json)를 채점에만 쓴다 — 표에는 넣지 않는다. 규칙을 고정한 뒤 한 번만.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { CLUSTER_LABEL, MODEL, evaluate, buildTable, caseEvidence, caseLogOdds, classOf, discrimination, warLikeness, type CaseRecord, type HypDef, type PrecursorTable } from "../src/core/precursors.js";
+import { RUBRIC, scoreRubric } from "../src/core/rubric.js";
+import { CLUSTER_LABEL, MODEL, buildTable, caseEvidence, caseLogOdds, classOf, discrimination, warLikeness, type CaseRecord, type HypDef, type PrecursorTable } from "../src/core/precursors.js";
 
 const ROOT = new URL("../", import.meta.url);
 const read = (p: string) => JSON.parse(readFileSync(new URL(p, ROOT), "utf8"));
@@ -88,9 +89,18 @@ const telegraphed = loo.filter((x) => x.cls === "W" && !x.c.surprise);
 // ── 한반도 눈금: 기준점 ──
 const logOdds = cases.map((c) => ({ c, lo: caseLogOdds(table, c, 1) }));
 const anchor = Math.max(...logOdds.map((x) => x.lo));
-// 사례를 지금 한반도 계산에 그대로 넣었을 때의 위기 지수 (운영 코드와 같은 함수)
-const idxOf = (c: CaseRecord) => evaluate(table, Object.fromEntries(Object.entries(caseEvidence(c, 1)).map(([h, o]) => [h, { s: o }])), undefined, anchor).index;
-const anchors = cases.map((c) => ({ id: c.id, name: c.name, cls: classOf(c), when: c.onset ?? c.window?.[1] ?? "", index: idxOf(c), surprise: !!c.surprise })).sort((a, b) => b.index - a.index);
+// 과거 시점을 위기 지수 채점표로 매긴다 (운영 코드와 같은 함수) — 화면 눈금의 기준점
+const kd = read("data/precursors/korea_dates.json") as { dates: { id: string; name: string; when: string; cls: string; base: string[]; case?: string; extra: string[] }[] };
+const anchors = kd.dates.map((d) => {
+  const c = d.case ? all.find((x) => x.id === d.case) : undefined;
+  if (d.case && !c) throw new Error(`korea_dates: 사례 ${d.case} 없음`);
+  const st: Record<string, { s: "on" | "off" | "unk" }> = {};
+  for (const id of RUBRIC.flatMap((l) => l.groups.flatMap((g) => g.items.map((i) => i.id)))) st[id] = { s: id.startsWith("s_") ? "off" : c ? "unk" : "off" };
+  if (c) for (const [h, o] of Object.entries(caseEvidence(c, 1))) st[h] = { s: o };
+  for (const id of [...d.base, ...d.extra]) st[id] = { s: "on" };
+  const r = scoreRubric(st);
+  return { id: d.id, name: d.name, cls: d.cls, when: d.when, index: r.index, surprise: !!c?.surprise, layers: r.layers.map((l) => Math.round(l.pts)) };
+}).sort((a, b) => b.index - a.index);
 
 // ── 쓰기 ──
 writeFileSync(new URL("data/precursors/cases.json", ROOT), JSON.stringify({ codebook: codebook.version, built: today, cases: all }, null, 1) + "\n");
@@ -139,9 +149,9 @@ if (held.length) {
 md.push(``, `## 언제부터 잡혔나`, ``, `예고된 전쟁·공격 ${telegraphed.length}건 가운데, 그 시점까지 공개된 신호만으로 점수가 0보다 컸던 사례 수:`, ``,
   `| 시점 | 잡은 수 |`, `|---|---|`, ...DAYS.map((d) => `| ${d}일 전 | ${telegraphed.filter((x) => (x.byDay[d] ?? -1) > 0).length}/${telegraphed.length} |`));
 
-md.push(``, `## 한반도 눈금의 기준점 (위기 지수 0~100)`, ``,
-  `0 = 지켜보는 전조가 모두 꺼진 조용한 날, 20부터 긴장 · 45부터 위기 · 70부터 임박(철수·병참·동원 같은 행동 신호가 둘 이상일 때만) · 100 = 사례집에서 전조가 가장 많이·뚜렷하게 켜졌던 수준. **전쟁이 났는지와 무관한 '위기의 크기'다** — 전쟁 안 난 위기도 높게 나온다. 각 사례의 전날(전쟁 안 난 위기는 창 전체) 신호를 지금 한반도 계산에 그대로 넣은 값이다.`, ``,
-  `| 사례 | 분류 | 근접도 |`, `|---|---|---|`, ...anchors.map((a) => `| ${a.name}${a.surprise ? " (기습)" : ""} | ${a.cls === "N" ? "전쟁 안 남" : a.cls === "K" ? "한반도 충돌" : "전쟁·공격"} | ${a.index} |`));
+md.push(``, `## 위기 지수의 기준점 — 과거 시점을 같은 채점표로`, ``,
+  `채점표는 \`src/core/rubric.ts\` (바탕 20 · 보이는 것 30 · 실제 행동 50). 0 = 모든 항목이 꺼진 상태, 20부터 긴장, 35부터 위기, 60부터 임박. 과거 시점의 바탕 항목은 \`data/precursors/korea_dates.json\` 에 손으로 적은 것이고(출처 검증 전), 신호는 사례 조사에서 가져왔다 — 조사에서 '모름'인 항목은 0점이라 실제보다 낮게 나올 수 있다(특히 1994년).`, ``,
+  `| 시점 | 위기 지수 | 바탕 | 보이는 것 | 실제 행동 |`, `|---|---|---|---|---|`, ...anchors.map((a) => `| ${a.name} | **${a.index}** | ${a.layers[0]} | ${a.layers[1]} | ${a.layers[2]} |`));
 
 md.push(``, `## 고정값 (사례를 보기 전에 정한 것)`, ``,
   `- 한 신호의 최대 배수 ${MODEL.CAP} · 같은 묶음 안 두 번째 신호부터 ${MODEL.DAMP}배씩 깎음 · 3단계 이상은 두 묶음 이상, 4단계는 정부·군사 묶음의 확인된 신호가 있어야 함`,

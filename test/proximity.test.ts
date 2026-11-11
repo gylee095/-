@@ -1,8 +1,9 @@
 // 규칙 3.0 — 전조 모형과 한반도 적용 (proximity.ts · precursors.ts)
 import { describe, expect, it } from "vitest";
-import { ACTION_KEYS, INDEX_AT, MODEL, clashOfIndex, buildTable, caseEvidence, classOf, evaluate, ordinaryRate, rate, type CaseRecord, type SignalNow } from "../src/core/precursors.js";
+import { clashOfIndex, scoreRubric, RUBRIC, BASE_SEED, INDEX_AT as RUBRIC_AT } from "../src/core/rubric.js";
+import { ACTION_KEYS, INDEX_AT, MODEL, clashOfIndex as clashOfIndexOld, buildTable, caseEvidence, classOf, evaluate, ordinaryRate, rate, type CaseRecord, type SignalNow } from "../src/core/precursors.js";
 import { PRECURSOR_DATA } from "../src/core/precursor_data.js";
-import { AUTO_IDS, ANALYST_GUIDE, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
+import { ALL_IDS, AUTO_IDS, ANALYST_GUIDE, BASE_TTL, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
 import { assessWarRisk } from "../src/core/warrisk.js";
 
 const NOW = Date.parse("2026-11-11T03:00:00Z");
@@ -45,11 +46,8 @@ describe("전조 모형", () => {
       const p = ev(on);
       expect(p.phase).toBe(p.index >= INDEX_AT[4] ? 4 : p.index >= INDEX_AT[3] ? 3 : p.index >= INDEX_AT[2] ? 2 : 1);
       expect(p.parts.reduce((a, x) => a + x.pts, 0)).toBe(p.index);
-      expect(p.clashPct).toBe(clashOfIndex(p.index, p.quiet.clashPct));
+      expect(p.clashPct).toBe(clashOfIndexOld(p.index, p.quiet.clashPct));
     }
-    expect(clashOfIndex(20, 1.3)).toBe(MODEL.PHASE[2]);
-    expect(clashOfIndex(45, 1.3)).toBe(MODEL.PHASE[3]);
-    expect(clashOfIndex(70, 1.3)).toBe(MODEL.PHASE[4]);
   });
   it("전면전 % 는 국지 충돌 % 를 넘지 않는다", () => {
     for (const on of [[], ["g_evac_order"], IDS]) { const p = ev(on); expect(p.warPct).toBeLessThanOrEqual(p.clashPct); }
@@ -82,7 +80,7 @@ describe("전조 모형", () => {
 
 describe("한반도 적용", () => {
   it("자동으로 못 보는 가설은 모두 분석관 확인 방법이 있다", () => {
-    for (const id of IDS) expect(AUTO_IDS.has(id) || !!ANALYST_GUIDE[id], id).toBe(true);
+    for (const id of ALL_IDS) expect(AUTO_IDS.has(id) || !!ANALYST_GUIDE[id], id).toBe(true);
   });
   it("자료가 없으면 못 봄(?) — 꺼짐으로 세지 않는다. 분석관 확인이 채운다", () => {
     const s = koreaStatus([], [], NOW);
@@ -101,23 +99,22 @@ describe("한반도 적용", () => {
   it("모르는 id·형식은 버린다", () => {
     expect(Object.keys(parseChecks("x_fake=1 hello g_ultimatum=2 t_deadline=0", NOW).items)).toEqual(["t_deadline"]);
   });
-  it("판정: 모형 단계에 사건 바닥을 더한다 · 교전(5단계)은 이전 규칙 그대로", () => {
+  it("판정: 단계·확률은 위기 지수(채점표)에서 나온다 · 교전(5단계)은 이전 규칙 그대로", () => {
     const legacy = assessWarRisk({ now: NOW, board: [], briefs: [], patterns: [] });
     const p = assessProximity([], [], NOW);
-    const w = withProximity(legacy, p, [], NOW);
-    expect(w.phase).toBe(1);
-    expect(w.headline).toMatch(/1단계/);
+    const w = withProximity(legacy, p);
+    expect(w.proximity.index).toBe(p.rubric.index);
+    expect(w.phase).toBe(p.rubric.phase);
+    expect(w.headline).toMatch(new RegExp(`위기 지수 ${p.index}점`));
+    expect(w.clash30d.point).toBe(clashOfIndex(p.index, p.quiet.clashPct));
     expect(w.proximity.waiting).toBeGreaterThan(0);
-    expect(withProximity({ ...legacy, phase: 5 }, p, [], NOW).phase).toBe(5);
-    expect(withProximity({ ...legacy, phase: 5 }, p, [], NOW).proximity.index).toBe(100);
-    // 사건 바닥: 최근 도발이 있으면 지수가 긴장 구간의 시작점(20)까지 오르고, 그 몫은 군사 묶음에 적힌다
+    expect(withProximity({ ...legacy, phase: 5 }, p).phase).toBe(5);
+    expect(withProximity({ ...legacy, phase: 5 }, p).proximity.index).toBe(100);
+    // 최근 도발은 '보이는 것' 층의 2점짜리 항목으로 들어간다
     const prov = [{ at: NOW - 3600_000, headline: "북한, 탄도미사일 발사", isProvocation: true, danger: { level: 3, label: "", reason: "" } }] as any;
-    const w2 = withProximity(legacy, p, prov, NOW);
-    expect(w2.phase).toBe(2);
-    expect(w2.proximity.index).toBe(INDEX_AT[2]);
-    expect(w2.proximity.parts.reduce((a, x) => a + x.pts, 0)).toBe(INDEX_AT[2]);
-    expect(w2.proximity.parts.find((x) => x.cluster === "M")!.notes![0]).toMatch(/도발 1건/);
-    expect(checklistText(p).split("\n").length).toBe(35);
+    const p2 = assessProximity([], prov, NOW);
+    expect(p2.index).toBe(p.index + 2);
+    expect(checklistText(p).split("\n").length).toBe(2 + ALL_IDS.length);
   });
   it("하루 한 줄: 그날 가장 높았던 상태를 남기고, 날이 바뀌면 평소 빈도에 더한다 (3단계 이상이던 날은 빼고)", () => {
     const quiet = assessProximity([], [], NOW, undefined, parseChecks(IDS.map((i) => `${i}=0`).join(" "), NOW));
@@ -136,5 +133,62 @@ describe("한반도 적용", () => {
     const v = assessProximity([], [], NOW + 86400_000, r.hist, parseChecks(IDS.map((i) => `${i}=0`).join(" "), NOW + 86400_000));
     expect(v.vs.d1).toBeLessThan(0);
     expect(v.series).toHaveLength(2);
+  });
+});
+
+describe("위기 지수 채점표 (rubric.ts)", () => {
+  const all = (s: "on" | "off") => Object.fromEntries(ALL_IDS.map((id) => [id, { s }]));
+  it("배점: 바탕 20 + 보이는 것 30 + 실제 행동 50 = 100, 모두 꺼지면 0, 모두 켜지면 100", () => {
+    expect(RUBRIC.map((l) => l.max)).toEqual([20, 30, 50]);
+    for (const l of RUBRIC) expect(l.groups.reduce((a, g) => a + g.max, 0), l.id).toBe(l.max);
+    for (const g of RUBRIC.flatMap((l) => l.groups)) expect(g.items.reduce((a, i) => a + i.pts, 0), g.id).toBeGreaterThanOrEqual(g.max);
+    expect(new Set(ALL_IDS).size).toBe(ALL_IDS.length);
+    expect(scoreRubric(all("off"))).toMatchObject({ index: 0, phase: 1, waiting: 0 });
+    expect(scoreRubric(all("on"))).toMatchObject({ index: 100, phase: 4 });
+  });
+  it("약한 신호는 절반, 못 본 것은 0점이고 '확인 대기'로 센다, 묶음마다 상한", () => {
+    expect(scoreRubric({ ...all("off"), g_evac_order: { s: "on", w: 0.5 } }).index).toBe(5);
+    const r = scoreRubric({ s_talks: { s: "on" } });
+    expect(r.index).toBe(4);
+    expect(r.waiting).toBe(ALL_IDS.length - 1);
+    // 말·여론은 다 켜져도 8점까지
+    expect(scoreRubric({ ...all("off"), i_state_mobilization: { s: "on" }, i_leader_threat: { s: "on" }, i_pretext: { s: "on" }, i_news_surge: { s: "on" }, i_public_anxiety: { s: "on" } }).index).toBe(8);
+  });
+  it("신호 한 묶음만으로는 위기(35)가 안 되고, 행동 신호 둘 미만이면 임박(60)이 안 된다", () => {
+    const base = Object.fromEntries(ALL_IDS.filter((i) => i.startsWith("s_")).map((i) => [i, { s: "on" as const }]));
+    const one = scoreRubric({ ...all("off"), ...base, g_evac_order: { s: "on" }, g_leave_now: { s: "on" }, g_attacker_evac: { s: "on" } });
+    expect(one.index).toBe(RUBRIC_AT[3] - 1); // 바탕 20 + 사람 20 이지만 한 묶음뿐
+    expect(one.capped).toMatch(/한 묶음/);
+    const talk = scoreRubric({ ...all("on"), ...Object.fromEntries(ACTION_KEYS.map((k) => [k, { s: "off" as const }])) });
+    expect(talk.index).toBe(RUBRIC_AT[4] - 1);
+    expect(talk.capped).toMatch(/실제 행동/);
+  });
+  it("말과 행동이 어긋나면 한 줄로 알려 준다", () => {
+    const seen = ["t_trigger", "t_deadline", "g_ultimatum", "m_alert_level", "i_leader_threat", "i_pretext"];
+    expect(scoreRubric({ ...all("off"), ...Object.fromEntries(seen.map((k) => [k, { s: "on" as const }])) }).divergence?.kind).toBe("talk");
+    expect(scoreRubric({ ...all("off"), g_evac_order: { s: "on" }, m_buildup: { s: "on" } }).divergence?.kind).toBe("quiet_move");
+    expect(scoreRubric(all("off")).divergence).toBeUndefined();
+  });
+  it("지수 → 확률: 20 = 3%, 35 = 8%, 60 = 20%", () => {
+    expect([20, 35, 60].map((i) => clashOfIndex(i, 1.3))).toEqual([3, 8, 20]);
+    expect(clashOfIndex(0, 1.3)).toBe(1.3);
+    expect(clashOfIndex(100, 1.3)).toBe(26.3);
+  });
+  it("바탕 항목: 확인이 없으면 코드에 적어 둔 값, 분석관 확인은 45일 유효(다른 신호는 36시간)", () => {
+    const s = koreaStatus([], [], NOW);
+    expect(s.s_talks.s).toBe(BASE_SEED.items.s_talks.v ? "on" : "off");
+    const c = parseChecks("s_talks=0:남북 연락채널 복원 s_tests=1:ICBM 발사 i_pretext=1:주장 반복", NOW);
+    const later = koreaStatus([], [], NOW + 40 * 86400_000, c);
+    expect(later.s_talks.s).toBe("off");
+    expect(later.s_tests.s).toBe("on");
+    expect(later.i_pretext.s).toBe("unk");
+    expect(BASE_TTL).toBeGreaterThan(30 * 86400_000);
+  });
+  it("과거 시점 검산: 2018년 가을은 평온, 한반도 위기 때는 '실제 행동'이 거의 없었고 우크라이나 전날은 임박", () => {
+    const a = Object.fromEntries(PRECURSOR_DATA.anchors.map((x) => [x.id, x.index]));
+    expect(a["kr-2018-autumn"]).toBeLessThan(10);
+    expect(a["kr-2017-09"]).toBeGreaterThan(a["kr-2018-autumn"] + 15);
+    expect(a["ukraine-2022"]).toBeGreaterThanOrEqual(RUBRIC_AT[4]);
+    expect(a["kr-2013-04"]).toBeLessThan(RUBRIC_AT[4]);
   });
 });

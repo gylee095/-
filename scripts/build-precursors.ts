@@ -50,7 +50,10 @@ const all = load("data/precursors/raw/");
 const sealed = new Set(codebook.holdout_do_not_research);
 const leaked = all.filter((c) => sealed.has(c.id));
 if (leaked.length) throw new Error(`봉인 사례가 개발용에 들어 있다: ${leaked.map((c) => c.id).join(", ")}`);
-const cases = all.filter((c) => classOf(c) !== "X");
+// 조사가 덜 된 사례(근거 있는 예·아니오가 6개 미만)는 계산에 넣지 않는다 — 빈 사례가 '전조 없음'으로 세어지지 않게
+const known = (c: CaseRecord) => c.signals.filter((s) => s.status !== "unknown").length;
+const thin = all.filter((c) => classOf(c) !== "X" && known(c) < 6);
+const cases = all.filter((c) => classOf(c) !== "X" && known(c) >= 6);
 const excluded = all.filter((c) => classOf(c) === "X");
 const holdout = withHoldout ? load("data/precursors/holdout/") : [];
 const today = new Date().toISOString().slice(0, 10);
@@ -99,7 +102,7 @@ writeFileSync(new URL("src/core/precursor_data.ts", ROOT),
   `export const PRECURSOR_DATA: { table: PrecursorTable; anchorLogOdds: number; anchors: { id: string; name: string; cls: string; when: string; index: number; surprise: boolean }[]; score: { auc: number; caught: number; wars: number; falseAlarms: number; crises: number; surprise: number } } = ${JSON.stringify(data)};\n`);
 
 const f1 = (x: number) => (Number.isFinite(x) ? x.toFixed(2) : "—");
-const frac = ([x, n]: [number, number]) => `${x}/${n}`;
+const frac = ([y, n, u]: [number, number, number]) => `${y}/${y + n}${u ? ` (모름 ${u})` : ""}`;
 const md: string[] = [];
 md.push(`# 전쟁 전조 사례집 — 가중치와 성적표 (규칙 3.0)`, ``,
   `> 자동 생성: \`npx tsx scripts/build-precursors.ts\`. 손으로 고치지 않는다. 만든 날 ${today}.`,
@@ -111,7 +114,7 @@ md.push(`# 전쟁 전조 사례집 — 가중치와 성적표 (규칙 3.0)`, ``,
   `- 비교: 규칙 1.0·2.0 은 외국 공격 10건 중 3건을 잡았다(\`docs/CASEBOOK.md\`). 단 그쪽은 하루 단위 시장·검색 자료를 재생한 것이고 이쪽은 사건 기록을 코딩한 것이라 **같은 시험이 아니다** — 아래 '말할 수 없는 것'.`, ``);
 
 md.push(`## 가설별 가중치`, ``,
-  `'전쟁'·'안 난 위기'·'한반도 충돌' 칸은 **보인 사례 수 / 확인된 사례 수**(기습 사례와 '모름'은 빼고 센다). '배수'는 전쟁 사례에서 보인 비율 ÷ 안 난 위기에서 보인 비율(둘 다 0.5건을 더해 0으로 나누지 않게) — 1보다 클수록 '전쟁 직전'을 가리키는 신호, 1 근처면 위기 때마다 켜지는 값싼 신호다.`, ``,
+  `'전쟁'·'안 난 위기'·'한반도 충돌' 칸은 **보인 사례 수 / 근거가 확인된 사례 수**(기습 사례는 뺀다. '모름' = 찾지 못함은 절반짜리 '없음'으로 계산에 넣는다). '배수'는 전쟁 사례에서 보인 비율 ÷ 안 난 위기에서 보인 비율(둘 다 0.5건을 더해 0으로 나누지 않게) — 1보다 클수록 '전쟁 직전'을 가리키는 신호, 1 근처면 위기 때마다 켜지는 값싼 신호다.`, ``,
   `| 묶음 | 전조 | 전쟁 | 안 난 위기 | 한반도 충돌 | 배수 | 보통 며칠 전 |`, `|---|---|---|---|---|---|---|`);
 for (const h of [...table.hyps].sort((a, b) => discrimination(b) - discrimination(a)))
   md.push(`| ${CLUSTER_LABEL[h.cluster]} | ${h.ko} | ${frac(h.w)} | ${frac(h.n)} | ${frac(h.k)} | ×${discrimination(h)} | ${h.lead ?? "—"} |`);
@@ -152,6 +155,7 @@ md.push(``, `## 고정값 (사례를 보기 전에 정한 것)`, ``,
   `- **한반도 국지 충돌은 따로다.** 과거 충돌 ${K.length}건은 외국 전쟁 같은 전조(대사관 철수·동원) 없이 왔다. 그래서 '국지 충돌 %'는 대부분 기저율이고, 전조 모형이 주로 움직이는 것은 '전쟁·대규모 공격' 쪽이다.`,
   ...(held.length ? [] : [`- **봉인 사례 3건(${codebook.holdout_do_not_research.join(", ")})은 아직 열지 않았다.**`]), ``);
 
+if (thin.length) md.push(`## 조사가 덜 돼 계산에서 뺀 사례 (${thin.length}건)`, ``, thin.map((c) => c.name).join(" · "), ``);
 if (problems.length) md.push(`## 자료 검사에서 고친 것 (${problems.length}건)`, ``, ...problems.map((p) => `- ${p}`), ``);
 writeFileSync(new URL("docs/PRECURSORS.md", ROOT), md.join("\n"));
 console.log(`사례 ${cases.length} (W ${W.length} · K ${K.length} · N ${N.length}), 제외 ${excluded.length}, 문제 ${problems.length}`);

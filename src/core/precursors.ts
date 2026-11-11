@@ -6,7 +6,8 @@
 // 그래서 신호마다 "전쟁 사례 몇 건 중 몇 건에서 보였나 ÷ 전쟁 안 난 위기 몇 건 중 몇 건에서 보였나"를 가중치로 쓴다(우도비).
 //
 // 계산 (나이브 베이즈 + 세 가지 보정):
-//   상태 X ∈ {위기(C) · 국지 충돌 직전(K) · 전쟁 직전(W)} 마다, 신호 k 가 켜졌을 때 λ = P(k|X) / P(k|평소), 꺼졌을 때 (1−P(k|X)) / (1−P(k|평소)).
+//   신호마다 두 가지를 따로 센다: ① 평소와 얼마나 다른가 = P(k|위기) ÷ P(k|한반도 평소), ② 위기 중에서도 전쟁 쪽인가 = P(k|전쟁 직전) ÷ P(k|위기).
+//   꺼진 신호도 같은 식으로(1−P) 센다. 사례 조사에서 '찾지 못함'은 절반짜리 '없음'으로 친다.
 //   ① 기습: 전쟁·충돌의 일부(사례집에서 센 비율 s)는 공개 전조 없이 온다 — 그 몫은 신호가 조용해도 줄지 않는 바닥으로 남는다.
 //   ② 겹침: 같은 묶음(정부·군사·돈·말·계기) 안의 신호는 서로 따라 움직이므로 가장 센 것 1, 다음 0.5, 0.25 … 로 깎아 더한다.
 //   ③ 한 신호의 힘에 상한(CAP)을 두고, 3단계 이상은 두 묶음 이상이 켜져야 한다(신호 하나로 '위기'가 되지 않게 — CLAUDE.md).
@@ -75,16 +76,19 @@ export function caseEvidence(c: CaseRecord, daysBefore = 1): Record<string, Obs>
   return out;
 }
 
+/** [보임, 없음, 모름] — '모름'(찾지 못함)은 약한 '없음'으로 절반만 센다 */
+export type Tally = [number, number, number];
+
 export interface HypStat {
   id: string;
   cluster: ClusterId;
   ko: string;
-  /** 전쟁·대규모 공격(예고된 것) 사례: 보인 수 / 확인된 수 */
-  w: [number, number];
-  /** 전쟁 안 난 위기: 보인 수 / 확인된 수 */
-  n: [number, number];
-  /** 한반도 국지 충돌(예고된 것): 보인 수 / 확인된 수 */
-  k: [number, number];
+  /** 전쟁·대규모 공격(예고된 것) 사례: [보임, 없음(근거 있음), 모름(찾지 못함)] */
+  w: Tally;
+  /** 전쟁 안 난 위기 */
+  n: Tally;
+  /** 한반도 국지 충돌(예고된 것) */
+  k: Tally;
   /** 전쟁 사례에서 처음 보인 날의 중앙값 (개시 며칠 전) */
   lead: number | null;
   /** 화면에 보일 대표 사례 (최대 3) */
@@ -109,14 +113,14 @@ const median = (xs: number[]) => {
 export function buildTable(cases: CaseRecord[], hyps: HypDef[], built = new Date().toISOString().slice(0, 10)): PrecursorTable {
   const cls = cases.map((c) => ({ c, k: classOf(c), ev: caseEvidence(c, 1) }));
   const of = (k: CaseClass, surprise?: boolean) => cls.filter((x) => x.k === k && (surprise === undefined || !!x.c.surprise === surprise));
-  const count = (set: typeof cls, h: string): [number, number] => {
-    let on = 0, known = 0;
-    for (const x of set) { const o = x.ev[h]; if (o === "on") { on++; known++; } else if (o === "off") known++; }
-    return [on, known];
+  const count = (set: typeof cls, h: string): Tally => {
+    let on = 0, off = 0, unk = 0;
+    for (const x of set) { const o = x.ev[h]; if (o === "on") on++; else if (o === "off") off++; else unk++; }
+    return [on, off, unk];
   };
   const Wt = of("W", false), Kt = of("K", false), N = of("N");
   return {
-    version: 1,
+    version: 2,
     built,
     cases: { W: of("W").length, Wsurprise: of("W", true).length, K: of("K").length, Ksurprise: of("K", true).length, N: N.length },
     hyps: hyps.map((h) => {
@@ -144,6 +148,8 @@ export const MODEL = {
   P_CRISIS: 0.05,
   /** 평소 빈도 사전값의 무게 (며칠 치 기록과 같게 치나) */
   BASE_PRIOR_DAYS: 200,
+  /** 한반도 충돌 비율을 '위기' 비율로 당기는 가짜 사례 수 */
+  K_PRIOR: 2,
   /** 단계 문턱: 30일 국지 충돌 % */
   PHASE: { 2: 3, 3: 8, 4: 25 } as Record<number, number>,
 } as const;
@@ -161,8 +167,11 @@ export const BASE_HINT: Record<string, number> = {
   t_trigger: 10, t_deadline: 10,
 };
 
-const jeff = ([x, n]: [number, number]) => (x + 0.5) / (n + 1);
+/** 사례에서 이 신호가 보인 비율 — 0·1 을 피하는 보정(+0.5/+1), '모름'은 절반짜리 '없음' */
+export const rate = ([y, n, u]: Tally) => (y + 0.5) / (y + n + 0.5 * u + 1);
 const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x));
+/** 한반도 충돌 사례는 몇 건뿐이라 '위기' 비율 쪽으로 당겨 쓴다 (가짜 사례 K_PRIOR 건) */
+const rateK = (h: HypStat) => (h.k[0] + MODEL.K_PRIOR * rate(h.n)) / (h.k[0] + h.k[1] + 0.5 * h.k[2] + MODEL.K_PRIOR);
 
 /** 한반도 평소 빈도: 사전값 + 쌓인 기록 [켜진 날, 본 날] */
 export function ordinaryRate(id: string, base?: Record<string, [number, number]>): number {
@@ -177,6 +186,8 @@ export interface SignalNow {
   w?: number;
   /** 근거 한 줄 */
   ev?: string;
+  /** 누가 확인했나: auto = 자동 지표·보도, analyst = AI 분석관 */
+  by?: "auto" | "analyst";
 }
 
 export interface SignalView {
@@ -186,10 +197,11 @@ export interface SignalView {
   s: Obs;
   weak: boolean;
   ev?: string;
+  by?: "auto" | "analyst";
   /** 켜졌을 때 '전쟁 직전' 쪽으로 미는 배수 (위기 대비) — 화면 "×N" */
   lr: number;
-  w: [number, number];
-  n: [number, number];
+  w: Tally;
+  n: Tally;
   lead: number | null;
   ex: string[];
 }
@@ -211,16 +223,9 @@ export interface Proximity {
   watched: number;
   /** 0~100: 조용한 날 0, 사례집에서 가장 뚜렷했던 전쟁 전날 100 (로그 눈금) */
   index: number;
-}
-
-interface Weights { c: number; k: number; w: number }
-
-function logLambda(stat: HypStat, obs: SignalNow, o: number): Weights {
-  const lam = (x: number) => {
-    const raw = obs.s === "on" ? x / o : (1 - x) / (1 - o);
-    return Math.log(clamp(raw, 1 / MODEL.CAP, MODEL.CAP)) * (obs.s === "on" ? obs.w ?? 1 : 1);
-  };
-  return { c: lam(jeff(stat.n)), k: lam(jeff(stat.k)), w: lam(jeff(stat.w)) };
+  /** '평소와 얼마나 다른가'(위기 닮음)와 '위기 중에서도 전쟁 쪽인가'(전쟁 닮음)의 로그 배수 */
+  abnormal: number;
+  warLike: number;
 }
 
 /** 같은 묶음 안의 로그 배수를 크기 순으로 1, DAMP, DAMP² … 로 깎아 더한다 */
@@ -230,32 +235,45 @@ function damped(xs: number[]): number {
   for (const x of a) { sum += x * f; f *= MODEL.DAMP; }
   return sum;
 }
+const capLog = (x: number) => Math.log(clamp(x, 1 / MODEL.CAP, MODEL.CAP));
 
+/**
+ * 두 단계로 나눠 센다 (신호가 평소에 아주 드물면 '위기'와 '전쟁' 배수가 둘 다 상한에 걸려 구분이 사라지기 때문):
+ *   ① 평소와 얼마나 다른가  A = P(신호|위기) ÷ P(신호|한반도 평소)   — 한반도 기록이 쌓일수록 정확해지는 부분
+ *   ② 위기 중에서도 전쟁 쪽인가 D = P(신호|전쟁 직전) ÷ P(신호|위기) — 사례집이 정하는 부분 (성적표가 검증)
+ */
 function posterior(table: PrecursorTable, status: Record<string, SignalNow>, base?: Record<string, [number, number]>) {
   const sW = (table.cases.Wsurprise + 0.5) / (table.cases.W + 1);
   const sK = (table.cases.Ksurprise + 0.5) / (table.cases.K + 1);
-  const logs: Record<ClusterId, { c: number[]; k: number[]; w: number[] }> = { G: { c: [], k: [], w: [] }, M: { c: [], k: [], w: [] }, F: { c: [], k: [], w: [] }, I: { c: [], k: [], w: [] }, T: { c: [], k: [], w: [] } };
+  const mk = () => ({ G: [], M: [], F: [], I: [], T: [] }) as Record<ClusterId, number[]>;
+  const A = mk(), DW = mk(), DK = mk();
   for (const h of table.hyps) {
     const st = status[h.id];
     if (!st || st.s === "unk") continue;
-    const l = logLambda(h, st, ordinaryRate(h.id, base));
-    logs[h.cluster].c.push(l.c); logs[h.cluster].k.push(l.k); logs[h.cluster].w.push(l.w);
+    const o = ordinaryRate(h.id, base), pc = rate(h.n), pw = rate(h.w), pk = rateK(h);
+    if (st.s === "on") {
+      const wt = st.w ?? 1;
+      A[h.cluster].push(capLog(pc / o) * wt); DW[h.cluster].push(capLog(pw / pc) * wt); DK[h.cluster].push(capLog(pk / pc) * wt);
+    } else {
+      A[h.cluster].push(capLog((1 - pc) / (1 - o))); DW[h.cluster].push(capLog((1 - pw) / (1 - pc))); DK[h.cluster].push(capLog((1 - pk) / (1 - pc)));
+    }
   }
-  const L = (key: keyof Weights) => Math.exp(CLUSTERS.reduce((a, c) => a + damped(logs[c][key]), 0));
+  const sum = (x: Record<ClusterId, number[]>) => CLUSTERS.reduce((a, c) => a + damped(x[c]), 0);
+  const abnormal = sum(A), warLike = sum(DW), clashLike = sum(DK);
   const piW = MODEL.P_WAR * (1 - sW), piK = MODEL.P_CLASH * (1 - sK), piC = MODEL.P_CRISIS;
   const surpriseW = MODEL.P_WAR * sW, surpriseK = MODEL.P_CLASH * sK;
   const piO = 1 - MODEL.P_WAR - MODEL.P_CLASH - piC;
-  const tW = piW * L("w"), tK = piK * L("k"), tC = piC * L("c");
+  const tC = piC * Math.exp(abnormal), tK = piK * Math.exp(abnormal + clashLike), tW = piW * Math.exp(abnormal + warLike);
   const Z = piO + surpriseW + surpriseK + tC + tK + tW;
   const war = (tW + surpriseW) / Z;
   const clash = war + (tK + surpriseK) / Z;
-  return { war, clash, mix: { ordinary: (piO + surpriseW + surpriseK) / Z, crisis: tC / Z, clash: tK / Z, war: tW / Z }, logOddsW: Math.log(tW / Z / (1 - tW / Z)) };
+  return { war, clash, abnormal, warLike, mix: { ordinary: (piO + surpriseW + surpriseK) / Z, crisis: tC / Z, clash: tK / Z, war: tW / Z }, logOddsW: Math.log(tW / (Z - tW)) };
 }
 
 const pct = (x: number) => +(x * 100).toFixed(x < 0.01 ? 2 : 1);
 
 /** 화면의 "×N": 켜졌을 때 '전쟁 직전'을 '위기'보다 얼마나 더 밀어 주나 (전쟁 사례 비율 ÷ 안 난 위기 비율) */
-export const discrimination = (h: HypStat) => +clamp(jeff(h.w) / jeff(h.n), 1 / MODEL.CAP, MODEL.CAP).toFixed(1);
+export const discrimination = (h: HypStat) => +clamp(rate(h.w) / rate(h.n), 1 / MODEL.CAP, MODEL.CAP).toFixed(1);
 
 export function evaluate(table: PrecursorTable, status: Record<string, SignalNow>, base?: Record<string, [number, number]>, anchorLogOdds?: number): Proximity {
   const now = posterior(table, status, base);
@@ -265,7 +283,7 @@ export function evaluate(table: PrecursorTable, status: Record<string, SignalNow
   const quiet = posterior(table, quietStatus, base);
   const signals: SignalView[] = table.hyps.map((h) => {
     const st = status[h.id] ?? { s: "unk" as Obs };
-    return { id: h.id, cluster: h.cluster, ko: h.ko, s: st.s, weak: st.s === "on" && (st.w ?? 1) < 1, ev: st.ev, lr: discrimination(h), w: h.w, n: h.n, lead: h.lead, ex: h.ex };
+    return { id: h.id, cluster: h.cluster, ko: h.ko, s: st.s, weak: st.s === "on" && (st.w ?? 1) < 1, ev: st.ev, by: st.by, lr: discrimination(h), w: h.w, n: h.n, lead: h.lead, ex: h.ex };
   });
   const onSignals = signals.filter((s) => s.s === "on");
   const clustersOn = new Set(onSignals.map((s) => s.cluster)).size;
@@ -283,6 +301,7 @@ export function evaluate(table: PrecursorTable, status: Record<string, SignalNow
     mix: { ordinary: Math.round(now.mix.ordinary * 100), crisis: Math.round(now.mix.crisis * 100), clash: Math.round(now.mix.clash * 100), war: Math.round(now.mix.war * 100) },
     quiet: { clashPct: pct(quiet.clash), warPct: pct(quiet.war) },
     phase, clustersOn, signals, on: onSignals.length, watched: signals.filter((s) => s.s !== "unk").length, index,
+    abnormal: +now.abnormal.toFixed(2), warLike: +now.warLike.toFixed(2),
   };
 }
 
@@ -300,8 +319,8 @@ export function warLikeness(table: PrecursorTable, ev: Record<string, Obs>): num
   for (const h of table.hyps) {
     const o = ev[h.id];
     if (!o || o === "unk") continue;
-    const p = jeff(h.w), q = jeff(h.n);
-    logs[h.cluster].push(Math.log(clamp(o === "on" ? p / q : (1 - p) / (1 - q), 1 / MODEL.CAP, MODEL.CAP)));
+    const p = rate(h.w), q = rate(h.n);
+    logs[h.cluster].push(capLog(o === "on" ? p / q : (1 - p) / (1 - q)));
   }
   return CLUSTERS.reduce((a, c) => a + damped(logs[c]), 0);
 }

@@ -1,0 +1,6023 @@
+{
+ "codebook": 1,
+ "built": "2026-11-11",
+ "cases": [
+  {
+   "id": "ethiopia-tigray-2020",
+   "name": "에티오피아 연방정부 → 티그라이 공세",
+   "outcome": "war",
+   "onset": "2020-11-04",
+   "window": [
+    "2020-08-06",
+    "2020-11-03"
+   ],
+   "attacker": "에티오피아 연방정부",
+   "target": "티그라이 지방정부(TPLF)",
+   "kind": "intrastate",
+   "surprise": false,
+   "summary": "2020-11-04 에티오피아 연방정부가 티그라이 지방정부(TPLF)를 상대로 군사 공세를 시작했다(개시일·경과는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이고 surprise 값도 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 11/2 티그라이 수반이 연방군 공격 임박을 공개 경고, 10/30 국제위기그룹의 경고 브리핑이라는 기억."
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 10/7 연방 상원이 티그라이 지도부와의 관계 단절·예산 차단을 의결했다는 기억."
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 원로·종교계 중재가 성과 없이 끝났다는 기억 — 공식 협상이 있었는지 확인 필요."
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 10월 말 연방군·암하라 병력의 티그라이 접경 이동 보도라는 기억."
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 티그라이 특수부대·민병대 증원과 대규모 열병(8월)이라는 기억."
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증 단서: 영공 폐쇄·항공편 중단은 11/4 당일 이후였다는 기억 — no 후보."
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미검증 단서: 티그라이 통신·인터넷 차단은 개시 당일(11/4)이었다는 기억 — no 후보."
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 티그라이 비상사태 선포는 개시 당일(11/4)이었다는 기억 — no 후보."
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 아비 총리와 티그라이 수반의 상호 경고 발언(10월~11월 초) — 날짜 확인 필요."
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 연방정부가 각지 폭력의 배후로 TPLF를 지목했다는 기억. 북부사령부 피습 주장은 개시 당일 밤."
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 11/3~4 밤 TPLF의 북부사령부 기지 공격이 계기 — 개시일과 겹쳐 no 후보. 11/1 월레가 학살도 확인 필요."
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 10/5 연방정부의 헌법상 임기 만료일 — TPLF가 이후 정통성을 인정하지 않겠다고 했다는 기억."
+    }
+   ],
+   "missed": "미검증: 9/9 티그라이의 독자 지방선거 강행, 9월 신권 화폐 교체, 10월 말 연방이 임명한 북부사령부 장성의 부임 거부 — 중앙–지방 권한 충돌형 전조로 코드북에 칸이 없다. 재조사 때 날짜 확인 필요.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "gulf-1990",
+   "name": "이라크 → 쿠웨이트 침공",
+   "outcome": "war",
+   "onset": "1990-08-02",
+   "window": [
+    "1990-05-04",
+    "1990-08-01"
+   ],
+   "attacker": "이라크",
+   "target": "쿠웨이트",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "1990-08-02 이라크가 쿠웨이트를 침공해 점령했다(개시일은 검색으로 확인). 이번 조사에서 출처로 확인한 것은 7월 중순~하순 공화국수비대의 접경 집결(7월 말 약 10만 명), 7/25 사담–글래스피 미 대사 면담, 7/31 제다 회담과 그 결렬뿐이다. 웹 검색 한도가 한 번 검색한 뒤 소진돼 나머지 31개 가설은 unknown 이고 surprise 값도 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증 단서: 침공 전 제3국 대사관 철수는 없었고 서방인 수천 명이 발이 묶였다는 기억 — no 후보."
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 침공 전 여행경보 격상은 없었다는 기억(영국항공 149편이 8/2 쿠웨이트 착륙) — no 후보."
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: CIA의 '전쟁 경고'(7/25경)·'공격 경고'(8/1)는 내부 보고였고 공개 경고는 없었다는 기억."
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 7/15~16 아지즈 외무장관의 아랍연맹 서한(쿠웨이트 비난). 시한을 단 최후통첩은 없었다는 기억."
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "yes",
+     "first": "1990-08-01",
+     "lead": 1,
+     "public_then": true,
+     "what": "사우디 제다에서 7/31 열린 이라크–쿠웨이트 회담이 결렬(이라크가 100억 달러 요구)되고 곧 침공. 결렬일은 늦은 날짜(8/1) 채택.",
+     "source": "https://www.wikipedia.com/wiki/Iraq-Kuwait_War",
+     "confidence": "med"
+    },
+    {
+     "h": "m_buildup",
+     "status": "yes",
+     "first": "1990-07-24",
+     "lead": 9,
+     "public_then": true,
+     "what": "공화국수비대가 7월 중순부터 쿠웨이트 접경에 집결, 7월 말 약 10만 명. 첫 날짜가 검색 자료(7/16)와 의뢰서(7/21~24)에서 달라 가장 늦은 7/24 채택(재확인 필요).",
+     "source": "https://www.wikipedia.com/wiki/Iraq-Kuwait_War",
+     "confidence": "low"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미검증 단서: 7월 말 연료·탄약·급수 차량의 전방 이동을 미 정보당국이 포착(비공개)했다는 기억."
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: 7/24 미국–UAE 급유기 훈련 정도였고 항모 증파는 침공 뒤였다는 기억 — no 후보."
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증 단서: 영공·공항은 침공 당일까지 정상 운영됐다는 기억(영국항공 149편 착륙) — no 후보."
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "1990년에는 민간 GPS 교란이라는 수단이 사실상 없었음. 미조사."
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "1990년에는 해당 수단이 사실상 없었음. 미조사."
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 쿠웨이트군이 7월 중순 경계를 올렸다가 침공 전에 낮췄다는 기억."
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 7월 사담의 위협과 OPEC 합의로 유가가 올랐다는 기억."
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "당시 예측시장 없음."
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 7/17 사담 후세인의 연설에서 쿠웨이트·UAE 위협. 이번 검색에서는 출처를 찾지 못함."
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 쿠웨이트의 루마일라 유전 '도둑 채굴'·원유 과잉생산을 '경제 전쟁'이라 한 주장(7월 중순)."
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미검증 단서: 쿠웨이트 주민은 평온했고 다수가 여름휴가 중이었다는 기억 — no 후보."
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 사상자가 난 계기 사건은 없었다는 기억 — no 후보."
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    }
+   ],
+   "missed": "7/25 사담–글래스피 미 대사 면담(날짜는 검색으로 확인): 미국이 국경 분쟁의 평화적 해결 원칙만 되풀이해 사담이 '묵인'으로 읽었다는 평가가 있다 — '억지하는 쪽의 모호한 신호'는 코드북에 칸이 없다. 공격 측 지도자가 중재자에게 무력을 쓰지 않겠다고 약속했다는 기만 여부는 재조사 필요(미검증).",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "hamas-2023",
+   "name": "하마스 → 이스라엘 기습 (알아크사 홍수)",
+   "outcome": "attack",
+   "onset": "2023-10-07",
+   "window": [
+    "2023-07-09",
+    "2023-10-06"
+   ],
+   "attacker": "하마스",
+   "target": "이스라엘",
+   "kind": "nonstate_attack",
+   "surprise": true,
+   "summary": "2023-10-07 하마스가 가자에서 이스라엘 남부를 대규모 기습했다. 개시 전에 공개돼 있던 것은 9월 가자 접경 폭동과 IDF 공습, 9/12 하마스가 스스로 올린 침투 리허설 훈련 영상, 10/2 알아크사 관련 위협 정도였고, 접경 긴장은 9/28 중재로 오히려 가라앉았다. 대사관·여행경보·항공·시장 신호는 모두 공격 뒤에야 나왔고, 이집트의 사전 경고 주장·병력 서안 이동 같은 정황은 사후에 알려졌다. 웹 검색 한도가 소진돼 10개 가설은 확인하지 못하고 unknown 으로 두었다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "미국의 이스라엘 주재 비필수 인력·가족 출국 승인은 공격 뒤인 10/13~14에야 나옴. 개시 전 철수 명령 없음",
+     "source": "https://1tv.ge/lang/en/news/us-department-of-state-announces-authorized-departure-of-non-emergency-u-s-government-personnel-and-eligible-family-members",
+     "confidence": "high"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "미국의 이스라엘 여행경보 3단계 상향은 공격 뒤 10/11. 가자 4단계는 이전부터 상시 유지돼 새 신호가 아님",
+     "source": "https://www.axios.com/2023/10/11/us-raises-israel-advisory-level-3-reconsider-travel-hamas",
+     "confidence": "high"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "개시 전 대사관 직원 이동 제한·임박 경보는 찾지 못함"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "레바논 등 역내 여행금지·출국 권고는 전쟁이 난 뒤에야 나옴(개시 전 역내 감축 보도 없음)",
+     "source": "https://www.aol.com/us-state-department-warns-americans-033239380.html",
+     "confidence": "med"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "공개 경고 없음: 미 안보보좌관이 9/29 '중동은 20년 만에 가장 조용'. 이집트의 비공개 경고 주장은 공격 뒤에야 알려짐(양측 부인)",
+     "source": "https://www.nbcnews.com/politics/national-security/jake-sullivan-defends-saying-middle-east-region-was-quieter-days-hamas-rcna120490",
+     "confidence": "high"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "최후통첩·무력사용 공식 승인 없음. 하마스는 싸울 뜻이 없다는 인상을 주며 계획을 숨겼다(로이터 10/9)",
+     "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+     "confidence": "med"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "결렬 아님: 카타르·이집트·유엔 중재로 9/28 에레즈 검문소가 다시 열리고 접경 시위가 중단됨",
+     "source": "https://m.washingtontimes.com/news/2023/sep/28/israel-reopens-main-gaza-crossing-for-palestinian-/",
+     "confidence": "med"
+    },
+    {
+     "h": "m_buildup",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "공개·확인된 병력 집결 없음. 이스라엘은 하마스가 대결을 원치 않는다고 보았고 평시 태세에서 기습당함",
+     "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+     "confidence": "med"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "양측 공개 동원·휴가 중단 없음. 이스라엘은 오히려 10/5 특공 2개 중대를 가자 접경에서 서안으로 옮겼다는 보도(군: 통상 순환)",
+     "source": "https://www.cnn.co.jp/world/35212340.html",
+     "confidence": "med"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "yes",
+     "first": "2023-09-12",
+     "lead": 25,
+     "public_then": true,
+     "what": "하마스 등 합동훈련 '강한 기둥': 국경 관문 모형 폭파·기지 습격 연습 영상을 9/12 스스로 공개(정의의 '훈련 위장'에 느슨하게 해당)",
+     "source": "https://www.timesofisrael.com/hamas-drilled-in-plain-sight-posted-video-of-mock-assault-weeks-before-massacre/",
+     "confidence": "low"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "개시 전 역내 전략자산 증강 보도 없음. 미 안보보좌관은 9/29 '중동은 20년 만에 가장 조용'이라 평가",
+     "source": "https://www.nbcnews.com/politics/national-security/jake-sullivan-defends-saying-middle-east-region-was-quieter-days-hamas-rcna120490",
+     "confidence": "med"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "개시 전 민방위 조치·주민 소개 없음. 이스라엘 당국은 완전히 허를 찔렸다고 인정(로이터 10/9)",
+     "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+     "confidence": "med"
+    },
+    {
+     "h": "m_airspace",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "항공사들의 텔아비브 운항 중단은 공격 당일 이후(10/7~10)에 처음 나타남",
+     "source": "https://www.aljazeera.com/news/2023/10/10/major-international-airlines-suspend-flights-to-israel-amid-war-on-gaza",
+     "confidence": "high"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "yes",
+     "first": "2023-09-13",
+     "lead": 24,
+     "public_then": true,
+     "what": "9월 가자 접경 폭동 재개: 9/13 장벽 옆 폭발로 5~6명 사망, 이후 폭발물·방화와 IDF의 하마스 초소 드론 공습 반복(9/28 진정)",
+     "source": "https://www.thenationalnews.com/mena/2023/09/14/five-palestinians-in-gaza-killed-in-accidental-explosion-during-border-protest",
+     "confidence": "med"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "공식 경계태세 격상 없음. 이스라엘군은 10/7 전 가자 접경 배치에 변화가 없었다고 밝힘",
+     "source": "https://www.jns.org/israel-news/idf-did-not-divert-troops-to-judea-and-samaria-before-oct-7",
+     "confidence": "med"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_fx",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "위기발 급락 없음: 셰켈은 사법개편 탓에 연중 약세였고, 급락은 공격 뒤 10/9(중앙은행 300억 달러 매도 개입)",
+     "source": "https://www.cnbc.com/2023/10/09/shekel-israels-central-bank-sells-30-billion-in-foreign-reserves.html",
+     "confidence": "high"
+    },
+    {
+     "h": "f_equity",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "텔아비브 증시 급락(약 -7%)은 공격 다음 날인 10/8에 처음 나타남",
+     "source": "https://sg.finance.yahoo.com/news/bank-israel-sell-30-billion-051653226.html",
+     "confidence": "med"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "이스라엘 국채 가격 급락도 공격 뒤 10/8에 처음 나타남. 개시 전 급등 보도 없음",
+     "source": "https://sg.finance.yahoo.com/news/bank-israel-sell-30-billion-051653226.html",
+     "confidence": "med"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "개시 전 유가·금 급등 보도는 찾지 못함 (미검증 단서: 유가 급등은 공격 뒤 10/9)"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "최고지도부(하니예·신와르·데이프)의 명시적 위협 없음 — 평온을 연출. 부지도자 아루리의 8/25 '전면전 준비' 발언만 있었음(missed)",
+     "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+     "confidence": "med"
+    },
+    {
+     "h": "i_pretext",
+     "status": "yes",
+     "first": "2023-10-02",
+     "lead": 5,
+     "public_then": true,
+     "what": "하마스가 초막절 유대인들의 알아크사 진입을 두고 10/2 가자 집회·성명으로 '지역 전체에 불을 붙일 것' 경고(작전명 '알아크사 홍수')",
+     "source": "https://en.minanews.net/palestinians-rally-in-gaza-against-settlers-incursions-into-al-aqsa-mosque",
+     "confidence": "low"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "전쟁 임박 보도 급증 없음 — 9/28 접경 긴장이 풀린 뒤 미 정부가 9/29 '20년 만에 가장 조용'이라 할 만큼 관심이 낮았음",
+     "source": "https://www.nbcnews.com/politics/national-security/jake-sullivan-defends-saying-middle-east-region-was-quieter-days-hamas-rcna120490",
+     "confidence": "med"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "대중 불안 징후 없음 — 명절 아침의 완전한 기습이었고 당국도 예상하지 못했다고 인정(로이터 10/9)",
+     "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+     "confidence": "med"
+    },
+    {
+     "h": "t_trigger",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "사상자 난 단일 계기 사건과 보복 다짐이 아니라, 약 2년간 숨겨 준비한 계획 공격(로이터 10/9)",
+     "source": "https://www.irishtimes.com/world/middle-east/2023/10/09/hamas-gave-israel-the-impression-that-it-was-not-ready-for-a-fight",
+     "confidence": "med"
+    },
+    {
+     "h": "t_deadline",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "명시적 시한 없음. 시위 주최 측은 9/28 '합의를 안 지키면 재개'라고만 했고 날짜를 못 박지 않음",
+     "source": "https://www.algemeiner.com/2023/09/28/gaza-strip-riots-seem-to-simmer-down-as-crossing-into-israel-reopens/",
+     "confidence": "low"
+    }
+   ],
+   "missed": "①공개된 리허설: 하마스가 9/12 국경 관문 모형 폭파·기지 습격 훈련 영상을 직접 공개(AP 검증). ②역신호(기만): 9/28 에레즈 재개방·시위 중단으로 공격 9일 전 긴장이 풀림. ③이집트 정보당국의 '큰일이 준비 중' 사전 경고 주장 — 공격 뒤에 공개됐고 이집트·이스라엘 총리실은 부인(public_then=false 성격). ④표적 쪽 경계 저하: 명절 주간 병력의 서안 치중(10/5 특공 2개 중대 후와라 이동 보도, 군은 통상 순환이라 해명). ⑤부지도자 아루리의 8/25 '전면전 준비' 발언과 8/27 네타냐후의 '대가를 치를 것' 응수(https://jpost.com/israel-news/politics-and-diplomacy/article-756421).",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "india-pakistan-2019",
+   "name": "인도 → 파키스탄 발라코트 공습 (풀와마 테러 이후)",
+   "outcome": "attack",
+   "onset": "2019-02-26",
+   "window": [
+    "2018-11-28",
+    "2019-02-25"
+   ],
+   "attacker": "인도",
+   "target": "파키스탄",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "2019-02-14 풀와마 자폭 테러(인도 CRPF 40명 사망) 12일 뒤 인도 공군이 파키스탄 발라코트를 공습했다. 공개 전조는 모두 테러 뒤 12일 안에 몰렸다: 대사 소환, 모디 총리의 보복 다짐, 파키스탄의 병원·접경 주민 대비와 경계 격상, 트럼프의 '매우 강력한 무언가' 발언, 카슈미르 사재기. 대규모 지상군 집결·영공 폐쇄·시장 급락은 개시 전에는 없었고 공습 당일 이후에야 나타났다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "개시 전 제3국 대사관의 철수 명령·승인 보도를 찾지 못함"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "개시 전 최고 단계 여행경보 상향 보도를 찾지 못함"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "개시 전 대사관의 직원 이동 제한·공격 임박 보안경보를 찾지 못함"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "이웃 나라·역내 인력 감축 보도를 찾지 못함"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "인도의 2/15 고등판무관 '협의차 소환'은 g_ultimatum 으로 코딩; 공관원·자국민 철수 보도는 찾지 못함"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "yes",
+     "first": "2019-02-22",
+     "lead": 4,
+     "public_then": true,
+     "what": "트럼프 미 대통령 2/22 공개 발언: '인도가 매우 강력한 무언가를 검토 중', '매우 위험한 상황' (공격 임박을 단정한 것은 아님)",
+     "source": "https://business-standard.com/article/news-ani/india-looking-at-something-very-strong-post-pulwama-attack-trump-119022300116_1.html",
+     "confidence": "low"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "yes",
+     "first": "2019-02-15",
+     "lead": 11,
+     "public_then": true,
+     "what": "인도, 2/15 주파키스탄 고등판무관(비사리아) 협의차 소환·최혜국대우 철회; 파키스탄도 2/18 주인도 대사 소환 (시한부 최후통첩은 없음)",
+     "source": "https://www.business-standard.com/article/pti-stories/pak-calls-back-india-envoy-for-consultations-119021800259_1.html",
+     "confidence": "high"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "결렬될 협상 자체가 없었음: 양자 대화는 이미 중단 상태였고, 3/14 카르타르푸르 실무회담도 인도는 '대화 재개가 아니다'라고 밝힘",
+     "source": "https://www.bloombergquint.com/politics/india-pakistan-kartarpur-corridor-meet-live",
+     "confidence": "med"
+    },
+    {
+     "h": "m_buildup",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "개시 전 파키스탄 군 관계자 '국경 어디에도 양측의 큰 병력 이동 없다'; 인도의 2/22 준군사 병력 공수는 카슈미르 내부 치안용",
+     "source": "https://www.arabnews.pk/node/1454841",
+     "confidence": "med"
+    },
+    {
+     "h": "m_logistics",
+     "status": "yes",
+     "first": "2019-02-22",
+     "lead": 4,
+     "public_then": true,
+     "what": "파키스탄: 퀘타 군 병참사령부가 2/20 병원에 전상자 수용 준비 요청(인도 매체 보도), 2/22 KP주가 병원 병상 25% 확보 지시",
+     "source": "https://www.dawn.com/news/1465902",
+     "confidence": "med"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "군 휴가 중단·예비군 소집 보도는 찾지 못함 (2/22~23 양측 의료진 휴가 취소 보도는 있었음)"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "인도 해군 TROPEX-19 전력이 풀와마 뒤 훈련에서 작전 배치로 전환됐다고 3/17 사후 발표 — 전환일이 개시 전인지 확인하지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "인도 해군이 항모 비크라마디티야 전단·핵잠을 북아라비아해에 배치했다고 3/17 사후 발표 — 배치일이 개시 전인지 확인하지 못함"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "yes",
+     "first": "2019-02-22",
+     "lead": 4,
+     "public_then": true,
+     "what": "파키스탄령 카슈미르 정부가 LoC 인접 주민에게 인도 보복 가능성을 경고하고 벙커 마련을 권고 (2/21~22 보도)",
+     "source": "https://amp.ibtimes.co.in/pakistan-begins-war-preparations-hospitals-loc-residents-high-alert-792471",
+     "confidence": "med"
+    },
+    {
+     "h": "m_airspace",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "개시 전 영공 폐쇄·운항 중단 없음; 파키스탄 영공 전면 폐쇄와 인도 북부 공항 8곳 폐쇄는 개시 다음 날인 2/27 처음",
+     "source": "https://www.dawn.com/news/1466348",
+     "confidence": "med"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "GPS 교란·전자전 관련 보도를 찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "yes",
+     "first": "2019-02-16",
+     "lead": 10,
+     "public_then": true,
+     "what": "파키스탄 외교부 웹사이트가 해킹돼 여러 나라에서 접속 불가, 외교부 관계자들은 인도발 공격으로 추정 (2/16 Dawn)",
+     "source": "https://www.dawn.com/news/1464217",
+     "confidence": "med"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "2/19~26 중 7일간 라주리·푼치 LoC에서 파키스탄군 사격 보도가 있으나 평소 대비 급증인지는 확인하지 못함"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "yes",
+     "first": "2019-02-21",
+     "lead": 5,
+     "public_then": true,
+     "what": "파키스탄령 카슈미르(AJK) '고도 경계' 돌입, 파키스탄 당국 '국경 경비 고도 경계'; 인도도 카슈미르 주둔 병력 경계 강화 (2/21경)",
+     "source": "https://tribune.com.pk/story/1915564/entertainment",
+     "confidence": "med"
+    },
+    {
+     "h": "m_leadership",
+     "status": "yes",
+     "first": "2019-02-21",
+     "lead": 5,
+     "public_then": true,
+     "what": "임란 칸 총리, 2/21 국가안보위원회를 소집해 군에 '단호하고 포괄적인 대응' 권한 부여, 회의 전 육군참모총장과 별도 회동 (긴급회의 1회뿐)",
+     "source": "https://pid.gov.pk/site/press_detail/10382",
+     "confidence": "low"
+    },
+    {
+     "h": "f_fx",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "인도 루피는 공습 당일(2/26) 10파이사 하락이 3거래일 만의 첫 약세 — 개시 전 위기발 급락 없음",
+     "source": "https://www.business-standard.com/amp/article/pti-stories/rupee-logs-1st-loss-in-3-sessions-slips-10-paise-against-us-dollar-119022600878_1.html",
+     "confidence": "med"
+    },
+    {
+     "h": "f_equity",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "개시 전은 완만한 하락뿐 (KSE-100 2/22 주간 −1.2%, 2/25 −400p대); 급락(−785p)은 공습 당일인 2/26",
+     "source": "https://www.dawn.com/news/1466318",
+     "confidence": "low"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "국채·CDS 관련 보도를 찾지 못함"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "유가·금·방산주 반응 보도를 찾지 못함"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "해당 예측시장을 찾지 못함"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "자본·인력 이탈 보도를 찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "yes",
+     "first": "2019-02-15",
+     "lead": 11,
+     "public_then": true,
+     "what": "모디 총리 2/15: 테러 배후 세력은 '큰 실수'를 했고 '아주 무거운 대가'를 치를 것이라고 공개 경고",
+     "source": "https://www.dawn.com/news/amp/1464142",
+     "confidence": "high"
+    },
+    {
+     "h": "i_pretext",
+     "status": "yes",
+     "first": "2019-02-15",
+     "lead": 11,
+     "public_then": true,
+     "what": "인도 정부, 2/15 풀와마 테러 배후로 파키스탄을 지목하고 외교적 고립을 공언; 파키스탄은 2/21 개입을 전면 부인 (조작이 아닌 실제 테러에 근거한 명분)",
+     "source": "https://www.dawn.com/news/amp/1464142",
+     "confidence": "low"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "관영매체의 전시 동원 서사 여부를 확인하지 못함 (인도 내 '전쟁 히스테리' 여론 보도는 있었음)"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "yes",
+     "first": "2019-02-21",
+     "lead": 5,
+     "public_then": true,
+     "what": "2/21~22 AP·알자지라·RFE/RL 등이 '인도 공격 시 군사 대응 승인', 트럼프의 '매우 위험' 발언 등 전쟁 위험을 집중 보도 (보도량 수치는 미확인)",
+     "source": "https://www.aljazeera.com/news/2019/2/21/pakistans-imran-khan-approves-military-response-if-india-attacks",
+     "confidence": "med"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "yes",
+     "first": "2019-02-23",
+     "lead": 3,
+     "public_then": true,
+     "what": "인도령 카슈미르: 2/23 연료 배급제·의약품 비축 지시 뒤 전쟁 소문이 퍼져 주유소 장사진·생필품 사재기 (표적국이 아닌 공격국 측 접경지)",
+     "source": "https://gulfnews.com/world/asia/india/mass-panic-in-kashmir-as-india-pakistan-war-hysteria-grows-1.1550990901844",
+     "confidence": "med"
+    },
+    {
+     "h": "t_trigger",
+     "status": "yes",
+     "first": "2019-02-14",
+     "lead": 12,
+     "public_then": true,
+     "what": "2/14 풀와마 자폭 테러로 인도 중앙예비경찰(CRPF) 40명 사망, JeM이 자처; 모디 총리가 2/15 '무거운 대가'를 치르게 하겠다고 다짐",
+     "source": "https://www.dawn.com/news/amp/1464142",
+     "confidence": "high"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "명시적 시한·기한부 요구가 있었는지 확인하지 못함"
+    }
+   ],
+   "missed": "군사행동에 앞서 경제·비군사 보복이 먼저 단계적으로 나왔다: 최혜국대우 철회와 파키스탄산 200% 관세(2/15~16), 인더스강 인도 몫 물 차단 발언(2/21). 표적국의 달래기 조치(파키스탄 NSC의 2/21 JuD·FIF 재금지)도 공습 닷새 전에 나왔다. 비공개 전조: 인도 해군이 훈련(TROPEX-19) 중이던 항모전단·핵잠을 풀와마 뒤 북아라비아해 작전 배치로 돌렸으나 3/17에야 공개됐고 날짜는 밝히지 않았다(https://pib.gov.in/PressReleasePage.aspx?PRID=1568942).",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "iran-israel-2024-04",
+   "name": "이란 → 이스라엘 첫 직접 공격 (2024-04)",
+   "outcome": "attack",
+   "onset": "2024-04-13",
+   "window": [
+    "2024-01-14",
+    "2024-04-12"
+   ],
+   "attacker": "이란",
+   "target": "이스라엘",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "4/1 다마스쿠스 이란 영사관 피격(혁명수비대 장성 2명 등 사망) 뒤 이란이 보복을 다짐했고 4/13 밤 드론·미사일로 이스라엘을 처음 직접 공격했다. 전조는 뚜렷하고 공개적이었다: 4/2 하메네이의 응징 다짐 → 4/4 이스라엘의 GPS 교란·휴가 중단·사재기 → 4/10 바이든의 공개 경고 → 4/11 미 대사관 직원 이동 제한·항공사 운항 중단 → 4/12 각국 여행 금지·미 전력 증파. 반면 대사관 철수 명령과 시장 급락은 없었다. 웹 검색 한도가 소진돼 10개 가설은 확인하지 못하고 unknown 으로 두었다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "이스라엘 주재 대사관 철수 명령은 없었음 — 미국은 4/11 '신중을 기해' 직원 이동만 제한",
+     "source": "https://globalnews.ca/news/10419116/us-embassy-israel-staff-travel",
+     "confidence": "med"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "yes",
+     "first": "2024-04-12",
+     "lead": 1,
+     "public_then": true,
+     "what": "프랑스: 이란·레바논·이스라엘·팔레스타인 여행 금지 권고, 인도: 이란·이스라엘 여행 자제, 러시아·영국도 경보, 독일: 이란 출국 권고(4/12)",
+     "source": "https://www.aljazeera.com/news/2024/4/12/france-india-russia-uk-issue-travel-warnings-over-israel-iran-tensions",
+     "confidence": "high"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "yes",
+     "first": "2024-04-11",
+     "lead": 2,
+     "public_then": true,
+     "what": "주이스라엘 미 대사관: 직원·가족의 텔아비브·예루살렘·베에르셰바 밖 개인 이동을 추후 통보 때까지 금지(4/11)",
+     "source": "https://globalnews.ca/news/10419116/us-embassy-israel-staff-travel",
+     "confidence": "high"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "yes",
+     "first": "2024-04-12",
+     "lead": 1,
+     "public_then": true,
+     "what": "프랑스: 테헤란 주재 외교관 가족을 귀국시키고 공무원의 역내 출장을 금지(4/12) — 이란 쪽 역보복을 예상한 감축",
+     "source": "https://www.aljazeera.com/news/2024/4/12/france-india-russia-uk-issue-travel-warnings-over-israel-iran-tensions",
+     "confidence": "med"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "yes",
+     "first": "2024-04-10",
+     "lead": 3,
+     "public_then": true,
+     "what": "바이든 4/10 '이란이 이스라엘에 중대한 공격을 위협하고 있다' 공개 발언, 같은 날 미 당국 '공격 임박' 보도; 4/12 '24~48시간 내' 전망",
+     "source": "https://m.washingtontimes.com/news/2024/apr/10/joe-biden-says-commitment-to-israel-is-ironclad-am/",
+     "confidence": "high"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "시한 있는 최후통첩·공식 무력사용 승인은 없었음 — 하메네이의 '응징' 다짐만 있었고 양국은 원래 미수교",
+     "source": "https://al-monitor.com/originals/2024/04/irans-khamenei-says-israel-will-be-punished-syria-consulate-bombing",
+     "confidence": "med"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "이란–이스라엘 사이에는 협상 자체가 없었음",
+     "source": "https://www.aljazeera.com/news/2024/4/12/france-india-russia-uk-issue-travel-warnings-over-israel-iran-tensions",
+     "confidence": "med"
+    },
+    {
+     "h": "m_buildup",
+     "status": "yes",
+     "first": "2024-04-12",
+     "lead": 1,
+     "public_then": true,
+     "what": "미 당국자: 이란이 이스라엘 공격용 미사일·드론을 다수 준비한 것을 확인(4/12 ABC). 국경 집결이 아니라 발사 준비라 정의에 느슨하게 해당",
+     "source": "https://ruralradio.com/kneb-am/abc_news/us-moving-assets-to-region-to-deter-iran-from-retaliatory-attack-on-israel-avoid-wider-conflict-officials-say-abcid7b21423a",
+     "confidence": "low"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "yes",
+     "first": "2024-04-04",
+     "lead": 9,
+     "public_then": true,
+     "what": "이스라엘군: 4/3 방공 예비군 소집, 4/4 모든 전투부대 휴가 일시 중단",
+     "source": "https://cyprus-mail.com/2024/04/04/israeli-military-halts-leave-for-all-combat-units-fearing-escalation-in-violence",
+     "confidence": "high"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "yes",
+     "first": "2024-04-12",
+     "lead": 1,
+     "public_then": true,
+     "what": "미국: 이란 보복에 대비해 중동에 추가 전력을 보낸다고 공개(4/12) — 탄도탄 방어 구축함·항공기 증파(바이든 '지난 한 주간')",
+     "source": "https://www.militarytimes.com/news/pentagon-congress/2024/04/12/more-us-troops-equipment-headed-to-middle-east-amid-iranian-threats/",
+     "confidence": "high"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "개시 전 민방위 지침 변동 없음: 군 대변인 4/4 '후방사령부 지침 그대로, 발전기·식량 비축 불필요'. 텔아비브 대피소 개방 보도는 미확인",
+     "source": "https://www.timesofisrael.com/amid-fears-of-iranian-attack-idf-says-no-need-to-buy-generators-stock-food-get-cash/",
+     "confidence": "low"
+    },
+    {
+     "h": "m_airspace",
+     "status": "yes",
+     "first": "2024-04-11",
+     "lead": 2,
+     "public_then": true,
+     "what": "루프트한자: 4/6부터 테헤란 운항 중단(4/10~11 공개·연장), 4/12 무렵 이란 영공 회피 발표; 오스트리아항공도 뒤따름",
+     "source": "https://www.thenationalnews.com/news/mena/2024/04/11/german-airline-lufthansa-suspends-flights-to-tehran-amid-security-fears",
+     "confidence": "high"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "yes",
+     "first": "2024-04-04",
+     "lead": 9,
+     "public_then": true,
+     "what": "4/4 텔아비브 등 이스라엘 중부에서 GPS 교란 급증(지도·택시 앱 오작동); 군이 위협 무력화용 GPS 차단을 인정",
+     "source": "https://www.rnz.co.nz/news/world/513538/israel-gps-disabled-and-idf-leave-cancelled-over-iran-threat",
+     "confidence": "high"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "이란–이스라엘 직접 전선은 없음. 개시 전 교전 급증 여부는 찾지 못함"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "yes",
+     "first": "2024-04-04",
+     "lead": 9,
+     "public_then": true,
+     "what": "이스라엘군 4/4 경계 강화 발표(휴가 중단·방공 증원); 이란도 전군 '최고 경계'에 들어갔다는 보도(4/5, 익명 이란 당국자)",
+     "source": "https://www.theweek.in/news/world/2024/04/04/israel-military-on-high-alert-after-irans-revenge-threat-cancels-leave-for-combat-units.amp.html",
+     "confidence": "med"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_fx",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "급락 아님: 공격 전 주 셰켈은 이란 우려로 약 -1.2% 약세에 그쳤고 공격 뒤 시장도 차분했음",
+     "source": "https://www.timesofisrael.com/tel-aviv-shares-suffer-moderate-decline-after-irans-unprecedented-attack-on-israel/",
+     "confidence": "low"
+    },
+    {
+     "h": "f_equity",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "급락 아님: 공격 전 주 TA-125 -1.1%·TA-90 -2.3%, 공격 뒤 첫 거래일도 소폭 하락",
+     "source": "https://www.timesofisrael.com/tel-aviv-shares-suffer-moderate-decline-after-irans-unprecedented-attack-on-israel/",
+     "confidence": "low"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "yes",
+     "first": "2024-04-12",
+     "lead": 1,
+     "public_then": true,
+     "what": "이란 보복 우려로 브렌트유가 공격 전 주 92.18달러(10월 이후 최고), 금이 4/12 온스당 2,400달러를 넘어 사상 최고",
+     "source": "https://fortune.com/2024/04/14/stock-market-oil-price-futures-trading-gold-bitcoin-crypto-israel-iran",
+     "confidence": "med"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "폴리마켓에 '이란이 4/12·4/14까지 대응?' 시장은 있었으나(거래 약 28만 달러) 가격 추이는 찾지 못함"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "yes",
+     "first": "2024-04-02",
+     "lead": 11,
+     "public_then": true,
+     "what": "하메네이 4/2 성명 '시온주의 정권은 우리 용사들 손에 응징당할 것', 4/10 이드 설교에서 '반드시 응징당해야 하고 그렇게 될 것'",
+     "source": "https://al-monitor.com/originals/2024/04/irans-khamenei-says-israel-will-be-punished-syria-consulate-bombing",
+     "confidence": "high"
+    },
+    {
+     "h": "i_pretext",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "조작·연출된 명분은 없었음 — 실제 영사관 피격(t_trigger)을 근거로 한 보복 예고",
+     "source": "https://aa.com.tr/en/middle-east/iran-s-khamenei-says-israel-will-be-punished-for-syria-consulate-attack/3181670",
+     "confidence": "med"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "yes",
+     "first": "2024-04-04",
+     "lead": 9,
+     "public_then": true,
+     "what": "4/4 무렵부터 '이스라엘, 이란의 보복 공격 대비' 국제 보도가 쏟아짐(성조지·로이터·AFP 등)",
+     "source": "https://stripes.com/theaters/middle_east/2024-04-04/israel-braces-potential-iran-attack-13488075.html",
+     "confidence": "med"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "yes",
+     "first": "2024-04-04",
+     "lead": 9,
+     "public_then": true,
+     "what": "이스라엘에서 생수·발전기 사재기(생수 판매 급증, 발전기 품절); 군 대변인이 4/4 '비축·현금 인출 필요 없다'며 진화",
+     "source": "https://www.timesofisrael.com/amid-fears-of-iranian-attack-idf-says-no-need-to-buy-generators-stock-food-get-cash/",
+     "confidence": "med"
+    },
+    {
+     "h": "t_trigger",
+     "status": "yes",
+     "first": "2024-04-01",
+     "lead": 12,
+     "public_then": true,
+     "what": "4/1 다마스쿠스 이란 영사관 공습으로 혁명수비대 장성 2명 등 7명 사망, 이란이 보복 다짐(4/2 하메네이 '응징')",
+     "source": "https://aa.com.tr/en/middle-east/iran-s-khamenei-says-israel-will-be-punished-for-syria-consulate-attack/3181670",
+     "confidence": "high"
+    },
+    {
+     "h": "t_deadline",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "공개된 시한·날짜 조건은 없었음 — 미 당국의 '24~48시간 내' 전망은 추정일 뿐 시한이 아님",
+     "source": "https://www.militarytimes.com/news/pentagon-congress/2024/04/12/more-us-troops-equipment-headed-to-middle-east-amid-iranian-threats/",
+     "confidence": "med"
+    }
+   ],
+   "missed": "①예측시장에 '이란이 4/12·4/14까지 대응할까' 시장이 열려 있었다(가격 추이는 못 찾음). ②미검증 단서(이번 조사에서 출처 확인 못함): 표적국 이스라엘이 해외 공관 다수를 임시 폐쇄(4/5 무렵), 공격 당일 아침 이란의 이스라엘 연관 선박 나포, 이란이 주변국에 사전 통보했다는 주장. ③방어 측 연합(미·영·프·요르단)의 요격 준비라는 '막는 쪽의 준비'는 코드북에 없다.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "iran-israel-2024-08",
+   "name": "하니예 암살 뒤 이란 보복 예고 (공격 없음, 2024-08)",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "2024-07-31",
+    "2024-08-31"
+   ],
+   "attacker": "이란",
+   "target": "이스라엘",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "7/31 테헤란에서 하니예가 암살되자 이란이 보복을 다짐했고 몇 주 동안 공격이 예상됐지만 8/31까지 이란의 직접 공격은 없었다(경과와 창은 의뢰서 기준). 이번 조사에서 출처로 확인한 것은 미국의 전력 증파(8/2~3), 이스라엘 증시 하락(8/5), '이스라엘이 이란 공격에 대비' 보도 급증, 계기 사건 네 가지뿐이다. 웹 검색 한도가 소진돼 나머지 가설은 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증 단서: 캐나다가 8/7 이스라엘 주재 외교관의 자녀·보호자를 철수시키기로 결정"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 캐나다 8/3 이스라엘 '모든 여행 금지', 미국 7/31 레바논 4단계, 미·영·프 등 '레바논 즉시 출국' 권고"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "주이스라엘 대사관 직원 이동 제한 여부는 확인 못함"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미검증 단서: 영국이 8/3 베이루트 대사관 직원 가족 철수, 스웨덴이 베이루트 대사관 임시 폐쇄"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 블링컨이 8/4 G7에 '24~48시간 내 공격 가능' 통보(악시오스), 백악관 8/12 '이번 주에라도 가능'"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 시한 있는 최후통첩은 없었던 것으로 기억(맞다면 no)"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 이란–이스라엘 협상은 없음; 가자 휴전 협상은 8/15 도하에서 재개돼 창 안에서 결렬되지 않음"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 미 당국이 이란의 미사일 발사대 이동·군사 훈련을 포착했다는 보도(8월 초)"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "이스라엘군 휴가 중단·예비군 소집 여부는 확인 못함"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미검증 단서: 8월 중순 혁명수비대의 서부 지역 훈련 보도"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "yes",
+     "first": "2024-08-03",
+     "lead": null,
+     "public_then": true,
+     "what": "미 국방장관: 링컨 항모 전단·전투기 대대·탄도탄 방어 순양함·구축함을 중동과 유럽에 추가 배치 명령(8/2 발표, 8/3 보도)",
+     "source": "https://www.npr.org/2024/08/03/nx-s1-5062390/us-military-deployment-middle-east-israel-iran",
+     "confidence": "med"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 8월 초 이스라엘 병원들의 지하 시설 이전 준비, 지자체 대피소 개방"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증 단서: 7/31~8/1부터 루프트한자·델타·유나이티드 등 텔아비브·베이루트 운항 중단, 요르단의 추가 연료 NOTAM"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미검증 단서: 8월 초 이스라엘 중부로 GPS 교란이 다시 확대됐다는 보도"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 8/25 이스라엘의 선제 공습(전투기 약 100대)과 헤즈볼라의 로켓·드론 수백 발"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 8/25 이스라엘 국방장관이 48시간 전국 '후방 특별상황' 선포"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 8월 초 이스라엘 지도부용 예루살렘 지하 지휘소 준비 보도"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미검증 단서: 8월 초 셰켈 약세(세계 증시 급락과 겹쳐 귀속 불분명)"
+    },
+    {
+     "h": "f_equity",
+     "status": "yes",
+     "first": "2024-08-05",
+     "lead": null,
+     "public_then": true,
+     "what": "이란의 공격 우려로 이스라엘 증시가 연이틀 하락(8/5 블룸버그). 같은 날 세계 증시 급락과 겹쳐 귀속은 약함",
+     "source": "https://bnnbloomberg.ca/business/2024/08/05/israeli-stocks-extend-slide-as-fears-of-iran-attack-mount",
+     "confidence": "low"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미검증 단서: 8/12 피치의 이스라엘 신용등급 강등, CDS 상승"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 7/31 하니예 피살 직후와 8/12 유가 급등"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미검증 단서: 폴리마켓 '이란의 이스라엘 공격' 시장이 8월 초 급등했다가 하락"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 하메네이 7/31 '가혹한 처벌', '복수는 우리의 의무' 성명"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 조작된 명분이 아니라 실제 암살(t_trigger)에 근거 — 맞다면 no"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 7/31 잠카란 모스크에 '복수의 붉은 깃발' 게양"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "yes",
+     "first": "2024-08-05",
+     "lead": null,
+     "public_then": true,
+     "what": "'이스라엘, 또 한 번의 이란 공격에 대비' 보도가 8/3~5 잇따름(NPR·JTA 등)",
+     "source": "https://forward.com/fast-forward/640755/israel-braces-for-another-iranian-attack-with-defense-axis-still-being-assembled",
+     "confidence": "low"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미검증 단서: 이스라엘 발전기·생필품 구매 급증, 베이루트 출국편 매진"
+    },
+    {
+     "h": "t_trigger",
+     "status": "yes",
+     "first": "2024-07-31",
+     "lead": null,
+     "public_then": true,
+     "what": "7/31 테헤란에서 하마스 지도자 하니예 암살, 이란이 보복 다짐 — 날짜는 의뢰서 기준이고 출처는 8/3 '이스라엘, 이란 공격 대비' 보도",
+     "source": "https://www.npr.org/2024/08/03/nx-s1-5062390/us-military-deployment-middle-east-israel-iran",
+     "confidence": "med"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 명시적 시한은 없었던 것으로 기억(맞다면 no)"
+    }
+   ],
+   "missed": "미검증 단서(재조사용): 이란이 보복을 가자 휴전 협상 진행과 연동해 미뤘다는 보도 — '예고만 하고 실행을 미루는' 유형. 8/25 이스라엘의 선제 공습과 헤즈볼라의 축소된 보복으로 압력이 일부 빠졌다는 해석. 전조가 거의 다 켜졌는데도 공격이 없었던 사례라 재조사 가치가 크다.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "iran-israel-2024-10",
+   "name": "이란 → 이스라엘 2차 미사일 공격 (2024-10)",
+   "outcome": "attack",
+   "onset": "2024-10-01",
+   "window": [
+    "2024-09-01",
+    "2024-09-30"
+   ],
+   "attacker": "이란",
+   "target": "이스라엘",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "2024-10-01 이란이 이스라엘에 탄도미사일을 두 번째로 직접 발사했다 — 당일 미 해군의 요격 지원 보도(https://www.defensenews.com/pentagon/2024/10/01/navy-warships-helped-take-down-irans-attack-on-israel-pentagon-says)로 날짜만 확인했다. 계기(9/27 나스랄라 피살)와 창은 의뢰서 기준이다. 웹 검색 한도가 소진돼 33개 가설 모두 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다. 8월부터 이어진 신호(미 항모·항공 중단·여행경보)는 단서에 '8월부터'라고 적었다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증 단서: 이스라엘 내 새 철수 명령은 기억에 없음(8월 캐나다의 외교관 자녀 철수가 이어졌을 수 있음)"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 8월부터 각국의 이스라엘·레바논 최고 단계 경보가 이어짐; 9월 말 새 상향 여부는 확인 못함"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미검증 단서: 주이스라엘 미 대사관이 9/28 무렵 직원 이동 제한, 10/1(당일) 대피 지시"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미검증 단서: 미국이 9/28 베이루트 대사관 가족 철수 명령·비필수 인력 출국 승인"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 미국의 '탄도미사일 공격 임박' 공개 경고는 개시 당일(10/1) 몇 시간 전 — 맞다면 no"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 최후통첩은 없었던 것으로 기억(맞다면 no)"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 이란–이스라엘 협상은 없음; 미·프의 21일 휴전안(9/25)을 이스라엘이 9/26~27 거부"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 이스라엘군이 9/25 북부 전선용 예비군 2개 여단 소집"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "8월 증파 전력(항모 전단 등)이 상주 중이었음; 미검증 단서: 9/23 추가 병력 발표, 9/29~30 전투기 대대 증파·링컨 연장"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 9/22~23 이스라엘 북부 휴교·집회 제한, 이후 중부로 확대"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증 단서: 8월부터 일부 항공사 중단 지속; 9/17 이후 텔아비브·베이루트 운항 중단이 다시 확대"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "이스라엘 북부 GPS 교란은 상시 배경. 9월의 변화는 찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 9/17 호출기 폭발, 9/23 레바논 대규모 공습, 9/27 나스랄라 피살로 교전 급증(이스라엘–헤즈볼라 전선)"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 이스라엘 정부가 9/23 전국 '후방 특별상황' 선포"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 9/28 하메네이가 안전한 장소로 옮겨졌다는 로이터 보도"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미검증 단서: 9월 말 셰켈은 오히려 강세였던 것으로 기억(맞다면 no)"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미검증 단서: 9월 말 텔아비브 증시는 사상 최고권이었던 것으로 기억(맞다면 no)"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미검증 단서: 9/27 무디스가 이스라엘 신용등급을 두 단계 강등"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 유가는 9월 내내 약세였고 10/1 당일에야 급등한 것으로 기억(맞다면 no)"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 하메네이 9/28 '나스랄라의 피는 복수 없이 끝나지 않는다' 성명"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 조작된 명분이 아니라 실제 피살 사건(t_trigger)에 근거 — 맞다면 no"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 9/17~28 중동 전면전 우려 보도 급증(출처 확인 못함)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "의뢰서 기준: 9/27 나스랄라(및 혁명수비대 장성) 피살, 이란 보복 다짐 — 출처 URL을 확인하지 못해 unknown"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 명시적 시한은 없었던 것으로 기억(맞다면 no)"
+    }
+   ],
+   "missed": "미검증 단서(재조사용): 미국의 '임박' 공개 경고가 개시 당일 몇 시간 전에야 나왔다는 점(4월보다 예고가 훨씬 짧음), 이란이 8월의 자제가 휴전 약속 때문이었다고 9월 말 공개 불만을 표시한 점.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "iraq-2003",
+   "name": "미국 주도 연합군 → 이라크 침공",
+   "outcome": "war",
+   "onset": "2003-03-20",
+   "window": [
+    "2002-12-20",
+    "2003-03-19"
+   ],
+   "attacker": "미국 주도 연합군",
+   "target": "이라크",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "2003-03-20 미국 주도 연합군이 이라크를 침공했다(개시일·경과는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이고 surprise 값도 의뢰서 설명(수개월 병력 증강, 3/17 48시간 최후통첩, 사찰단·공관 철수)에 따른 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 3/17~18 유엔 사찰단 철수, 여러 나라의 바그다드 공관 철수·폐쇄."
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 미·영 등의 이라크·주변국 여행경보 격상 — 날짜 확인 필요."
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미검증 단서: 2~3월 미 국무부가 쿠웨이트·이스라엘·시리아 등 공관의 가족·비필수 인력 출국을 허가·명령했다는 기억."
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미검증 단서: 3/17 부시 연설이 기자·사찰단 등 외국인의 즉시 출국을 권고, 미국이 사찰단 철수를 통보했다는 기억."
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 3/17 최후통첩 자체가 '48시간 뒤 공격'의 공개 예고."
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 3/17 부시가 사담 후세인에게 48시간 안에 떠나라고 최후통첩. 3/18 영국 의회 표결(기억)."
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 3/17 미·영·스페인이 안보리 2차 결의안을 철회하고 외교 종료를 선언했다는 기억."
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 12월 말~3월 쿠웨이트 등에 미·영군 대규모 집결(3월 중순 20만 명 이상이라는 기억)."
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미검증 단서: 병원선 컴포트 1월 출항, 야전병원·사전배치 물자 전개라는 기억."
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 1~2월 미 예비군·주방위군 대규모 소집과 전역 보류 조치라는 기억."
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미검증 단서: 12월 카타르 '인터널 룩' 훈련 뒤 중부사령부 전방지휘소가 남았다는 기억 — 창 시작 전일 수 있음."
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: 항모 5척 안팎, 3월 초 B-52의 영국 전개, 패트리엇 포대 배치라는 기억."
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 이스라엘 방독면·밀폐실 준비 지시, 쿠웨이트 대피 훈련, 바그다드 참호·우물 준비라는 기억."
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 3월 중순 항공사들의 쿠웨이트·이스라엘 노선 중단, 전쟁보험료 인상(기억)."
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 비행금지구역 공습이 개전 전 몇 달 동안 늘었다는 기억."
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 3월 중순 이라크가 전국을 4개 군관구로 나눠 전시 체제에 들어갔다는 기억."
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 3/16 아조레스 미·영·스페인 정상 긴급 회담."
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미검증 단서: 이라크 디나르 암시장 환율 급락 여부 확인 필요."
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 1~3월 전쟁 우려로 세계 증시 약세(3월 중순 저점이라는 기억) — 전쟁 탓인지 확인 필요."
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 유가가 2월 말 배럴당 약 40달러, 금이 2월 초 수년 만의 고점이라는 기억."
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미검증 단서: 트레이드스포츠의 '사담 축출' 계약 가격이 올랐다는 기억(Leigh·Wolfers·Zitzewitz 연구)."
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미검증 단서: 걸프 주재 기업들의 주재원 철수, 바그다드의 달러 사재기라는 기억."
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 1/28 부시 국정연설, 3/17 대국민 연설."
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 2/5 파월 국무장관의 안보리 대량살상무기 발표(뒤에 근거 없음으로 판명)."
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 이라크 관영매체의 항전 연설·군중 열병 보도라는 기억."
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 몇 달 동안 세계 최대 뉴스였음 — 정량 자료 확인 필요."
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미검증 단서: 바그다드 주민의 식량 비축·피란, 이스라엘 방독면 배부 줄이라는 기억."
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 사상자가 난 직접 계기 사건은 없었다는 기억(예방 전쟁) — no 후보."
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 3/17 최후통첩의 48시간 시한(바그다드 시각 3/20 새벽 만료)."
+    }
+   ],
+   "missed": "미검증: 공격하는 쪽이 몇 달에 걸쳐 의회 승인·안보리 논의·병력 수송을 모두 공개적으로 진행한 '예고된 전쟁'이었다 — 유엔 사찰 일정과 터키 의회의 주둔 거부(3/1) 같은 제3국 절차가 시점을 좌우했는지 재조사 때 확인 필요.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "israel-hezbollah-2024-09",
+   "name": "이스라엘 → 헤즈볼라 확전 (북쪽 화살 작전)",
+   "outcome": "war",
+   "onset": "2024-09-23",
+   "window": [
+    "2024-06-25",
+    "2024-09-22"
+   ],
+   "attacker": "이스라엘",
+   "target": "헤즈볼라(레바논)",
+   "kind": "state_vs_nonstate",
+   "surprise": false,
+   "summary": "9/17~18 호출기·무전기 폭발에 이어 9/23 이스라엘이 레바논 전역을 대규모 공습하며('북쪽 화살') 헤즈볼라와의 전쟁으로 넘어갔다 — 개시일과 경과는 의뢰서 기준이며 이번 조사에서 따로 출처 확인을 못 했다. 출처로 확인한 것은 창 안의 미국 전력 증파(8/2~3) 하나뿐이다. 웹 검색 한도가 소진돼 나머지 가설은 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증 단서: 영국 8/3 베이루트 대사관 가족 철수, 스웨덴 대사관 임시 폐쇄; 미국의 철수 명령은 개시 뒤 9/28"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 6월 말 독일·캐나다 등 '레바논 출국' 권고, 미국 7/31 레바논 4단계·8/3 '아무 표나 구해 출국'"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미검증 단서: 캐나다가 8/7 이웃 이스라엘 주재 외교관의 자녀·보호자 철수 결정"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "이스라엘 북부 주민 약 6만 명 소개는 2023-10부터 이어진 상시 조치(창 이전). 창 안의 새 조치는 찾지 못함"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 갈란트 9/16 '남은 길은 군사행동뿐', 9/18 '전쟁의 새 국면, 무게중심이 북으로'"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 이스라엘 안보내각이 9/17 '북부 주민 귀환'을 공식 전쟁 목표에 추가"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 미 특사 호크스타인의 중재가 9/16 방문에서 성과 없이 끝나고 이스라엘이 '외교 시한 소진' 언급"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 이스라엘군이 98사단을 가자에서 북부로 이동(9/18 보도)"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 북부용 예비군 여단 소집은 개시 뒤인 9/25로 기억(맞다면 no)"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "yes",
+     "first": "2024-08-03",
+     "lead": 51,
+     "public_then": true,
+     "what": "미국: 링컨 항모 전단·전투기 대대·탄도탄 방어 함정을 중동에 추가 배치(8/2 발표, 8/3 보도) — 이란·헤즈볼라 보복 대비 명목",
+     "source": "https://www.npr.org/2024/08/03/nx-s1-5062390/us-military-deployment-middle-east-israel-iran",
+     "confidence": "med"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 9/22 이스라엘 북부 휴교·집회 제한, 하이파 병원 지하 이전"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증 단서: 7/29 무렵부터 루프트한자·에어프랑스 등이 베이루트 운항 중단"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "GPS 교란은 2023-10부터 상시 배경. 창 안의 변화는 찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함(9/17~18 호출기·무전기 폭발은 사이버 공격이 아니라 공급망 공작 — missed)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 7/27 마즈달 샴스 12명 사망, 7/30 슈크르 피살, 8/25 대규모 교전, 9/17~22 급증"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 8/25 이스라엘 국방장관이 48시간 전국 '후방 특별상황' 선포"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미검증 단서: 8월 초 셰켈 약세"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "8/5 '이란 공격 우려로 이스라엘 증시 하락' 보도는 확인했으나 헤즈볼라 전선 탓인지 불분명해 unknown"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미검증 단서: 8/12 피치의 이스라엘 신용등급 강등"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 네타냐후 7/28 '헤즈볼라는 무거운 대가를 치를 것', 9/22 '메시지를 못 알아들었다면 알게 될 것'"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 7/27 이후와 9/17 이후 전면전 우려 보도 급증(출처 확인 못함)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미검증 단서: 8월 초 레바논 출국편 매진·사재기"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 7/27 마즈달 샴스 로켓 공격(어린이 등 12명 사망)과 이스라엘의 보복 다짐"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 명시적 시한은 없었던 것으로 기억(맞다면 no)"
+    }
+   ],
+   "missed": "미검증 단서(재조사용): 9/17~18 호출기·무전기 동시 폭발 — 공격 6일 전의 지휘통신 마비 공작으로 코드북의 m_cyber·m_border_fire 어디에도 딱 맞지 않는다('개전 직전 지휘통신 무력화'). 9/20 헤즈볼라 라드완 부대 지휘부 제거도 같은 계열.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "israel-iran-2025-06",
+   "name": "이스라엘 → 이란 공습 (12일 전쟁)",
+   "outcome": "war",
+   "onset": "2025-06-13",
+   "window": [
+    "2025-03-15",
+    "2025-06-12"
+   ],
+   "attacker": "이스라엘 (6/22 미국 가세)",
+   "target": "이란",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "2025-06-13 이스라엘이 이란 핵·군사 시설을 공습해 12일간 교전했고 6/22 미국이 핵시설을 타격했다(개시일은 의뢰서 기준 — 이번 조사에서 따로 출처 확인을 못 했다). 출처로 확인한 공개 전조는 6/11 미국의 바그다드 대사관 비필수 인력 철수 명령과 바레인·쿠웨이트·역내 군인 가족 출국 허가뿐이다. 웹 검색 한도가 소진돼 나머지 31개 가설은 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증: 테헤란 주재 대사관 철수는 개전 뒤였다는 기억 — 출처 확인 못 함"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증: 이란 여행경보는 창 이전부터 최고 단계(상시) — 창 안의 새 문구는 확인 못 함"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 6/12 주이스라엘 미 대사관의 직원 이동 제한 공지"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "yes",
+     "first": "2025-06-11",
+     "lead": 2,
+     "public_then": true,
+     "what": "미 국무부: 바그다드 대사관 비필수 인력 철수 명령, 바레인·쿠웨이트 출국 허가; 국방장관: 역내 군인 가족 자진 출국 허가(6/11)",
+     "source": "https://www.pbs.org/newshour/world/u-s-prepares-to-move-nonessential-personnel-from-baghdad-embassy-due-to-potential-regional-unrest",
+     "confidence": "high"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "yes",
+     "first": "2025-06-11",
+     "lead": 2,
+     "public_then": true,
+     "what": "공격국 이스라엘의 후원국 미국이 예상 보복권(이라크·걸프)에서 자국 외교관·군인 가족을 뺌(6/11, g_regional_drawdown 과 같은 사건)",
+     "source": "https://abc7news.com/post/state-department-orders-departure-nonessential-staff-baghdad-embassy/16724896/",
+     "confidence": "med"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 6/12 트럼프 '이스라엘의 공격이 일어날 수 있다' 발언, 미 당국자발 공격 준비 보도"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 트럼프의 '2개월 시한' 서한(3월 보도), 3/30 '합의 없으면 폭격' 발언"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "6/11 보도는 미·이란 핵협상 '교착'까지만 확인. 6/15 6차 회담이 잡혀 있었다는 단서는 미검증"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "공중·미사일전이라 지상 병력 집결과 맞지 않음 — '없었다'는 근거 출처는 확보 못 함"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증: 이란 대비 이스라엘 예비군 소집은 6/13 개전 당일이었다는 기억"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: 3월 말 B-2 디에고가르시아 전개, 4월 항모 2척 체제·사드/패트리엇 증파"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증: 이스라엘 비상사태 선포는 공습 개시 시각(6/13)이었다는 기억"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증: 이란·이라크·요르단·이스라엘 영공 폐쇄는 6/13 당일이었다는 기억"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증: 이스라엘–이란 직접 교전은 2024-10 이후 없었다는 기억"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증: 이스라엘이 평시처럼 보이려고 기만했다는 사후 보도 기억"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 6/11 대사관 철수 보도 직후 유가 급등"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 6/11~12 폴리마켓 '이스라엘의 이란 공격' 확률 급등"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 3/30 트럼프 '합의 안 하면 폭격', 네타냐후의 반복 위협"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "6/11 대사관 철수 기사가 다수 매체에 실린 것만 확인 — 보도량 급증 여부는 측정 근거 없음"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증: 사상자가 난 계기 사건 없이 '선제' 공격이었다는 기억"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 트럼프 60일 시한 만료(6/12), 6/12 IAEA 이사회 결의, 6/15 회담 예정"
+    }
+   ],
+   "missed": "6/22 미국 공습의 전조(의뢰서 단서 — 이번 조사에서 미검증): 6월 중순 공중급유기 수십 대의 대서양 횡단, 6/21 B-2 이동 보도, 트럼프의 '2주 안에 결정' 발언 뒤 며칠 만에 타격. 6/12 IAEA 이사회의 이란 의무 불이행 결의와 해상 보안 경고(UKMTO)도 코드북에 칸이 없는 전조 후보 — 모두 재조사 때 날짜 확인 필요.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "karabakh-2020",
+   "name": "아제르바이잔 → 나고르노카라바흐 공세 (제2차 카라바흐 전쟁)",
+   "outcome": "war",
+   "onset": "2020-09-27",
+   "window": [
+    "2020-06-29",
+    "2020-09-26"
+   ],
+   "attacker": "아제르바이잔 (튀르키예 지원)",
+   "target": "아르메니아·나고르노카라바흐(아르차흐)",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "2020년 9월 27일 아제르바이잔이 튀르키예의 지원을 받아 나고르노카라바흐 접촉선에서 공세를 시작했고 당일 양측이 계엄을 선포했다. 7월 토부즈 국경 교전과 바쿠의 전쟁 요구 집회, 알리예프의 '협상 무의미' 선언, 튀르키예 합동훈련 뒤 F-16 잔류, 9/21 예비군 소집·트럭 징발, 9/25 미 대사관 이동 제한이 공개적으로 보였다. 반면 대사관 철수·영공 폐쇄·통화 급락 같은 신호는 개시 당일 이후에야 나타났고, 아르메니아 정보당국의 경고는 비공개였다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "제3국 대사관 철수 명령은 찾지 못함. 미 대사관은 9/25 직원 이동 제한만 냈다"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "최고 단계 여행경보 상향은 찾지 못함. 미 대사관 9/25 경보는 접경·압셰론 반도 밖 이동 자제 수준"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "yes",
+     "first": "2020-09-25",
+     "lead": 2,
+     "public_then": true,
+     "what": "주바쿠 미 대사관: 9/25 보안 경보로 직원·가족의 압셰론 반도 밖 이동 금지, 접경 긴장 고조 경고(주예레반 대사관도 접경 여행 자제)",
+     "source": "https://turan.az/en/politics/us-embassy-calls-us-citizens-do-not-leave-absheron-peninsula",
+     "confidence": "med"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "공개 경고는 찾지 못함. 아르메니아 정보당국의 '전쟁 위험 30%' 평가와 9/25 튀르키예 F-16 교신 감청은 비공개였고 사후에 공개"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "yes",
+     "first": "2020-07-07",
+     "lead": 82,
+     "public_then": true,
+     "what": "알리예프: 7/6 인터뷰(7/7 보도)에서 민스크그룹 협상은 '무의미'하고 사실상 없다, 실질 없으면 불참한다고 선언. 7/16 외무장관 경질",
+     "source": "https://www.tert.am/en/news/2020/07/07/nagorno-karabakh/3338261",
+     "confidence": "med"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "전선 병력 집결은 양측이 상대를 지목한 주장뿐이고 위성·제3자 확인은 찾지 못함"
+    },
+    {
+     "h": "m_logistics",
+     "status": "yes",
+     "first": "2020-09-04",
+     "lead": 23,
+     "public_then": false,
+     "what": "튀르키예 군 수송기(C-130·CN-235·A400)가 9/4·9/18·9/25 아제르바이잔으로 인원·탄약 수송 — 코메르산트가 개전 뒤 군 소식통 인용 보도",
+     "source": "https://www.hetq.am/en/article/123302",
+     "confidence": "low"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "yes",
+     "first": "2020-09-21",
+     "lead": 6,
+     "public_then": true,
+     "what": "아제르바이잔: 9/21 동원·징집청이 예비군 '훈련' 소집 발표(사전 통보 없이 소집 보도), 같은 날 민간 픽업트럭 징발. 당국은 정례 훈련이라 설명",
+     "source": "https://oc-media.org/reservists-called-up-and-cars-confiscated-as-azerbaijan-condemns-armenian-provocation/",
+     "confidence": "med"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "yes",
+     "first": "2020-08-10",
+     "lead": 48,
+     "public_then": false,
+     "what": "튀르키예-아제르 합동훈련(7/29~8/10)에 온 튀르키예 F-16이 훈련 뒤에도 간자 기지에 잔류. 10월 위성사진과 알리예프 인터뷰로 확인",
+     "source": "https://www.middleeasteye.net/news/turkey-armenia-azerbaijan-f16-deterrent-against-attacks",
+     "confidence": "med"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "별도 전략자산 집결은 찾지 못함(튀르키예 F-16 잔류는 m_exercise_cover에 코딩)"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "m_airspace",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "what": "아제르바이잔 공항의 정기 여객편 수용 중단(9/30까지)은 개시 당일 9/27에야 발표됨. 개시 전 조치는 찾지 못함",
+     "source": "https://jam-news.net/hostilities-resume-around-karabakh-and-on-azerbaijan-armenia-border",
+     "confidence": "med"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "m_cyber",
+     "status": "yes",
+     "first": "2020-07-14",
+     "lead": 75,
+     "public_then": true,
+     "what": "7/13~14 토부즈 교전 중 아르메니아 정부·총리실 사이트(gov.am, primeminister.am)가 변조·마비. 아제르바이잔 해커 소행으로 보도(해커 주장 기반)",
+     "source": "https://arkatelecom.am/en/news/internet/azerbaijani_hackers_break_armenian_premier_and_government_s_websites_photo/",
+     "confidence": "med"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "yes",
+     "first": "2020-07-12",
+     "lead": 77,
+     "public_then": true,
+     "what": "7/12~16 토부즈·타부시 국경 교전(아제르 장성 포함 10여 명 전사). 9/16 아르메니아 병사, 9/21 아제르 병사 사망 등 9월 정전 위반 증가",
+     "source": "https://www.meydan.tv/en/article/azerbaijani-general-killed-in-border-clash/",
+     "confidence": "high"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "what": "아르메니아·아르차흐의 계엄·동원령과 아제르바이잔의 계엄은 모두 개시 당일 9/27 선포(아제르 부분동원 9/28). 그 전 공식 격상은 찾지 못함",
+     "source": "https://meduza.io/news/2020/09/27/v-armenii-ob-yavleno-voennoe-polozhenie-i-mobilizatsiya-iz-za-obstrelov-v-karabahe",
+     "confidence": "med"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_fx",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "what": "아르메니아 드람은 개전 시점 달러당 485.3이었고 510대로의 약세는 개전 뒤에 진행됨. 개시 전 급락 보도는 찾지 못함",
+     "source": "https://panarmenian.net/m/eng/news/288023/",
+     "confidence": "low"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "개시 전 증시 반응 보도를 찾지 못함"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "개시 전 국채·CDS 반응은 찾지 못함(아르메니아 채권 약세 보도는 개전 뒤)"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "yes",
+     "first": "2020-07-07",
+     "lead": 82,
+     "public_then": true,
+     "what": "알리예프: 7/6 인터뷰서 협상 무의미·'군사적 해법은 없다'는 중재국 비판, 9/19 TV 인터뷰 '아르메니아가 새 전쟁을 준비', 9/24 유엔 연설",
+     "source": "https://www.meydan.tv/en/article/no-need-for-meaningless-negotiations-in-nagorno-karabakh-aliyev-says/",
+     "confidence": "med"
+    },
+    {
+     "h": "i_pretext",
+     "status": "yes",
+     "first": "2020-09-19",
+     "lead": 8,
+     "public_then": true,
+     "what": "알리예프 9/19 '아르메니아가 접촉선에 병력을 모아 새 전쟁 준비' 주장, 국방부 9/21 '또 다른 도발' 발표. 9/27 공세는 '반격'이라 설명",
+     "source": "https://aircenter.az/en/single/azerbaijan-and-armenia-edge-towards-full-scale-war-consequences-and-risks-414",
+     "confidence": "med"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "관영매체 동원 서사는 확인 못 함(7/14 바쿠 전쟁 요구 집회는 자발적이었고 경찰이 해산)"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "t_trigger",
+     "status": "yes",
+     "first": "2020-07-14",
+     "lead": 75,
+     "public_then": true,
+     "what": "토부즈 교전에서 하시모프 소장 등 전사(7/14). 알리예프 '아르메니아 지도부가 전적 책임', 같은 날 밤 바쿠 수만 명이 전쟁·동원 요구",
+     "source": "https://www.meydan.tv/en/article/azerbaijani-general-killed-in-border-clash/",
+     "confidence": "med"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    }
+   ],
+   "missed": "민간 픽업트럭 징발(9/21, '군 지원용'). 시리아 용병 모집·이송 보도(7/17 쿠르드계 ANF 첫 보도, 9/24 SOHR '300여 명이 아프린에서 아제르바이잔으로'). 후원국 튀르키예의 무기 수출 급증(9월 한 달 7,700만 달러 — 개전 뒤 로이터 보도). 바쿠 수만 명의 전쟁·동원 요구 집회(7/14)와 그 직후 외무장관 경질(7/16) 같은 공격 측 국내 여론·인사 변화. 9/27 당일 아제르바이잔의 전국 인터넷 제한.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "karabakh-2023",
+   "name": "아제르바이잔 → 나고르노카라바흐 '대테러 작전'",
+   "outcome": "attack",
+   "onset": "2023-09-19",
+   "window": [
+    "2023-06-21",
+    "2023-09-18"
+   ],
+   "attacker": "아제르바이잔",
+   "target": "나고르노카라바흐(아르차흐)",
+   "kind": "intrastate",
+   "surprise": false,
+   "summary": "2023년 9월 19일 아제르바이잔이 지뢰 폭발 사망을 이유로 '국지적 대테러 작전'을 선언하고 나고르노카라바흐를 공격해 하루 만에 끝냈다. 9월 초부터 접촉선·국경의 병력 집결(아르메니아 총리 9/7 공개 경고, SNS 영상), 이스라엘 오브다 기지 화물기 급증, 9/1 국경 교전이 공개적으로 보였다. 그러나 공격 전날 구호 반입 합의가 이행돼 협상 결렬 신호는 없었고, 계기라던 지뢰 사건도 개시 당일 일이었다. 대사관·시장·민방위 항목은 검색 한도로 조사하지 못했다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "2023년 9월 개시 전 대사관 철수 명령은 찾지 못함"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "개시 전 최고 단계 여행경보 상향은 찾지 못함(검색된 미 대사관 경보는 2022년 9월 것)"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "개시 전 새 이동 제한·보안 경보는 찾지 못함(주예레반 미 대사관 접경 이동 제한은 2022년 9월부터 계속)"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "yes",
+     "first": "2023-09-07",
+     "lead": 12,
+     "public_then": true,
+     "what": "아르메니아 총리 파시냔: 9/7 '아제르바이잔이 접촉선·국경에 병력을 집결 중, 새 군사 도발 준비'라고 공개 경고. 제3국의 임박 경고는 찾지 못함",
+     "source": "https://www.globalsecurity.org/military/library/news/2023/09/mil-230907-rferl03.htm",
+     "confidence": "med"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "창 안의 시한부 최후통첩·무력사용 공식 승인은 찾지 못함"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "what": "결렬 아님: 9/17 바쿠와 카라바흐 지도부가 라친·아그담 동시 구호 반입에 합의, 9/18 적십자 트럭이 실제 진입(공격 전날)",
+     "source": "https://www.rferl.org/a/armenia-nagorno-karabakh-humanitarian-aid-azerbaijan/32597670.html",
+     "confidence": "med"
+    },
+    {
+     "h": "m_buildup",
+     "status": "yes",
+     "first": "2023-09-07",
+     "lead": 12,
+     "public_then": true,
+     "what": "9월 초 아제르바이잔군이 접촉선·아르메니아 국경에 병력·장비 집결. 파시냔 9/7, 국방차관 9/11 확인, 아제르 SNS 영상 유포. 바쿠는 부인",
+     "source": "https://www.rferl.org/a/armenia-azerbaijan-claims-troop-buildup-border/32582534.html",
+     "confidence": "med"
+    },
+    {
+     "h": "m_logistics",
+     "status": "yes",
+     "first": "2023-09-01",
+     "lead": 18,
+     "public_then": true,
+     "what": "아제르 실크웨이 화물기가 폭발물 수출 전용인 이스라엘 오브다 기지에 9/1~9/17 최소 6회 착륙(AP 항적 집계는 10월 보도, 헤트크는 당시 추적)",
+     "source": "https://timesofisrael.com/israeli-weapons-quietly-helped-azerbaijan-retake-nagorno-karabakh-sources-data/",
+     "confidence": "low"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "9/5~9/8 예비군 훈련은 국방부가 '2023년 계획' 훈련이라 발표했고 종료 뒤 귀가 — 정의상 제외. 별도 동원령은 찾지 못함"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "아제르바이잔이 9월 초 병력 이동을 '계획된 훈련'이라 해명했으나 훈련 연장·잔류 여부는 확인 못 함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "yes",
+     "first": "2023-07-15",
+     "lead": 66,
+     "public_then": true,
+     "what": "아제르 국방부: 7/13부터 카라바흐 상공 민항기(AZAL 등) GPS 장애가 반복됐다고 발표(9/2, 9/18에도). 독립 확인 없는 한쪽 주장",
+     "source": "https://english.alarabiya.net/News/world/2023/07/15/Karabakh-separatists-pose-threat-to-flights-Azerbaijan",
+     "confidence": "low"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "yes",
+     "first": "2023-09-01",
+     "lead": 18,
+     "public_then": true,
+     "what": "9/1 아르메니아 소트크·노라바크 초소에 아제르군 드론·박격포 공격, 아르메니아 병사 3명 사망. 아제르 측도 3명 부상 주장",
+     "source": "https://thestar.com.my/news/world/2023/09/01/two-armenian-soldiers-killed-in-azerbaijani-shelling--defence-ministry",
+     "confidence": "high"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "창 안의 알리예프 직접 위협 발언은 찾지 못함(검색된 '철권' 발언 등은 개시 뒤)"
+    },
+    {
+     "h": "i_pretext",
+     "status": "yes",
+     "first": "2023-07-15",
+     "lead": 66,
+     "public_then": true,
+     "what": "아제르 국방부가 7월부터 '불법 아르메니아 무장조직이 민항기 GPS를 교란해 위협'이라고 반복 발표, 7/29 국방장관이 대응 조치 지시",
+     "source": "https://english.alarabiya.net/News/world/2023/07/15/Karabakh-separatists-pose-threat-to-flights-Azerbaijan",
+     "confidence": "med"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    },
+    {
+     "h": "t_trigger",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "what": "계기로 내세운 지뢰 폭발(경찰 4명·민간인 2명 사망)은 개시 당일 9/19 새벽~오전에 일어났고 같은 날 13시경 작전 발표",
+     "source": "https://www.dailysabah.com/politics/azerbaijan-launches-anti-terror-op-after-6-killed-in-karabakh-blasts/news",
+     "confidence": "high"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "별도 검색 못 함(검색 한도 소진)"
+    }
+   ],
+   "missed": "장기 봉쇄로 대상 지역을 먼저 고립시킨 점. 9/9 카라바흐 '대통령 선거'를 바쿠가 불법으로 규정. 군 차량의 뒤집힌 'A' 표식 영상(9/9~10 SNS 확산; 조지아 팩트체크는 부대 식별 표식이라 설명). 아제르바이잔이 병력 이동을 '계획된 훈련'이라 해명하고 집결을 부인. 공격 전날 구호 합의 이행(안심 효과). 미 국무장관의 9/1 알리예프 통화(인도적 우려, 9/6 공개).",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-1950",
+   "name": "북한 → 한국 전면 남침 (6·25전쟁)",
+   "outcome": "war",
+   "onset": "1950-06-25",
+   "window": [
+    "1950-03-27",
+    "1950-06-24"
+   ],
+   "attacker": "북한",
+   "target": "대한민국",
+   "kind": "interstate",
+   "surprise": true,
+   "summary": "1950년 6월 25일 새벽 북한군이 38선 전역에서 남침했다. 병력 전방 이동(6월 12~24일), 접경 주민 소개, 수송의 군용 전환은 한·미 첩보에 잡혔지만 공개되지 않았고, 공개적으로 보인 것은 5월 10일 한국 국방부의 경고와 북한의 평화통일 제안(6월 7일·19일)뿐이었다. 한국군은 6월 23일 밤 경계령을 풀고 휴가를 보내 사실상 기습을 당했다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "미국: 무초 대사의 부녀자 철수 승인은 침공 당일 6/25 22시경, 서울→인천 이동은 6/26 01시. 개전 전 철수 명령 없음",
+     "source": "https://www.koreanwaronline.com/history/Appleman/Chapter4.htm",
+     "confidence": "high"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "개전 전 자국민 출국 권고 없음. 미국 사절단 가족은 침공 때까지 서울에 있다가 6/26 새벽에야 소개됨",
+     "source": "https://www.koreanwaronline.com/history/Appleman/Chapter4.htm",
+     "confidence": "med"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "침공 당일 새벽 미 군사고문단(KMAG) 고문관 다수가 주말 외출로 서울 등지에 있었음 — 이동 제한·경계 지시 없었음",
+     "source": "https://www.koreanwaronline.com/history/Appleman/Chapter3.htm",
+     "confidence": "med"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "일본 등 역내 미군 가족·인력 감축 기록 찾지 못함"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "yes",
+     "first": "1950-06-24",
+     "lead": 1,
+     "public_then": false,
+     "what": "소련: 개전 직전 전선 인민군 부대의 소련 군사고문을 뒤로 뺌(포로가 돼 개입이 드러날까 봐). 정확한 날짜 불명 — 가장 늦은 날로 적음",
+     "source": "https://www.wilsoncenter.org/sites/default/files/media/documents/publication/ACF1A6.pdf",
+     "confidence": "low"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "yes",
+     "first": "1950-05-11",
+     "lead": 45,
+     "public_then": true,
+     "what": "한국 국방부(신성모 장관) 5/10 회견(5/11 외신): 북한군이 38선에 집결 중, 남침 준비일 수 있다고 경고. 미 극동사·CIA는 침공 가능성을 낮게 봄",
+     "source": "https://paperspast.natlib.govt.nz/newspapers/ODT19500512.2.55",
+     "confidence": "med"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "최후통첩·선전포고 없음. 북한의 공개 입장은 6/7 조국전선 평화통일 호소와 6/19 남북 국회 통합 제의였음",
+     "source": "https://history.state.gov/historicaldocuments/frus1950v07/d46",
+     "confidence": "med"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "남북 공식 협상 자체가 없었음. 6/10 호소문 전단을 전하러 38선에 온 북측 요원들은 한국군에 체포됨",
+     "source": "https://m.seoul.co.kr/news/1995/08/07/19950807015001",
+     "confidence": "med"
+    },
+    {
+     "h": "m_buildup",
+     "status": "yes",
+     "first": "1950-06-15",
+     "lead": 10,
+     "public_then": false,
+     "what": "북한군 정규 사단 전부가 6/15~24(소련 대사 보고는 6/12~23) 38선 바로 북쪽으로 이동. 당시 공개되지 않음",
+     "source": "https://www.koreanwaronline.com/history/Appleman/Chapter3.htm",
+     "confidence": "med"
+    },
+    {
+     "h": "m_logistics",
+     "status": "yes",
+     "first": "1950-06-01",
+     "lead": 24,
+     "public_then": false,
+     "what": "6월 한국·CIA 첩보: 북한이 모든 수송 수단을 군용으로만 쓰게 제한(6월 중, 정확한 날짜 불명). 비공개 첩보",
+     "source": "https://www.cia.gov/resources/csi/static/two-strategic-intel-mistakes.pdf",
+     "confidence": "low"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "북한 전시 총동원령 공포는 개전 뒤 7/1. 개전 전 징집 확대 여부는 확인 못 함. 한국군은 6/24 휴가·외출 허용"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "yes",
+     "first": "1950-06-15",
+     "lead": 10,
+     "public_then": false,
+     "what": "북한군 전방 이동을 병사들에게 '기동훈련'이라고 알림. 대부분 6/23~24에야 전쟁임을 알았음",
+     "source": "https://www.koreanwaronline.com/history/Appleman/Chapter3.htm",
+     "confidence": "med"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "미 7함대가 필리핀에서 북상하도록 지시된 것은 침공 뒤. 개전 전 전략자산 증강 없음",
+     "source": "https://history.navy.mil/research/library/online-reading-room/title-list-alphabetically/h/history-us-naval-operations-korea/chapter3-war-begins.html",
+     "confidence": "med"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "yes",
+     "first": "1950-06-01",
+     "lead": 24,
+     "public_then": false,
+     "what": "북한이 38선 접경 주민을 후방으로 소개. 6월 한국·CIA 첩보에 기록(한국민족문화대백과는 3월로 적음). 비공개",
+     "source": "https://www.cia.gov/resources/csi/static/two-strategic-intel-mistakes.pdf",
+     "confidence": "med"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "민간 항공·보험 관련 자료 찾지 못함(1950년)"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "해당 없음(당시 기술 없음)"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "해당 없음(당시 기술 없음)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "38선 무력 충돌은 1950년 6월에도 '흔한' 평소 수준. 직전 급증 기록 없고 미국 관측통은 침공을 예상하지 못함",
+     "source": "https://www.army.mil/article/41294/north_korea_attacks_across_38th_parallel_60_years_ago",
+     "confidence": "low"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "yes",
+     "first": "1950-05-31",
+     "lead": 25,
+     "public_then": false,
+     "what": "한국 육군본부 특별경계령(5월 말 발령, 날짜 불명) → 6/23 24시 해제하고 휴가·외출 허용. 개전 전날 오히려 낮춤",
+     "source": "https://en.wikipedia.com/wiki/Battle_of_Ongjin",
+     "confidence": "low"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "개전 전 지도부 이례 동선 공개 기록 찾지 못함"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "환율 자료 찾지 못함"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "남북의 주식시장 자료 찾지 못함. 참고: 미국 증시는 침공 '뒤' 약 4년 만의 최대 낙폭(타임) — 사전 반영 없었음"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "자료 찾지 못함"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "자료 찾지 못함"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "예측시장 없음"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "자료 찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "김일성의 전쟁 명분 방송 연설은 6/26(개전 뒤). 그 전 평양 방송은 평화통일 호소 일색(이승만은 방한한 덜레스 앞에서 북진 발언)",
+     "source": "https://www.ibiblio.org/korean-war-cia-foia-releases/1950/FBIS/1950-06-22.pdf",
+     "confidence": "low"
+    },
+    {
+     "h": "i_pretext",
+     "status": "yes",
+     "first": "1950-03-31",
+     "lead": 86,
+     "public_then": false,
+     "what": "북한: '남한이 북침한다'는 소문을 퍼뜨려 38선 접경 주민 소개의 구실로 삼음(1950년 3월, 날짜 불명 — 월말로 적음)",
+     "source": "https://encykorea.aks.ac.kr/Article/E0066738",
+     "confidence": "low"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "평양 방송은 6/7 조국전선 평화통일 호소로 '거의 포화'(미 FBIS 6/15), 6/22에도 최대한 활용. 전쟁 동원 서사가 아니었음",
+     "source": "https://www.ibiblio.org/korean-war-cia-foia-releases/1950/FBIS/1950-06-15.pdf",
+     "confidence": "med"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "개전 전 국제 보도량 자료 찾지 못함(5/12 뉴질랜드 신문에 '국경 집결' 기사 1건 확인)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "개전 전 사재기·피란 보도 찾지 못함"
+    },
+    {
+     "h": "t_trigger",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "계기 사건 없음. 4월 스탈린 승인, 5/29 작전계획 확정, 6/23 배치 완료로 이어진 사전 계획된 침공",
+     "source": "https://en.wikipedia.org/wiki/Operation_Pokpung",
+     "confidence": "med"
+    },
+    {
+     "h": "t_deadline",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "시한부 요구 없음. 6/7 호소문은 8/5~8 남북 총선을 제안했을 뿐 무력과 연결된 시한을 걸지 않음",
+     "source": "https://history.state.gov/historicaldocuments/frus1950v07/d47",
+     "confidence": "low"
+    }
+   ],
+   "missed": "① 위장 평화공세: 6/7 조국전선 호소문, 6/10 '평화 사절' 파견, 6/19 최고인민회의의 남북 국회 통합 제의 — 공격 직전에 평화 제안이 오히려 늘었다(미 국무부는 선전 술책으로 평가). ② 표적 쪽 경계 완화: 한국군이 6/23 24시 경계령을 풀고 휴가·외출을 허용. ③ 소련 군사고문의 전선 철수. ④ 첩보와 공개의 차이: 6월 CIA·한국 첩보는 주민 소개·수송 통제·병력 이동을 적었으나(6/20 CIA 보고는 '언제든 침공 가능'), 미 극동사가 낮게 평가했고 날짜·장소를 짚은 전술 경고는 없었다. ⑤ 개전 1주일 전인 6/18 덜레스 미 국무부 고문 방한 때 이승만이 북진 의사를 거듭 밝혔다.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-1976",
+   "name": "판문점 도끼 살인 사건 (1976)",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "1976-08-18",
+    "1976-09-15"
+   ],
+   "attacker": "북한",
+   "target": "미국·한국(유엔군사령부)",
+   "kind": "korean_crisis",
+   "surprise": false,
+   "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 8/18 판문점 공동경비구역에서 북한군이 미군 장교를 살해했고, 데프콘 3 발령과 8/21 폴 버니언 작전(미루나무 절단)으로 이어졌으나 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 미 WSAG 회의록(FRUS)에 '북한군 특이 이동 없음' 보고가 있는 것으로 기억"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 시한부 통첩은 없었고 미국이 군정위에서 사과·책임자 처벌을 요구한 것으로 기억"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 군정위 회의가 계속됨(8/19, 8/21 김일성 '유감' 전달), 9/6 JSA 분할 합의"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 8/21 폴 버니언 작전에 800여 명 투입, 한미 지상군·포병 전방 대기"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 8/19 김일성 최고사령관 명령으로 인민군·노농적위대·붉은청년근위대 전투태세"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: 8/19~21 F-4(가데나)·F-111(아이다호) 전개, B-52(괌) 비행, 미드웨이 항모전단 출동"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 평양 등화관제·주민 소개 보도가 있었던 것으로 기억"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미확인(당시 관련 보도를 찾지 못함)"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미확인(당시 관련 보도를 찾지 못함)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 8/18 사건 뒤 추가 교전 없음(8/21 작전 중에도 충돌 없음)"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 8/19 주한미군·한국군 데프콘 3, 같은 날 북 '전투태세' 명령"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 8/18·19 워싱턴 특별행동그룹(WSAG) 긴급회의"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "당시 예측시장 없음"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 박정희 8/20 '미친 개에게는 몽둥이가 약' 연설"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 북 방송이 '미군이 먼저 도발했다'고 주장(8/18~19)"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 8/19 평양방송이 전군·적위대 전투태세 명령을 대내 방송"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 사건 직후 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 8/18 판문점에서 미군 장교 2명 피살(창 첫날)과 미국의 응징 방침"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 명시적 시한 없음"
+    }
+   ],
+   "missed": "",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-1994",
+   "name": "1차 북핵 위기 (1994)",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "1994-03-01",
+    "1994-06-30"
+   ],
+   "attacker": "북한",
+   "target": "한국·미국",
+   "kind": "korean_crisis",
+   "surprise": false,
+   "summary": "[일부만 검증] 영변 핵사찰 갈등이 3/19 '서울 불바다' 발언과 회담 결렬, 패트리엇 배치, 6월 제재 추진으로 번졌다가 카터 방북(6/15~18)으로 풀린 위기. 확인된 전조는 회담 결렬·한국군 경계태세·패트리엇 전개·6월 중순 사재기와 금융 불안이고, 미국인 철수는 준비에 그쳤다. 웹 검색 한도 소진과 WebFetch 차단으로 33개 중 9개만 검색 결과 요약으로 확인했고(원문 전문은 읽지 못함) 나머지는 unknown 이다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "철수 명령 없음: 레이니 대사가 한국 측에 '미국인 전원 소개 준비가 됐다'고 통보한 준비 단계에 그침(회고 기사, 간접 근거)",
+     "source": "https://www.dailynk.com/english/1994-nuclear-crisis-in-retrospect/",
+     "confidence": "low"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진). 미 국무부의 한국 여행경보 격상 여부 확인 필요"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미확인. 북한은 남측에 공관·주민이 없어 구조적으로 해당하기 어려움"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 북 '제재는 곧 선전포고' 발언, 6/13 IAEA 탈퇴 선언 — 시한부 통첩·무력 승인 여부 확인 필요"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "yes",
+     "first": "1994-03-19",
+     "lead": null,
+     "public_then": true,
+     "what": "3/19 판문점 남북 실무접촉이 북측 박영수 대표의 '서울 불바다' 발언과 함께 결렬(AP 3/20 보도)",
+     "source": "https://scholar.lib.vt.edu/VA-news/ROA-Times/issues/1994/rt0394/940320/03200047.htm",
+     "confidence": "high"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 6/16 백악관의 1만 명 이상 증원안 논의는 카터 통화로 보류된 것으로 알려짐"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미확인. 확인된 것은 6/15 민방공 훈련의 군 참가 축소뿐, 예비군 동원 여부는 확인 필요"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미확인. 팀스피리트 94 재개 방침 보도(3/17)는 검색에 나왔으나 실제 실시 여부는 출처가 엇갈림"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "yes",
+     "first": "1994-03-23",
+     "lead": null,
+     "public_then": true,
+     "what": "미국: 패트리엇 미사일 한국 배치 결정(3/21)·명령 서명(3/22)·발표(3/23), 4월 중순 부산 도착",
+     "source": "https://csmonitor.com/1994/0323/23242.html",
+     "confidence": "med"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "남측 6/15 민방공 훈련은 정례(제248차)였고 정부가 위기감 조성을 우려해 군 참가를 줄임 — 긴급 조치와 반대 방향. 북측은 미확인",
+     "source": "https://www.seoul.co.kr/news/1994/06/15/19940615023002",
+     "confidence": "low"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미확인(당시 관련 보도를 찾지 못함)"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미확인(당시 관련 보도를 찾지 못함)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "yes",
+     "first": "1994-03-22",
+     "lead": null,
+     "public_then": true,
+     "what": "한국: 김영삼 대통령이 3/22 전군에 방어 경계태세 지시(CSM 3/23·모스크바타임스 보도)",
+     "source": "https://csmonitor.com/1994/0323/23242.html",
+     "confidence": "high"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "3/21 김영삼 대통령 긴급 안보회의 1건은 확인(CBS 3/21). '이례적 연쇄'였는지는 미확인"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미확인. CSM 6/21은 달러·엔 변동을 다뤘으나 원화 급락 근거는 찾지 못함"
+    },
+    {
+     "h": "f_equity",
+     "status": "yes",
+     "first": "1994-06-14",
+     "lead": null,
+     "public_then": true,
+     "what": "6/14 종합주가지수 20포인트 하락(4개월 내 최대 낙폭, 북핵 긴장 탓으로 보도). 주말에는 영향 사라짐 — 낙폭이 '급락'인지는 불확실",
+     "source": "https://www.csmonitor.com/1994/0621/21082.html",
+     "confidence": "low"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미확인. 서울신문 6/17: 국내 금값은 6/10 이후 변동 없음 — 유가·방산주는 확인 못 함"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "당시 예측시장 없음"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "yes",
+     "first": "1994-06-15",
+     "lead": null,
+     "public_then": true,
+     "what": "6월 중순 예금 이탈·암달러 수요: 6/17 서울신문이 '자금 금융기관 복귀, 금값·암달러 안정' 보도. 날짜는 역산, 규모 미확인",
+     "source": "https://www.seoul.co.kr/news/1994/06/17/19940617009001",
+     "confidence": "low"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 위협은 박영수 대표 등 실무·대변인급, 김일성 본인 발언은 확인 필요"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 북이 패트리엇 배치·팀스피리트를 전쟁 준비로 비난"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미확인(정량 근거 못 찾음). 미검증 단서: 6월 외신의 서울발 전쟁 위기 보도 급증"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "yes",
+     "first": "1994-06-15",
+     "lead": null,
+     "public_then": true,
+     "what": "서울 라면·화장지·부탄가스 사재기, 강남 백화점 생필품 판매 최고 100배(6/16자 서울신문), 청와대가 진정에 나섬",
+     "source": "https://www.seoul.co.kr/news/1994/06/16/19940616023002",
+     "confidence": "med"
+    },
+    {
+     "h": "t_trigger",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "사상자 난 계기 사건 없음 — IAEA 사찰 거부·연료봉 인출·제재를 둘러싼 장기 분쟁이었음",
+     "source": "https://en.wikipedia.org/wiki/1994_North_Korean_nuclear_crisis",
+     "confidence": "med"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 5월 연료봉 인출로 IAEA 검증 가능 시한 논란"
+    }
+   ],
+   "missed": "코드북에 없음: 정부의 비축미 127만 섬 방출(6/17 서울신문) 같은 불안 진정용 물자 방출, 미국 민간인이 정부 명령 없이 학령기 자녀를 먼저 본국에 보낸 사적 대피(PBS 회고).",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-2013",
+   "name": "2013년 봄 한반도 위기",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "2013-02-12",
+    "2013-05-15"
+   ],
+   "attacker": "북한",
+   "target": "한국·미국",
+   "kind": "korean_crisis",
+   "surprise": false,
+   "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 3차 핵실험(2/12) 뒤 정전협정 '백지화', 3/26 '1호 전투근무태세', 3/30 '전시상황', 4/5 평양 공관 철수 검토 권고, 4/9 주한 외국인 대피 촉구, 개성공단 중단, 무수단 배치, B-2·B-52·F-22 비행이 이어졌으나 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증 단서: 북의 4/5 평양 공관 철수 권고·4/9 주한 외국인 대피 촉구에도 각국 대사관은 잔류·정상 운영으로 알려짐"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 주한 미 대사관 4월 초 공지가 '여행경보 변경 없음·구체 위협 없음'이었던 것으로 기억"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미검증 단서: 주한 미 대사관이 보안 태세를 바꿀 이유가 없다고 공지한 것으로 기억"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미검증 단서: 북이 4/8~9 개성공단 북측 근로자 약 5.3만 명 철수 — 자국 영토 안 조치라 정의에 맞는지 판단 필요"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 백악관(4/1)·한국 국방부가 '대규모 동원·전면전 징후 없음'이라 밝힌 것으로 기억"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 3/5 정전협정 백지화 예고(3/11), 3/8 불가침 합의 폐기·판문점 직통전화 차단, 4/4 총참모부 '작전 최종 비준' 통고"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 진행 중인 협상이 없었음. 개성공단 실무회담 제안은 4/26 북이 거부"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 백악관 4/1 '북한군의 대규모 이동·배치 변화는 보이지 않는다'"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 백악관 4/1 '대규모 동원 없음' 발언"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미검증 단서: 키리졸브(3/11~21)·독수리(3/1~4/30)가 예정대로 끝난 것으로 기억"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: B-52(3월 중순 공개), B-2(3/28), F-22 오산(3/31), 이지스함·SBX, 괌 사드(4/3 발표)"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 북 3월 공습 대피·등화관제 훈련, 평양 버스 위장망 보도"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미검증 단서: 대규모 GPS 교란은 2010·11·12·16년으로 알려져 있고 2013년은 기억에 없음"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미검증 단서: 3/20 방송사·은행 전산망 마비(3·20 사이버테러), 정부가 4/10 북 소행으로 발표"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 교전·포격은 없었던 것으로 기억"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 3/26 최고사령부 '1호 전투근무태세', 3/30 '전시상황' 선언, 한미 4/10 워치콘 2 격상"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 3/29 0시 30분 김정은 긴급 작전회의(미사일 사격대기 지시), 3/31 당 전원회의"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미검증 단서: 4월 초 원/달러 1,140원대(약 8개월 최고) — 엔저 영향도 거론됨"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미검증 단서: 4/5 코스피 1,927(연중 최저권)·외국인 대량 순매도 — 엔저·현대차 리콜도 원인으로 거론"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미검증 단서: 한국 CDS가 4월 초 80bp대 후반으로 수개월 내 최고"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 국내 방산주 급등 보도"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미검증 단서: GM CEO 4/4 '비상계획 수립' 발언, 외국 기업 철수는 없었던 것으로 기억"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 김정은 3/7 전방 섬 방어대 시찰 '전면전 준비', 3/29 '미제와 총결산할 때'"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 북이 한미훈련·B-2 비행을 '핵전쟁 도발'로 규정"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 3월 평양 군민대회, 청년 입대 탄원 보도"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 3~4월 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미검증 단서: 서울 시민 평온·사재기 없음 보도가 많았던 것으로 기억"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 사상자 난 계기 사건 없음"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 3/5 예고한 3/11 정전협정 백지화 시점, 평양 공관 안전보장 시한 4/10"
+    }
+   ],
+   "missed": "(미검증, 과제 설명 기준) 공격 측이 제3국 공관·외국인에게 '떠나라'고 권고(4/5, 4/9)하는 신호는 코드북에 없음 — g_attacker_evac(자기 사람을 뺌)과 다르다.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-2017",
+   "name": "2017년 '화염과 분노' 위기",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "2017-07-04",
+    "2017-12-31"
+   ],
+   "attacker": "북한",
+   "target": "한국·미국",
+   "kind": "korean_crisis",
+   "surprise": false,
+   "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: ICBM 시험(7월·11월), 괌 포위사격 위협, 6차 핵실험(9/3), 9/21 주한미군 가족 대상 가짜 NEO 문자, 9/23 B-1B NLL 이북 비행, 11월 항모 3척, 12월 가족 철수 논의가 이어졌으나 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증 단서: 12월 초 그레이엄 의원이 가족 철수를 주장했으나 국방부는 '계획 없음'. 9/21 NEO 문자는 가짜"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 한국 여행경보 격상 없음(2018-01 새 제도에서 1단계). 미국의 북한 여행금지(9/1)는 억류 위험 사유"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미검증 단서: 주한미군 가족 철수 없음. 괌·일본 인력 감축 보도는 기억에 없음"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 폼페이오 CIA 국장 8/13 '임박한 징후 없다' 발언"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 리용호 9/25 '미국이 선전포고' 주장, 백악관은 부인. 시한부 통첩은 없었던 것으로 기억"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 공식 협상이 없었음(뉴욕 채널만)"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 매티스·던퍼드 '병력 태세 변화 없음', 한국군 '북 특이동향 없음' 발언으로 기억"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미검증 단서: UFG(8/21~31)·비질런트 에이스(12/4~8)가 예정대로 끝난 것으로 기억"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: B-1B 전개(7/8·7/30·9/23 NLL 이북), 사드 잔여 발사대(9/7), 항모 3척 훈련(11/11~14)"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 괌 8/11 비상행동수칙 배포, 일본 J얼럿(8/29·9/15)·대피훈련, 하와이 12/1 사이렌 재개"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증 단서: 영공 폐쇄·운항 중단은 없고 에어프랑스(8월)·싱가포르항공 등이 항로를 우회"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미검증 단서: 파이어아이 — 9/22 북 해커의 미 전력회사 스피어피싱(10/10 보도)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 11/13 JSA 귀순 병사 총격 1건 외 교전 급증은 없었던 것으로 기억"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 9/3 핵실험 직후 합참 감시·경계태세 격상 발표. 북측 공식 격상은 기억에 없음"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 문 대통령 NSC 전체회의 반복 소집(7/4, 7/29 새벽, 8/29, 9/3, 11/29)"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미검증 단서: 8/9~11 원/달러 1,125→1,143원 안팎(약 1.5%)"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미검증 단서: 8/8~11 코스피 약 3% 하락 뒤 회복, 연간으로는 사상 최고"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미검증 단서: 한국 CDS가 8~9월 70bp대로 1년 반 내 최고"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 8/9~11 금값 급등, 록히드마틴·레이시온 사상 최고가 보도"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미검증 단서: 외국 기업 철수 없이 비상계획 점검 보도, 미니 골드바 판매 증가 보도"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 트럼프 8/8 '화염과 분노', 9/19 유엔 '완전 파괴', 김정은 9/21 본인 명의 성명"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 북이 트럼프 발언을 '선전포고'로 규정하고 폭격기 격추 권리 주장(9/25)"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 8/9 평양 군중집회, 노동신문 '347만 명 입대 탄원'(8/12)"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 8~9월 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미검증 단서: 한국은 평온·사재기 없음 보도가 많았고 생존배낭 판매 소폭 증가 보도"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 창 안에 사상자 계기 사건 없음(웜비어 사망 6/19는 창 이전)"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 8/10 전략군 '8월 중순까지 괌 포위사격안 완성·보고' 예고"
+    }
+   ],
+   "missed": "(미검증, 과제 설명 기준) 가짜 NEO 문자(9/21)처럼 철수 '소문·오경보'가 도는 것, 의회 인사의 가족 철수 공개 주장(12월)은 코드북에 없음.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-2020-06",
+   "name": "남북공동연락사무소 폭파 (2020년 6월)",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "2020-06-04",
+    "2020-06-30"
+   ],
+   "attacker": "북한",
+   "target": "한국",
+   "kind": "korean_crisis",
+   "surprise": false,
+   "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 북한이 6/16 개성 남북공동연락사무소를 폭파하고 군사행동 계획을 예고했다가 6/23~24 보류했다. 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 외국 공관 철수 보도는 기억에 없음. 연락사무소 남측 인원은 1/30 코로나로 이미 철수"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 당시 각국 여행경보는 코로나 사유(3월 전 세계 4단계)뿐이었던 것으로 기억"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 한국 국방부·합참이 '직접적 군사행동 징후 없음' 취지로 밝힌 것으로 기억"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 6/9 북이 남북 통신선 전면 차단·'대적 사업' 전환, 6/16 연락사무소 폭파"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 6/9 통신선 차단, 6/17 북이 남측 특사 제안 거부를 공개"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 6/17 총참모부가 금강산·개성 재주둔 예고, 일부 GP 인원 관측 — 대규모 이동은 없었던 것으로 기억"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 6월 중순 B-52 동해 비행·미 정찰기 출격 보도"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 창 안에 교전 없음(5/3 GP 총격은 창 이전)"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 6/17 총참모부 '전선 1호 전투근무체계 격상' 예고(6/23 보류), 6/16 한국군 감시·대비태세 강화"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 6/14 새벽 청와대 긴급 화상 안보회의, 6/16 NSC 상임위 긴급회의, 6/23 김정은 중앙군사위 예비회의"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미검증 단서: 6/17 원/달러 6~7원 상승에 그친 것으로 기억"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미검증 단서: 6/17 코스피 강보합(+0.1%)으로 영향이 미미했던 것으로 기억"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미검증 단서: CDS 변동이 미미했던 것으로 기억"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 6/15~17 빅텍 등 국내 방산주 급등"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 위협 담화는 김여정 명의(6/4·6/13·6/17)였고 김정은 본인 발언은 없었던 것으로 기억"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 6/4 김여정 담화가 대북전단을 명분으로 군사합의 파기·연락사무소 폐쇄 위협"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 6/6경부터 각지 항의 군중집회, 노동신문 연일 보도, 대남 전단 살포 준비 선전"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 6/16 폭파 뒤 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 사재기 보도는 기억에 없음"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 사상자 없음. 폭파는 북측 자체 행동"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 명시적 시한 없음"
+    }
+   ],
+   "missed": "",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-2024-10",
+   "name": "평양 무인기 주장·남북 도로 폭파 위기 (2024년 10월)",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "2024-10-01",
+    "2024-11-15"
+   ],
+   "attacker": "북한",
+   "target": "한국",
+   "kind": "korean_crisis",
+   "surprise": false,
+   "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 북한이 10/11 한국 무인기의 평양 침투를 주장하고, 10/13 국경 부근 8개 포병여단에 '완전사격준비태세'를 지시했으며, 10/15 남북 연결 도로를 폭파했다. 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 대사관 철수 보도는 기억에 없음"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 미 국무부 한국 여행경보는 1단계가 유지된 것으로 기억"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 합참·국방부가 '실제 도발 임박 징후 없음' 취지로 밝힌 것으로 기억"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 10/9 총참모부 남북 도로·철길 완전 단절 통보, 10/11 외무성 '최후통첩' 성명(시한 없음), 10/17 헌법 '적대국' 공개"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 진행 중인 협상이 없었음"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 8개 포병여단 사격대기 외 대규모 병력 집결은 기억에 없음(전선 방벽 공사는 4월부터)"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 10/16 관영매체 '청년 140만 명 입대·복대 탄원' — 선전이고 동원령은 아님"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: 11/3 B-1B 한미일 훈련(10/31 ICBM 대응), 11/13~15 프리덤 에지 항모 참가"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 10/15~16 경기도가 파주·김포·연천을 위험구역으로 설정(전단 살포 차단) — 대피 조치는 미확인"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미검증 단서: 합참 11/9 '북이 11/8~9 해주·개성 일대에서 GPS 교란, 선박·민항기 수십 대 영향'"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 10/15 폭파 직후 한국군의 MDL 이남 대응사격 1건"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 10/13 관영매체 — 총참모부가 10/12 국경선 부근 8개 포병여단에 '완전사격준비태세' 예비지시"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 10/14 김정은이 국방·안전 분야 협의회 소집(첫 공개)"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미검증 단서: 10월 원화 약세는 달러 강세·미 대선 요인으로 설명된 것으로 기억"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미검증 단서: 10/14 코스피 상승 마감, 북 리스크 영향이 미미했던 것으로 기억"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 10/14 국내 방산주 강세 보도"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미확인(검색 한도 소진)"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 김정은 10/2 특수부대 시찰·10/7 국방종합대학 연설 '핵 사용 주저 않겠다', 10/17 2군단 '적국' 발언"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 10/11 외무성 '한국 무인기 평양 침투(10/3·9·10)' 주장 — 이후 한국 특검이 실제 침투 여부를 수사"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 10/12~13 노동신문 1면에 무인기 사건 게재, 10/16 '140만 명 입대 탄원'"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 10월 중순 외신 보도 급증(정량 근거 필요)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미확인. 미검증 단서: 접경지 소음 피해 보도는 있었으나 사재기 보도는 기억에 없음"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 사상자 없음. 평양 상공 무인기(상징성)와 북의 보복 다짐(10/11~13)이 해당하는지 판단 필요"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 명시적 시한 없음"
+    }
+   ],
+   "missed": "",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-yeonpyeong-1999",
+   "name": "제1연평해전",
+   "outcome": "attack",
+   "onset": "1999-06-15",
+   "window": [
+    "1999-03-17",
+    "1999-06-14"
+   ],
+   "attacker": "북한",
+   "target": "대한민국",
+   "kind": "korean_clash",
+   "surprise": false,
+   "summary": "1999년 6월 15일 오전 연평도 서쪽 NLL 남쪽에서 남북 해군이 약 14분간 교전해 북한 어뢰정 1척이 침몰했다. 6월 6~8일부터 북한 경비정·어선의 NLL 침범과 선체 충돌이 매일 공개 보도돼 기습은 아니었다. 그러나 군 경계태세 격상과 금융시장 동요는 교전 당일에야 나타났고, 대사관·여행경보 쪽 사전 움직임은 찾지 못했다(검색 한도로 일부 항목 미조사).",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "주한 대사관 철수 관련 보도 찾지 못함"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "외국 정부 여행경보 변화 보도 찾지 못함"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "대사관 직원 이동 제한 보도 찾지 못함"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "북한은 교전 당일 아침에도 꽃게잡이 어선 20척을 경비정·어뢰정과 함께 NLL 남쪽 2km까지 내려보냄 — 자기 민간인을 빼지 않음",
+     "source": "https://www.seoul.co.kr/news/1999/06/16/19990616001001",
+     "confidence": "low"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "'공격 임박' 공개 경고 없음. 미 백악관 NSC는 '해마다 있는 상황'이라고 평가(6/15 보도)",
+     "source": "https://nautilus.org/napsnet/napsnet-daily-report/napsnet-daily-report-15-june-1999/?view=pdf",
+     "confidence": "low"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "한국 국방부가 '추가 침범을 용납하지 않겠다'고 경고했으나 시한부 최후통첩 여부는 확인 못 함"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "협상 결렬 아님. 유엔사-북한군 장성급 회담이 교전 당일 6/15 오전 10시 판문점에서 열렸고 6/22 다시 열림",
+     "source": "https://www.globalsecurity.org/wmd/library/news/dprk/1999/990700-korus-navies.htm",
+     "confidence": "med"
+    },
+    {
+     "h": "m_buildup",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "대규모 집결은 아님. 북 어뢰정 3척 가세(6/12~13), 남 포항급 초계함 2척 투입(6/14) 수준의 국지 증강",
+     "source": "https://en.wikipedia.org/wiki/Battle_of_Yeonpyeong_(1999)",
+     "confidence": "med"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "미군의 AWACS·U-2 감시 강화는 교전 뒤(6/15~16) 보도됨. 교전 전 전략자산 증강 보도는 없음",
+     "source": "https://www.seoul.co.kr/news/1999/06/16/19990616001001",
+     "confidence": "low"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "교전 전 주민 대피·조업 통제 여부 확인 못 함"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "yes",
+     "first": "1999-06-08",
+     "lead": 7,
+     "public_then": true,
+     "what": "북 경비정·어선이 6/8부터 매일 NLL 침범(6/14까지 경비정 52회·어선 62회), 6/11부터 한국 해군이 선체로 '밀어내기' 충돌",
+     "source": "https://en.wikipedia.org/wiki/Battle_of_Yeonpyeong_(1999)",
+     "confidence": "med"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "서해5도 전투대비령·워치콘2 발령과 비상경계는 교전 직후(6/15). 교전 전 공식 격상 보도는 없음",
+     "source": "https://www.seoul.co.kr/news/1999/06/16/19990616001001",
+     "confidence": "med"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_fx",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "역외선물환(NDF) 원화는 교전 당일 1,180원대로 잠깐 불안, 6/16 1,170원대로 회복. 교전 전 급락 보도 없음",
+     "source": "https://www.seoul.co.kr/news/1999/06/17/19990617009001",
+     "confidence": "med"
+    },
+    {
+     "h": "f_equity",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "증시는 교전 소식이 전해진 6/15 당일 장중 800선이 깨졌다가 확전 조짐이 없자 진정. 반응은 당일에야 나타남",
+     "source": "https://www.seoul.co.kr/news/1999/06/16/19990616009004",
+     "confidence": "med"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "한국은행: 교전 뒤에도 해외 한국물 가산금리가 거의 움직이지 않음, 대외신인도 악영향 징후 없음",
+     "source": "https://www.seoul.co.kr/news/1999/06/17/19990617009001",
+     "confidence": "med"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "예측시장 없음"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "교전 당일 해외 바이어 문의 전화는 있었으나 이탈 보도는 찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "김정일 명의 위협 찾지 못함"
+    },
+    {
+     "h": "i_pretext",
+     "status": "yes",
+     "first": "1999-06-06",
+     "lead": 9,
+     "public_then": true,
+     "what": "북 조선중앙통신 6/6: 남측 군함이 북의 '해상 경계선'을 넘어 영해를 불법 침범했다고 주장",
+     "source": "https://en.wikipedia.org/wiki/Battle_of_Yeonpyeong_(1999)",
+     "confidence": "med"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "외신이 8일간의 대치를 보도했으나 보도량 급증 여부는 확인 못 함"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "로이터: 교전 당일(6/15)에도 한국 주민 대부분은 약간의 우려만 나타냄",
+     "source": "https://nautilus.org/napsnet/napsnet-daily-report/napsnet-daily-report-15-june-1999/?view=pdf",
+     "confidence": "med"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "교전 전 사상자가 난 사건과 보복 다짐은 확인 못 함(6/9·11은 선체 충돌)"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "찾지 못함"
+    }
+   ],
+   "missed": "① 계절 요인: 6월 꽃게철마다 북한 어선·경비정의 NLL 월선이 늘어 미 NSC도 '연례 상황'으로 보았다 — 평소와 구별하기 어려웠다. ② 사격 전에 양측 함정이 선체를 들이받는 '밀어내기'가 나흘(6/11~15) 이어졌다. ③ 화해 국면과 병행: 금강산 관광선은 교전 당일에도 일정대로 다녔고 신포 경수로 공사도 계속됐다. ④ 교전 당일 오전 10시에 유엔사-북한군 장성급 회담이 열렸다.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "korea-yeonpyeong-2002",
+   "name": "제2연평해전",
+   "outcome": "attack",
+   "onset": "2002-06-29",
+   "window": [
+    "2002-03-31",
+    "2002-06-28"
+   ],
+   "attacker": "북한",
+   "target": "대한민국",
+   "kind": "korean_clash",
+   "surprise": true,
+   "summary": "2002년 6월 29일 오전 월드컵 기간에 NLL을 넘은 북한 경비정이 한국 고속정을 기습 사격했다. 6월 들어 북한 경비정의 NLL 침범이 늘었고(6월 11·13·27·28일 등) 조준 태세로 내려왔지만 군은 단순 침범으로 보았고 공개 경고는 없었다. [부분 조사] 검색 한도 소진으로 아래 2개 항목만 출처로 확인했고 나머지(대사관·시장·대중 반응 등)는 조사하지 못해 unknown 이다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "공개 경고 없음. 국방부: 조준사격 태세로 내려온 것은 알았으나 기습 도발로 이어질지 판단하지 못했다고 인정(7월 발표)",
+     "source": "https://www.seoul.co.kr/news/2002/07/08/20020708003001",
+     "confidence": "med"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "yes",
+     "first": "2002-06-11",
+     "lead": 18,
+     "public_then": false,
+     "what": "6월 들어 북 경비정 NLL 침범 급증: 6/11·13·27·28 등 교전 전 5차례, 모두 어선 통제 목적이 아니었음(합참 사후 발표). 당시 보도 여부는 확인 못 함",
+     "source": "https://www.seoul.co.kr/news/2002/07/08/20020708003001",
+     "confidence": "low"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미조사(검색 한도 소진)"
+    }
+   ],
+   "missed": "① 침범 '방식'의 변화: 교전 직전 6/27·28에는 교전일과 똑같이 경비정이 두 방향(연평도 서북방 약 12.6km와 25.2km)에서 차례로 내려왔다 — 횟수보다 양상이 전조였다(합참 사후 발표). ② 군 감청부대가 교전 전 두 차례 '발포'가 들어간 북한 교신을 잡았으나 상부에서 묵살됐다는 증언은 10년 뒤에야 나왔다(당시 비공개).",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "saudi-yemen-2015",
+   "name": "사우디 주도 연합군 → 예멘 (결정적 폭풍 작전)",
+   "outcome": "war",
+   "onset": "2015-03-26",
+   "window": [
+    "2014-12-26",
+    "2015-03-25"
+   ],
+   "attacker": "사우디아라비아 주도 연합군",
+   "target": "예멘 (후티·살레 세력)",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "2015-03-26 사우디가 이끄는 연합군이 예멘 후티 세력을 공습하며 내전에 개입했다(개시일·경과는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이고 surprise 값도 의뢰서 설명(2월 사나 대사관 폐쇄, 후티의 아덴 진격, 3/24~25 국경 집결 보도)에 따른 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 2015-02 미·영·프 등 사나 주재 대사관 폐쇄"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증 단서: 2월 대사관 폐쇄 때 미·영이 자국민에게 즉시 출국 권고"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미검증 단서: 1월 말 사나 미 대사관 대민 업무 중단"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미검증 단서: 사우디의 2월 사나 대사관 철수, 3/25 아덴 외교관 해군 철수"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증: 3/24 미 당국자들이 사우디 집결을 '방어용일 수 있다'고 했다는 기억"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 3/23 사우디 외무장관 '필요한 조치', 하디의 GCC·안보리 군사 개입 요청"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 유엔 중재 협상 교착, 2/6 후티의 헌법 선언"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 3/24~25 사우디가 예멘 국경에 중장비·포병 집결(미 당국자 인용 보도)"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 3/21 후티 측 총동원령"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미검증 단서: 3월 중순 후티의 사우디 국경 인근 대규모 훈련"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증 단서: 3/19 교전으로 아덴 공항 폐쇄"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 후티의 아덴 진격 — 3/19 아덴 공항 교전, 3/22 타이즈, 3/25 알아나드 기지"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 하디 대통령의 2/21 아덴 탈출, 3/25 아덴 관저 이탈"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미검증 단서: 3/25 사우디 증시 급락 보도 기억"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증: 유가 급등은 주로 3/26 공습 개시 뒤였다는 기억"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "해당 예측시장을 찾지 못함"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 3/21 하디 연설, 3/22 후티 지도자의 동원 연설"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 3/22 안보리 긴급회의 전후 보도 증가"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 3/19 아덴 대통령궁 공습, 3/25 후티의 아덴 접근과 하디 피신"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "찾지 못함"
+    }
+   ],
+   "missed": "",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "us-iran-2019-06",
+   "name": "미국–이란 2019년 6월 위기 (유조선 피격·무인기 격추)",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "2019-05-05",
+    "2019-07-15"
+   ],
+   "attacker": "미국 (잠재)",
+   "target": "이란",
+   "kind": "us_strike",
+   "surprise": false,
+   "summary": "2019년 5~7월 미국–이란 위기: 유조선 피격과 6/20 이란의 미 RQ-4 무인기 격추 뒤 트럼프가 보복 공습을 취소해 전쟁으로 가지 않았다(경과는 의뢰서 기준). 이번 조사에서 출처로 확인한 것은 5/15 미국의 이라크 비필수 인력 철수 명령과 '임박한 위협' 설명, 당시 협상이 없었다는 점뿐이다. 웹 검색 한도가 소진돼 나머지 29개 가설은 unknown — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "이란 주재 제3국 대사관 철수는 찾지 못함"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "5/15 미국이 이라크 여행경보를 최고 단계로 올린 것만 확인 — 대상국 이란에 대한 경보 변화는 확인 못 함"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미검증 단서: 5/12 주바그다드 미 대사관의 긴장 고조 보안 경보"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "yes",
+     "first": "2019-05-15",
+     "lead": null,
+     "public_then": true,
+     "what": "미 국무부: 바그다드 대사관·에르빌 영사관 비필수 직원 철수 명령, 비자 업무 중단(5/15)",
+     "source": "https://www.aljazeera.com/news/2019/5/15/us-orders-non-emergency-government-employees-to-leave-iraq",
+     "confidence": "high"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "yes",
+     "first": "2019-05-15",
+     "lead": null,
+     "public_then": true,
+     "what": "잠재 공격국 미국이 예상 교전권인 이라크에서 자국 비필수 직원을 뺌(5/15, g_regional_drawdown 과 같은 사건)",
+     "source": "https://www.cnbc.com/2019/05/15/washington-orders-some-us-government-employees-to-leave-iraq.html",
+     "confidence": "med"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "yes",
+     "first": "2019-05-15",
+     "lead": null,
+     "public_then": true,
+     "what": "미 당국자들: 이란 혁명수비대가 지휘하는 이라크 민병대의 '임박한' 위협 정보라고 설명(5/15); 5/7 폼페이오 바그다드 급방문",
+     "source": "https://newsinfo.inquirer.net/?p=1119643",
+     "confidence": "med"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증: 무력 시한·단교는 없었다는 기억. 이란의 5/8 '60일' 통보는 핵합의 이행 문제"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "진행 중인 미·이란 협상이 없었음 — 5/15 트럼프 '이란이 곧 대화를 원할 것'(6월 중재 시도 등 이후 기간은 미검증)",
+     "source": "https://www.pbs.org/newshour/world/u-s-pulls-nonessential-embassy-staff-from-iraq-amid-mideast-tensions",
+     "confidence": "low"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증: 5/24 1,500명·6/17 1,000명 증파 발표 — 대규모 지상군 집결은 아니었다는 기억"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 5/5 링컨 항모전단·폭격기 전개 발표"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증 단서: 5월 중순 FAA 걸프 상공 경고, 6/20~21 FAA 비행 금지와 항공사 우회"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미검증 단서: 6/20 미 사이버사령부의 이란 미사일 통제망 공격 보도"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 5/12·6/13 유조선 피격, 6/20 RQ-4 격추"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증 단서: 6/13 유조선 피격·6/20 격추 때 유가 급등"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미검증 단서: 5/18 엑손모빌의 바스라 유전 외국인 직원 철수, 해상 전쟁보험료 급등"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 5/19 트럼프 '싸우길 원하면 이란의 공식적 종말' 트윗"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "5/15 철수 명령이 여러 통신·방송에 실린 것만 확인 — 보도량 급증의 측정 근거 없음"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 6/20 RQ-4 격추(사상자 없음) 뒤 트럼프가 공습을 승인했다가 취소"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 이란의 5/8 '60일' 시한(7/7 만료)"
+    }
+   ],
+   "missed": "5/14 연합군 대변인은 '이란 측 위협 증가는 없다'고 해 미 정부 경고와 엇갈렸다(동맹 내부 평가 불일치). 미국은 같은 날 대상국이 아닌 이라크의 여행경보를 최고 단계로 올렸다. 6/20 공습 승인 뒤 취소(의뢰서 단서, 미검증)는 '실행 직전 취소'라는 별도 유형이다.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "us-iran-2020-01",
+   "name": "미국의 솔레이마니 제거 공습",
+   "outcome": "attack",
+   "onset": "2020-01-03",
+   "window": [
+    "2019-10-05",
+    "2020-01-02"
+   ],
+   "attacker": "미국",
+   "target": "이란 (이라크에 있던 쿠드스군 사령관)",
+   "kind": "us_strike",
+   "surprise": false,
+   "summary": "2020-01-03 미국이 바그다드 공항에서 솔레이마니를 드론으로 제거했고 1/8 이란이 미군 기지에 미사일을 쏜 뒤 진정돼 전쟁으로 번지지는 않았다(경과·날짜는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이고 surprise 값도 의뢰서 설명(12/27 K-1 피격·12/31 대사관 난입 뒤 보복 예고)에 따른 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증: 제3국 대사관 감축은 1/3 이후였다는 기억"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미검증: 미국의 '이라크 즉시 출국' 권고는 1/3 공습 직후였다는 기억"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 12/31 바그다드 미 대사관 난입에 따른 봉쇄·영사 업무 중단"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미검증: 이라크 비필수 인력 철수는 2019-05 부터 이어진 상태 — 창 안의 새 감축은 확인 못 함"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미검증: 미국 시민·석유 인력 철수는 1/3 이후였다는 기억"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미검증 단서: 1/2 에스퍼 국방장관 '추가 공격 징후, 선제 행동할 것 — 게임이 바뀌었다'"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증: 시한을 단 최후통첩은 없었다는 기억"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증: 미·이란 협상 자체가 없었다는 기억"
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "미검증 단서: 12/31 82공수 750명 쿠웨이트 급파 발표(소규모)"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: 2019-10-11 사우디에 전투비행대·패트리엇·사드 증파 발표"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미검증: FAA 의 이라크·이란·걸프 비행 금지는 1/7~8(개시 뒤)이었다는 기억"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 10~12월 이라크 미군 기지 로켓 공격 증가, 12/27 K-1 피격, 12/29 미 보복 공습"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미검증: 유가 급등은 1/3 공습 뒤였다는 기억"
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미검증: 미국 석유 인력의 바스라 철수는 1/3 이었다는 기억"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 12/31 트럼프 '이란은 큰 대가를 치를 것 — 경고가 아니라 위협' 트윗"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 12/29 보복 공습·12/31 대사관 난입이 세계 주요 뉴스였다는 기억"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 12/27 K-1 로켓 공격(미국인 사망), 12/31 대사관 난입과 미국의 보복 다짐"
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증: 명시적 시한은 없었다는 기억"
+    }
+   ],
+   "missed": "미검증: 12/29 미국의 민병대 보복 공습이 이미 한 차례 있었다 — '보복의 연쇄가 진행 중'이라는 상태 자체가 전조였는지 재조사 때 확인 필요.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "us-israel-iran-2026",
+   "name": "미국·이스라엘 → 이란 전쟁 (2026)",
+   "outcome": "war",
+   "onset": "2026-02-28",
+   "window": [
+    "2025-11-30",
+    "2026-02-27"
+   ],
+   "attacker": "미국·이스라엘",
+   "target": "이란",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "2026-02-28 미국('에픽 퓨리')과 이스라엘('포효하는 사자')이 이란을 합동 공습해 전쟁이 시작됐고 하메네이가 숨졌다 — 당일 복수 보도로 발생과 날짜를 확인했다. 1월 하순부터 항모 2척과 전투기 100여 대가 모였고(2003년 이후 최대), 2/19 트럼프의 '10~15일' 시한, 2/23 베이루트 대사관 철수 명령, 2/27 주이스라엘 대사관 출국 허가까지 전조가 공개적으로 쌓였지만 협상(2/26 제네바 3차)은 결렬되지 않은 채 공습이 시작됐다. 웹 검색 한도가 소진돼 19개 가설(이란 측 군사·민방위 조치, 환율·증시 등)은 검증하지 못하고 unknown 으로 두었다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "yes",
+     "first": "2026-01-14",
+     "lead": 45,
+     "public_then": true,
+     "what": "영국: 테헤란 대사관 직원 임시 철수·원격 운영(1/14 발표); 2/27 미 공습 위협 속에 다시 철수",
+     "source": "https://en.mercopress.com/2026/01/15/uk-pulls-diplomatic-staff-out-of-tehran-amid-mounting-tension",
+     "confidence": "med"
+    },
+    {
+     "h": "g_leave_now",
+     "status": "yes",
+     "first": "2026-01-20",
+     "lead": 39,
+     "public_then": true,
+     "what": "독일 1/20 자국민에 이란 출국 권고; 미 가상대사관 2/6 출국 촉구, 폴란드 2/19 '즉시 출국', 인도 2/23 등 다수국",
+     "source": "https://aljazeera.com/news/2026/2/25/which-countries-are-urging-citizens-to-leave-iran-amid-us-threat-of-force",
+     "confidence": "med"
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "2/27 주이스라엘 미 대사가 직원에게 '출국하려면 오늘' 통지한 것만 확인 — 이동 제한·대피 지시는 확인 못 함"
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "yes",
+     "first": "2026-02-23",
+     "lead": 5,
+     "public_then": true,
+     "what": "미 국무부: 베이루트 대사관 비필수 인력·가족 철수 명령(2/23); 2/27 주이스라엘 대사관 출국 허가",
+     "source": "https://www.pbs.org/newshour/world/state-department-orders-nonessential-u-s-diplomats-to-leave-lebanon-as-tensions-with-iran-rise",
+     "confidence": "high"
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "yes",
+     "first": "2026-02-23",
+     "lead": 5,
+     "public_then": true,
+     "what": "공격국 미국이 예상 보복권에서 자국 외교관을 뺌: 베이루트 철수 명령(2/23), 이스라엘 출국 허가(2/27) — g_regional_drawdown 과 같은 사건",
+     "source": "https://wtop.com/government/2026/02/state-department-orders-nonessential-us-diplomats-to-leave-lebanon-as-tensions-with-iran-soar/",
+     "confidence": "med"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "악시오스의 트럼프 측근 '수주 내 타격 90%' 보도만 확인(익명) — 당국의 공식 '임박' 경고는 확인 못 함"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "yes",
+     "first": "2026-02-19",
+     "lead": 9,
+     "public_then": true,
+     "what": "트럼프: 이란에 핵합의 시한 '10일, 최대 15일' 제시, 불응하면 '정말 나쁜 일' 경고(2/19)",
+     "source": "https://cyprus-mail.com/2026/02/20/trump-warns-iran-of-bad-things-if-no-deal-made-sets-deadline-of-10-15-days",
+     "confidence": "high"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "결렬 아님: 2/26 제네바 3차 회담 뒤 오만 '상당한 진전', 이란 '약 1주 뒤 다음 회담' — 협상 도중 공습",
+     "source": "https://www.arabnews.pk/middle-east/omans-foreign-minister-says-iran-and-us-made-significant-progress-in-talks-2634486",
+     "confidence": "high"
+    },
+    {
+     "h": "m_buildup",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "지상군 집결은 없었음 — 당시 보도가 '지상 침공용 병력 증강은 보이지 않는다'고 명시(해·공군 전력은 m_strategic_assets)",
+     "source": "https://www.foxnews.com/politics/built-weeks-war-inside-firepower-us-has-positioned-near-iran",
+     "confidence": "med"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "yes",
+     "first": "2026-01-23",
+     "lead": 36,
+     "public_then": true,
+     "what": "미국: 링컨 항모전단 1월 말 아라비아해 도착, 약 2주 뒤 포드 항모 추가 명령, 전투기 100여 대 — 2003년 이후 최대(AP 1/23·2/26)",
+     "source": "https://www.ksat.com/news/politics/2026/01/23/a-look-at-the-us-military-assets-in-the-middle-east/",
+     "confidence": "high"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_airspace",
+     "status": "yes",
+     "first": "2026-02-25",
+     "lead": 3,
+     "public_then": true,
+     "what": "KLM: 3/1부터 암스테르담–텔아비브 운항 중단 발표(2/25, '상업·운영상 이유'); 영공 폐쇄는 개전 당일",
+     "source": "https://centreforaviation.com/news/klm-to-suspend-tel-aviv-services-from-01-mar-2026-1349951",
+     "confidence": "med"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "리알화 급락 여부는 검색 결과를 얻지 못함"
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "yes",
+     "first": "2026-02-27",
+     "lead": 1,
+     "public_then": true,
+     "what": "브렌트유 2/27 2~3% 올라 72달러대(7개월 최고) — 이란 협상·미 군사행동 우려가 원인, 연초 대비 약 20% 상승",
+     "source": "https://today.thefinancialexpress.com.bd/print/oil-prices-rise-2pc-as-us-iran-extend-talks-into-next-week-1772208806",
+     "confidence": "med"
+    },
+    {
+     "h": "f_prediction",
+     "status": "yes",
+     "first": "2026-02-07",
+     "lead": 21,
+     "public_then": true,
+     "what": "폴리마켓 '미국의 이란 타격' 2월 말 기한 확률 44%로 급등(2/7), 2/9 56% 보도; 2/22 엔 20%대로 내려감",
+     "source": "https://investor.wedbush.com/wedbush/article/predictstreet-2026-2-7-geopolitical-risk-pricing-iran-strike-odds-surge-as-polymarket-volume-hits-188m-milestone",
+     "confidence": "low"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "yes",
+     "first": "2026-02-19",
+     "lead": 9,
+     "public_then": true,
+     "what": "트럼프가 직접 '의미 있는 합의가 없으면 나쁜 일이 벌어진다, 열흘쯤 뒤 알게 될 것' 경고(2/19 평화위원회 회의)",
+     "source": "https://www.algemeiner.com/2026/02/19/trump-presses-iran-make-meaningful-deal-appears-set-10-day-deadline/",
+     "confidence": "high"
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "i_news_surge",
+     "status": "yes",
+     "first": "2026-02-19",
+     "lead": 9,
+     "public_then": true,
+     "what": "2/19 시한 발언 뒤 AP·로이터·알자지라 등이 전력 증강·각국 출국 권고를 연일 보도(보도량 수치는 확인 못 함)",
+     "source": "https://english.aawsat.com/node/5244845",
+     "confidence": "low"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "찾지 못함"
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증: 1월 이란 시위 유혈 진압과 트럼프의 개입 경고가 계기였다는 기억"
+    },
+    {
+     "h": "t_deadline",
+     "status": "yes",
+     "first": "2026-02-19",
+     "lead": 9,
+     "public_then": true,
+     "what": "트럼프의 '10~15일' 시한(2/19 제시, 3/1~6 만료 예정) — 만료 전인 9일째에 공습",
+     "source": "https://kmph.com/news/nation-world/trump-sets-1015-day-ultimatum-for-iran-to-make-a-deal-as-military-buildup-grows-state-department-air-force",
+     "confidence": "high"
+    }
+   ],
+   "missed": "협상이 진행 중인 대낮에 시작됐다(2025-06 은 새벽). 당시 보도에 '베이루트 미 대사관 감축은 역내 타격의 전조로 읽힌다'는 해석이 있었다. 악시오스가 전한 트럼프 측근의 '수주 내 타격 90%' 발언(익명·비공식), 여러 나라의 이스라엘·레바논 등 주변국 여행경보는 코드북에 맞는 칸이 없다. 예측시장은 2월 초에 올랐다가 개시 직전 '2월 말' 기한 확률이 20% 안팎으로 낮았다(기한형 시장의 한계).",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "us-venezuela-2026",
+   "name": "미국 → 베네수엘라 공습·마두로 체포",
+   "outcome": "attack",
+   "onset": "2026-01-03",
+   "window": [
+    "2025-10-05",
+    "2026-01-02"
+   ],
+   "attacker": "미국",
+   "target": "베네수엘라",
+   "kind": "us_strike",
+   "surprise": false,
+   "summary": "미국이 2026-01-03 현지 새벽 2시경 항공기 150여 대로 카라카스 등을 공습하고 마두로 대통령 부부를 체포해 미국으로 데려갔다('절대적 결의' 작전; 확인 출처 https://www.pbs.org/newshour/world/how-u-s-forces-captured-venezuelan-leader-nicolas-maduro-in-caracas ). 8월 말부터 공개적으로 진행된 카리브 증강 위에 협상 중단(10/7), 항모 파견(10/24), FAA 경고와 항공사 운항 중단(11/21~), 최후통첩 보도(12/1), 봉쇄·유조선 나포(12월)까지 공개 전조가 많았다. 반면 예측시장은 11월 초 급등 뒤 직전에는 낮았고 현지 사재기도 없었다. 주의: 웹 검색 한도가 도중에 소진돼 13개 가설은 unknown 이며 그중 9개는 아예 조사하지 못했다. unknown 항목 what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "제3국 대사관 철수 명령 여부 미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미 국무부 4단계 경보는 12/3 '문구 변경 없이' 재발행된 기존 경보라 제외. 다른 주요국의 격상 여부는 확인 못 함."
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미검증 단서: 10월 트리니다드 주재 미 대사관의 보안 경보라는 기억 — 인력 감축이었는지 확인 필요. 이번에는 미조사."
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "창 안에 미국이 자국 외교관·국민을 뺀 조치는 찾지 못함. 미 대사관 상주 여부도 이번 조사에서 출처 확인 못 함."
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "yes",
+     "first": "2025-11-23",
+     "lead": 41,
+     "public_then": true,
+     "what": "미 당국자 4명이 로이터에 '수일 내 베네수엘라 작전의 새 국면 개시'라고 밝힘(익명). 정부 공식 명의의 경고는 아님.",
+     "source": "https://www.thestar.com.my/news/world/2025/11/23/exclusive-us-to-launch-new-phase-of-venezuela-operations-sources-say",
+     "confidence": "low"
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "yes",
+     "first": "2025-12-01",
+     "lead": 33,
+     "public_then": true,
+     "what": "트럼프가 11/21 통화에서 마두로에게 11/28까지 출국하라고 통보했다고 로이터가 12/1 보도. 트럼프도 통화 사실은 확인.",
+     "source": "https://www.bairdmaritime.com/security/trump-rejected-maduro-requests-on-call-options-narrow-for-venezuela-leader",
+     "confidence": "med"
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "yes",
+     "first": "2025-10-07",
+     "lead": 88,
+     "public_then": true,
+     "what": "트럼프가 특사 그레넬에게 마두로 정부와의 외교 접촉을 모두 중단하라고 지시(NYT 10/6·로이터 10/7 보도).",
+     "source": "https://www.thestar.com.my/news/world/2025/10/07/trump-calls-off-diplomatic-outreach-to-venezuela-us-official-says",
+     "confidence": "high"
+    },
+    {
+     "h": "m_buildup",
+     "status": "yes",
+     "first": "2025-10-24",
+     "lead": 71,
+     "public_then": true,
+     "what": "8월 말 시작된 미군 카리브 증강이 창 안에서 확대: 10/24 항모 파견 명령, 11/16 도착 시 병력 약 1.2만 명·함정 10여 척.",
+     "source": "https://www.ksat.com/news/2025/12/05/a-timeline-of-the-us-militarys-buildup-near-venezuela-and-attacks-on-alleged-drug-smuggling-boats/",
+     "confidence": "high"
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미검증 단서: 푸에르토리코 옛 루스벨트 로즈 기지 재가동 등 전진 거점 정비라는 기억. 이번에는 미조사."
+    },
+    {
+     "h": "m_mobilization",
+     "status": "yes",
+     "first": "2025-11-11",
+     "lead": 53,
+     "public_then": true,
+     "what": "베네수엘라(방어 측): 파드리노 국방장관이 육해공·예비전력 약 20만 명 동원·배치를 발표(11/11).",
+     "source": "https://www.metro.pr/noticias/2025/11/11/venezuela-despliega-200000-militares-ante-amenaza-de-eeuu/",
+     "confidence": "high"
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미검증 단서: 10~11월 미군–트리니다드 합동훈련. 증강은 훈련이 아니라 '작전'으로 공표됐다는 기억 — no 후보. 이번에는 미조사."
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "yes",
+     "first": "2025-10-24",
+     "lead": 71,
+     "public_then": true,
+     "what": "미국: 헤그세스 국방장관이 항모 제럴드 R. 포드를 카리브로 보내라고 명령(10/24), 11/16 도착. 12월 하순 특수전 항공기 추가 전개 보도.",
+     "source": "https://www.ksat.com/news/2025/12/05/a-timeline-of-the-us-militarys-buildup-near-venezuela-and-attacks-on-alleged-drug-smuggling-boats/",
+     "confidence": "high"
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미검증 단서: 베네수엘라의 민병대·주민 방어 훈련 보도라는 기억 — 날짜 확인 필요. 이번에는 미조사."
+    },
+    {
+     "h": "m_airspace",
+     "status": "yes",
+     "first": "2025-11-21",
+     "lead": 43,
+     "public_then": true,
+     "what": "미 FAA가 베네수엘라 비행정보구역 보안 NOTAM 발령(11/21), 이베리아·TAP·아비앙카 등 운항 중단. 11/29 트럼프 '영공 전면 폐쇄로 간주'.",
+     "source": "https://www.flightradar24.com/blog/aviation-news/us-issues-security-notam-for-venezuelan-airspace/",
+     "confidence": "high"
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "yes",
+     "first": "2025-11-11",
+     "lead": 53,
+     "public_then": true,
+     "what": "ICAO 지역 안전경보(11/11)가 베네수엘라·트리니다드 일대 GNSS 교란 경고, FAA NOTAM(11/21)도 교란 증가 명시. 12/10 항공기 5대 GPS 상실.",
+     "source": "https://www.icao.int/sites/default/files/RASGPA/Documents/RSIA-03-GNSS-Interference.pdf",
+     "confidence": "med"
+    },
+    {
+     "h": "m_cyber",
+     "status": "yes",
+     "first": "2025-12-15",
+     "lead": 19,
+     "public_then": true,
+     "what": "국영석유 PDVSA가 주말 사이 사이버 공격을 받았다고 발표(12/15)하고 미국을 배후로 지목. 수출 시스템 마비 보도, 배후는 미확인.",
+     "source": "https://therecord.media/venezuela-state-oil-company-blames-cyberattack-on-us",
+     "confidence": "med"
+    },
+    {
+     "h": "m_border_fire",
+     "status": "yes",
+     "first": "2025-12-10",
+     "lead": 24,
+     "public_then": true,
+     "what": "9월부터 이어진 미군의 선박 공격에 더해 12/10경 유조선 나포, 봉쇄 선언, CIA의 베네수엘라 영토 드론 공격으로 12월에 급증.",
+     "source": "https://www.wlrn.org/americas/2026-01-03/a-timeline-of-the-us-militarys-buildup-and-strikes-against-venezuela-leading-to-maduros-capture",
+     "confidence": "med"
+    },
+    {
+     "h": "m_alert_level",
+     "status": "yes",
+     "first": "2025-11-11",
+     "lead": 53,
+     "public_then": true,
+     "what": "베네수엘라: 군 약 20만 명 '완전 작전 준비태세' 돌입 발표(11/11). 9/29 '대외 소요사태' 비상 포고 서명은 창 이전.",
+     "source": "https://www.aljazeera.com/amp/news/2025/11/11/venezuela-prepares-massive-deployment-of-forces-in-case-of-us-attack",
+     "confidence": "high"
+    },
+    {
+     "h": "m_leadership",
+     "status": "yes",
+     "first": "2025-12-03",
+     "lead": 31,
+     "public_then": true,
+     "what": "NYT: 마두로가 정밀타격·급습에 대비해 잠자리와 휴대전화를 수시로 바꾸고 쿠바 경호 인력을 늘림(12/2~3 보도, 익명 소식통).",
+     "source": "https://www.wlrn.org/americas/2025-12-03/rotating-beds-and-cellphones-maduro-plans-to-outlast-trump",
+     "confidence": "med"
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "볼리바르 급락 여부를 검색했으나 자료를 찾지 못함."
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "카라카스 증시 반응을 검색했으나 자료를 찾지 못함."
+    },
+    {
+     "h": "f_sovereign",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "금리 급등이 아니라 반대였음: 부도 상태 국채가 정권 교체 기대로 연중 2배 넘게 올랐고 11/12 씨티도 추가 상승을 전망.",
+     "source": "https://www.inkl.com/news/defaulted-venezuelan-bonds-have-climbed-more-than-100-this-year-as-traders-bet-on-regime-change",
+     "confidence": "med"
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "유가·금 반응을 검색했으나 이 위기 탓 급등을 뒷받침하는 자료를 찾지 못함."
+    },
+    {
+     "h": "f_prediction",
+     "status": "yes",
+     "first": "2025-11-01",
+     "lead": 63,
+     "public_then": true,
+     "what": "폴리마켓 '미국의 베네수엘라 타격' 확률이 11/1 65%까지 올랐다가 11/10 약 25%로 하락. 공격 직전 '마두로 1월 내 퇴진'은 5~6%.",
+     "source": "https://boz.substack.com/p/prediction-markets-regime-change",
+     "confidence": "low"
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "yes",
+     "first": "2025-10-07",
+     "lead": 88,
+     "public_then": true,
+     "what": "트럼프가 마약 조직을 '이제 육상에서 겨냥해야 한다'고 발언(10/7 보도). 11/29에는 직접 '베네수엘라 영공은 전면 폐쇄로 간주하라'고 게시.",
+     "source": "https://365.military.com/daily-news/2025/10/07/trump-halts-venezuela-talks-us-considers-cartel-targets-land.html",
+     "confidence": "med"
+    },
+    {
+     "h": "i_pretext",
+     "status": "yes",
+     "first": "2025-10-07",
+     "lead": 88,
+     "public_then": true,
+     "what": "미 행정부가 마두로를 '태양의 카르텔' 수괴·마약테러로 규정, 카르텔 타격을 뒷받침하는 기밀 법률 의견 보도(10/7). 서사 자체는 8월부터.",
+     "source": "https://san.com/cc/trump-ends-venezuela-talks-classified-opinion-backs-strikes-on-cartels/",
+     "confidence": "med"
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 민병대 입대 운동(8~9월 시작)과 '장기 항전' 선전이라는 기억 — 창 안 날짜 확인 필요. 이번에는 미조사."
+    },
+    {
+     "h": "i_news_surge",
+     "status": "yes",
+     "first": "2025-10-24",
+     "lead": 71,
+     "public_then": true,
+     "what": "항모 파견 명령(10/24) 뒤 AP가 연표 기사를 계속 갱신하고 로이터 단독 보도가 이어지는 등 국제 보도 급증. 정량 자료는 없음.",
+     "source": "https://www.ksat.com/news/2025/12/05/a-timeline-of-the-us-militarys-buildup-near-venezuela-and-attacks-on-alleged-drug-smuggling-boats/",
+     "confidence": "low"
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "알자지라 12/5·NPR 12/18: 카라카스 거리는 평소대로였고 사재기 없음. 줄서기·사재기는 1/3 공격 뒤에야 보도됨.",
+     "source": "https://www.aljazeera.com/news/2025/12/5/the-homeland-is-the-homeland-venezuelans-brace-for-possible-us-attack",
+     "confidence": "med"
+    },
+    {
+     "h": "t_trigger",
+     "status": "no",
+     "first": null,
+     "lead": null,
+     "public_then": null,
+     "what": "미국 측 사상자가 난 계기 사건이나 보복 다짐 없이 미국이 주도. AP 연표에 그런 사건이 없고 명분은 마약·카르텔 혐의였음.",
+     "source": "https://www.wlrn.org/americas/2026-01-03/a-timeline-of-the-us-militarys-buildup-and-strikes-against-venezuela-leading-to-maduros-capture",
+     "confidence": "med"
+    },
+    {
+     "h": "t_deadline",
+     "status": "yes",
+     "first": "2025-12-01",
+     "lead": 33,
+     "public_then": true,
+     "what": "마두로 출국 시한(11/28)이 있었으나 만료 뒤인 12/1에야 보도로 알려짐. 공격 시점에 걸려 있던 공개 시한은 없었음.",
+     "source": "https://www.bairdmaritime.com/security/trump-rejected-maduro-requests-on-call-options-narrow-for-venezuela-leader",
+     "confidence": "low"
+    }
+   ],
+   "missed": "해상 봉쇄 선언과 유조선 나포(경제 봉쇄형 압박)는 코드북에 맞는 항목이 없어 m_border_fire 에 넣었다. 공격하는 쪽의 비밀공작 승인이 공개된 점, 대상국이 운항을 멈춘 외국 항공사 6곳의 운항권을 취소한 점, 공격 직전(12/31~1/2) 신규 계정의 예측시장 대량 베팅(내부자 의혹)도 눈에 띄었다.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "venezuela-guyana-2023",
+   "name": "베네수엘라–가이아나 에세키보 위기",
+   "outcome": "no_war",
+   "onset": null,
+   "window": [
+    "2023-11-01",
+    "2024-02-29"
+   ],
+   "attacker": "베네수엘라",
+   "target": "가이아나",
+   "kind": "interstate",
+   "surprise": false,
+   "summary": "2023-12-03 베네수엘라가 에세키보 병합 국민투표를 치르고 병합 조치를 예고해 긴장이 높아졌으나 12/14 아가일 선언으로 무력 불사용에 합의해 전쟁으로 가지 않았다(경과·날짜는 의뢰서 기준). 웹 검색 한도가 소진돼 이 사례는 한 건도 출처를 확인하지 못했다 — 33개 가설 모두 unknown 이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미검증 단서: 조지타운 주재 공관 철수 보도는 기억에 없음 — no 후보."
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 12/3 국민투표 뒤 마두로가 '과야나 에세키바'주 신설·석유 허가를 지시하고 해상 석유기업에 철수 시한을 줬다는 기억."
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 결렬이 아니라 12/14 아가일 선언으로 무력 불사용에 합의 — no 후보."
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 가이아나 접경 베네수엘라군 이동. 브라질의 호라이마 병력 증강, 2024-02 위성사진 보고라는 기억."
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "미검증 단서: 12/28 영국 군함 도착에 맞서 마두로가 5천여 명 규모 '방어 훈련'을 지시했다는 기억."
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미검증 단서: 영국 초계함 1척(12월 말)과 12/7 미 남부사령부–가이아나 합동 비행 정도였다는 기억."
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 창 안에 교전은 없었다는 기억 — no 후보."
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "미검증 단서: 12월 초 가이아나 대통령이 방위군 '완전 경계'를 밝혔다는 기억."
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 12/8 안보리 비공개 긴급회의, 카리브공동체 긴급 정상회의라는 기억."
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미검증 단서: 엑슨모빌은 철수하지 않겠다고 밝혔다는 기억 — no 후보."
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 마두로의 에세키보 병합 위협. 12/5 새 지도 공개·조치 발표(기억)."
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 가이아나를 '엑슨모빌·미 남부사령부의 하수인'으로, 영국 함정을 '도발'로 규정했다는 기억."
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: '에세키보는 우리 것' 국민투표 운동 — 전시 동원 서사에 해당하는지 확인 필요."
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 12월 초 국제 보도가 늘었다는 기억 — 정량 자료 확인 필요."
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미검증 단서: 가이아나 접경 주민의 불안 보도가 있었는지 확인 필요."
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 12/6 가이아나 군 헬기 추락(5명 사망)은 악천후 사고였고 보복 다짐은 없었다는 기억 — no 후보."
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 12/3 국민투표 날짜. 12/1 국제사법재판소 잠정조치 명령(기억)."
+    }
+   ],
+   "missed": "미검증: 이웃 강국(브라질)의 접경 증강과 역내 기구(카리브공동체·CELAC)의 신속 중재가 확전을 막은 요인으로 꼽혔다는 기억 — '제3국 중재 성사'라는 완화 신호는 코드북에 칸이 없다. 재조사 때 확인 필요.",
+   "retrieved": "2026-11-11"
+  },
+  {
+   "id": "yomkippur-1973",
+   "name": "이집트·시리아 → 이스라엘 기습 (욤키푸르 전쟁)",
+   "outcome": "war",
+   "onset": "1973-10-06",
+   "window": [
+    "1973-07-08",
+    "1973-10-05"
+   ],
+   "attacker": "이집트·시리아",
+   "target": "이스라엘",
+   "kind": "interstate",
+   "surprise": true,
+   "summary": "1973-10-06 이집트와 시리아가 속죄일에 이스라엘을 동시 기습했다(개시일은 의뢰서 기준이며 검색된 CIA 문서 날짜와 일치). 이번 조사에서 출처로 확인한 것은 소련이 10/3~5 이집트·시리아에서 자국민 가족을 급히 철수시킨 일(첩보로만 파악)과 이스라엘 군 정보국이 10/4에도 전쟁 가능성을 낮게 봤다는 점뿐이다. 웹 검색 한도가 한 번 검색한 뒤 소진돼 나머지 32개 가설은 unknown 이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+   "signals": [
+    {
+     "h": "g_evac_order",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_leave_now",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_staff_restrict",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_regional_drawdown",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "g_attacker_evac",
+     "status": "yes",
+     "first": "1973-10-04",
+     "lead": 2,
+     "public_then": false,
+     "what": "소련(공격 측 후원국)이 이집트·시리아에서 자국민 가족을 급히 공수 철수. 시작일은 10/3·10/4로 갈려 늦은 날 채택, 10/5까지 약 1천 명.",
+     "source": "https://www.cia.gov/readingroom/docs/1973-10-16B-CIA.pdf",
+     "confidence": "med"
+    },
+    {
+     "h": "g_intel_warning",
+     "status": "unknown",
+     "what": "검색 확인: 이스라엘 군 정보국은 10/4에도 전쟁 가능성 '낮음' 평가. 다만 소련 측 언론 경고설이 있어 no 로 확정하지 못함."
+    },
+    {
+     "h": "g_ultimatum",
+     "status": "unknown",
+     "what": "미검증 단서: 최후통첩·단교는 없었다는 기억 — no 후보."
+    },
+    {
+     "h": "g_talks_collapse",
+     "status": "unknown",
+     "what": "미검증 단서: 진행 중인 협상이 없었고 키신저가 11월 이후 회담을 구상 중이었다는 기억 — no 후보."
+    },
+    {
+     "h": "m_buildup",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 9월 하순부터 골란 전선 시리아군 증강, 수에즈 운하 이집트군 집결. 대부분 첩보로만 파악."
+    },
+    {
+     "h": "m_logistics",
+     "status": "unknown",
+     "what": "미검증 단서: 이집트군 도하 장비의 운하 전방 이동이 항공정찰에 잡혔다는 기억(비공개)."
+    },
+    {
+     "h": "m_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 이집트가 9월 말 예비역을 소집했다가 10/4 일부 해제를 발표(기만), 이스라엘은 10/5 휴가 취소라는 기억."
+    },
+    {
+     "h": "m_exercise_cover",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 이집트 '타흐리르 41' 훈련(10/1경 시작)이 도하 공격의 위장."
+    },
+    {
+     "h": "m_strategic_assets",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_civil_defense",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_airspace",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "m_gps_ew",
+     "status": "unknown",
+     "what": "1973년에는 해당 수단 없음. 미조사."
+    },
+    {
+     "h": "m_cyber",
+     "status": "unknown",
+     "what": "1973년에는 해당 수단 없음. 미조사."
+    },
+    {
+     "h": "m_border_fire",
+     "status": "unknown",
+     "what": "미검증 단서: 9/13 시리아 상공 공중전(시리아기 다수 격추) 말고는 전선이 조용했다는 기억."
+    },
+    {
+     "h": "m_alert_level",
+     "status": "unknown",
+     "what": "의뢰서 단서(미검증): 이스라엘군 10/5 부분 경계(상비군 최고 경계) — 당시 공개됐는지 확인 필요."
+    },
+    {
+     "h": "m_leadership",
+     "status": "unknown",
+     "what": "미검증 단서: 10/5 이스라엘 내각 긴급 협의(비공개)라는 기억."
+    },
+    {
+     "h": "f_fx",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_equity",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_sovereign",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_safe_haven",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "f_prediction",
+     "status": "unknown",
+     "what": "당시 예측시장 없음."
+    },
+    {
+     "h": "f_capital_flight",
+     "status": "unknown",
+     "what": "미조사(웹 검색 한도 소진)."
+    },
+    {
+     "h": "i_leader_threat",
+     "status": "unknown",
+     "what": "미검증 단서: 사다트의 9/28 연설은 의도적으로 절제됐다는 기억 — no 후보."
+    },
+    {
+     "h": "i_pretext",
+     "status": "unknown",
+     "what": "미검증 단서: 이집트의 '이스라엘 선제공격' 주장은 개전 당일이었다는 기억(당일이면 no)."
+    },
+    {
+     "h": "i_state_mobilization",
+     "status": "unknown",
+     "what": "미검증 단서: 이집트 매체는 평시 분위기를 연출(기만)했다는 기억 — no 후보."
+    },
+    {
+     "h": "i_news_surge",
+     "status": "unknown",
+     "what": "미검증 단서: 국제 관심은 오스트리아 쇠나우 인질 사건(9/28)에 쏠렸다는 기억 — no 후보."
+    },
+    {
+     "h": "i_public_anxiety",
+     "status": "unknown",
+     "what": "미검증 단서: 이스라엘 대중은 속죄일 휴일을 보내다 기습을 당했다는 기억 — no 후보."
+    },
+    {
+     "h": "t_trigger",
+     "status": "unknown",
+     "what": "미검증 단서: 9/13 공중전 뒤 시리아의 보복 가능성 평가. 공개 보복 다짐이 있었는지 확인 필요."
+    },
+    {
+     "h": "t_deadline",
+     "status": "unknown",
+     "what": "미검증 단서: 공개된 시한은 없었다는 기억 — no 후보."
+    }
+   ],
+   "missed": "기만이 핵심이었다(미검증, 재조사 필요): 훈련을 위장으로 쓰고 예비역 해제를 발표해 평시처럼 보이게 했다는 점. 공격 측 후원국의 자국민 철수가 가장 뚜렷한 막판 신호였지만 공개되지 않았다. 검색으로 확인: 이스라엘 군 정보국은 소련 민간인 철수를 10/5에야 알았고 그 전날까지 전쟁 가능성을 낮게 봤다.",
+   "retrieved": "2026-11-11"
+  }
+ ]
+}

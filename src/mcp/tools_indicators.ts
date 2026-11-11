@@ -71,6 +71,52 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
   );
 
   server.registerTool(
+    "get_precursor_checklist",
+    {
+      title: "전쟁 전조 점검표 (규칙 3.0)",
+      description:
+        "실제 전쟁 사례에서 뽑은 전조 33개가 지금 한반도에서 켜졌는지의 점검표. 자동으로 본 것은 채워져 있고, '확인:'이 붙은 줄은 분석관만 확인할 수 있다. " +
+        "search_news 등으로 확인한 뒤 record_precursor_checks 로 남긴다. 한 줄에 하나씩 짧게 온다.",
+      inputSchema: {},
+    },
+    async () => {
+      try {
+        const { buildState } = await import("../core/state.js");
+        const { checklistText } = await import("../core/proximity.js");
+        const st = await buildState(store, Date.now() - 14 * 24 * 3600_000, env.DISABLED_SOURCES);
+        const p = st.warRisk.live.proximity;
+        return { content: [{ type: "text" as const, text: p ? checklistText(p) : "전조 모형을 계산하지 못했다" }] };
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
+    "record_precursor_checks",
+    {
+      title: "전조 확인 기록 (분석관)",
+      description:
+        "점검표에서 분석관이 확인한 항목을 부호로 남긴다. 형식: 'id=값:근거' 를 공백으로 이어 쓴다. 값은 1(확인됨) · 0.5(보도만·미확인) · 0(찾아봤지만 없음). " +
+        "예: 'g_talks_collapse=0 i_leader_threat=1:김정은 11/9 연설에서 \"영토 평정\" 언급 m_logistics=0'. 근거는 60자 안쪽, 켜짐·약함에만 쓴다. " +
+        "찾아보지 않은 항목은 쓰지 않는다(0 은 '찾아봤지만 없음'이다). 자동으로 켜진 항목을 0 으로 적으면 '약함'으로만 낮아진다. 36시간 유효.",
+      inputSchema: { checks: z.string().min(3).max(4000).describe("'id=1:근거 id=0 id=0.5:근거' 형식") },
+    },
+    async ({ checks }) => {
+      try {
+        const { parseChecks, PROX_CHECKS_KEY } = await import("../core/proximity.js");
+        const c = parseChecks(checks, Date.now());
+        const n = Object.keys(c.items).length;
+        if (!n) return fail(new Error("읽을 수 있는 항목이 없다 — 'id=값:근거' 형식인지 확인"));
+        await store.setKv(PROX_CHECKS_KEY, JSON.stringify(c));
+        return out({ saved: n, on: Object.entries(c.items).filter(([, v]) => v.v > 0).map(([k]) => k) });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
     "get_war_risk",
     {
       title: "전쟁 위험 모델 (5개 영역 → 국면 5단계 → 30일 확률)",
@@ -86,7 +132,9 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
         const st = await buildState(store, Date.now() - 14 * 24 * 3600_000, env.DISABLED_SOURCES);
         const t = st.tension;
         return out({
-          now: fmtKst(st.now), ...st.warRisk, at: undefined, history: st.history,
+          now: fmtKst(st.now), ...st.warRisk, at: undefined, live: undefined,
+          proximity: st.warRisk.proximity && { note: "규칙 3.0 전조 모형 — 자세한 점검표는 get_precursor_checklist", index: st.warRisk.proximity.index, text: st.warRisk.proximity.text, vs: st.warRisk.proximity.vs, mix: st.warRisk.proximity.mix, on: st.warRisk.proximity.signals.filter((x) => x.s === "on").map((x) => `${x.ko}${x.weak ? "(약함)" : ""}`), waiting: st.warRisk.proximity.waiting },
+          history: st.history,
           tension: {
             note: "긴장 온도계 — 2016년 이후 하루하루를 같은 잣대(북한 도발·사람들의 불안·한국만의 돈 움직임)로 잰 순위. 확률이 아니다.",
             raw: t.raw, percentile: t.pct, parts: t.parts, drivers: t.drivers,

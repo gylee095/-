@@ -104,6 +104,8 @@ export interface WarRisk {
   market?: { pct: number; usualPct?: number; question: string; daysLeft?: number; url?: string };
   blindSpots: string[];
   headline: string;
+  /** 규칙 3.0: 전조 모형의 계산 (proximity.ts) */
+  proximity?: import("./proximity.js").ProximityView;
 }
 
 const H = 3600_000;
@@ -134,18 +136,25 @@ export interface WarRiskInput {
   patterns: Pattern[];
 }
 
-export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): WarRisk {
-  const by = Object.fromEntries(board.map((b) => [b.id, b])) as Record<string, BoardRow>;
+/** 실제 사건이 주는 바닥: 최근 7일 도발 · 최근 14일 중대 사건 · 지금 교전 (규칙 3.0 도 같은 것을 쓴다 — proximity.ts) */
+export function eventFloors(briefs: EventBrief[], now: number) {
   const recent = (ms: number) => briefs.filter((b) => now - b.at < ms && now - b.at >= -H);
   // 한국을 떠나는 움직임(철수·출국 권고)은 북한의 도발이 아니라 '정부의 행동'으로 센다
   const prov7 = recent(7 * DAY).filter((b) => !b.evacuation && !b.posture && (b.isProvocation || b.danger.level >= 3));
-  const maxDanger7 = prov7.reduce((m, b) => Math.max(m, b.danger.level), 0);
   const serious14 = recent(14 * DAY).filter((b) => !b.evacuation && !b.posture && b.danger.level >= 5);
+  const CLASH_RE = /교전|사상자|전사|사망|부상|대응\s?사격|맞대응|exchange of fire|casualt|killed/i;
+  const clashNow = recent(2 * DAY).filter((b) => b.danger.level >= 5 && CLASH_RE.test(`${b.headline} ${b.latest?.title ?? ""}`));
+  return { prov7, serious14, clashNow };
+}
+
+export function assessWarRisk({ now, board, briefs, patterns }: WarRiskInput): WarRisk {
+  const by = Object.fromEntries(board.map((b) => [b.id, b])) as Record<string, BoardRow>;
+  const recent = (ms: number) => briefs.filter((b) => now - b.at < ms && now - b.at >= -H);
+  const { prov7, serious14, clashNow } = eventFloors(briefs, now);
+  const maxDanger7 = prov7.reduce((m, b) => Math.max(m, b.danger.level), 0);
   const evac7 = recent(7 * DAY).filter((b) => b.evacuation);
   // 경보 단어(태세 변화·발 빼기 행동): 영역별로 최근 7일 가장 높은 것
   const posture7 = recent(7 * DAY).flatMap((b) => (b.posture ?? []).map((p) => ({ ...p, headline: b.headline })));
-  const CLASH_RE = /교전|사상자|전사|사망|부상|대응\s?사격|맞대응|exchange of fire|casualt|killed/i;
-  const clashNow = recent(2 * DAY).filter((b) => b.danger.level >= 5 && CLASH_RE.test(`${b.headline} ${b.latest?.title ?? ""}`));
 
   const domains: DomainState[] = DOMAINS.map((d) => {
     const rows = d.indicators.map((id) => by[id]).filter(Boolean);

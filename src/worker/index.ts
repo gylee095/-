@@ -198,6 +198,11 @@ export default {
           await recordRisk(store, { ...st.warRisk, at: report.at }, { raw: st.tension.raw, pct: st.tension.pct }, st.forecast.p30).catch(async (e) => {
             await store.setKv("risk:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
+          // 규칙 3.0: 오늘의 전조 한 줄을 남긴다 (달라졌을 때만 쓴다) — 쌓인 기록이 '한반도 평소 빈도'를 고친다
+          if (st.warRisk.live.proximity) {
+            const { loadProx, recordProx } = await import("../core/proximity.js");
+            await recordProx(store, st.warRisk.live.proximity, st.warRisk.live.phase, report.at, (await loadProx(store)).hist).catch(() => false);
+          }
           // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
           // 단계 알림은 5분마다 하는 계산(live)으로 판단한다 — 공식 판정(하루 한 번)으로 하면 바뀐 단계를 늦게 알게 된다
           await notifyPhaseChange(store, env, st.warRisk.live, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
@@ -431,7 +436,8 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const ab = env.STAGING ? await abCompare(store, st.warRisk.live) : undefined;
     return json({
       ...st,
-      ...(ab ? { ab } : {}),
+      // 시험 서버: 본 서버의 '오늘의 판정'(이전 규칙)이 아니라 이 코드의 지금 판정을 보인다 — 실험 결과를 보는 곳이므로
+      ...(ab ? { ab, warRisk: { ...st.warRisk.live, live: st.warRisk.live } } : {}),
       setup: {
         ntfySubscribeUrl: env.NTFY_TOPIC ? `${env.NTFY_SERVER ?? "https://ntfy.sh"}/${env.NTFY_TOPIC}` : null,
         connectorUrl: `${url.origin}/mcp/${env.KEW_SECRET}`,

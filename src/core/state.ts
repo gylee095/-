@@ -18,6 +18,7 @@ import type { RiskSummary } from "./history.js";
 import { liveInputs, tensionOf, tensionView } from "./tension.js";
 import { checkFingerprints } from "./fingerprints.js";
 import { forecastMajor, loadMajorDays } from "./forecast.js";
+import { assessProximity, loadProx, withProximity } from "./proximity.js";
 
 export interface BoardRow {
   id: string;
@@ -112,7 +113,10 @@ export async function buildState(store: Store, since: number, disabledSources = 
   // 규칙 기반 해설: 숫자 → 뜻 → 조합 힌트 (클로드 분석관은 이 위에서 추론한다)
   const interpretation = interpret({ now, threat, board, patterns: livePatterns, briefs: enriched.map((e) => e.brief) });
   // 전쟁 위험: 다섯 영역 → 국면 5단계 → 30일 확률 범위
-  const warRiskLive = assessWarRisk({ now, board, briefs: enriched.map((e) => e.brief), patterns: livePatterns });
+  // 규칙 3.0 (11/11): 단계·확률은 전조 모형이 정한다 — 영역 수준 같은 설명은 이전 규칙의 것을 그대로 쓴다
+  const briefsAll = enriched.map((e) => e.brief);
+  const prox = await loadProx(store).catch(() => ({}) as Awaited<ReturnType<typeof loadProx>>);
+  const warRiskLive = withProximity(assessWarRisk({ now, board, briefs: briefsAll, patterns: livePatterns }), assessProximity(board, briefsAll, now, prox.hist, prox.checks), briefsAll, now);
   // 사람에게 보이는 숫자는 하루 한 번 정하는 '오늘의 판정' (11/6). 아직 저장된 것이 없으면 지금 계산을 그대로 보인다
   const official: Official | undefined = officialRaw ? JSON.parse(officialRaw) : makeOfficial(warRiskLive, now, "first");
   const warRisk = applyOfficial(warRiskLive, official, officialPrevRaw ? JSON.parse(officialPrevRaw) : undefined);

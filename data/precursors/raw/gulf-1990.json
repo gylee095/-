@@ -11,17 +11,22 @@
   "target": "쿠웨이트",
   "kind": "interstate",
   "surprise": false,
-  "summary": "1990-08-02 이라크가 쿠웨이트를 침공해 점령했다(개시일은 검색으로 확인). 이번 조사에서 출처로 확인한 것은 7월 중순~하순 공화국수비대의 접경 집결(7월 말 약 10만 명), 7/25 사담–글래스피 미 대사 면담, 7/31 제다 회담과 그 결렬뿐이다. 웹 검색 한도가 한 번 검색한 뒤 소진돼 나머지 31개 가설은 unknown 이고 surprise 값도 잠정값이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "1990-08-02 이라크가 쿠웨이트를 침공했다(위키백과로 개시일 확인). 7/15 아랍연맹 각서와 사담의 무력 위협, 7/23경 접경 병력 집결(CIA 보고 3만), 미 급유기·함정 파견, 7/31 제다 회담과 결렬이 전조였다. 그러나 쿠웨이트군은 7/19 경계를 풀었고 미 대사·영국 대사관은 전면 침공 가능성을 낮게 봐 공항도 당일까지 정상이었다. 대사관·시장 쪽은 확인하지 못했다.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미검증 단서: 침공 전 제3국 대사관 철수는 없었고 서방인 수천 명이 발이 묶였다는 기억 — no 후보."
+      "what": "침공 전 제3국 대사관 철수 서술은 찾지 못함(영국 대사관은 전면 침공 가능성 낮다고 답변 — no 후보이나 직접 근거 없음)."
     },
     {
       "h": "g_leave_now",
-      "status": "unknown",
-      "what": "미검증 단서: 침공 전 여행경보 격상은 없었다는 기억(영국항공 149편이 8/2 쿠웨이트 착륙) — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "영국 외무부는 쿠웨이트를 위험 지역으로 지정하지 않았고 대사관은 항공사에 전면 침공 가능성이 낮다고 답함(BA149편 8/2 착륙).",
+      "source": "https://en.wikipedia.org/wiki/British_Airways_Flight_149#Immediate_reaction",
+      "confidence": "med"
     },
     {
       "h": "g_staff_restrict",
@@ -40,13 +45,18 @@
     },
     {
       "h": "g_intel_warning",
-      "status": "unknown",
-      "what": "미검증 단서: CIA의 '전쟁 경고'(7/25경)·'공격 경고'(8/1)는 내부 보고였고 공개 경고는 없었다는 기억."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "공개 임박 경고 없음: 글래스피 대사는 전쟁이 임박하지 않았다고 봤고, 켈리 차관보는 침공 며칠 전 공개 청문회에서 가정이라며 답을 피함.",
+      "source": "https://en.wikipedia.org/wiki/Iraqi_invasion_of_Kuwait#Iraq%E2%80%93United_States_correspondence",
+      "confidence": "med"
     },
     {
       "h": "g_ultimatum",
       "status": "unknown",
-      "what": "미검증 단서: 7/15~16 아지즈 외무장관의 아랍연맹 서한(쿠웨이트 비난). 시한을 단 최후통첩은 없었다는 기억."
+      "what": "7/15 아랍연맹 각서로 요구·위협은 했으나 시한을 단 최후통첩·단교가 있었는지는 확인하지 못함."
     },
     {
       "h": "g_talks_collapse",
@@ -54,8 +64,8 @@
       "first": "1990-08-01",
       "lead": 1,
       "public_then": true,
-      "what": "사우디 제다에서 7/31 열린 이라크–쿠웨이트 회담이 결렬(이라크가 100억 달러 요구)되고 곧 침공. 결렬일은 늦은 날짜(8/1) 채택.",
-      "source": "https://www.wikipedia.com/wiki/Iraq-Kuwait_War",
+      "what": "7/31 제다 회담에서 이라크가 100억 달러 요구, 쿠웨이트는 5억 제시 — 결렬 뒤 즉시 침공 명령. 결렬일은 의뢰서의 늦은 날짜(8/1) 채택.",
+      "source": "https://en.wikipedia.org/wiki/Gulf_War#Invasion_of_Kuwait",
       "confidence": "med"
     },
     {
@@ -64,8 +74,8 @@
       "first": "1990-07-24",
       "lead": 9,
       "public_then": true,
-      "what": "공화국수비대가 7월 중순부터 쿠웨이트 접경에 집결, 7월 말 약 10만 명. 첫 날짜가 검색 자료(7/16)와 의뢰서(7/21~24)에서 달라 가장 늦은 7/24 채택(재확인 필요).",
-      "source": "https://www.wikipedia.com/wiki/Iraq-Kuwait_War",
+      "what": "7/23 CIA가 이라크군 3만 접경 이동 보고, 7/25 미 대사가 '남부 대규모 병력'을 따짐. 늦은 날짜 채택. 당시 언론 공개 여부는 직접 확인 못 함.",
+      "source": "https://en.wikipedia.org/wiki/Gulf_War#Background",
       "confidence": "low"
     },
     {
@@ -75,8 +85,13 @@
     },
     {
       "h": "m_mobilization",
-      "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "쿠웨이트는 동원하지 않았고 7/19 군 경계를 풀어 침공 때 다수가 휴가 중. 이라크 쪽 예비군 소집 서술은 찾지 못함(상비 공화국수비대 투입).",
+      "source": "https://en.wikipedia.org/wiki/Gulf_War#Invasion_of_Kuwait",
+      "confidence": "low"
     },
     {
       "h": "m_exercise_cover",
@@ -85,8 +100,13 @@
     },
     {
       "h": "m_strategic_assets",
-      "status": "unknown",
-      "what": "미검증 단서: 7/24 미국–UAE 급유기 훈련 정도였고 항모 증파는 침공 뒤였다는 기억 — no 후보."
+      "status": "yes",
+      "first": "1990-07-24",
+      "lead": 9,
+      "public_then": true,
+      "what": "미국이 이라크의 위협에 대응해 급유기와 전투함을 걸프에 보냄(소규모, 항모 증파 아님). 7/23 걸프 함대 경계 뒤로 보고 7/24 채택.",
+      "source": "https://en.wikipedia.org/wiki/Gulf_War#Background",
+      "confidence": "low"
     },
     {
       "h": "m_civil_defense",
@@ -95,8 +115,13 @@
     },
     {
       "h": "m_airspace",
-      "status": "unknown",
-      "what": "미검증 단서: 영공·공항은 침공 당일까지 정상 운영됐다는 기억(영국항공 149편 착륙) — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "쿠웨이트 공항은 침공 당일까지 정상 운영 — 관제와 앞선 항공편 모두 '정상'이라 했고 영국항공 149편이 8/2 착륙.",
+      "source": "https://en.wikipedia.org/wiki/British_Airways_Flight_149#Background",
+      "confidence": "high"
     },
     {
       "h": "m_gps_ew",
@@ -116,7 +141,7 @@
     {
       "h": "m_alert_level",
       "status": "unknown",
-      "what": "미검증 단서: 쿠웨이트군이 7월 중순 경계를 올렸다가 침공 전에 낮췄다는 기억."
+      "what": "쿠웨이트군은 7/19 경계 해제 뒤 침공 때 비경계 상태. 7/23 미 걸프 함대 경계는 당사자의 공식 격상으로 보기 어려워 판단 보류."
     },
     {
       "h": "m_leadership",
@@ -141,7 +166,7 @@
     {
       "h": "f_safe_haven",
       "status": "unknown",
-      "what": "미검증 단서: 7월 사담의 위협과 OPEC 합의로 유가가 올랐다는 기억."
+      "what": "유가는 7월 평균 17달러에서 7월 말 21달러로 올랐으나 위기 탓이라는 서술은 침공 뒤 급등뿐 — 침공 전 귀속 근거 못 찾음."
     },
     {
       "h": "f_prediction",
@@ -155,13 +180,23 @@
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 7/17 사담 후세인의 연설에서 쿠웨이트·UAE 위협. 이번 검색에서는 출처를 찾지 못함."
+      "status": "yes",
+      "first": "1990-07-17",
+      "lead": 16,
+      "public_then": true,
+      "what": "사담이 쿠웨이트·UAE에 무력을 위협('일부 아랍 통치자의 정책은 미국의 것'). 위키백과는 7/15, 의뢰서는 7/17 연설 — 늦은 날짜 채택.",
+      "source": "https://en.wikipedia.org/wiki/Gulf_War#Background",
+      "confidence": "med"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "미검증 단서: 쿠웨이트의 루마일라 유전 '도둑 채굴'·원유 과잉생산을 '경제 전쟁'이라 한 주장(7월 중순)."
+      "status": "yes",
+      "first": "1990-07-15",
+      "lead": 18,
+      "public_then": true,
+      "what": "이라크가 아랍연맹에 쿠웨이트의 원유 과잉생산을 '경제 전쟁', 루마일라 유전 사선 시추를 '도둑질'이라 주장(현장 기술자들은 조작이라 봄).",
+      "source": "https://en.wikipedia.org/wiki/Iraqi_invasion_of_Kuwait#Kuwaiti_economic_warfare_and_alleged_slant_drilling",
+      "confidence": "med"
     },
     {
       "h": "i_state_mobilization",
@@ -176,19 +211,24 @@
     {
       "h": "i_public_anxiety",
       "status": "unknown",
-      "what": "미검증 단서: 쿠웨이트 주민은 평온했고 다수가 여름휴가 중이었다는 기억 — no 후보."
+      "what": "쿠웨이트는 '허를 찔렸다'는 서술뿐, 대중 불안·사재기에 관한 직접 서술은 찾지 못함."
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증 단서: 사상자가 난 계기 사건은 없었다는 기억 — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "사상자가 난 계기 사건 없음 — 부채·유가·유전·국경을 둘러싼 누적 분쟁이 제다 회담 결렬 뒤 침공으로 이어짐.",
+      "source": "https://en.wikipedia.org/wiki/Gulf_War#Background",
+      "confidence": "med"
     },
     {
       "h": "t_deadline",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "공개된 시한은 찾지 못함(제다 회담 7/31, 후속 바그다드 회담 예정만 언급)."
     }
   ],
-  "missed": "7/25 사담–글래스피 미 대사 면담(날짜는 검색으로 확인): 미국이 국경 분쟁의 평화적 해결 원칙만 되풀이해 사담이 '묵인'으로 읽었다는 평가가 있다 — '억지하는 쪽의 모호한 신호'는 코드북에 칸이 없다. 공격 측 지도자가 중재자에게 무력을 쓰지 않겠다고 약속했다는 기만 여부는 재조사 필요(미검증).",
+  "missed": "7/25 사담–글래스피 면담과 켈리 차관보의 공개 증언('쿠웨이트 방위 조약 의무 없음')처럼 억지하는 쪽의 모호한 신호, 사담이 무바라크에게 '회담 전에는 아무 일도 없다'고 약속한 기만은 코드북에 칸이 없다. 7/26 OPEC 감산 합의로 갈등이 풀리는 듯 보인 것도 오판을 키웠다.",
   "retrieved": "2026-11-11"
 }

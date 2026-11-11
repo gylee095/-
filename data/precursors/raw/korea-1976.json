@@ -5,133 +5,173 @@
   "onset": null,
   "window": [
     "1976-08-18",
-    "1976-09-15"
+    "1976-09-10"
   ],
   "attacker": "북한",
   "target": "미국·한국(유엔군사령부)",
   "kind": "korean_crisis",
   "surprise": false,
-  "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 8/18 판문점 공동경비구역에서 북한군이 미군 장교를 살해했고, 데프콘 3 발령과 8/21 폴 버니언 작전(미루나무 절단)으로 이어졌으나 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+  "summary": "1976-08-18 판문점 공동경비구역에서 북한군이 미군 장교 2명을 살해했다. 미국은 8/19 데프콘 3, F-4·F-111·B-52·미드웨이 항모전단 전개 뒤 8/21 폴 버니언 작전으로 미루나무를 베었고, 북한은 전군 전투태세를 선포했지만 방어적 대비에 그쳤다. 김일성이 8/21 유감을 전달하고 9/6 JSA 분할 합의로 끝났다. 군사 신호(경계태세·전략자산·동원)는 거의 다 켜졌지만 협상 통로는 살아 있었고 추가 교전은 없었다. 대사관·시장·민심 쪽은 자료를 찾지 못했다.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함(위키·FRUS WSAG 회의록·백과에 대사관·가족 철수 언급 없음 — 없었다는 서술도 없음)"
     },
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "g_staff_restrict",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "g_regional_drawdown",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "g_attacker_evac",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "g_intel_warning",
       "status": "unknown",
-      "what": "미검증 단서: 미 WSAG 회의록(FRUS)에 '북한군 특이 이동 없음' 보고가 있는 것으로 기억"
+      "what": "공개 '공격 임박' 경고는 찾지 못함. 참고: 8/27 미 국무부 전문(당시 비공개)은 '북한은 방어적 대비 이상을 하지 않았다'고 평가"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 시한부 통첩은 없었고 미국이 군정위에서 사과·책임자 처벌을 요구한 것으로 기억"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": true,
+      "what": "시한부 통첩 없음: 유엔사는 책임자 처벌·배상만 요구했고 8/21 작전은 북측에 예고 없이 실시",
+      "source": "https://en.wikipedia.org/wiki/Panmunjom_axe_murder_incident#Aftermath",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증 단서: 군정위 회의가 계속됨(8/19, 8/21 김일성 '유감' 전달), 9/6 JSA 분할 합의"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": true,
+      "what": "군정위 통로 유지: 8/21 김일성 '유감' 전달, 비서장 회의가 2주 이어져 9/6 공동경비구역 분할 합의 서명",
+      "source": "https://history.state.gov/historicaldocuments/frus1969-76ve12/d288",
+      "confidence": "high"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "미검증 단서: 8/21 폴 버니언 작전에 800여 명 투입, 한미 지상군·포병 전방 대기"
+      "status": "yes",
+      "first": "1976-08-21",
+      "lead": null,
+      "public_then": true,
+      "what": "한미: DMZ 가장자리에 보병·포병·기갑 대기, 813명 투입, 증원 1만2천 명 지시(8/21). 북한은 방어적 대비에 그침",
+      "source": "https://en.wikipedia.org/wiki/Panmunjom_axe_murder_incident#Forces",
+      "confidence": "med"
     },
     {
       "h": "m_logistics",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함(임진강 도하 뗏목·교량 폭파 준비는 작전용 공병 조치라 세지 않음)"
     },
     {
       "h": "m_mobilization",
-      "status": "unknown",
-      "what": "미검증 단서: 8/19 김일성 최고사령관 명령으로 인민군·노농적위대·붉은청년근위대 전투태세"
+      "status": "yes",
+      "first": "1976-08-19",
+      "lead": null,
+      "public_then": true,
+      "what": "북한: 8/19 17시 김일성 최고사령관 명의로 전군·노농적위대·붉은청년근위대(예비전력)에 전투태세 돌입 명령",
+      "source": "https://encykorea.aks.ac.kr/Article/E0059772",
+      "confidence": "med"
     },
     {
       "h": "m_exercise_cover",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함(B-52 '훈련 비행'은 무력시위로 m_strategic_assets 에 셈)"
     },
     {
       "h": "m_strategic_assets",
-      "status": "unknown",
-      "what": "미검증 단서: 8/19~21 F-4(가데나)·F-111(아이다호) 전개, B-52(괌) 비행, 미드웨이 항모전단 출동"
+      "status": "yes",
+      "first": "1976-08-19",
+      "lead": null,
+      "public_then": true,
+      "what": "미국: 8/19 F-4 한국 도착, 이어 F-111(아이다호)·B-52(괌) 비행·미드웨이 항모전단 근해 배치(8/21까지)",
+      "source": "https://en.wikipedia.org/wiki/Panmunjom_axe_murder_incident#Forces",
+      "confidence": "high"
     },
     {
       "h": "m_civil_defense",
       "status": "unknown",
-      "what": "미검증 단서: 평양 등화관제·주민 소개 보도가 있었던 것으로 기억"
+      "what": "찾지 못함(평양 등화관제·소개 단서는 확인 못 함)"
     },
     {
       "h": "m_airspace",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "m_gps_ew",
       "status": "unknown",
-      "what": "미확인(당시 관련 보도를 찾지 못함)"
+      "what": "찾지 못함(당시 해당 없음에 가까움)"
     },
     {
       "h": "m_cyber",
       "status": "unknown",
-      "what": "미확인(당시 관련 보도를 찾지 못함)"
+      "what": "당시 해당 없음"
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "미검증 단서: 8/18 사건 뒤 추가 교전 없음(8/21 작전 중에도 충돌 없음)"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": true,
+      "what": "8/18 사건 뒤 교전 급증 없음: 8/21 작전은 충돌 없이 끝났고 미군 헬기를 향한 총격 1건(부상 없음)뿐",
+      "source": "https://en.wikipedia.org/wiki/Panmunjom_axe_murder_incident#Aftermath",
+      "confidence": "med"
     },
     {
       "h": "m_alert_level",
-      "status": "unknown",
-      "what": "미검증 단서: 8/19 주한미군·한국군 데프콘 3, 같은 날 북 '전투태세' 명령"
+      "status": "yes",
+      "first": "1976-08-19",
+      "lead": null,
+      "public_then": true,
+      "what": "8/19 새벽 주한미군·유엔사 데프콘 3 발령, 같은 날 북한도 전군 전투태세 명령을 공개",
+      "source": "https://en.wikipedia.org/wiki/Panmunjom_axe_murder_incident#Reaction",
+      "confidence": "high"
     },
     {
       "h": "m_leadership",
-      "status": "unknown",
-      "what": "미검증 단서: 8/18·19 워싱턴 특별행동그룹(WSAG) 긴급회의"
+      "status": "yes",
+      "first": "1976-08-18",
+      "lead": null,
+      "public_then": true,
+      "what": "미국: 8/18·8/19 워싱턴특별행동그룹(WSAG) 긴급회의 연속 개최, 포드 대통령 위기 협의(당시 보도 여부는 미확인)",
+      "source": "https://history.state.gov/historicaldocuments/frus1969-76ve12/d282",
+      "confidence": "med"
     },
     {
       "h": "f_fx",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "f_equity",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "f_sovereign",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "f_safe_haven",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "f_prediction",
@@ -141,44 +181,64 @@
     {
       "h": "f_capital_flight",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "i_leader_threat",
       "status": "unknown",
-      "what": "미검증 단서: 박정희 8/20 '미친 개에게는 몽둥이가 약' 연설"
+      "what": "박정희 8/20 '미친 개엔 몽둥이' 연설은 본문 확인 못 함. 김일성은 8/21 군정위로 '유감'을 전달(위협 아님)"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "미검증 단서: 북 방송이 '미군이 먼저 도발했다'고 주장(8/18~19)"
+      "status": "yes",
+      "first": "1976-08-18",
+      "lead": null,
+      "public_then": true,
+      "what": "북한 매체가 8/18 당일 '미군이 집단 폭행으로 먼저 도발, 자위 조치'라고 주장, 비동맹회의에 규탄 결의 제출",
+      "source": "https://en.wikipedia.org/wiki/Panmunjom_axe_murder_incident#Reaction",
+      "confidence": "high"
     },
     {
       "h": "i_state_mobilization",
-      "status": "unknown",
-      "what": "미검증 단서: 8/19 평양방송이 전군·적위대 전투태세 명령을 대내 방송"
+      "status": "yes",
+      "first": "1976-08-19",
+      "lead": null,
+      "public_then": true,
+      "what": "북한: 8/19 전군·적위대 전투태세 명령을 평양방송으로 내보내고 대미 비난 선전 강화, 전역 비상체제",
+      "source": "https://encykorea.aks.ac.kr/Article/E0059772",
+      "confidence": "med"
     },
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미검증 단서: 사건 직후 외신 보도 급증(정량 근거 필요)"
+      "what": "정량 근거를 찾지 못함"
     },
     {
       "h": "i_public_anxiety",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함(사재기·피란 보도 확인 못 함)"
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증 단서: 8/18 판문점에서 미군 장교 2명 피살(창 첫날)과 미국의 응징 방침"
+      "status": "yes",
+      "first": "1976-08-18",
+      "lead": null,
+      "public_then": true,
+      "what": "8/18 판문점에서 북한군이 미군 장교 2명 살해. 8/19 미국 '이후 사태 책임은 북한' 성명, 무력시위 결정",
+      "source": "https://encykorea.aks.ac.kr/Article/E0059772",
+      "confidence": "high"
     },
     {
       "h": "t_deadline",
-      "status": "unknown",
-      "what": "미검증 단서: 명시적 시한 없음"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": true,
+      "what": "명시적 시한 없음: 미국 요구에 기한이 없었고 미루나무 절단은 사전 통보 없이 실행됨",
+      "source": "https://en.wikipedia.org/wiki/Panmunjom_axe_murder_incident#Forces",
+      "confidence": "med"
     }
   ],
-  "missed": "",
+  "missed": "전략자산·경계태세가 켜진 쪽이 '보복하려는 쪽'(미국)이었고 북한은 방어 태세였다 — 누가 켰는지 구분이 필요. 최고지도자의 유감 표명(8/21)과 군정위 통로 유지가 완화 신호였다.",
   "retrieved": "2026-11-11"
 }

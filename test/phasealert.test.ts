@@ -1,5 +1,6 @@
 // 알림은 전쟁 위험 단계가 실제로 바뀌었을 때만 (2026-11-03)
 // 10/31~11/3 휴대폰으로 간 다섯 번은 모두 심층 분석 보고서였고 결론이 같았다('2단계·국지 충돌 4~5%').
+import { RUBRIC_VERSION } from "../src/core/rubric.js";
 import { describe, expect, it } from "vitest";
 import { decidePhaseAlert, notifyPhaseChange, PHASE_STATE_KEY, DOWN_HOLD_MS, PHASE_ALERTS_PER_DAY, type PhaseNotifyState } from "../src/core/phasealert.js";
 import { deepPushDecision } from "../src/core/deep.js";
@@ -92,9 +93,19 @@ describe("5분 주기에서 보내기", () => {
     expect((await notifyPhaseChange(store, env, w(3), NOW + 15 * MIN, ok)).sent).toBeUndefined();
   });
 
+  it("판정 규칙이 바뀐 직후에는 단계가 달라져도 알리지 않고 새 단계를 기억만 한다 (11/12 규칙 3.0)", async () => {
+    const store = new MemoryStore();
+    let sent = 0;
+    const count = (async () => { sent++; return new Response("ok"); }) as unknown as typeof fetch;
+    await store.setKv(PHASE_STATE_KEY, JSON.stringify({ phase: 2, at: NOW, pending: { phase: 1, since: NOW, seen: 5 } })); // 이전 규칙이 남긴 기억 (rule 없음)
+    const r = await notifyPhaseChange(store, env, w(1), NOW + 5 * MIN, count);
+    expect(r.sent).toBeUndefined();
+    expect(sent).toBe(0);
+    expect(JSON.parse((await store.getKv(PHASE_STATE_KEY))!)).toMatchObject({ phase: 1, rule: RUBRIC_VERSION });
+  });
   it("못 보냈으면 다음 주기에 다시 (세 번 실패하면 넘어간다)", async () => {
     const store = new MemoryStore();
-    await store.setKv(PHASE_STATE_KEY, JSON.stringify({ phase: 2, at: NOW, pending: { phase: 3, since: NOW, seen: 1 } }));
+    await store.setKv(PHASE_STATE_KEY, JSON.stringify({ phase: 2, at: NOW, rule: RUBRIC_VERSION, pending: { phase: 3, since: NOW, seen: 1 } }));
     const f1 = await notifyPhaseChange(store, env, w(3), NOW + 5 * MIN, bad);
     expect(f1.ok).toBe(false);
     expect(f1.state.phase).toBe(2);

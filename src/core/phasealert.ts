@@ -4,6 +4,7 @@
 // 확률 숫자(약 4%)는 영역 압력에 따라 하루에도 3.4 → 3.6 → 3.8 처럼 조금씩 흔들리고, 반올림 경계(3.5%)에서 3%↔4%로 깜빡이므로 알림 기준으로 쓰지 않는다.
 // 단계는 드물게 바뀌고 바뀌면 범위가 크게 뛴다(2단계 2~4% → 3단계 8~25%).
 // 실제 사건(발사 속보·민방위 경보·철수 권고)은 단계와 상관없이 지금처럼 바로 알린다 (policy.ts).
+import { RUBRIC_VERSION } from "./rubric.js";
 import { addChangeReport } from "./reports.js";
 import type { Phase, WarRisk } from "./warrisk.js";
 import { fmtRiskPct } from "./warrisk.js";
@@ -88,11 +89,17 @@ export async function notifyPhaseChange(
   full?: Record<string, unknown>,
 ): Promise<{ sent?: PhaseMessage; ok?: boolean; state: PhaseNotifyState }> {
   const raw = await store.getKv(PHASE_STATE_KEY);
-  const prev = raw ? (JSON.parse(raw) as PhaseNotifyState & { fails?: number }) : undefined;
+  const prev = raw ? (JSON.parse(raw) as PhaseNotifyState & { fails?: number; rule?: number }) : undefined;
+  // 판정 규칙이 바뀐 직후(11/12 규칙 3.0)에는 단계가 규칙 때문에 달라질 수 있다 — 손님에게 '상황이 바뀌었다'고 알리지 않고 새 규칙의 단계를 기억만 한다
+  if (prev && prev.rule !== RUBRIC_VERSION) {
+    const state = { phase: w.phase, at: now, rule: RUBRIC_VERSION } as PhaseNotifyState;
+    await store.setKv(PHASE_STATE_KEY, JSON.stringify(state));
+    return { state };
+  }
   const ago = await situationFromRecords(store as Store, now, "").catch(() => undefined);
   const { state, message } = decidePhaseAlert(prev, w, now, { dashboardUrl: env.DASHBOARD_URL, clashAgo: ago?.clashAgo, agoAt: ago?.agoAt, agoLabel: ago?.agoLabel });
   if (!message) {
-    await store.setKv(PHASE_STATE_KEY, JSON.stringify(state));
+    await store.setKv(PHASE_STATE_KEY, JSON.stringify({ ...state, rule: RUBRIC_VERSION }));
     return { state };
   }
   // 고객은 알림이 올 때만 리포트를 받는다 (11/5): 그 순간의 판정을 리포트로 얼려 두고, 알림을 누르면 알림함에서 그 리포트가 열린다
@@ -106,6 +113,6 @@ export async function notifyPhaseChange(
   const fails = ok ? 0 : (prev?.fails ?? 0) + 1;
   // 못 보냈으면 이전 단계를 그대로 두어 다음 주기에 다시 시도한다 (세 번 실패하면 바뀐 단계로 넘어간다)
   const next = ok || fails >= 3 ? state : { ...(prev ?? state), fails };
-  await store.setKv(PHASE_STATE_KEY, JSON.stringify(next));
+  await store.setKv(PHASE_STATE_KEY, JSON.stringify({ ...next, rule: RUBRIC_VERSION }));
   return { sent: message, ok, state: next };
 }

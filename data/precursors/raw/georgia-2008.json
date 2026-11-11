@@ -1,0 +1,254 @@
+{
+  "id": "georgia-2008",
+  "name": "러시아 → 조지아 (러시아-조지아 전쟁)",
+  "outcome": "war",
+  "onset": "2008-08-07",
+  "window": [
+    "2008-05-09",
+    "2008-08-06"
+  ],
+  "attacker": "러시아 (남오세티야·압하지야 분리 세력)",
+  "target": "조지아",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "2008년 8월 7일 밤 조지아군이 남오세티야 츠힌발리로 진입했고 러시아가 8일 육·해·공으로 조지아를 전면 침공했다. 5월 말 압하지야 철도부대 투입, 7월 러시아 전투기 영공 침범과 조지아의 대사 소환, 대통령 사이트 사이버 공격, '캅카스 2008' 훈련 뒤 병력 잔류, 8/1부터의 포격 급증, 8/3 오세티야 주민의 러시아 소개가 개시 전에 공개적으로 보였다. 대사관·시장 쪽 신호는 위키백과에서 찾지 못했다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "제3국 대사관 철수 명령은 찾지 못함. 5월 초 러시아 관리의 '대사관들이 철수 준비' 주장은 조지아가 일축(확인 안 됨)"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "최고 단계 여행경보는 찾지 못함"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "yes",
+      "first": "2008-08-03",
+      "lead": 4,
+      "public_then": true,
+      "what": "남오세티야: 8/3부터 여성·어린이를 러시아로 소개(2만 명 이상, 전투 예상 지역 민간인의 90%)",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Early_August",
+      "confidence": "high"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "정부·정보기관의 공개 '임박' 경고는 찾지 못함. 군사평론가 펠겐하우어의 6월 말 예측과 체첸 측 정보 보도만 있음"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "yes",
+      "first": "2008-07-10",
+      "lead": 28,
+      "public_then": true,
+      "what": "조지아: 러시아가 7/8 전투기 영공 비행을 인정(7/10)하자 주러 대사를 소환",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Prelude%3A_April%E2%80%93July_2008",
+      "confidence": "med"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "yes",
+      "first": "2008-07-25",
+      "lead": 13,
+      "public_then": true,
+      "what": "남오세티야: 7/22 브뤼셀(EU)·7/25 헬싱키(OSCE) 회담을 거부, 압하지야도 7/30~31 베를린 회담 거부. 8/6 러 '정상 협상 때 아니다'",
+      "source": "https://en.wikipedia.org/wiki/2008_Russo-Georgian_diplomatic_crisis#Summer_2008",
+      "confidence": "med"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "2008-08-02",
+      "lead": 5,
+      "public_then": true,
+      "what": "러시아: 훈련 뒤 제58군 등이 국경에 남음(8/2~). 8/6 네자비시마야 가제타가 조지아 국경 배치 보도",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Prelude%3A_April%E2%80%93July_2008",
+      "confidence": "med"
+    },
+    {
+      "h": "m_logistics",
+      "status": "yes",
+      "first": "2008-05-31",
+      "lead": 68,
+      "public_then": true,
+      "what": "러시아: 5/31 철도부대를 압하지야에 투입해 철로 복구(7/30 철수 시작). 이 철로가 전쟁 때 병력·장비 수송에 쓰임",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Prelude%3A_April%E2%80%93July_2008",
+      "confidence": "med"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "yes",
+      "first": "2008-07-04",
+      "lead": 34,
+      "public_then": true,
+      "what": "남오세티야: 7/4 아침 군 동원. 8/4 북오세티야 의용병 300명 도착, 수천 명 더 온다고 발표",
+      "source": "https://en.wikipedia.org/wiki/2008_Russo-Georgian_diplomatic_crisis#July_3%E2%80%934",
+      "confidence": "med"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "yes",
+      "first": "2008-08-02",
+      "lead": 5,
+      "public_then": true,
+      "what": "러시아: '캅카스 2008'(7/15~8/2) 종료 뒤 병력이 병영으로 복귀하지 않고 조지아 국경에 잔류",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Prelude%3A_April%E2%80%93July_2008",
+      "confidence": "high"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "흑해함대가 훈련에 참가했고 전면전 전에 세바스토폴을 떠났을 것이라는 추정만 있음(날짜 불명)"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "yes",
+      "first": "2008-08-03",
+      "lead": 4,
+      "public_then": true,
+      "what": "남오세티야: 8/3 주민 소개 시작. 조지아 측도 7/5 이후 조지아계 마을 어린이 약 300명을 옮겼다는 주장",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Early_August",
+      "confidence": "high"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "민항 영공 폐쇄·운항 중단은 찾지 못함"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "yes",
+      "first": "2008-07-20",
+      "lead": 18,
+      "public_then": true,
+      "what": "조지아 대통령 사이트가 7/20 무렵 과부하 공격으로 24시간 마비 — 개전 3주 전부터 공격 시작",
+      "source": "https://en.wikipedia.org/wiki/Cyberattacks_during_the_Russo-Georgian_War#Attacks",
+      "confidence": "high"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "yes",
+      "first": "2008-08-01",
+      "lead": 6,
+      "public_then": true,
+      "what": "8/1 급조폭발물로 조지아 경찰 5명 부상, 저격으로 오세티야인 4명 사망, 조지아 마을 포격 — OSCE '2004년 이후 최악'",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Early_August",
+      "confidence": "high"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "yes",
+      "first": "2008-07-04",
+      "lead": 34,
+      "public_then": true,
+      "what": "압하지야군 7/4 전투경계 돌입·평화유지군 경계. 7/11 러 국방부 '평화유지군 전투준비태세 강화' 성명",
+      "source": "https://en.wikipedia.org/wiki/2008_Russo-Georgian_diplomatic_crisis#July_3%E2%80%934",
+      "confidence": "med"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "공개된 이례적 동선은 찾지 못함. 8/3 러 국방차관의 츠힌발리 비공개 회동은 당시 비공개"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "예측시장 자료 없음"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "푸틴·메드베데프 본인의 명시적 위협 연설은 찾지 못함(외무부 '뜨거운 머리를 식히려' 성명은 대변인급)"
+    },
+    {
+      "h": "i_pretext",
+      "status": "yes",
+      "first": "2008-08-05",
+      "lead": 2,
+      "public_then": true,
+      "what": "러시아 특사 포포프: 8/5 러시아가 남오세티야 편에서 개입할 것이라 선언, 8/6 관영지 '자국민 보호 결의'. 앞서 7/8 '조지아가 전쟁 준비' 주장",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Early_August",
+      "confidence": "med"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "yes",
+      "first": "2008-08-04",
+      "lead": 3,
+      "public_then": true,
+      "what": "8/4 코코이티 '북캅카스 의용병 수천 명 올 것', 8/6 친정부지 '돈 코사크, 남오세티야 참전 준비', 러 기자 50명 사전 도착",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Early_August",
+      "confidence": "med"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "국제 보도량 자료를 찾지 못함"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "조지아 대중의 사재기·피란 문의 보도는 찾지 못함"
+    },
+    {
+      "h": "t_trigger",
+      "status": "yes",
+      "first": "2008-08-01",
+      "lead": 6,
+      "public_then": true,
+      "what": "8/1~2 폭발·저격·포격으로 오세티야인 6명 사망 → 8/5 남오세티야 '철도 전쟁' 선언, 러 특사 개입 다짐",
+      "source": "https://en.wikipedia.org/wiki/Russo-Georgian_War#Early_August",
+      "confidence": "med"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "공식 시한은 찾지 못함"
+    }
+  ],
+  "missed": "분리 지역 주민에 대한 러시아 여권 발급(여권화)과 '자국민 보호' 논리. 러시아 전투기의 영공 침범을 러시아가 공식 인정(7/10). 훈련 중 '적을 알라' 전단 배포. 러시아 기자 50명이 개전 전 츠힌발리에 미리 도착. 북캅카스 의용병·코사크 유입. 러시아 군사평론가의 '8월 전쟁' 공개 예측(6월 말).",
+  "retrieved": "2026-11-11"
+}

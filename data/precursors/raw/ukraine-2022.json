@@ -1,0 +1,298 @@
+{
+  "id": "ukraine-2022",
+  "name": "러시아 → 우크라이나 전면 침공",
+  "outcome": "war",
+  "onset": "2022-02-24",
+  "window": [
+    "2021-11-26",
+    "2022-02-23"
+  ],
+  "attacker": "러시아",
+  "target": "우크라이나",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "2022년 2월 24일 러시아가 벨라루스·크림·돈바스 세 방향에서 우크라이나를 전면 침공했다. 석 달 전부터 10만 명 넘는 병력 집결이 위성·정부 발표로 공개됐고, 1월 사이버 공격·미 대사관 가족 철수·혈액과 야전병원 전방 배치, 2월 '즉시 출국' 권고·항공사 운항 중단·훈련 연장·돈바스 포격 급증과 주민 소개·DPR/LPR 승인·무력사용 승인까지 거의 모든 전조가 개시 전에 공개적으로 보였다. 다만 우크라이나 정부는 공황을 경계했고 키이우 시민 분위기는 2월 중순까지 차분했다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "yes",
+      "first": "2022-01-24",
+      "lead": 31,
+      "public_then": true,
+      "what": "미국: 대사관 가족 출국 명령·비필수 인원 출국 허가(1/23 발표, 1/24 보도), 영국도 일부 철수. 2/12 대부분 철수·르비우 이전",
+      "source": "https://www.bbc.com/news/world-europe-60106416",
+      "confidence": "high"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "yes",
+      "first": "2022-01-24",
+      "lead": 31,
+      "public_then": true,
+      "what": "미 국무부: 우크라이나 '여행 금지' 권고(1/23~24). 2/11~12 미·영·독 등 10여 개국이 자국민 즉시 출국 권고",
+      "source": "https://en.wikipedia.org/wiki/Reactions_to_the_2021%E2%80%932022_Russo-Ukrainian_crisis#United_States",
+      "confidence": "high"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "대사관 직원 이동 제한·대피 지시는 따로 찾지 못함(철수 명령은 g_evac_order)"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "이웃 나라 인력 감축은 찾지 못함. 미군 교관 160명의 우크라이나 철수(2/12)는 대상국 안이라 제외"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "yes",
+      "first": "2022-02-18",
+      "lead": 6,
+      "public_then": true,
+      "what": "DPR·LPR: 2/18 주민을 러시아로 대량 소개 발표. 러시아는 1월부터 키이우 대사관을 서서히 비웠고 2/23 철수 시작",
+      "source": "https://www.themoscowtimes.com/2022/02/18/east-ukraine-separatist-regions-to-evacuate-civilians-to-russia-a76452",
+      "confidence": "high"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "yes",
+      "first": "2022-01-24",
+      "lead": 31,
+      "public_then": true,
+      "what": "미국: 침공이 '언제든' 올 수 있다(1/24 보도). 2/11 설리번 '올림픽 폐막 전 가능', 2/18 바이든 '푸틴이 결정했다'",
+      "source": "https://www.bbc.com/news/world-europe-60106416",
+      "confidence": "high"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "yes",
+      "first": "2022-02-21",
+      "lead": 3,
+      "public_then": true,
+      "what": "러시아: 2/21 DPR·LPR 독립 승인·파병 지시, 2/22 연방평의회가 국외 무력사용 만장일치 승인",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Recognition_of_the_Donetsk_and_Luhansk_People's_Republics",
+      "confidence": "high"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "yes",
+      "first": "2022-02-22",
+      "lead": 2,
+      "public_then": true,
+      "what": "미국: 2/22 블링컨-라브로프 회담(2/24 예정) 취소 발표. 앞서 1/26 미국이 NATO 불가입 요구 서면 거부",
+      "source": "https://www.cbsnews.com/news/russia-ukraine-news-miliatry-reservists-emergency-declaration/",
+      "confidence": "high"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "2021-11-26",
+      "lead": 90,
+      "public_then": true,
+      "what": "러시아: 11월 초부터 국경에 9만~10만 집결(미·우크라이나 발표, 위성). 창 시작 때 이미 진행 중이라 창 첫날로 적음",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#November_2021%E2%80%93December_2021",
+      "confidence": "high"
+    },
+    {
+      "h": "m_logistics",
+      "status": "yes",
+      "first": "2022-01-29",
+      "lead": 26,
+      "public_then": true,
+      "what": "러시아: 혈액을 갖춘 야전병원·의료 물자 전방 배치(1/28 로이터의 미 관리 인용, 1/29 BBC)",
+      "source": "https://www.bbc.com/news/world-europe-60158694",
+      "confidence": "high"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "yes",
+      "first": "2022-02-19",
+      "lead": 5,
+      "public_then": true,
+      "what": "DPR·LPR: 2/19 총동원령. 우크라이나: 2/22 예비군 소집, 2/23 전 예비군 동원",
+      "source": "https://www.bbc.com/news/world-europe-60443504",
+      "confidence": "high"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "yes",
+      "first": "2022-02-20",
+      "lead": 4,
+      "public_then": true,
+      "what": "벨라루스 국방부: 2/20 끝날 예정이던 러-벨 합동훈련 '연합 결의 2022' 연장 발표, 러시아군 3만 잔류",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#February_2022",
+      "confidence": "high"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "yes",
+      "first": "2022-02-09",
+      "lead": 15,
+      "public_then": true,
+      "what": "러시아: 발트·북방함대 상륙함 6척이 2/8~9 흑해 진입, 이스칸데르 36기 접경 배치(1월 중순 평가)",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#February_2022",
+      "confidence": "high"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "yes",
+      "first": "2022-02-18",
+      "lead": 6,
+      "public_then": true,
+      "what": "DPR·LPR: 2/18 수도 주민 '긴급' 강제 소개 명령(영상은 이틀 전 촬영으로 밝혀짐)",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Alleged_clashes_between_Russia_and_Ukraine",
+      "confidence": "high"
+    },
+    {
+      "h": "m_airspace",
+      "status": "yes",
+      "first": "2022-02-12",
+      "lead": 12,
+      "public_then": true,
+      "what": "KLM: 2/12 우크라이나 운항 즉시 중단, 다른 항공사도 일정 조정. 보험 철회는 직접 확인 못 함",
+      "source": "https://www.bbc.com/news/world-europe-60361983",
+      "confidence": "med"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "GPS 교란·전자전 급증 보도는 찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "yes",
+      "first": "2022-01-14",
+      "lead": 41,
+      "public_then": true,
+      "what": "우크라이나 정부 사이트 약 70곳 변조·와이퍼(1/13~14), 2/15 국방부·은행 DDoS(미·영이 GRU 지목), 2/23 와이퍼",
+      "source": "https://en.wikipedia.org/wiki/2022_Ukraine_cyberattacks#January_attacks",
+      "confidence": "high"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "yes",
+      "first": "2022-02-17",
+      "lead": 7,
+      "public_then": true,
+      "what": "돈바스: 하루 2~5건이던 공격이 2/17 60건으로 급증, 유치원 피격. 2/19·2/21 우크라이나군 전사",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Alleged_clashes_between_Russia_and_Ukraine",
+      "confidence": "high"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "yes",
+      "first": "2022-02-23",
+      "lead": 1,
+      "public_then": true,
+      "what": "우크라이나: 2/23 의회가 전국 비상사태(30일) 승인·예비군 동원. 계엄은 개시 당일",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Invasion",
+      "confidence": "med"
+    },
+    {
+      "h": "m_leadership",
+      "status": "yes",
+      "first": "2022-02-21",
+      "lead": 3,
+      "public_then": true,
+      "what": "러시아: 2/21 안보회의 임시(특별) 회의를 TV로 중계하고 그날 승인 결정",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Recognition_of_the_Donetsk_and_Luhansk_People's_Republics",
+      "confidence": "med"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "개시 전 루블·흐리우냐 급락을 확인한 출처를 열지 못함(미검증: 1월 하순·2/21~22 루블 약세). 2/24 사상 최저는 개시 당일"
+    },
+    {
+      "h": "f_equity",
+      "status": "yes",
+      "first": "2022-02-23",
+      "lead": 1,
+      "public_then": true,
+      "what": "러시아 증시: 병력 집결 기간에 약 20% 하락(위키 서술). 날짜가 없어 창 마지막 날로 보수적으로 적음",
+      "source": "https://en.wikipedia.org/wiki/Economic_consequences_of_the_Russo-Ukrainian_war_(2022%E2%80%93present)#Background",
+      "confidence": "low"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "개시 전 국채·CDS 급등 출처를 찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "개시 전 유가·금 급등 출처를 열지 못함(브렌트 100달러 돌파는 개시 뒤로 서술됨)"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "예측시장 가격 자료를 찾지 못함"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "미검증: 2월 중순 올리가르히 전세기 출국 보도. 확인한 출처 없음"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "yes",
+      "first": "2022-02-21",
+      "lead": 3,
+      "public_then": true,
+      "what": "푸틴: 2/21 연설에서 우크라이나 국가성 부정('진짜 탈공산화를 보여 주겠다'). 앞서 12/9 '제노사이드 같다'",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Putin's_denial_of_Ukrainian_statehood",
+      "confidence": "high"
+    },
+    {
+      "h": "i_pretext",
+      "status": "yes",
+      "first": "2021-12-10",
+      "lead": 76,
+      "public_then": true,
+      "what": "푸틴: 12/9 돈바스 상황이 '제노사이드 같다'(12/10 보도), 2/15 '바로 제노사이드'. 2/17~21 조작 영상·'공작원 사살' 주장",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Russian_accusations_of_genocide_in_eastern_Ukraine",
+      "confidence": "high"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "no",
+      "public_then": true,
+      "what": "러시아는 2/20까지 침공 계획을 부인했고 병사들에게도 '훈련'이라 했다. 자국민 대상 전시 동원 서사는 없었음",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine",
+      "confidence": "med"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "yes",
+      "first": "2022-01-28",
+      "lead": 27,
+      "public_then": true,
+      "what": "젤렌스키: 1/28 서방의 '임박' 경고 보도가 공황을 만든다고 비판, 2/12 '침공 정보가 너무 많다' — 보도 급증의 간접 증거",
+      "source": "https://en.wikipedia.org/wiki/Reactions_to_the_2021%E2%80%932022_Russo-Ukrainian_crisis#Ukraine",
+      "confidence": "low"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "no",
+      "public_then": true,
+      "what": "2/12 BBC 현지 보도: 대사관 철수에도 '키이우는 위기의 도시 같지 않다'. 정부는 공황 자제 호소. 사재기 보도 못 찾음",
+      "source": "https://www.bbc.com/news/world-europe-60361983",
+      "confidence": "low"
+    },
+    {
+      "h": "t_trigger",
+      "status": "no",
+      "public_then": true,
+      "what": "사상자 사건 뒤 보복 다짐 형태는 없었음. 2/21 '공작원 5명 사살'·국경시설 피격 주장은 위장 사건(명분 만들기)으로 분류",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Alleged_clashes_between_Russia_and_Ukraine",
+      "confidence": "med"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "당사자가 건 명시적 시한은 찾지 못함. 미국이 2/16·올림픽 폐막(2/20) 전을 거론했고 훈련 종료일이 2/20이었음"
+    }
+  ],
+  "missed": "러시아의 공식 부인이 2/20까지 이어짐(부인 자체는 신호가 아님). 미·영이 기밀 정보를 선제 공개(위장 공격 계획·침공 날짜). 서방의 대전차 무기 긴급 공수(1/22~)와 NATO 동부 증원. 2/15 러시아의 '철수 발표'를 NATO가 반박(거짓 철수). 러 하원의 DPR/LPR 승인 결의(2/15). 쿠데타 음모 적발 발표. 벨라루스에 극동 군관구 부대 이동.",
+  "retrieved": "2026-11-11"
+}

@@ -1,0 +1,217 @@
+{
+  "id": "russia-buildup-2021",
+  "name": "러시아의 우크라이나 국경 집결과 철수 발표 (2021년 봄)",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "2021-03-01",
+    "2021-04-30"
+  ],
+  "attacker": "러시아",
+  "target": "우크라이나",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "2021년 3~4월 러시아가 '훈련' 명목으로 우크라이나 국경과 크림에 2014년 이후 최대 병력을 모았고(위성사진·미국 확인), 돈바스 교전 사망·'우크라이나 드론이 어린이를 죽였다'는 주장·흑해 일부 폐쇄·카스피 함정 이동이 겹쳤다. 4/13 바이든-푸틴 통화에서 정상회담에 합의했고 4/22 쇼이구가 5/1까지 복귀를 발표해 전쟁 없이 끝났다. 다만 장비는 남았고 실제 철수는 수천 명뿐이었다. 대사관 철수·동원·시장 급락 같은 신호는 찾지 못했다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "대사관 철수 명령은 찾지 못함"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "공개된 '임박' 경고는 찾지 못함. 미국은 '2014년보다 많은 병력'이라며 우려·긴장 완화 촉구 수준"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "최후통첩·무력사용 승인은 찾지 못함. 외교관 맞추방(4/13~19)만 있음"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "엇갈림: 러시아가 4/1 돈바스 휴전 연장을 거부하고 4/10 OSCE 회의에 불참했지만, 4/13 바이든-푸틴은 정상회담에 합의"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "2021-03-30",
+      "lead": null,
+      "public_then": true,
+      "what": "러시아: 3/30 우크라이나 총사령관이 접경·크림에 28개 대대전술단 집결 공개, 미국 '한 달 새 두 배'·위성사진(3/27~4/16) 확인",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#First_Russian_military_buildup",
+      "confidence": "high"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "미검증: 보로네시 야영지 야전병원 위성사진 보도. 확인한 출처 없음(미 정보당국의 사후 평가는 날짜 불명)"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "yes",
+      "first": "2021-03-30",
+      "lead": null,
+      "public_then": true,
+      "what": "러시아: 불시 점검 '훈련' 명목으로 접경 배치. 4/22 종료 선언 뒤에도 포고노보 장비는 남기고 수천 명만 철수(5/5 미 평가)",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Partial_withdrawal",
+      "confidence": "med"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "yes",
+      "first": "2021-04-08",
+      "lead": null,
+      "public_then": true,
+      "what": "러시아: 카스피 소함대 상륙정·포함을 흑해로 이동(4/8 인테르팍스), 흑해함대와 합동 훈련",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Continued_violence_and_escalation",
+      "confidence": "med"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_airspace",
+      "status": "yes",
+      "first": "2021-04-20",
+      "lead": null,
+      "public_then": true,
+      "what": "러시아: 4/20~24 크림·흑해 일부 상공 비행 제한, 4/16 흑해 일부 해역을 10월까지 외국 군함에 폐쇄 발표",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Continued_violence_and_escalation",
+      "confidence": "med"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "yes",
+      "first": "2021-03-26",
+      "lead": null,
+      "public_then": true,
+      "what": "돈바스: 3/26 슈미 인근 박격포로 우크라이나군 4명 전사, 4/1 러시아 휴전 연장 거부, 4/6 2명 추가 전사",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#First_Russian_military_buildup",
+      "confidence": "med"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "unknown",
+      "what": "공식 경계태세 격상은 찾지 못함"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미검증: 4월 루블 약세. 확인한 출처 없음"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "예측시장 자료 없음"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "미검증: 푸틴 4/21 국정연설의 '레드라인' 발언. 확인한 출처 없음"
+    },
+    {
+      "h": "i_pretext",
+      "status": "yes",
+      "first": "2021-04-03",
+      "lead": null,
+      "public_then": true,
+      "what": "러시아 매체: 4/3 '우크라이나 드론이 돈바스 어린이를 죽였다'(OSCE는 연관 확인 못 함), 4/14 파트루셰프 '크림 테러 기도'",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Continued_violence_and_escalation",
+      "confidence": "high"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "보도량 자료를 찾지 못함"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "t_trigger",
+      "status": "no",
+      "public_then": true,
+      "what": "보복 다짐으로 이어진 사건 없음: 4/6 병사 2명 전사 뒤 젤렌스키는 분리 세력의 '도발'에 대응하지 않겠다고 선언",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2022_Russian_invasion_of_Ukraine#Continued_violence_and_escalation",
+      "confidence": "med"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "명시적 시한은 찾지 못함"
+    }
+  ],
+  "missed": "철수 발표 뒤에도 장비를 현지에 남겨 둠(다음 집결의 준비). 러시아의 OSCE 설명 회의 불참(4/10)과 빈 문서 절차 거부. 외교관 맞추방(4/13~19). 흑해 일부 해역을 10월까지 외국 군함에 폐쇄. 정상회담 제안이 긴장 완화의 출구가 됨.",
+  "retrieved": "2026-11-11"
+}

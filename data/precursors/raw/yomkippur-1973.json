@@ -11,27 +11,27 @@
   "target": "이스라엘",
   "kind": "interstate",
   "surprise": true,
-  "summary": "1973-10-06 이집트와 시리아가 속죄일에 이스라엘을 동시 기습했다(개시일은 의뢰서 기준이며 검색된 CIA 문서 날짜와 일치). 이번 조사에서 출처로 확인한 것은 소련이 10/3~5 이집트·시리아에서 자국민 가족을 급히 철수시킨 일(첩보로만 파악)과 이스라엘 군 정보국이 10/4에도 전쟁 가능성을 낮게 봤다는 점뿐이다. 웹 검색 한도가 한 번 검색한 뒤 소진돼 나머지 32개 가설은 unknown 이다. what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "1973-10-06 이집트·시리아가 속죄일에 이스라엘을 동시 기습했다(위키백과로 개시일 확인). 준비는 10/1~7 '훈련' 발표, 9/27·30 예비역 소집과 10/4 일부 해제 발표, 평시 분위기 연출로 가려졌다. 병력·도하 장비 집결과 10/4~5 소련인 급거 철수는 이스라엘 첩보에 잡혔지만 공개 경고는 없었고, 이스라엘 예비군 동원은 개시 몇 시간 전에야 내려졌다. 대사관·시장 쪽은 확인하지 못했다.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "제3국 대사관 철수 서술은 찾지 못함."
     },
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "여행경보 관련 서술은 찾지 못함."
     },
     {
       "h": "g_staff_restrict",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "g_regional_drawdown",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "g_attacker_evac",
@@ -39,104 +39,154 @@
       "first": "1973-10-04",
       "lead": 2,
       "public_then": false,
-      "what": "소련(공격 측 후원국)이 이집트·시리아에서 자국민 가족을 급히 공수 철수. 시작일은 10/3·10/4로 갈려 늦은 날 채택, 10/5까지 약 1천 명.",
-      "source": "https://www.cia.gov/readingroom/docs/1973-10-16B-CIA.pdf",
-      "confidence": "med"
+      "what": "소련(후원국)이 10/3 통보받고 10/4 늦은 저녁부터 이집트·시리아의 고문·대사관 인력·가족을 급히 철수, 10/5 완료. 이스라엘은 첩보로 파악.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "high"
     },
     {
       "h": "g_intel_warning",
-      "status": "unknown",
-      "what": "검색 확인: 이스라엘 군 정보국은 10/4에도 전쟁 가능성 '낮음' 평가. 다만 소련 측 언론 경고설이 있어 no 로 확정하지 못함."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "공개 경고 없음. 9월 11건의 경고(9/25 후세인 국왕 등)는 모두 비공개였고 무시됨. 군 정보국의 확정 경고는 개전 당일 04:30.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "high"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 최후통첩·단교는 없었다는 기억 — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "최후통첩·선전포고 없이 '완전한 기습'으로 시작(정보전에서 아랍 측이 이겨 주도권 확보).",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증 단서: 진행 중인 협상이 없었고 키신저가 11월 이후 회담을 구상 중이었다는 기억 — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "진행 중인 협상 없음: 개전 넉 달 전 키신저의 제안에 사다트 특사가 답하지 않았을 뿐, 결렬이 선언된 협상은 없었다.",
+      "source": "https://en.wikipedia.org/wiki/Yom_Kippur_War#Lead_up_to_the_war",
+      "confidence": "low"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 9월 하순부터 골란 전선 시리아군 증강, 수에즈 운하 이집트군 집결. 대부분 첩보로만 파악."
+      "status": "yes",
+      "first": "1973-10-01",
+      "lead": 5,
+      "public_then": false,
+      "what": "이집트군이 10/1 훈련을 명분으로 운하에 집결, 시리아군도 골란 전선 증강. 10/4~5 항공사진으로 전차·보병·SAM 밀도 사상 최고 확인(첩보).",
+      "source": "https://en.wikipedia.org/wiki/Yom_Kippur_War#Lead_up_to_the_war",
+      "confidence": "med"
     },
     {
       "h": "m_logistics",
-      "status": "unknown",
-      "what": "미검증 단서: 이집트군 도하 장비의 운하 전방 이동이 항공정찰에 잡혔다는 기억(비공개)."
+      "status": "yes",
+      "first": "1973-10-05",
+      "lead": 1,
+      "public_then": false,
+      "what": "이집트군 도하(가교) 장비가 15일 밤에 걸쳐 운하로 이동, 10/5 항공사진에서 도하 장비 전량 집결 확인(비공개). 확인일 기준.",
+      "source": "https://en.wikipedia.org/wiki/Yom_Kippur_War#Lead_up_to_the_war",
+      "confidence": "med"
     },
     {
       "h": "m_mobilization",
-      "status": "unknown",
-      "what": "미검증 단서: 이집트가 9월 말 예비역을 소집했다가 10/4 일부 해제를 발표(기만), 이스라엘은 10/5 휴가 취소라는 기억."
+      "status": "yes",
+      "first": "1973-09-27",
+      "lead": 9,
+      "public_then": true,
+      "what": "이집트 9/27·9/30 예비역 소집(10/4 일부 해제를 공개 발표해 위장), 시리아 휴가 취소·예비역 소집, 이스라엘은 10/5 휴가 취소.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "med"
     },
     {
       "h": "m_exercise_cover",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 이집트 '타흐리르 41' 훈련(10/1경 시작)이 도하 공격의 위장."
+      "status": "yes",
+      "first": "1973-10-01",
+      "lead": 5,
+      "public_then": true,
+      "what": "이집트가 운하 인근 훈련(10/1~7)을 공표하고 그 병력으로 도하 공격. 이스라엘 군 정보국은 훈련 기동으로 보고 무시.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "high"
     },
     {
       "h": "m_strategic_assets",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "10/4~5 군수품을 실은 것으로 보이는 수송기가 카이로·다마스쿠스에 착륙했다는 서술뿐 — 전략자산 집결로 보기 어려워 보류."
     },
     {
       "h": "m_civil_defense",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "m_airspace",
-      "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "status": "yes",
+      "first": "1973-10-04",
+      "lead": 2,
+      "public_then": false,
+      "what": "10/4 저녁 이집트항공이 전 항공편을 취소하고 기체를 국외로 분산하려다 총사령부 개입으로 10/5 정상화. 이스라엘이 알았는지는 불명.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "low"
     },
     {
       "h": "m_gps_ew",
       "status": "unknown",
-      "what": "1973년에는 해당 수단 없음. 미조사."
+      "what": "1973년에는 해당 수단 없음."
     },
     {
       "h": "m_cyber",
       "status": "unknown",
-      "what": "1973년에는 해당 수단 없음. 미조사."
+      "what": "1973년에는 해당 수단 없음."
     },
     {
       "h": "m_border_fire",
       "status": "unknown",
-      "what": "미검증 단서: 9/13 시리아 상공 공중전(시리아기 다수 격추) 말고는 전선이 조용했다는 기억."
+      "what": "9/13 공중전(시리아기 12대 격추) 한 건은 확인. 그 뒤 교전이 '급증'했다는 서술은 없어 보류."
     },
     {
       "h": "m_alert_level",
-      "status": "unknown",
-      "what": "의뢰서 단서(미검증): 이스라엘군 10/5 부분 경계(상비군 최고 경계) — 당시 공개됐는지 확인 필요."
+      "status": "yes",
+      "first": "1973-10-05",
+      "lead": 1,
+      "public_then": false,
+      "what": "이스라엘 참모총장이 10/5 전군 경계·휴가 취소·공군 최고 경계를 명령(예비군 동원은 안 함). 당시 공개 발표였는지는 확인 못 함.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "med"
     },
     {
       "h": "m_leadership",
-      "status": "unknown",
-      "what": "미검증 단서: 10/5 이스라엘 내각 긴급 협의(비공개)라는 기억."
+      "status": "yes",
+      "first": "1973-10-04",
+      "lead": 2,
+      "public_then": true,
+      "what": "사다트가 10/6 전 며칠 동안 공개 석상에서 사라지고 와병설이 언론에 유포됨(기만의 일부). 시작일이 불분명해 늦게 잡음.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "low"
     },
     {
       "h": "f_fx",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "f_equity",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "f_sovereign",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "f_safe_haven",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함(유가 급등·금수는 개전 뒤)."
     },
     {
       "h": "f_prediction",
@@ -146,44 +196,54 @@
     {
       "h": "f_capital_flight",
       "status": "unknown",
-      "what": "미조사(웹 검색 한도 소진)."
+      "what": "찾지 못함."
     },
     {
       "h": "i_leader_threat",
       "status": "unknown",
-      "what": "미검증 단서: 사다트의 9/28 연설은 의도적으로 절제됐다는 기억 — no 후보."
+      "what": "사다트는 취임 뒤 줄곧 전쟁을 위협해 무시당하게 됐다는 서술뿐 — 창 안의 명시적 위협 연설은 확인 못 함."
     },
     {
       "h": "i_pretext",
       "status": "unknown",
-      "what": "미검증 단서: 이집트의 '이스라엘 선제공격' 주장은 개전 당일이었다는 기억(당일이면 no)."
+      "what": "10/2 이집트가 소련에 '이스라엘 습격 예상'이라 알린 것은 비공개. 공개 명분 만들기는 찾지 못함."
     },
     {
       "h": "i_state_mobilization",
-      "status": "unknown",
-      "what": "미검증 단서: 이집트 매체는 평시 분위기를 연출(기만)했다는 기억 — no 후보."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "반대로 평시 분위기 연출: 국방부가 장병 성지순례 휴가를 공고하고 신문은 해군 장성 참가 요트 경기·루마니아 국방장관 방문을 보도.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "med"
     },
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미검증 단서: 국제 관심은 오스트리아 쇠나우 인질 사건(9/28)에 쏠렸다는 기억 — no 후보."
+      "what": "찾지 못함."
     },
     {
       "h": "i_public_anxiety",
       "status": "unknown",
-      "what": "미검증 단서: 이스라엘 대중은 속죄일 휴일을 보내다 기습을 당했다는 기억 — no 후보."
+      "what": "찾지 못함."
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증 단서: 9/13 공중전 뒤 시리아의 보복 가능성 평가. 공개 보복 다짐이 있었는지 확인 필요."
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "9/13 공중전에서 시리아기 12대가 격추됐지만 시리아는 보복하지 않기로 했고 공개 보복 다짐도 없었다.",
+      "source": "https://en.wikipedia.org/wiki/Operation_Badr_(1973)#Deception_and_final_days_to_war",
+      "confidence": "med"
     },
     {
       "h": "t_deadline",
       "status": "unknown",
-      "what": "미검증 단서: 공개된 시한은 없었다는 기억 — no 후보."
+      "what": "공개된 시한은 찾지 못함."
     }
   ],
-  "missed": "기만이 핵심이었다(미검증, 재조사 필요): 훈련을 위장으로 쓰고 예비역 해제를 발표해 평시처럼 보이게 했다는 점. 공격 측 후원국의 자국민 철수가 가장 뚜렷한 막판 신호였지만 공개되지 않았다. 검색으로 확인: 이스라엘 군 정보국은 소련 민간인 철수를 10/5에야 알았고 그 전날까지 전쟁 가능성을 낮게 봤다.",
+  "missed": "기만이 핵심: 훈련 위장, 예비역 해제 발표, 장병 성지순례 휴가·요트 경기·루마니아 국방장관 방문 일정 공표, 사다트 와병설 유포. 5·8월 훈련 때 이스라엘이 헛동원한 '늑대 소년' 효과. 후세인 국왕(9/25)·마르완 등 9월에만 11건의 비공개 경고가 무시됐다. 10/1 이집트 함대의 무선 침묵 출항도 코드북에 칸이 없다.",
   "retrieved": "2026-11-11"
 }

@@ -1,0 +1,215 @@
+{
+  "id": "crimea-2014",
+  "name": "러시아 → 크림 점령·병합",
+  "outcome": "war",
+  "onset": "2014-02-27",
+  "window": [
+    "2013-11-29",
+    "2014-02-26"
+  ],
+  "attacker": "러시아",
+  "target": "우크라이나(크림)",
+  "kind": "interstate",
+  "surprise": true,
+  "summary": "2014년 2월 27일 새벽 표식 없는 러시아 특수부대가 크림 의회·정부 청사를 점거하며 점령이 시작됐다. 2/22 야누코비치 실각 뒤 닷새 만의 일로, 러시아는 개입을 부인했다. 공개 전조는 마지막 2~4일에 몰려 있다: 세바스토폴 친러 집회와 민병대 모집(2/23~24), 러시아 장갑차의 시내 배치와 '러시아 시민 보호' 발언(2/25), 푸틴의 불시 전투준비태세 점검 훈련(2/26). 결정적 준비(2/18 특수부대 경계, 2/22~23 푸틴 심야 회의)는 사후에야 밝혀져 기습으로 분류한다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "크림 사태를 이유로 한 제3국 대사관 철수 명령은 찾지 못함"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "찾지 못함(개시 뒤 3월에 인도·필리핀 등이 주의 권고)"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "unknown",
+      "what": "개시 전 정부·정보기관의 공개 경고는 찾지 못함. 2/26 우크라이나 전직 대통령 3명이 러시아의 크림 개입을 규탄한 성명만 있음"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "미검증: 러시아의 주우크라이나 대사 소환(2월 하순). 확인한 출처 없음. 무력사용 승인은 개시 뒤 3/1"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "no",
+      "public_then": true,
+      "what": "크림을 둘러싼 러-우 협상 자체가 없었다. 러시아는 2/21 키이우 정국 합의 불이행만 문제 삼음",
+      "source": "https://en.wikipedia.org/wiki/2014_Russian_annexation_of_Crimea#Russian_response",
+      "confidence": "low"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "2014-02-25",
+      "lead": 2,
+      "public_then": true,
+      "what": "러시아: 2/25 해병대 장갑차를 세바스토폴 시내(나히모프 광장 등)에 배치, 2/26 세바스토폴 진입로에 러시아 깃발 검문소",
+      "source": "https://en.wikipedia.org/wiki/Timeline_of_the_Russian_annexation_of_Crimea#February_25",
+      "confidence": "low"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "정규 동원은 찾지 못함. 2/22~24 심페로폴·세바스토폴에서 친러 '자경단' 수천 명 조직·모집 전단은 민병대라 제외"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "yes",
+      "first": "2014-02-26",
+      "lead": 1,
+      "public_then": true,
+      "what": "푸틴: 2/26 우크라이나 접경 서부·중부 군관구에 예고 없는 전투준비태세 점검 훈련 지시(3/4 종료)",
+      "source": "https://www.bbc.com/news/world-europe-26354705",
+      "confidence": "high"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_airspace",
+      "status": "no",
+      "public_then": true,
+      "what": "크림 공항 점거는 개시 뒤(2/28), 크림 영공 폐쇄는 3/11 — 개시 전에는 없었음",
+      "source": "https://en.wikipedia.org/wiki/Timeline_of_the_Russian_annexation_of_Crimea#March_11",
+      "confidence": "med"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "개시 전 사이버 공격은 찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "군사적 교전은 없었음. 2/26 심페로폴 의회 앞 친러·타타르 시위대 충돌(2명 사망)은 민간 충돌"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "yes",
+      "first": "2014-02-26",
+      "lead": 1,
+      "public_then": true,
+      "what": "러시아: 2/26 서부·중부 병력 전투준비태세 점검 공개 지시. 2/18 노보로시스크 특수부대·흑해함대 경계 돌입은 사후에 밝혀짐",
+      "source": "https://www.bbc.com/news/world-europe-26354705",
+      "confidence": "med"
+    },
+    {
+      "h": "m_leadership",
+      "status": "yes",
+      "first": "2014-02-23",
+      "lead": 4,
+      "public_then": false,
+      "what": "푸틴: 2/22~23 안보 수장들과 밤샘 회의 뒤 '크림 반환 작업을 시작해야 한다' — 1년 뒤에야 공개",
+      "source": "https://en.wikipedia.org/wiki/2014_Russian_annexation_of_Crimea#Russian_planning",
+      "confidence": "med"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "미검증: 혁명기 흐리우냐 약세. 크림 위기 탓으로 본 개시 전 보도는 찾지 못함"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "예측시장 자료 없음"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "개시 전 푸틴의 공개 위협·명분 연설은 찾지 못함(첫 기자회견은 3/4)"
+    },
+    {
+      "h": "i_pretext",
+      "status": "yes",
+      "first": "2014-02-25",
+      "lead": 2,
+      "public_then": true,
+      "what": "러 하원 대표단(슬루츠키): 2/25 심페로폴에서 '러시아 동포가 위험하면 가만있지 않는다'. 2/20 크림 버스 습격을 선전에 활용",
+      "source": "https://en.wikipedia.org/wiki/2014_Russian_annexation_of_Crimea#Russian_response",
+      "confidence": "med"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "보도량 자료를 찾지 못함"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "t_trigger",
+      "status": "unknown",
+      "what": "보복 다짐이 따른 사상자 사건은 찾지 못함. 계기는 2/22 야누코비치 실각(러시아는 '쿠데타'라 규정)"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "찾지 못함"
+    }
+  ],
+  "missed": "대상국 정권 붕괴(2/22 야누코비치 실각)라는 기회의 창. 기지 조약으로 이미 주둔 중인 병력(흑해함대)을 써서 집결 신호가 없었음. 친러 '자경단' 조직과 러시아 시민권자의 시장 선출(2/24), 러 하원 대표단의 크림 방문과 시민권 간소화 언급(2/25). 표식 없는 병력과 공식 부인. 크림 의회 의장의 모스크바 방문·분리 시사(2/20).",
+  "retrieved": "2026-11-11"
+}

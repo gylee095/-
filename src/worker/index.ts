@@ -596,6 +596,14 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
       return json({ error: String((e as Error)?.message ?? e) }, 200);
     }
   }
+  if (url.pathname === "/api/ops/test-alert" && req.method === "POST") {
+    // 손님용 알림 길 전체를 운영자가 직접 시험한다. 결제한 손님이 둘 이상이면 실제 손님에게도 가므로 막는다 (force 로만)
+    const sum = await billingSummary(store, Date.now());
+    if (sum.paid > 1 && url.searchParams.get("force") !== "1") return json({ error: `결제한 손님이 ${sum.paid}명이라 테스트 알림을 보내지 않았어요` }, 409);
+    const st = await buildState(store, Date.now() - 168 * 3600_000, env.DISABLED_SOURCES);
+    const { sendTestAlert } = await import("../core/phasealert.js");
+    return json({ paid: sum.paid, ...(await sendTestAlert(store, env, st.warRisk.live, Date.now(), fetch, freezeState(st as unknown as Record<string, unknown>))) });
+  }
   if (url.pathname === "/api/test-push" && req.method === "POST") {
     // 테스트 푸시도 실제 알림과 같은 모양으로 — 지금 상황·어제 대비·대시보드 주소 (2026-11-04)
     const st = await buildState(store, Date.now() - 24 * 3600_000, env.DISABLED_SOURCES);

@@ -8,7 +8,7 @@
 // 단계는 드물게 바뀌고 바뀌면 범위가 크게 뛴다(2단계 2~4% → 3단계 8~25%).
 // 실제 사건(발사 속보·민방위 경보·철수 권고)은 단계와 상관없이 지금처럼 바로 알린다 (policy.ts).
 import { MOVES_AT, RUBRIC_VERSION, SIGNS_AT } from "./rubric.js";
-import { addChangeReport } from "./reports.js";
+import { addChangeReport, addTestReport } from "./reports.js";
 import type { Phase, WarRisk } from "./warrisk.js";
 import { fmtRiskPct } from "./warrisk.js";
 import type { Store } from "./store.js";
@@ -175,4 +175,16 @@ export async function notifyPhaseChange(
   const next = ok || fails >= 3 ? { ...state, lastSentAt: ok ? now : state.lastSentAt } : { ...(prev ?? state), fails };
   await store.setKv(PHASE_STATE_KEY, JSON.stringify({ ...next, rule: RUBRIC_VERSION }));
   return { sent: message, ok, state: next };
+}
+
+/**
+ * 운영자가 직접 보내는 손님용 테스트 알림 (11/12 사용자: "지금 것을 알림 보내면서 테스트로") — 실제 알림과 같은 길(리포트를 얼리고 → 손님 푸시 → 알림함)을 탄다.
+ * 제목과 본문 첫 줄부터 테스트임을 밝힌다. 단계 기억(risk:phase_notify)은 건드리지 않는다.
+ */
+export async function sendTestAlert(store: Store, env: PushEnv & { DASHBOARD_URL?: string }, w: WarRisk, now: number, fetchImpl: typeof fetch = fetch, full?: Record<string, unknown>) {
+  const report = await addTestReport(store, w, now, full);
+  const url = env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/me?r=${report.id}` : undefined;
+  const body = [`🧪 테스트 알림 — 실제 변화 아님`, `지금 상황: ${w.phase}단계 ${w.phaseLabel}${pctOf(w)}`, counts(w), url ? `리포트 : ${url}` : ""].filter(Boolean).join("\n");
+  const res = await sendPush(env, { audience: "all", title: `🧪 테스트 — ${w.phase}단계 ${w.phaseLabel}${pctOf(w)}`, body, priority: 2, url, tag: "kew-test" }, fetchImpl, store);
+  return { reportId: report.id, sent: res.map((r) => ({ channel: r.channel, ok: r.ok, error: r.error })) };
 }

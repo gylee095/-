@@ -168,6 +168,14 @@ export function visibleReports(all: Report[], paidAt: number, startReportId?: st
   return all.filter((r) => r.id === startReportId || extraIds.includes(r.id) || (r.kind === "change" && r.at >= paidAt)).sort((a, b) => b.at - a.at);
 }
 
+/** 운영자가 직접 보내는 테스트 알림의 리포트: 지금의 대시보드 전체. 제목 첫 글자부터 테스트임이 보이게 한다 */
+export async function addTestReport(store: Pick<Store, "getKv" | "setKv">, w: RiskLike, now: number, full?: Record<string, unknown>): Promise<Report> {
+  const base = reportFromRisk(w, now, "change", w.phase);
+  const r = await appendReport(store, { ...base, headline: `🧪 테스트 알림 — 지금 상황: ${w.phase}단계 ${w.phaseLabel}` });
+  if (full) await saveFull(store, r.id, full);
+  return r;
+}
+
 /** 운영자 화면 확인용 예시 리포트: 지금의 대시보드 전체로, 날짜를 하루씩 앞당겨 n장. 붙인 주문에서만 보인다 (kind "demo") */
 export async function addDemoReports(store: Pick<Store, "getKv" | "setKv">, w: RiskLike, full: Record<string, unknown>, n: number, now: number): Promise<Report[]> {
   const out: Report[] = [];

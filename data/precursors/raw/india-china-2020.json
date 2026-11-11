@@ -1,0 +1,244 @@
+{
+ "id": "india-china-2020",
+ "name": "중국-인도 갈완 계곡 충돌",
+ "outcome": "attack",
+ "onset": "2020-06-15",
+ "window": [
+  "2020-04-01",
+  "2020-06-14"
+ ],
+ "attacker": "중국",
+ "target": "인도",
+ "kind": "interstate",
+ "surprise": false,
+ "summary": "2020-06-15 밤 라다크 갈완 계곡 14번 순찰지점에서 양국 군이 6시간 난투를 벌여 인도군 20명이 숨졌다(국경에서 45년 만의 첫 사망). 개시 전 6주 동안 5/5 판공호·5/9 나쿠라 난투, 5월 하순 중국군 수천 명과 텐트·중장비 전개, 중국 외교부의 '인도군 월경' 주장이 공개돼 있었다. 그러나 대사관·시장·정상 발언 같은 신호는 확인되지 않고, 6/6 군단장급 회담의 철수 합의가 이행되던 중이라 충돌 자체는 많은 이에게 뜻밖이었다.",
+ "signals": [
+  {
+   "h": "g_evac_order",
+   "status": "unknown",
+   "what": "개시 전 제3국 대사관의 철수 명령·승인 보도를 찾지 못함"
+  },
+  {
+   "h": "g_leave_now",
+   "status": "unknown",
+   "what": "개시 전 최고 단계 여행경보 상향 보도를 찾지 못함"
+  },
+  {
+   "h": "g_staff_restrict",
+   "status": "unknown",
+   "what": "대사관의 직원 이동 제한·보안경보 보도를 찾지 못함"
+  },
+  {
+   "h": "g_regional_drawdown",
+   "status": "unknown",
+   "what": "이웃 나라·역내 인력 감축 보도를 찾지 못함"
+  },
+  {
+   "h": "g_attacker_evac",
+   "status": "unknown",
+   "what": "중국의 자국민·외교관 철수를 확인하지 못함 (5월 말 주인도 중국대사관의 귀국편 공지는 미검증, 공식 사유는 코로나19)"
+  },
+  {
+   "h": "g_intel_warning",
+   "status": "unknown",
+   "what": "공격 임박을 알린 정부·정보당국의 공개 경고를 찾지 못함 (미 의회·국무부의 일반적 우려 표명만 확인)"
+  },
+  {
+   "h": "g_ultimatum",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "최후통첩·대사 소환·단교 없음: 5/27 중국 대사·외교부 '전반적으로 안정', 5/28 인도 외교부 '기존 양자 체계로 해결'; 5/19 중국 '필요한 대응 조치' 경고는 시한 없음",
+   "source": "https://en.wikipedia.org/wiki/2020%E2%80%932021_China%E2%80%93India_skirmishes#Diplomatic_response",
+   "confidence": "med"
+  },
+  {
+   "h": "g_talks_collapse",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "협상은 결렬되지 않음: 6/6 첫 군단장급 회담이 '우호적 분위기'에서 평화적 해결·철수에 합의했고 충돌은 그 이행 중에 발생",
+   "source": "https://carnegieendowment.org/research/2024/12/negotiating-the-india-china-standoff-2020-2024",
+   "confidence": "high"
+  },
+  {
+   "h": "m_buildup",
+   "status": "yes",
+   "first": "2020-05-21",
+   "lead": 25,
+   "public_then": true,
+   "what": "중국군이 갈완 일대에 텐트 70~80동·중장비와 증원 병력 전개(5/21 보도), 세 곳에 각 800~1,000명 월경, 5/30 '수천 명·야포 30문'; 인도도 증원",
+   "source": "https://en.wikipedia.org/wiki/2020%E2%80%932021_China%E2%80%93India_skirmishes#Eastern_Ladakh",
+   "confidence": "high"
+  },
+  {
+   "h": "m_logistics",
+   "status": "unknown",
+   "what": "개시 전 야전병원·탄약·연료의 전방 이동 보도를 찾지 못함 (월동 물자 비축은 충돌 뒤 일)"
+  },
+  {
+   "h": "m_mobilization",
+   "status": "unknown",
+   "what": "예비군 소집·휴가 중단 보도를 찾지 못함 (인도 육군의 '예비대 편성' 병력 이동만 확인)"
+  },
+  {
+   "h": "m_exercise_cover",
+   "status": "yes",
+   "first": "2020-04-30",
+   "lead": 46,
+   "public_then": false,
+   "what": "중국이 4월 티베트 훈련에 나선 병력을 인도 국경 쪽으로 돌려 실제통제선으로 전진(카네기 2024). 개시 전에 공개됐는지는 확인 못함",
+   "source": "https://carnegieendowment.org/research/2024/12/negotiating-the-india-china-standoff-2020-2024",
+   "confidence": "med"
+  },
+  {
+   "h": "m_strategic_assets",
+   "status": "unknown",
+   "what": "개시 전 전략자산 집결을 날짜로 확인하지 못함 (위키: 중국 공군·로켓군이 지원 배치 — 시점 불명)"
+  },
+  {
+   "h": "m_civil_defense",
+   "status": "unknown",
+   "what": "민방위 조치·주민 소개 보도를 찾지 못함"
+  },
+  {
+   "h": "m_airspace",
+   "status": "unknown",
+   "what": "영공 폐쇄·운항 중단 보도를 찾지 못함"
+  },
+  {
+   "h": "m_gps_ew",
+   "status": "unknown",
+   "what": "개시 전 전자전 급증을 확인하지 못함 (중국의 위성 교란기 배치 보도는 시점 불명)"
+  },
+  {
+   "h": "m_cyber",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "개시 전 보고는 확인되지 않음: 위키는 사이버 공격 보고가 충돌 뒤 늘었고 전력망 침투(Recorded Future, 2021-02 공개)도 충돌 뒤라고 서술",
+   "source": "https://en.wikipedia.org/wiki/2020%E2%80%932021_China%E2%80%93India_skirmishes#Cyber_attacks",
+   "confidence": "low"
+  },
+  {
+   "h": "m_border_fire",
+   "status": "yes",
+   "first": "2020-05-05",
+   "lead": 41,
+   "public_then": true,
+   "what": "5/5~6 판공호, 5/9 시킴 나쿠라에서 집단 난투·투석으로 양측 부상(인도군 5/10 확인), 5/10~11 재충돌 — 총격은 없었음",
+   "source": "https://en.wikipedia.org/wiki/2020%E2%80%932021_China%E2%80%93India_skirmishes#Pangong_Tso",
+   "confidence": "high"
+  },
+  {
+   "h": "m_alert_level",
+   "status": "unknown",
+   "what": "개시 전 공식 경계태세 격상 발표를 찾지 못함"
+  },
+  {
+   "h": "m_leadership",
+   "status": "yes",
+   "first": "2020-05-26",
+   "lead": 20,
+   "public_then": true,
+   "what": "모디 총리가 5/26 국가안보보좌관·합참의장·3군 총장과 국경 상황 회의, 5/22 육군참모총장 레 14군단 방문 (긴급회의 1회뿐)",
+   "source": "https://www.aljazeera.com/news/2020/05/tense-india-china-standoff-himalayan-border-escalate-200527120501581.html",
+   "confidence": "low"
+  },
+  {
+   "h": "f_fx",
+   "status": "unknown",
+   "what": "루피 반응 보도를 찾지 못함"
+  },
+  {
+   "h": "f_equity",
+   "status": "unknown",
+   "what": "개시 전 증시 반응 보도를 찾지 못함"
+  },
+  {
+   "h": "f_sovereign",
+   "status": "unknown",
+   "what": "국채·CDS 관련 보도를 찾지 못함"
+  },
+  {
+   "h": "f_safe_haven",
+   "status": "unknown",
+   "what": "유가·금·방산주 반응 보도를 찾지 못함"
+  },
+  {
+   "h": "f_prediction",
+   "status": "unknown",
+   "what": "해당 예측시장을 찾지 못함"
+  },
+  {
+   "h": "f_capital_flight",
+   "status": "unknown",
+   "what": "자본·인력 이탈 보도를 찾지 못함"
+  },
+  {
+   "h": "i_leader_threat",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "개시 전 정상의 명시적 위협 없음: 시진핑은 2022-07까지 대치를 공개 언급하지 않았고(5/26 '전투준비'는 일반론), 모디의 첫 연설은 충돌 뒤 6/17",
+   "source": "https://carnegieendowment.org/research/2024/12/negotiating-the-india-china-standoff-2020-2024",
+   "confidence": "med"
+  },
+  {
+   "h": "i_pretext",
+   "status": "yes",
+   "first": "2020-05-19",
+   "lead": 27,
+   "public_then": true,
+   "what": "중국 외교부 5/19 '인도군이 중국 영토에 들어와 현상 변경 시도, 필요한 대응 조치'; 5/25 환구시보 기고 '인도가 갈완에 불법 방어시설'",
+   "source": "https://indianexpress.com/article/india/india-builds-road-north-of-ladakh-lake-china-warns-of-necessary-counter-measures-6421271/",
+   "confidence": "med"
+  },
+  {
+   "h": "i_state_mobilization",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "중국 관영매체는 대치를 거의 다루지 않고 축소 보도: 첫 한 달간 차이나데일리·인민일보 사설 1건뿐, 갈완 충돌도 인민일보·해방군보는 보도 안 함",
+   "source": "https://en.wikipedia.org/wiki/2020%E2%80%932021_China%E2%80%93India_skirmishes#News_media",
+   "confidence": "med"
+  },
+  {
+   "h": "i_news_surge",
+   "status": "yes",
+   "first": "2020-05-27",
+   "lead": 19,
+   "public_then": true,
+   "what": "5/27 트럼프가 '격화하는 국경 분쟁' 중재를 제안하고 알자지라 등 국제 언론이 '도클람 이후 최악' 대치를 집중 보도 (보도량 수치는 미확인)",
+   "source": "https://www.aljazeera.com/news/2020/05/tense-india-china-standoff-himalayan-border-escalate-200527120501581.html",
+   "confidence": "med"
+  },
+  {
+   "h": "i_public_anxiety",
+   "status": "unknown",
+   "what": "인도 내 사재기·피란 등 대중 불안 보도를 찾지 못함"
+  },
+  {
+   "h": "t_trigger",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "개시 전에는 사망자 사건·보복 다짐이 없었음: 5월 난투는 부상에 그쳤고 6/15 갈완 충돌이 국경에서 45년 만의 첫 사망 사건",
+   "source": "https://www.bbc.com/news/world-asia-53061476",
+   "confidence": "high"
+  },
+  {
+   "h": "t_deadline",
+   "status": "unknown",
+   "what": "명시적 시한·기한부 조건을 확인하지 못함"
+  }
+ ],
+ "missed": "텐트·중장비·감시장비를 갖다 놓고 눌러앉는 '시설 공사'가 5/21~30 보도로 드러났다(병력 수보다 먼저 보인 신호). 충돌은 6/6 철수 합의를 이행·검증하던 국면에서 났다 — 합의 직후가 오히려 위험 구간이었다. 중국 관영매체는 내내 축소 보도했다(침묵이 신호가 되지 못함). 5/27 트럼프의 중재 제안을 양국이 거절했다. 미검증 단서: 5월 말 중국대사관의 자국민 귀국편 공지(코로나19 사유), 응가리 공항 전투기 위성사진.",
+ "retrieved": "2026-11-11"
+}

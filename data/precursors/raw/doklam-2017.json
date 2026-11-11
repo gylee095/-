@@ -1,0 +1,234 @@
+{
+ "id": "doklam-2017",
+ "name": "중국-인도 도클람 대치",
+ "outcome": "no_war",
+ "onset": null,
+ "window": [
+  "2017-06-16",
+  "2017-08-28"
+ ],
+ "attacker": "중국",
+ "target": "인도(부탄)",
+ "kind": "interstate",
+ "surprise": false,
+ "summary": "2017-06-16 중국군이 부탄과 분쟁 중인 도클람에서 도로를 남쪽으로 늘리자 6/18 인도군 약 270명이 넘어가 막아섰고, 73일 대치 끝에 8/28 양측이 물러섰다. 보인 신호는 값싼 쪽에 몰렸다: 중국 외교부·관영매체의 '인도군 불법 월경' 주장과 8/3~4 연쇄 경고, 실탄훈련 공개, 양측 증원 보도. 발포·사상자·정상의 위협 발언·단교는 없었고 외교 채널이 끝까지 유지돼 BRICS 정상회의(9/3~5) 직전에 풀렸다.",
+ "signals": [
+  {
+   "h": "g_evac_order",
+   "status": "unknown",
+   "what": "제3국 대사관의 철수 명령·승인 보도를 찾지 못함"
+  },
+  {
+   "h": "g_leave_now",
+   "status": "unknown",
+   "what": "최고 단계 여행경보는 찾지 못함 (주인도 중국대사관이 자국민에게 '안전 유의'를 공지한 것만 확인 — 최고 단계 아님, 날짜 미확인)"
+  },
+  {
+   "h": "g_staff_restrict",
+   "status": "unknown",
+   "what": "대사관의 직원 이동 제한·보안경보 보도를 찾지 못함"
+  },
+  {
+   "h": "g_regional_drawdown",
+   "status": "unknown",
+   "what": "이웃 나라·역내 인력 감축 보도를 찾지 못함"
+  },
+  {
+   "h": "g_attacker_evac",
+   "status": "unknown",
+   "what": "중국의 외교관·자국민 철수를 확인하지 못함 (대사관의 '안전 유의' 공지뿐)"
+  },
+  {
+   "h": "g_intel_warning",
+   "status": "unknown",
+   "what": "공격 임박을 알린 정부·정보당국의 공개 경고를 찾지 못함 (7/19 미 국무부의 '우려' 표명만 확인)"
+  },
+  {
+   "h": "g_ultimatum",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "중국은 '무조건 철군'을 대화 전제로 거듭 요구했으나 시한·대사 소환·단교는 없었고, 인도 각료는 BRICS 사전 회의에 모두 참석",
+   "source": "https://www.thehindu.com/news/national/doklam-standoff-ends-as-india-china-step-back/article62040875.ece",
+   "confidence": "low"
+  },
+  {
+   "h": "g_talks_collapse",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "협상은 끊기지 않음: 함부르크 G20에서 모디-시진핑이 외교에 맡기기로 한 뒤 '수주간의 외교 협상'으로 8/28 철수 합의(인도 외교부 '외교 소통 유지')",
+   "source": "https://www.thehindu.com/news/national/doklam-standoff-ends-as-india-china-step-back/article62040875.ece",
+   "confidence": "high"
+  },
+  {
+   "h": "m_buildup",
+   "status": "yes",
+   "first": "2017-07-05",
+   "lead": null,
+   "public_then": true,
+   "what": "BBC 7/5 '양국 모두 국경 지역에 병력을 급히 증원'; 대치 지점 자체는 인도군 300~350명 규모 — 대규모 집결의 정부·위성 확인은 찾지 못함",
+   "source": "https://www.bbc.com/news/world-asia-40478813",
+   "confidence": "low"
+  },
+  {
+   "h": "m_logistics",
+   "status": "yes",
+   "first": "2017-06-30",
+   "lead": null,
+   "public_then": true,
+   "what": "중국 서부전구가 6월 군수물자 수만 톤을 티베트 북부(쿤룬산맥 남쪽)로 도로·철도 수송 (ko 위키 서술, 1차 출처·정확한 날짜 미확인)",
+   "source": "https://ko.wikipedia.org/wiki/2017%EB%85%84_%EC%9D%B8%EB%8F%84-%EC%A4%91%EA%B5%AD_%EA%B5%AD%EA%B2%BD_%EB%B6%84%EC%9F%81#%EC%A0%84%EA%B0%9C",
+   "confidence": "low"
+  },
+  {
+   "h": "m_mobilization",
+   "status": "unknown",
+   "what": "예비군 소집·휴가 중단 보도를 찾지 못함"
+  },
+  {
+   "h": "m_exercise_cover",
+   "status": "unknown",
+   "what": "7월 중순 CCTV가 티베트 산악여단 실탄훈련을 공개했으나 예정에 없던 훈련인지·병력이 남았는지 확인하지 못함"
+  },
+  {
+   "h": "m_strategic_assets",
+   "status": "unknown",
+   "what": "조기경보기·전투기 수십 대의 티베트 기지 긴급 배치 서술(ko 위키)은 날짜·출처 미검증"
+  },
+  {
+   "h": "m_civil_defense",
+   "status": "unknown",
+   "what": "민방위 조치·주민 소개를 확인하지 못함 (8월 인도 접경 마을 소개 보도는 미검증)"
+  },
+  {
+   "h": "m_airspace",
+   "status": "unknown",
+   "what": "영공 폐쇄·운항 중단 보도를 찾지 못함"
+  },
+  {
+   "h": "m_gps_ew",
+   "status": "unknown",
+   "what": "GPS 교란·전자전 관련 보도를 찾지 못함"
+  },
+  {
+   "h": "m_cyber",
+   "status": "unknown",
+   "what": "사이버 공격 보도를 찾지 못함"
+  },
+  {
+   "h": "m_border_fire",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "73일 내내 양측이 자제해 무기를 쓰지 않았음; 물리 충돌은 8/15 판공호 투석 난투 1건(부상)뿐",
+   "source": "https://zh.wikipedia.org/wiki/2017%E5%B9%B4%E4%B8%AD%E5%8D%B0%E5%86%9B%E9%98%9F%E6%B4%9E%E6%9C%97%E5%AF%B9%E5%B3%99%E4%BA%8B%E4%BB%B6#%E7%BB%8F%E8%BF%87",
+   "confidence": "med"
+  },
+  {
+   "h": "m_alert_level",
+   "status": "yes",
+   "first": "2017-06-29",
+   "lead": null,
+   "public_then": true,
+   "what": "부탄이 6/29 중국에 항의하면서 국경을 고도 경계 상태로 올리고 경비를 강화했다는 보도 (인도·중국의 공식 경계 격상은 확인 못함)",
+   "source": "https://en.wikipedia.org/wiki/2017_China%E2%80%93India_border_standoff#Timeline",
+   "confidence": "low"
+  },
+  {
+   "h": "m_leadership",
+   "status": "unknown",
+   "what": "지도부의 벙커 이동·긴급 안보회의 연속 보도를 찾지 못함"
+  },
+  {
+   "h": "f_fx",
+   "status": "unknown",
+   "what": "통화 반응 보도를 찾지 못함"
+  },
+  {
+   "h": "f_equity",
+   "status": "unknown",
+   "what": "증시 반응을 확인하지 못함 (8/11 센섹스 하락을 도클람 탓으로 본 보도는 미검증)"
+  },
+  {
+   "h": "f_sovereign",
+   "status": "unknown",
+   "what": "국채·CDS 관련 보도를 찾지 못함"
+  },
+  {
+   "h": "f_safe_haven",
+   "status": "unknown",
+   "what": "유가·금·방산주 반응 보도를 찾지 못함"
+  },
+  {
+   "h": "f_prediction",
+   "status": "unknown",
+   "what": "해당 예측시장을 찾지 못함"
+  },
+  {
+   "h": "f_capital_flight",
+   "status": "unknown",
+   "what": "자본·인력 이탈 보도를 찾지 못함"
+  },
+  {
+   "h": "i_leader_threat",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "양국 정상은 공개 위협을 하지 않음(7월 중순까지 공개 발언 없음, 함부르크에서 외교에 맡기기로); 강경 발언은 대변인·왕이 외교부장·관영매체 수준",
+   "source": "https://zh.wikipedia.org/wiki/2017%E5%B9%B4%E4%B8%AD%E5%8D%B0%E5%86%9B%E9%98%9F%E6%B4%9E%E6%9C%97%E5%AF%B9%E5%B3%99%E4%BA%8B%E4%BB%B6#%E7%BB%8F%E8%BF%87",
+   "confidence": "med"
+  },
+  {
+   "h": "i_pretext",
+   "status": "yes",
+   "first": "2017-07-03",
+   "lead": null,
+   "public_then": true,
+   "what": "중국 외교부 7/3 '인도군이 시킴 구간 국경을 넘어 침입', 7/7 신화 '인도가 부탄 보호를 구실로 불법 침입', 8/2 15쪽 입장문 발표",
+   "source": "https://en.wikipedia.org/wiki/2017_China%E2%80%93India_border_standoff#Timeline",
+   "confidence": "med"
+  },
+  {
+   "h": "i_state_mobilization",
+   "status": "unknown",
+   "what": "국내 전시 동원 서사는 확인하지 못함 (8/3~4 해방군보·신화·인민일보의 대인도 연쇄 경고는 대외 압박 성격)"
+  },
+  {
+   "h": "i_news_surge",
+   "status": "yes",
+   "first": "2017-07-05",
+   "lead": null,
+   "public_then": true,
+   "what": "7월 초부터 BBC·가디언·NYT·WP 등이 '수십 년 만의 최장 대치'와 확전 우려를 잇달아 보도 (보도량 수치는 미확인)",
+   "source": "https://www.bbc.com/news/world-asia-40478813",
+   "confidence": "med"
+  },
+  {
+   "h": "i_public_anxiety",
+   "status": "unknown",
+   "what": "사재기·피란 등 행동은 확인하지 못함 (부탄 SNS 분석에서 전쟁 불안이 컸다는 조사와 그렇지 않다는 NYT 취재가 엇갈림)"
+  },
+  {
+   "h": "t_trigger",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "사상자가 난 계기 사건 없음: 6/16 중국군 도로 공사와 6/18 인도군 저지로 시작된 대치",
+   "source": "https://en.wikipedia.org/wiki/2017_China%E2%80%93India_border_standoff",
+   "confidence": "high"
+  },
+  {
+   "h": "t_deadline",
+   "status": "unknown",
+   "what": "공표된 시한은 확인하지 못함 (9/3~5 BRICS 정상회의가 사실상 계기였으나 명시적 시한은 아님)"
+  }
+ ],
+ "missed": "코드북 밖 신호: ① 8/3~4 24시간 동안 해방군보·신화·외교부·국방부·대사관·인민일보가 잇달아 낸 대외 경고(동원 서사가 아니라 상대국을 겨냥한 압박 캠페인) ② 7월 중순부터 관영 TV의 티베트 실탄훈련 공개(정례 훈련인지 확인 못함) ③ 비군사 보복: 나투라 경유 카일라스 순례단 57명 입경 불허(BBC 7/5 보도), 브라마푸트라 수문 자료 제공 중단 ④ 주인도 중국대사관의 자국민 '안전 유의' 공지. 다가오는 정상회의(BRICS)가 시한처럼 작용해 타결을 앞당겼다.",
+ "retrieved": "2026-11-11"
+}

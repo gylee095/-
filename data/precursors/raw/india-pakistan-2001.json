@@ -1,0 +1,289 @@
+{
+ "id": "india-pakistan-2001",
+ "name": "인도-파키스탄 2001~2002 대치 (의회 테러 뒤 파라크람 작전)",
+ "outcome": "no_war",
+ "onset": null,
+ "window": [
+  "2001-12-13",
+  "2002-06-30"
+ ],
+ "attacker": "인도",
+ "target": "파키스탄",
+ "kind": "interstate",
+ "surprise": false,
+ "summary": "2001-12-13 인도 의회 테러 뒤 인도가 1971년 이후 최대 규모로 군을 동원해 양측 합계 약 100만 명이 국경에서 열 달 가까이 대치했으나 전면전은 나지 않았다. 전조는 두 번 몰렸다: 12월 하순~1월(대사 소환, 동원·집결, 미사일 전진 배치, 영공 통과 금지, 포격)과 2002-05-14 칼루차크 테러 뒤(총리의 '결전' 연설, 대사 추방, 증시·금값 반응, 5/31 미·영 등의 공관 가족 철수 승인과 자국민 출국 권고). 전쟁 사례에서 보일 법한 신호가 거의 다 켜졌는데도 미국의 중재와 무샤라프의 약속(1/12, 6/6~10)으로 물러섰다.",
+ "signals": [
+  {
+   "h": "g_evac_order",
+   "status": "yes",
+   "first": "2002-05-31",
+   "lead": null,
+   "public_then": true,
+   "what": "미국 5/31 주인도 대사관·영사관 비필수 인력과 가족 자진 출국 승인, 영국·호주·뉴질랜드도 감축 발표; 6/3 유엔 직원 가족 파키스탄 출국 시작",
+   "source": "https://www.voanews.com/a/a-13-a-2002-05-31-2-us/392253.html",
+   "confidence": "high"
+  },
+  {
+   "h": "g_leave_now",
+   "status": "yes",
+   "first": "2002-05-31",
+   "lead": null,
+   "public_then": true,
+   "what": "미 국무부 5/31 인도 체류 미국인 약 6만 명에게 출국 권고·여행 연기 경고; 영국 '인도 여행 자제, 체류자는 출국 고려'; 호주는 파키스탄 체류자 출국 권고",
+   "source": "https://www.tribuneindia.com/2002/20020601/main3.htm",
+   "confidence": "high"
+  },
+  {
+   "h": "g_staff_restrict",
+   "status": "unknown",
+   "what": "대사관의 직원 이동 제한·대피 지시 보도를 찾지 못함 (5/31 미 대사관이 여행경고를 함께 공지한 것만 확인)"
+  },
+  {
+   "h": "g_regional_drawdown",
+   "status": "unknown",
+   "what": "이웃 나라·역내 인력 감축 보도를 찾지 못함"
+  },
+  {
+   "h": "g_attacker_evac",
+   "status": "yes",
+   "first": "2001-12-22",
+   "lead": null,
+   "public_then": true,
+   "what": "인도가 주파키스탄 고등판무관을 불러들이고(12/22 보도) 이후 몇 주 사이 양국이 공관 인원을 대폭 감축 — 안전상 철수가 아닌 외교 격하 조치",
+   "source": "https://www.cbc.ca/news/world/india-expels-pakistan-s-ambassador-1.325671",
+   "confidence": "low"
+  },
+  {
+   "h": "g_intel_warning",
+   "status": "yes",
+   "first": "2002-05-21",
+   "lead": null,
+   "public_then": true,
+   "what": "스트로 영국 외무장관 5/21 '두 핵보유국의 전쟁 가능성은 실재하며 매우 우려'; 미 관리들도 NYT에 '인도가 전쟁에 필요한 조치를 밟는 중' — 임박 단정은 아님",
+   "source": "https://www.rferl.org/a/1099772.html",
+   "confidence": "low"
+  },
+  {
+   "h": "g_ultimatum",
+   "status": "yes",
+   "first": "2001-12-22",
+   "lead": null,
+   "public_then": true,
+   "what": "인도, 주파키스탄 고등판무관 소환(12/22 보도); 2002-05-18 파키스탄 고등판무관 추방(1주 내 출국 요구). 시한부 최후통첩·단교는 없음",
+   "source": "https://www.cbc.ca/news/world/india-expels-pakistan-s-ambassador-1.325671",
+   "confidence": "high"
+  },
+  {
+   "h": "g_talks_collapse",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "결렬될 협상 자체가 없었음: 인도는 1월 SAARC·6월 알마티에서 바지파이-무샤라프 회담을 거부했고 푸틴의 중재 시도도 대면 회담으로 이어지지 않음",
+   "source": "https://www.voanews.com/a/a-13-a-2002-06-03-10-putin-66287377/541040.html",
+   "confidence": "med"
+  },
+  {
+   "h": "m_buildup",
+   "status": "yes",
+   "first": "2001-12-20",
+   "lead": null,
+   "public_then": true,
+   "what": "인도 12/20 카슈미르·펀자브로 병력 전개(1971년 이후 최대), 1월까지 인도 약 50만·3개 기갑사단, 파키스탄 약 30만; 5월 양측 합계 약 100만",
+   "source": "https://en.wikipedia.org/wiki/2001%E2%80%932002_India%E2%80%93Pakistan_standoff#Prelude",
+   "confidence": "high"
+  },
+  {
+   "h": "m_logistics",
+   "status": "unknown",
+   "what": "야전병원·혈액·탄약의 전방 이동 보도를 찾지 못함 (5/31 인도 석유장관 '군용 유류 비축 충분' 발언, 6월 이스라엘에 군수품 긴급 요청만 확인)"
+  },
+  {
+   "h": "m_mobilization",
+   "status": "yes",
+   "first": "2001-12-20",
+   "lead": null,
+   "public_then": true,
+   "what": "인도군 총동원(파라크람 작전): 12/15 안보내각위 뒤 동원령, 12/20 전개 개시(출처별 날짜 차이 → 늦은 쪽); 파키스탄도 맞동원",
+   "source": "https://en.wikipedia.org/wiki/2001%E2%80%932002_India%E2%80%93Pakistan_standoff#Prelude",
+   "confidence": "high"
+  },
+  {
+   "h": "m_exercise_cover",
+   "status": "unknown",
+   "what": "훈련을 명분으로 한 병력 잔류·연장 보도를 찾지 못함"
+  },
+  {
+   "h": "m_strategic_assets",
+   "status": "yes",
+   "first": "2001-12-25",
+   "lead": null,
+   "public_then": true,
+   "what": "12월 하순 양측이 탄도미사일을 국경 가까이 전진 배치(위키가 CNN 12/25 보도 인용); 파키스탄은 2002-05-25~28 미사일 3회 시험발사",
+   "source": "https://en.wikipedia.org/wiki/2001%E2%80%932002_India%E2%80%93Pakistan_standoff#Military_confrontations",
+   "confidence": "med"
+  },
+  {
+   "h": "m_civil_defense",
+   "status": "yes",
+   "first": "2002-01-01",
+   "lead": null,
+   "public_then": true,
+   "what": "인도 펀자브 페로즈푸르시를 10개 구역으로 나눠 민방위·홈가드가 주민 대피 교육(1/1); 잠무 접경 이주민 수용소 운영, 6/1 푼치 포격 조기경보 가동",
+   "source": "https://www.tribuneindia.com/2002/20020102/punjab.htm",
+   "confidence": "med"
+  },
+  {
+   "h": "m_airspace",
+   "status": "yes",
+   "first": "2002-01-01",
+   "lead": null,
+   "public_then": true,
+   "what": "인도가 2002-01-01부터 파키스탄 항공기의 인도 영공 통과를 금지(1/2 '마지막 PIA 편 출발' 보도; 무샤라프의 SAARC행 항로에도 영향)",
+   "source": "https://www.tribuneindia.com/2002/20020102/index.htm",
+   "confidence": "high"
+  },
+  {
+   "h": "m_gps_ew",
+   "status": "unknown",
+   "what": "GPS 교란·전자전 관련 보도를 찾지 못함"
+  },
+  {
+   "h": "m_cyber",
+   "status": "unknown",
+   "what": "정부·기반시설 사이버 공격 보도를 찾지 못함"
+  },
+  {
+   "h": "m_border_fire",
+   "status": "yes",
+   "first": "2001-12-25",
+   "lead": null,
+   "public_then": true,
+   "what": "12월 하순 LoC에서 박격포·야포 교전 급증(12/24~25 인도 보도: 파키스탄군 수십 명 사망·벙커 파괴); 2002-05 중순 일주일 포격으로 20명 넘게 사망",
+   "source": "https://en.wikipedia.org/wiki/2001%E2%80%932002_India%E2%80%93Pakistan_standoff#Military_confrontations",
+   "confidence": "high"
+  },
+  {
+   "h": "m_alert_level",
+   "status": "yes",
+   "first": "2001-12-14",
+   "lead": null,
+   "public_then": true,
+   "what": "파키스탄이 12/14 전군을 '완전 전투준비태세'(고도 경계)로 격상; 인도는 2002-05 중순 준군사조직·해안경비대를 육·해군 지휘 아래 편입",
+   "source": "https://en.wikipedia.org/wiki/2001%E2%80%932002_India%E2%80%93Pakistan_standoff#Prelude",
+   "confidence": "med"
+  },
+  {
+   "h": "m_leadership",
+   "status": "yes",
+   "first": "2001-12-31",
+   "lead": null,
+   "public_then": true,
+   "what": "바지파이 주재 안보내각위(CCS) 긴급회의 연속: 12/31 90분 회의(국방장관이 전방 시찰 중 급거 귀환), 2002-05-18 총리·군 수뇌 점검 뒤 CCS",
+   "source": "https://www.tribuneindia.com/2002/20020101/main2.htm",
+   "confidence": "med"
+  },
+  {
+   "h": "f_fx",
+   "status": "unknown",
+   "what": "루피 급락 여부를 확인하지 못함 (5/24 금값 기사에 '달러 대비 루피 급변' 언급뿐)"
+  },
+  {
+   "h": "f_equity",
+   "status": "yes",
+   "first": "2002-05-21",
+   "lead": null,
+   "public_then": true,
+   "what": "칼루차크 테러(5/14) 뒤 5/21까지 센섹스 약 7% 하락, '전운' 속 투매로 BSE 시총 올해 최대 주간 감소; 카라치 증시도 2주 급락 뒤 5/24 8.8% 반등",
+   "source": "https://www.tribuneindia.com/2002/20020523/biz.htm",
+   "confidence": "med"
+  },
+  {
+   "h": "f_sovereign",
+   "status": "unknown",
+   "what": "국채 금리·CDS 관련 보도를 찾지 못함"
+  },
+  {
+   "h": "f_safe_haven",
+   "status": "yes",
+   "first": "2002-05-22",
+   "lead": null,
+   "public_then": true,
+   "what": "국제 금값 5/22 2년 반 만의 최고($319.60) — 인도-파키스탄 긴장이 이유로 거론; 인도 금값은 6년 만의 최고",
+   "source": "https://www.tribuneindia.com/2002/20020523/biz.htm",
+   "confidence": "med"
+  },
+  {
+   "h": "f_prediction",
+   "status": "unknown",
+   "what": "당시 해당 예측시장이 없었음"
+  },
+  {
+   "h": "f_capital_flight",
+   "status": "unknown",
+   "what": "기업 주재원 철수·현금 사재기 보도를 찾지 못함 (6월 다국적기업 주재원 철수설은 미검증)"
+  },
+  {
+   "h": "i_leader_threat",
+   "status": "yes",
+   "first": "2002-05-15",
+   "lead": null,
+   "public_then": true,
+   "what": "바지파이 총리 5/15 의회 '갚아야 한다', 5/22 쿠프와라 전선 장병에게 '결전의 때가 왔다, 희생을 각오하라' (2001-12 발언은 미확인)",
+   "source": "https://en.wikipedia.org/wiki/2001%E2%80%932002_India%E2%80%93Pakistan_standoff#Kaluchak_massacre",
+   "confidence": "high"
+  },
+  {
+   "h": "i_pretext",
+   "status": "yes",
+   "first": "2001-12-14",
+   "lead": null,
+   "public_then": true,
+   "what": "인도 정부 12/14 의회 테러 배후로 파키스탄 기반 LeT·JeM과 '이웃 나라' 지목(실제 테러에 근거한 명분); 파키스탄군 대변인은 '인도의 자작극' 주장",
+   "source": "https://en.wikipedia.org/wiki/2001%E2%80%932002_India%E2%80%93Pakistan_standoff#Prelude",
+   "confidence": "low"
+  },
+  {
+   "h": "i_state_mobilization",
+   "status": "unknown",
+   "what": "관영매체의 전시 동원 서사 여부를 확인하지 못함"
+  },
+  {
+   "h": "i_news_surge",
+   "status": "yes",
+   "first": "2001-12-31",
+   "lead": null,
+   "public_then": true,
+   "what": "12월 말 '인도-파키스탄 전쟁을 막으라는 압력' 보도(트리뷴 1/1 세계면); 서방 언론은 핵전쟁 가능성에 초점(위키) — 보도량 수치는 미확인",
+   "source": "https://www.tribuneindia.com/2002/20020101/index.htm",
+   "confidence": "med"
+  },
+  {
+   "h": "i_public_anxiety",
+   "status": "yes",
+   "first": "2002-01-01",
+   "lead": null,
+   "public_then": true,
+   "what": "인도 펀자브 접경 마을 주민들이 가재도구·가축을 싣고 내륙 친척집으로 이동('이주 보도'), 히마찰 관광객 절반 감소 (공격국 쪽 접경지)",
+   "source": "https://www.tribuneindia.com/2002/20020102/main7.htm",
+   "confidence": "med"
+  },
+  {
+   "h": "t_trigger",
+   "status": "yes",
+   "first": "2001-12-13",
+   "lead": null,
+   "public_then": true,
+   "what": "12/13 인도 의회 테러(12/14 인도가 파키스탄 기반 단체 지목); 2002-05-14 칼루차크 군 가족 숙소 습격 30여 명 사망 → 5/15 총리 '갚아야 한다'",
+   "source": "https://en.wikipedia.org/wiki/2001%E2%80%932002_India%E2%80%93Pakistan_standoff#Kaluchak_massacre",
+   "confidence": "high"
+  },
+  {
+   "h": "t_deadline",
+   "status": "unknown",
+   "what": "명시적 시한·기한부 요구를 확인하지 못함 (12/31 '20인 인도' 요구에 시한이 있었는지 미확인)"
+  }
+ ],
+ "missed": "핵 신호가 따로 있었다: 파키스탄의 5/25~28 탄도미사일 3회 시험발사, 6/5 핵 선제 불사용 공방. 교통로 단절도 일찍 나왔다(12/31 삼조타 특급 마지막 운행, 새해 첫날 전후 마지막 PIA 항공편). 5월 중순 인도는 준군사조직·해안경비대를 육·해군 지휘 아래로 넣었다. 제3국 철수·출국 권고(5/31)는 위기 정점의 끝물에 나왔고 열흘 뒤(6/10) 긴장이 풀렸다 — 이 사례에서는 '전쟁 직전'이 아니라 '정점' 표시였다. 국경 지뢰 매설·주재원 철수·루피 최저치는 확인하지 못했다(미검증).",
+ "retrieved": "2026-11-11"
+}

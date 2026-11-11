@@ -11,7 +11,7 @@
   "target": "이란",
   "kind": "interstate",
   "surprise": false,
-  "summary": "2026-02-28 미국('에픽 퓨리')과 이스라엘('포효하는 사자')이 이란을 합동 공습해 전쟁이 시작됐고 하메네이가 숨졌다 — 당일 복수 보도로 발생과 날짜를 확인했다. 1월 하순부터 항모 2척과 전투기 100여 대가 모였고(2003년 이후 최대), 2/19 트럼프의 '10~15일' 시한, 2/23 베이루트 대사관 철수 명령, 2/27 주이스라엘 대사관 출국 허가까지 전조가 공개적으로 쌓였지만 협상(2/26 제네바 3차)은 결렬되지 않은 채 공습이 시작됐다. 웹 검색 한도가 소진돼 19개 가설(이란 측 군사·민방위 조치, 환율·증시 등)은 검증하지 못하고 unknown 으로 두었다.",
+  "summary": "2026-02-28 미국('에픽 퓨리')과 이스라엘('포효하는 사자')이 이란을 합동 공습해 전쟁이 시작됐고 하메네이가 숨졌다. 1월 시위 학살과 트럼프의 개입 공언(1/13) 뒤 항모 2척·급유기·방공포대가 모였고(2003년 이후 최대), 1/23 하메네이 벙커 피신 보도와 항공편 취소, 2/3 호르무즈 충돌, 2/19 '10~15일' 시한, 2/23 베이루트 대사관 철수까지 전조가 공개적으로 쌓였다. 협상(2/26 제네바)은 결렬되지 않은 채 공습이 시작됐다. 이란 증시·국채·민방위·동원 등 13개는 2차 조사에서도 찾지 못해 unknown 이다.",
   "signals": [
     {
       "h": "g_evac_order",
@@ -61,7 +61,7 @@
     {
       "h": "g_intel_warning",
       "status": "unknown",
-      "what": "악시오스의 트럼프 측근 '수주 내 타격 90%' 보도만 확인(익명) — 당국의 공식 '임박' 경고는 확인 못 함"
+      "what": "당국의 공식 '임박' 경고는 찾지 못함 — 2/18 CNN·악시오스의 익명 보도(이르면 2/21 타격 준비, 측근 \"수주 내 90%\")뿐"
     },
     {
       "h": "g_ultimatum",
@@ -95,18 +95,23 @@
     },
     {
       "h": "m_logistics",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2026-01-30",
+      "lead": 29,
+      "public_then": true,
+      "what": "미군: C-17·C-5 수송기 수십 대가 역내 기지에 화물을 내리고 사드·패트리엇 추가 배치(CNN 1/30) — 화물 내용(탄약·연료)은 명시 안 됨",
+      "source": "https://edition.cnn.com/2026/01/30/politics/us-military-equipment-middle-east-iran",
+      "confidence": "low"
     },
     {
       "h": "m_mobilization",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "찾지 못함(위키 3개 문서·기사에 예비군 소집 서술 없음)"
     },
     {
       "h": "m_exercise_cover",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "공격 측 훈련 위장은 찾지 못함. 이란(표적)이 2/16 호르무즈 실사격 훈련으로 해협 일부를 일시 폐쇄한 것만 확인"
     },
     {
       "h": "m_strategic_assets",
@@ -114,54 +119,69 @@
       "first": "2026-01-23",
       "lead": 36,
       "public_then": true,
-      "what": "미국: 링컨 항모전단 1월 말 아라비아해 도착, 약 2주 뒤 포드 항모 추가 명령, 전투기 100여 대 — 2003년 이후 최대(AP 1/23·2/26)",
+      "what": "미국: 1/23 \"함대\" 발표, 링컨 항모전단 1/26 도착, 2/13 포드 항모 추가 명령, F-22 12대 이스라엘 배치(2/24), 급유기 다수 — 2003년 이후 최대",
       "source": "https://www.ksat.com/news/politics/2026/01/23/a-look-at-the-us-military-assets-in-the-middle-east/",
       "confidence": "high"
     },
     {
       "h": "m_civil_defense",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "찾지 못함. 2/26 바레인 미 5함대 사령부가 필수 인원 100명 미만으로 줄고 함정이 출항한 것은 군 자체 조치"
     },
     {
       "h": "m_airspace",
       "status": "yes",
-      "first": "2026-02-25",
-      "lead": 3,
+      "first": "2026-01-23",
+      "lead": 36,
       "public_then": true,
-      "what": "KLM: 3/1부터 암스테르담–텔아비브 운항 중단 발표(2/25, '상업·운영상 이유'); 영공 폐쇄는 개전 당일",
-      "source": "https://centreforaviation.com/news/klm-to-suspend-tel-aviv-services-from-01-mar-2026-1349951",
+      "what": "1/23 항공사들이 역내 항공편을 취소(1/9부터 이란행 운항 중단 이어짐); KLM 2/25 텔아비브 노선 3/1부터 중단 발표. 영공 폐쇄는 개전 당일",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2026_Iran_war#Anti-government_protests_in_Iran",
       "confidence": "med"
     },
     {
       "h": "m_gps_ew",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "개전 전 급증은 찾지 못함. 개전 2주차 호르무즈 GPS 교란, 1월 이란 당국의 스타링크 교란(내부 통제용)만 확인"
     },
     {
       "h": "m_cyber",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "개전 전 적대국 소행으로 지목된 공격은 찾지 못함. 1/18 국영방송 해킹(주체 미상), 개전 당일 공습과 함께 대규모 사이버 공격"
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2026-02-03",
+      "lead": 25,
+      "public_then": true,
+      "what": "2/3 IRGC 고속정 6척이 호르무즈에서 미 국적 유조선 나포 시도, 같은 날 미 F-35C가 링컨함에 접근한 이란 드론 격추; 2/5 이란이 유조선 2척 나포",
+      "source": "https://en.wikipedia.org/wiki/2026_United_States_military_buildup_in_the_Middle_East#Incidents",
+      "confidence": "high"
     },
     {
       "h": "m_alert_level",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "공식 격상 발표는 찾지 못함. 1/22 IRGC 사령관 \"방아쇠에 손가락\" 성명은 수사"
     },
     {
       "h": "m_leadership",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2026-01-23",
+      "lead": 36,
+      "public_then": true,
+      "what": "1/23 하메네이가 테헤란 벙커로 피신했다는 보도; 미국은 1/13·2/18 백악관 안보 회의에서 군사 옵션 검토",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2026_Iran_war#Anti-government_protests_in_Iran",
+      "confidence": "med"
     },
     {
       "h": "f_fx",
-      "status": "unknown",
-      "what": "리알화 급락 여부는 검색 결과를 얻지 못함"
+      "status": "yes",
+      "first": "2025-12-29",
+      "lead": 61,
+      "public_then": true,
+      "what": "리알화 12월 사상 최저(달러당 142만)로 중앙은행 총재 사임(12/29), 1/6 150만 — 제재·실정이 주원인이나 미국과의 충돌 우려도 시장 불안 요인으로 서술",
+      "source": "https://en.wikipedia.org/wiki/2025%E2%80%932026_Iranian_protests#Economic_crisis_in_Iran",
+      "confidence": "low"
     },
     {
       "h": "f_equity",
@@ -196,22 +216,27 @@
     {
       "h": "f_capital_flight",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "찾지 못함. 12월 이란 대형 은행 파산(베센트 2월 증언)은 제재에 따른 것"
     },
     {
       "h": "i_leader_threat",
       "status": "yes",
-      "first": "2026-02-19",
-      "lead": 9,
+      "first": "2026-01-28",
+      "lead": 31,
       "public_then": true,
-      "what": "트럼프가 직접 '의미 있는 합의가 없으면 나쁜 일이 벌어진다, 열흘쯤 뒤 알게 될 것' 경고(2/19 평화위원회 회의)",
-      "source": "https://www.algemeiner.com/2026/02/19/trump-presses-iran-make-meaningful-deal-appears-set-10-day-deadline/",
+      "what": "트럼프 1/28 \"대규모 함대가 이란으로 간다, 합의 없으면 다음 공격은 훨씬 나쁠 것\"; 2/19 \"열흘쯤 뒤 알게 될 것\"(첫 날짜를 1/28로 앞당김)",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2026_Iran_war#Threatening_speeches_and_posts",
       "confidence": "high"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "찾지 못함"
+      "status": "yes",
+      "first": "2026-02-24",
+      "lead": 4,
+      "public_then": true,
+      "what": "트럼프 2/24 국정연설: 이란이 핵무기 재추진·미 본토 겨냥 미사일 개발 중이라고 주장(미 정보 평가와 배치), 위트코프 \"폭탄급 물질까지 1주\"",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2026_Iran_war#Threatening_speeches_and_posts",
+      "confidence": "med"
     },
     {
       "h": "i_state_mobilization",
@@ -235,8 +260,13 @@
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증: 1월 이란 시위 유혈 진압과 트럼프의 개입 경고가 계기였다는 기억"
+      "status": "yes",
+      "first": "2026-01-13",
+      "lead": 46,
+      "public_then": true,
+      "what": "1/8~10 이란 시위대 대량 학살 뒤 트럼프 1/13 \"도움이 가고 있다, 책임자는 큰 대가를 치를 것\" 공언 — 이후 전력 증강 시작",
+      "source": "https://en.wikipedia.org/wiki/Prelude_to_the_2026_Iran_war#Anti-government_protests_in_Iran",
+      "confidence": "med"
     },
     {
       "h": "t_deadline",

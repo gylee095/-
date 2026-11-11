@@ -1,0 +1,249 @@
+{
+ "id": "korea-yeonpyeong-2010",
+ "name": "연평도 포격",
+ "onset": "2010-11-23",
+ "window": [
+  "2010-08-25",
+  "2010-11-22"
+ ],
+ "surprise": true,
+ "summary": "2010년 11월 23일 오후 북한이 연평도에 포탄 170여 발을 쏴 군인 2명·민간인 2명이 숨졌다. 사격훈련 중단을 요구한 전통문은 당일 아침에 왔고 사건 뒤에야 공개됐으며, 8월 감청 첩보도 12월에 알려졌다. 개시 전 공개 신호는 며칠 전 우라늄 농축시설 공개뿐이고 경계태세·대피·시장 반응은 모두 당일 이후라 기습이다.",
+ "outcome": "attack",
+ "attacker": "북한",
+ "target": "대한민국",
+ "kind": "korean_clash",
+ "signals": [
+  {
+   "h": "g_evac_order",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_leave_now",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_staff_restrict",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_regional_drawdown",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_attacker_evac",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_intel_warning",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": false,
+   "what": "8월 감청으로 서해5도 공격계획 첩보를 얻었으나 통상적 위협으로 판단, 공개 경고 없음(12/1 국회 정보위에서 알려짐)",
+   "source": "https://ko.wikipedia.org/wiki/%EC%97%B0%ED%8F%89%EB%8F%84_%ED%8F%AC%EA%B2%A9%EC%A0%84#%EB%8A%91%EC%9E%A5_%EB%8C%80%EC%9D%91_%EB%85%BC%EB%9E%80",
+   "confidence": "high"
+  },
+  {
+   "h": "g_ultimatum",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": false,
+   "what": "북 전통문('영해 포사격 시 즉각 물리적 조치')은 11/23 당일 08:20, 시한 없음, 사건 뒤에야 공개 — 당일 이후",
+   "source": "https://ko.wikipedia.org/wiki/%EC%97%B0%ED%8F%89%EB%8F%84_%ED%8F%AC%EA%B2%A9%EC%A0%84#%EC%A0%84%ED%86%B5%EB%AC%B8_%EB%85%BC%EB%9E%80",
+   "confidence": "high"
+  },
+  {
+   "h": "g_talks_collapse",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "결렬 아님. 남북 적십자회담이 예정돼 있다가 포격 뒤 한국이 취소 — 당일 이후",
+   "source": "https://en.wikipedia.org/wiki/2010_Yeonpyeongdo_bombardment#Political_and_financial_impact",
+   "confidence": "med"
+  },
+  {
+   "h": "m_buildup",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": false,
+   "what": "대규모 집결 아님. 122mm 방사포 개머리 재배치·미그-23 5대 출격은 사후 공개(출격은 당일 14:30)",
+   "source": "https://en.wikipedia.org/wiki/2010_Yeonpyeongdo_bombardment#Engagement",
+   "confidence": "med"
+  },
+  {
+   "h": "m_logistics",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_mobilization",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_exercise_cover",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "한국 호국훈련(11/22 시작)은 연례 정기 훈련, 당일 사격은 월례 사격훈련. 북측 훈련 연장 서술 없음",
+   "source": "https://en.wikipedia.org/wiki/2010_Yeonpyeongdo_bombardment#Background",
+   "confidence": "med"
+  },
+  {
+   "h": "m_strategic_assets",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_civil_defense",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "연평도 주민 대피호 대피·섬 밖 소개는 포격이 시작된 뒤 — 당일 이후",
+   "source": "https://en.wikipedia.org/wiki/2010_Yeonpyeongdo_bombardment#Engagement",
+   "confidence": "high"
+  },
+  {
+   "h": "m_airspace",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_gps_ew",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_cyber",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_border_fire",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "창 안 사건은 10/29 화천 GP 총격 교환 1건뿐 — 급증 아님",
+   "source": "https://en.wikipedia.org/wiki/List_of_border_incidents_involving_North_and_South_Korea#2010s",
+   "confidence": "low"
+  },
+  {
+   "h": "m_alert_level",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "진돗개 하나는 포격 시작 16분 뒤인 11/23 14:50 발령 — 당일 이후",
+   "source": "https://en.wikipedia.org/wiki/2010_Yeonpyeongdo_bombardment#Timeline",
+   "confidence": "high"
+  },
+  {
+   "h": "m_leadership",
+   "status": "unknown",
+   "what": "김정일·김정은의 11/22 개머리 인근 방문 보도는 사후(중앙일보). 정의(지휘소 이동·잠적)에 맞는지 불분명"
+  },
+  {
+   "h": "f_fx",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "원화·엔화 약세는 포격 소식이 전해진 11/23 당일 — 당일 이후",
+   "source": "https://www.bbc.com/news/world-asia-pacific-11818005",
+   "confidence": "med"
+  },
+  {
+   "h": "f_equity",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "아시아 증시 하락·한국은행 긴급회의는 포격 뒤 — 당일 이후",
+   "source": "https://en.wikipedia.org/wiki/2010_Yeonpyeongdo_bombardment#Political_and_financial_impact",
+   "confidence": "med"
+  },
+  {
+   "h": "f_sovereign",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "f_safe_haven",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "f_prediction",
+   "status": "unknown",
+   "what": "예측시장 없음"
+  },
+  {
+   "h": "f_capital_flight",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "i_leader_threat",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "i_pretext",
+   "status": "unknown",
+   "what": "KCNA는 사후 '거듭된 경고'를 주장했으나 개시 전 공개 발언은 확인 못 함"
+  },
+  {
+   "h": "i_state_mobilization",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "북 최고사령부 보도('빈말을 하지 않는다')는 11/23 19:00 — 당일 이후",
+   "source": "https://en.wikipedia.org/wiki/2010_Yeonpyeongdo_bombardment#Timeline",
+   "confidence": "low"
+  },
+  {
+   "h": "i_news_surge",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "i_public_anxiety",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "BBC 서울 특파원: 포격 당일에도 서울에 공황 조짐 없음",
+   "source": "https://www.bbc.com/news/world-asia-pacific-11818005",
+   "confidence": "med"
+  },
+  {
+   "h": "t_trigger",
+   "status": "unknown",
+   "what": "사상자가 난 계기 사건·보복 다짐 찾지 못함"
+  },
+  {
+   "h": "t_deadline",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": false,
+   "what": "공개된 시한 없음. 훈련 중단 요구 전통문은 당일 아침 비공개 수신",
+   "source": "https://en.wikipedia.org/wiki/2010_Yeonpyeongdo_bombardment#Timeline",
+   "confidence": "med"
+  }
+ ],
+ "missed": "① 포격 며칠 전(BBC: 토요일=11/20 공개) 북한이 미국 과학자에게 우라늄 농축시설을 보여 줌 — 핵 카드 과시 직후의 국지 도발. ② 한국의 정기 사격훈련·호국훈련 일정이 북에 통보돼 있었다(구실이 될 날짜가 공개됨). ③ 122mm 방사포의 개머리 전진 배치, 김정일·김정은의 11/22 인근 방문은 사후에 알려짐. ④ 8/9 해안포 NLL 사격은 창 밖이고 도우미로 확인 못 함.",
+ "retrieved": "2026-11-11"
+}

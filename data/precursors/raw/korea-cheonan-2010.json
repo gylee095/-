@@ -1,0 +1,224 @@
+{
+ "id": "korea-cheonan-2010",
+ "name": "천안함 피격",
+ "onset": "2010-03-26",
+ "window": [
+  "2009-12-26",
+  "2010-03-25"
+ ],
+ "surprise": true,
+ "summary": "2010년 3월 26일 밤 백령도 근해에서 초계함 천안함이 북한 어뢰로 침몰해 46명이 숨졌다. 개시 전 공개 신호는 1월 27~30일 북한의 NLL 인근 해안포 사격 정도였고, 잠수정 기지 이탈은 군 내부 정보로만 있다가 사후에 알려졌다. 경계태세·시장 반응은 모두 당일 이후여서 사실상 기습이다.",
+ "outcome": "attack",
+ "attacker": "북한",
+ "target": "대한민국",
+ "kind": "korean_clash",
+ "signals": [
+  {
+   "h": "g_evac_order",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_leave_now",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_staff_restrict",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_regional_drawdown",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_attacker_evac",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_intel_warning",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "샤프 연합사령관 3/24 미 하원 증언은 '북이 공격할 수도'라는 일반론. 잠수정 이탈 정보는 군 내부에만 있었고 공개 경고 없음",
+   "source": "https://en.wikipedia.org/wiki/Sinking_of_ROKS_Cheonan#Military_concerns",
+   "confidence": "med"
+  },
+  {
+   "h": "g_ultimatum",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "g_talks_collapse",
+   "status": "unknown",
+   "what": "금강산·개성 실무회담 경과는 확인 못 함"
+  },
+  {
+   "h": "m_buildup",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "대규모 집결 아님. 잠수정 1척·지원선이 2~3일 전 기지 이탈, 해안포 10문 노출 — 사후 공개된 군 내부 정보",
+   "source": "https://ko.wikipedia.org/wiki/%EC%B2%9C%EC%95%88%ED%95%A8_%ED%94%BC%EA%B2%A9_%EC%82%AC%EA%B1%B4#%EA%B5%B0%EC%9D%98_%EB%B6%80%EC%A0%81%EC%A0%88%ED%95%9C_%EB%8C%80%EC%9D%91",
+   "confidence": "med"
+  },
+  {
+   "h": "m_logistics",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_mobilization",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_exercise_cover",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "당시 진행 중이던 한미 키리졸브/독수리는 연례 정기 연습. 연장·잔류 서술 없음",
+   "source": "https://en.wikipedia.org/wiki/Sinking_of_ROKS_Cheonan#Sinking_of_Cheonan",
+   "confidence": "med"
+  },
+  {
+   "h": "m_strategic_assets",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_civil_defense",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "정부 비상대비 체계(전 행정기관 당직 강화)는 3/27 발령 — 당일 이후",
+   "source": "https://ko.wikipedia.org/wiki/%EC%B2%9C%EC%95%88%ED%95%A8_%ED%94%BC%EA%B2%A9_%EC%82%AC%EA%B1%B4#%EC%9D%BC%EC%A7%80",
+   "confidence": "med"
+  },
+  {
+   "h": "m_airspace",
+   "status": "unknown",
+   "what": "1월 북한의 항행금지구역 선포는 미검증"
+  },
+  {
+   "h": "m_gps_ew",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_cyber",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "m_border_fire",
+   "status": "yes",
+   "first": "2010-01-27",
+   "lead": 58,
+   "public_then": true,
+   "what": "북한이 1/27 백령도 인근 NLL 해상에 해안포 사격, 남측 대응사격. 사흘 뒤까지 사격 이어짐",
+   "source": "https://en.wikipedia.org/wiki/List_of_border_incidents_involving_North_and_South_Korea#2010s",
+   "confidence": "high"
+  },
+  {
+   "h": "m_alert_level",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "사건 전 전투·경계태세 발령 없었음(국회 지적). 대잠경계태세·경찰 비상령은 3/26 침몰 뒤 — 당일 이후",
+   "source": "https://ko.wikipedia.org/wiki/%EC%B2%9C%EC%95%88%ED%95%A8_%ED%94%BC%EA%B2%A9_%EC%82%AC%EA%B1%B4#%EA%B5%B0%EC%9D%98_%EB%B6%80%EC%A0%81%EC%A0%88%ED%95%9C_%EB%8C%80%EC%9D%91",
+   "confidence": "med"
+  },
+  {
+   "h": "m_leadership",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "f_fx",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "f_equity",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "뉴욕 증시는 3/26 침몰 소식에 장중 하락 반전 — 당일 이후 반응. 사건 전 급락 서술 없음",
+   "source": "https://ko.wikipedia.org/wiki/%EC%B2%9C%EC%95%88%ED%95%A8_%ED%94%BC%EA%B2%A9_%EC%82%AC%EA%B1%B4#%EC%98%81%ED%96%A5",
+   "confidence": "med"
+  },
+  {
+   "h": "f_sovereign",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "f_safe_haven",
+   "status": "no",
+   "first": null,
+   "lead": null,
+   "public_then": null,
+   "what": "금 선물 1% 상승은 3/26 침몰 당일 — 당일 이후 반응",
+   "source": "https://ko.wikipedia.org/wiki/%EC%B2%9C%EC%95%88%ED%95%A8_%ED%94%BC%EA%B2%A9_%EC%82%AC%EA%B1%B4#%EC%98%81%ED%96%A5",
+   "confidence": "med"
+  },
+  {
+   "h": "f_prediction",
+   "status": "unknown",
+   "what": "예측시장 없음"
+  },
+  {
+   "h": "f_capital_flight",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "i_leader_threat",
+   "status": "unknown",
+   "what": "김정일 명의 위협 찾지 못함"
+  },
+  {
+   "h": "i_pretext",
+   "status": "unknown",
+   "what": "12/21 '평시 해상사격구역' 선포는 창 5일 전. 창 안의 명분 만들기는 확인 못 함"
+  },
+  {
+   "h": "i_state_mobilization",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "i_news_surge",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "i_public_anxiety",
+   "status": "unknown",
+   "what": "찾지 못함"
+  },
+  {
+   "h": "t_trigger",
+   "status": "unknown",
+   "what": "대청해전(2009-11-10)은 창 밖. 북의 '보복 다짐' 공개 발언은 확인 못 함(KCNA는 사과 요구)"
+  },
+  {
+   "h": "t_deadline",
+   "status": "unknown",
+   "what": "찾지 못함"
+  }
+ ],
+ "missed": "① 2009-11-10 대청해전(북 경비정 피해, 북은 사과 요구)과 2009-12-21 북의 NLL 이남 '평시 해상사격구역' 선포는 창 직전(5일 전)이라 코딩에서 빠졌다. ② 공격 2~3일 전 북 잠수정·모선의 기지 이탈 — 잠수함 전력의 '사라짐'은 코드북에 없는 전조(당시 비공개). ③ 연례 한미 키리졸브/독수리 연습 기간 중이었다.",
+ "retrieved": "2026-11-11"
+}

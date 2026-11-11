@@ -456,6 +456,8 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   h+='<div class="lead">지금 한반도 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
   var tot=R.signs+R.moves+R.context,PCT=Math.round(tot/39*100);
   h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+' '+PCT+'%</b><span>5단계 중</span></div>';
+  var LV=w.live&&w.live.proximity?w.live.proximity.index:null;
+  if(O&&LV!==null&&LV!==PCT)h+='<div style="font-size:12.5px;color:var(--mute)">숫자는 하루 한 번(오전 8시) 정해요. 지금 다시 계산하면 '+LV+'% — 단계가 바뀌면 바로 반영돼요.</div>';
   h+='<div style="font-size:13px;color:var(--mute);margin-top:2px">지켜보는 39개 항목 중 <b style="color:var(--fg)">'+num(tot)+'개</b>가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+')</div>';
   h+='<div style="display:flex;gap:4px;margin:8px 0 10px" role="img" aria-label="5단계 중 '+w.phase+'단계">'+[1,2,3,4,5].map(function(i){return '<span style="flex:1;height:8px;border-radius:4px;background:'+(i<=w.phase?col:'var(--chip)')+'"></span>'}).join("")+'</div>';
   var unkOf=function(L){var n=0;L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")n++})});return n};

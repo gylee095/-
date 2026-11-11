@@ -25,6 +25,8 @@ export interface Official {
   vsUsual: number;
   levels: { label: string; level: number; levelLabel: string }[];
   why: string[];
+  /** 정할 때의 징조·움직임·배경 세기 (화면의 % 와 개수) — 대시보드를 열 때마다 15% ↔ 17% 로 흔들리지 않게 (11/12) */
+  proximity?: WarRisk["proximity"];
   /** 정할 때 함께 정한 전쟁 직전 대비 점수 — 하루 중 배포로 눈금이 바뀌어도 그날 숫자는 그대로 (11/6 검토) */
   readiness?: Readiness;
 }
@@ -96,6 +98,8 @@ export function makeOfficial(w: WarRisk, now: number, reason: Official["reason"]
     levels: w.domains.map((d) => ({ label: d.label, level: d.level, levelLabel: d.levelLabel })),
     why: w.phaseReasons.slice(0, 4),
     readiness: makeReadiness(w.gauge.now, w.phase),
+    // 그래프·과거 목록은 화면에서 지금 것으로 다시 붙인다 (저장 크기를 줄이려고 뺀다)
+    ...(w.proximity ? { proximity: { ...w.proximity, series: [], anchors: [], record: [] } } : {}),
   };
 }
 
@@ -150,6 +154,8 @@ export function applyOfficial(w: WarRisk, off: Official | undefined, prev: Offic
     gauge: off.gauge,
     vsUsual: off.vsUsual,
     headline: `전쟁 위험 ${off.phase}단계(${off.phaseLabel}) — 앞으로 30일 국지 충돌 약 ${fmtRiskPct(off.clash30d.point)}, 전면전 ${fmtRiskPct(off.war30d.point)}`,
+    // 화면의 개수·% 도 오늘의 판정 것으로 — 단, 같은 규칙으로 만든 것일 때만 (규칙이 바뀐 날은 지금 계산을 보인다)
+    ...(off.proximity?.rubric && w.proximity && "signs" in off.proximity.rubric ? { proximity: { ...off.proximity, series: w.proximity.series, anchors: w.proximity.anchors, record: w.proximity.record, vs: w.proximity.vs } } : {}),
     live: w,
     official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS },
   };

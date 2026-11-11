@@ -101,7 +101,7 @@ function noCode(msg){
   var KE=kewEnv();var g=(KE.desktop||KE.inapp)?kewGuide(KE,"/"):"";if(g){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+g+'<div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';kewDrawQr("/");return}
   var h=ENV.standalone?'<div class="state" style="border:2px solid var(--ok)"><b style="font-size:17px">이미 결제하셨나요?</b><p class="mute" style="margin:6px 0 10px">결제 뒤 버튼을 누를 때 코드가 복사돼 있어요. 아래 버튼을 누르고 휴대폰이 물으면 <b>붙여넣기</b>를 누르세요.</p><button class="btn" onclick="pasteCode()">📋 결제 코드 붙여넣기</button></div>':'';
   h+='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
-  '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀔 때만 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+
+  '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀌거나 실제 징조가 나타날 때 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>변화가 없는 주에는 월요일 아침 요약 한 번</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+
   '<label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:14px;line-height:1.5"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px;flex:none" onchange="prep()"><span>${REFUND_CONSENT}</span></label>'+
   '<button class="btn" id="pay" disabled onclick="payNow()">4,900원 결제하기</button>'+
   '<p class="mute" id="paynote" style="margin-top:8px">결제 화면에서 휴대폰 번호를 넣으면 페이앱이 <b>카카오톡으로 결제 링크</b>를 보내요. 링크로 결제를 마치고 <b>이 앱으로 돌아오면 자동으로 이어져요.</b></p></div>'+
@@ -182,7 +182,7 @@ async function render(){
   shown.forEach(function(x){var isNew=sn.indexOf(x.id)<0;
     h+='<div id="r_'+esc(x.id)+'" class="item" role="button" tabindex="0" style="'+(isNew?'border:2px solid var(--brand)':'')+'" onclick="if(event.target.closest(\'.rep\'))return;'+(SUMMARY?'openReport':'goReport')+'(\''+esc(x.id)+'\')"><div class="when">'+(isNew?'<b style="color:var(--brand)">● 새 알림</b> · ':'')+kst(x.at)+' · '+ago(x.at)+(x.kind==="snapshot"?' · 가입 시점':x.kind==="demo"?' · 예시':'')+'</div><div class="hl"><span class="chip" style="background:'+COLORS[x.phase]+'">'+x.phase+'단계</span>'+esc(x.headline)+'</div><div class="mute" style="font-size:13px;margin-top:4px">눌러서 그때의 대시보드 전체 보기 ›</div><div class="body"></div></div>'});
   if(pages>1)h+='<div style="display:flex;gap:8px;align-items:center;margin:10px 0"><button class="btn ghost" style="flex:1;padding:12px" '+(PAGE===0?'disabled':'')+' onclick="PAGE--;render();window.scrollTo(0,0)">◀ 최근 알림</button><span class="mute" style="white-space:nowrap">'+(from+1)+'–'+(from+shown.length)+' / '+me.reports.length+'</span><button class="btn ghost" style="flex:1;padding:12px" '+(PAGE>=pages-1?'disabled':'')+' onclick="PAGE++;render();window.scrollTo(0,0)">지난 알림 ▶</button></div>';
-  h+='<p class="mute" style="margin-top:14px">단계가 바뀔 때마다 새 알림이 맨 위에 쌓여요. 코드 <b>'+esc(CODE)+'</b>는 다른 기기에서 열 때 필요하니 캡처해 두세요.</p>';
+  h+='<p class="mute" style="margin-top:14px">단계가 바뀔 때와 주 1회 요약 때 새 알림이 맨 위에 쌓여요. 코드 <b>'+esc(CODE)+'</b>는 다른 기기에서 열 때 필요하니 캡처해 두세요.</p>';
   $("#app").innerHTML=h;
   showInstall();
   // 예전(요약만 있던) 리포트를 열 때

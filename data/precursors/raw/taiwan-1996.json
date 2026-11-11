@@ -1,0 +1,254 @@
+{
+  "id": "taiwan-1996",
+  "name": "3차 대만해협 위기 (1995~96)",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "1996-01-01",
+    "1996-03-25"
+  ],
+  "attacker": "중국",
+  "target": "대만",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "중국이 대만 첫 총통 직선(1996-03-23)을 앞두고 항구 앞바다에 미사일을 쏘고(3/8~15) 실사격·상륙 훈련을 3/25까지 이어 갔으나 전쟁은 없었다. 연안 15만 병력 집결, 훈련 연장, 항행·비행 금지 구역, 대만군 전면 경계, 외곽 도서 주민 소개, 미 항모 2척 전개, 증시 불안과 북미행 항공편 만석까지 군사·불안 신호가 많았지만, 미국·대만 당국은 침공은 없다고 공개적으로 말했다. 외국 공관·환율·국채 쪽은 열 수 있는 자료에서 찾지 못했다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "찾지 못함(위키·CNN 3월 기사에 외국 공관 철수 서술 없음)"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "임박 경고 없음: 올브라이트 3/10 \"심각한 일은 예상하지 않는다\", 미 행정부는 중국의 불침공 언질을 공개, 대만 당국도 침공 계획 없다고 봄",
+      "source": "https://www.cnn.com/US/9603/us_china/",
+      "confidence": "high"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "시한부 통첩은 찾지 못함. 3/11 중국 외교부장이 유엔 가입 추진 철회 시 훈련 중단을 제안한 것만 확인"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "창 안에 진행 중인 협상이 없었음 — 양안 왕다오한·구전푸 회담은 1995년 6월 리덩후이 방미 뒤 중국이 무기한 연기(창 이전)",
+      "source": "https://en.wikipedia.org/wiki/Cross-strait_relations#Thawing_of_relations_(1979%E2%80%931999)",
+      "confidence": "med"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "1996-02-01",
+      "lead": null,
+      "public_then": true,
+      "what": "중국: 1~2월 해협 연안에 10만 병력 집결(위키), 3/9 CNN \"수 주 전부터 동남부에 최대 15만 집결 정보\" — 날짜는 월 단위",
+      "source": "https://en.wikipedia.org/wiki/Third_Taiwan_Strait_Crisis#1996",
+      "confidence": "med"
+    },
+    {
+      "h": "m_logistics",
+      "status": "yes",
+      "first": "1996-03-12",
+      "lead": null,
+      "public_then": true,
+      "what": "대만군: 외곽 도서에서 며칠 새 탄약을 비축하고 해안 초소에 병력 배치(CNN 3/12). 중국 측 군수 이동은 확인 못 함",
+      "source": "https://www.cnn.com/WORLD/9603/china_taiwan/12/index.html",
+      "confidence": "med"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "yes",
+      "first": "1996-03-15",
+      "lead": null,
+      "public_then": true,
+      "what": "중국: 3/15 미사일 시험을 끝내자마자 3/18~25 육해공 추가 훈련 발표(선거일 3/23 포함) — 백악관 \"훈련 연장은 우연 아니다\"",
+      "source": "https://www.cnn.com/WORLD/9603/china_taiwan/15/index.html",
+      "confidence": "high"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "yes",
+      "first": "1996-03-10",
+      "lead": null,
+      "public_then": true,
+      "what": "미국: 3/10 인디펜던스 항모전단을 대만 가까이 이동 발표, 3/11 니미츠 전단 추가 — 베트남전 이후 역내 최대급 함대",
+      "source": "https://www.cnn.com/US/9603/us_china/",
+      "confidence": "high"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "yes",
+      "first": "1996-03-16",
+      "lead": null,
+      "public_then": true,
+      "what": "대만: 훈련 구역 인근 우추 섬 민간인 소개(3/16), 마쭈 주민 약 150명 자진 대피; 3/17 \"작은 섬 2곳 300명 소개\"",
+      "source": "https://www.cnn.com/WORLD/9603/china_taiwan/16/index.html",
+      "confidence": "high"
+    },
+    {
+      "h": "m_airspace",
+      "status": "yes",
+      "first": "1996-03-09",
+      "lead": null,
+      "public_then": true,
+      "what": "중국: 3/9 실사격 구역에 각국 선박·항공기 진입 금지 통보 요청; 미사일·훈련으로 해협 상선 통항 사실상 중단, 운임·보험료 급등",
+      "source": "https://www.cnn.com/WORLD/9603/china_taiwan/09/index.html",
+      "confidence": "high"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "교전은 찾지 못함. 3/8·3/12 미사일은 항구 앞바다 시험 발사였고 훈련은 지정 구역 안에 머묾(대만 국방부)"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "yes",
+      "first": "1996-03-05",
+      "lead": null,
+      "public_then": true,
+      "what": "대만군 40만: 중국이 미사일 시험 표적 구역을 발표한 3/5(화)부터 전면 경계태세",
+      "source": "https://www.cnn.com/WORLD/9603/china_taiwan/08/index.html",
+      "confidence": "high"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "대만달러 급락·외화 사재기는 열어 본 자료에서 확인 못 함"
+    },
+    {
+      "h": "f_equity",
+      "status": "yes",
+      "first": "1996-03-09",
+      "lead": null,
+      "public_then": true,
+      "what": "3/9 CNN \"훈련이 대만 증시를 흔들고 경제를 위협\", 3/11(월) 역내 증시 급락 뒤 반등 — 낙폭 수치는 확인 못 함",
+      "source": "https://www.cnn.com/WORLD/9603/china_taiwan/09/index.html",
+      "confidence": "low"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "찾지 못함"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "당시 예측시장 없음"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "yes",
+      "first": "1996-03-18",
+      "lead": null,
+      "public_then": true,
+      "what": "3월 훈련 중 대만행 화물 운임·보험료 급등, 미국·캐나다행 항공편 만석(위키); 3/18 외곽 도서 주민 다수가 본섬으로 피신(CNN)",
+      "source": "https://en.wikipedia.org/wiki/Third_Taiwan_Strait_Crisis#Aftermath",
+      "confidence": "med"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "unknown",
+      "what": "최고지도자(장쩌민) 본인 발언은 찾지 못함. 리펑 총리 3/17 미 함대에 경고, 외교부 3/16 \"무력 사용 포기 약속한 적 없다\""
+    },
+    {
+      "h": "i_pretext",
+      "status": "unknown",
+      "what": "리덩후이를 \"조국 분열\"로 규정한 비난은 있으나 조작·위장 사건은 찾지 못함"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "3/16 해방군보·인민일보 공동 사설 \"한 치 땅도 못 내준다\"만 확인 — 대내 동원 서사인지 불명"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "yes",
+      "first": "1996-03-08",
+      "lead": null,
+      "public_then": true,
+      "what": "3/8 미사일 발사 뒤 각국 규탄과 CNN 등 외신의 매일 보도(3/8~19 연속 기사) — 보도량 수치는 없음",
+      "source": "https://www.cnn.com/WORLD/9603/china_taiwan/08/index.html",
+      "confidence": "low"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "yes",
+      "first": "1996-03-18",
+      "lead": null,
+      "public_then": true,
+      "what": "대만: 중국의 외곽 도서 점령 우려로 시민 공황, 북미행 항공편 만석(위키); 3/18 훈련에 겁먹은 도서 주민들이 본섬으로 피신",
+      "source": "https://en.wikipedia.org/wiki/Third_Taiwan_Strait_Crisis#Aftermath",
+      "confidence": "med"
+    },
+    {
+      "h": "t_trigger",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "사상자 난 계기 사건 없음 — 발단은 1995년 리덩후이 코넬대 방문과 1996-03-23 첫 총통 직선이라는 정치 일정",
+      "source": "https://en.wikipedia.org/wiki/Third_Taiwan_Strait_Crisis",
+      "confidence": "med"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "통첩 시한은 없음. 3/23 총통 선거일에 맞춘 훈련 일정(3/8~15, 3/12~20, 3/18~25)이 날짜 초점이었음"
+    }
+  ],
+  "missed": "중국이 사전에 워싱턴·타이베이에 \"침공 의도 없다\"고 알린 것(1995-07, 1996-03 재확인)과 미사일 탄두가 비어 있었다는 사실(뒤에 밝혀짐)은 코드북에 없는 \"안심 신호\"다. 훈련 일정이 선거일에 맞춰 공표된 것, 상선 통항 중단도 따로 칸이 없다.",
+  "retrieved": "2026-11-11"
+}

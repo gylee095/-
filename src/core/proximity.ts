@@ -42,6 +42,9 @@ export const ALL_IDS = RUBRIC.flatMap((l) => l.groups.flatMap((g) => g.items.map
 export const BASE_TTL = 45 * 86400_000;
 const DAY = 86400_000;
 
+/** 발사장 인근 열점을 '발사 준비 정황'으로 세는 기준: 시설에서 이 거리 안 · 이 세기 이상 */
+export const HOTSPOT = { km: 5, frp: 5 };
+
 /** 자동으로 볼 수 있는 가설 — 나머지는 분석관만 확인할 수 있다 */
 export const AUTO_IDS = new Set([
   "g_evac_order", "g_leave_now", "g_staff_restrict", "g_intel_warning", "m_buildup", "m_mobilization", "m_strategic_assets", "m_civil_defense", "m_airspace",
@@ -118,7 +121,12 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   set("t_major_test", big ? "on" : "off", 1, big?.headline);
   // 실제 행동 측정값 중 가설 33개에 없던 것
   fromIndicators("a_fleet", ["sea.gfw_cn_change_pct"]);
-  fromIndicators("a_launch_prep", ["navwarn.launch_notice_active", "thermal.launch_site_hotspots"]);
+  fromIndicators("a_launch_prep", ["navwarn.launch_notice_active"]);
+  // 발사장 인근 열점은 시설 가까이(5km 안)의 뚜렷한 불(5MW 이상)만 센다 (11/12 사용자): 원산 갈마에서 11km 떨어진 0.25MW 열점 하나로 숫자가 15% → 17% 가 됐다 —
+  // 12km 반경에는 농경지·마을이 들어 있고, 0.25MW 는 작은 소각 수준이다. 약하거나 먼 열점은 징후판에는 그대로 보이지만 '조용한 움직임'으로 세지 않는다.
+  const hot = (((by["thermal.launch_site_hotspots"]?.reading?.meta as { points?: { site: string; km: number; frp: number }[] } | undefined)?.points) ?? []).filter((x) => x.km <= HOTSPOT.km && x.frp >= HOTSPOT.frp);
+  if (ok("thermal.launch_site_hotspots") && hot.length && out.a_launch_prep.s !== "on") set("a_launch_prep", "on", 0.5, `${hot[0].site} ${hot[0].km}km 안 열점 ${hot[0].frp}MW`);
+  else if (out.a_launch_prep.s === "unk" && ok("thermal.launch_site_hotspots")) set("a_launch_prep", "off");
   fromIndicators("a_nk_dark", ["internet.kp_outage_alerts_24h", "nk.pyongyang_lights_pct"]);
   return out;
 }

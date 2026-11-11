@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { clashOf, scoreRubric, RUBRIC, BASE_SEED, SIGNS, PCT_AT } from "../src/core/rubric.js";
 import { ACTION_KEYS, INDEX_AT, MODEL, clashOfIndex as clashOfIndexOld, buildTable, caseEvidence, classOf, evaluate, ordinaryRate, rate, type CaseRecord, type SignalNow } from "../src/core/precursors.js";
 import { PRECURSOR_DATA } from "../src/core/precursor_data.js";
-import { ALL_IDS, AUTO_IDS, ANALYST_GUIDE, BASE_TTL, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
+import { ALL_IDS, AUTO_IDS, ANALYST_GUIDE, BASE_TTL, HOTSPOT, autoStatus, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
 import { assessWarRisk } from "../src/core/warrisk.js";
 
 const NOW = Date.parse("2026-11-11T03:00:00Z");
@@ -95,6 +95,13 @@ describe("한반도 적용", () => {
     expect(s2.m_logistics.w).toBe(0.5);
     // 36시간이 지난 확인은 쓰지 않는다
     expect(koreaStatus([], [], NOW + 37 * 3600_000, c).i_pretext.s).toBe("unk");
+  });
+  it("발사장 인근 열점: 멀거나 약한 것은 세지 않고, 시설 5km 안의 5MW 이상만 약한 신호로 센다", () => {
+    const row = (points: { site: string; km: number; frp: number }[]) => [{ id: "thermal.launch_site_hotspots", label: "발사장·시험장 인근 열점", stateLabel: "상승", reading: { value: points.length, state: "elevated", at: NOW, meta: { points } } }] as any;
+    expect(autoStatus(row([{ site: "원산 갈마", km: 11.1, frp: 0.25 }]), [], NOW).a_launch_prep.s).toBe("off"); // 11/12 실제 사례
+    expect(autoStatus(row([{ site: "동창리", km: 3, frp: 1 }]), [], NOW).a_launch_prep.s).toBe("off");
+    expect(autoStatus(row([{ site: "동창리", km: 3, frp: 40 }]), [], NOW).a_launch_prep).toMatchObject({ s: "on", w: 0.5 });
+    expect(HOTSPOT).toEqual({ km: 5, frp: 5 });
   });
   it("모르는 id·형식은 버린다", () => {
     expect(Object.keys(parseChecks("x_fake=1 hello g_ultimatum=2 t_deadline=0", NOW).items)).toEqual(["t_deadline"]);

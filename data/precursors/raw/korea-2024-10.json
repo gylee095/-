@@ -11,174 +11,229 @@
   "target": "한국",
   "kind": "korean_crisis",
   "surprise": false,
-  "summary": "[미완성] 웹 검색 한도 소진과 WebFetch 차단으로 전조를 하나도 검증하지 못해 33개 모두 unknown 이다. 과제 설명 기준: 북한이 10/11 한국 무인기의 평양 침투를 주장하고, 10/13 국경 부근 8개 포병여단에 '완전사격준비태세'를 지시했으며, 10/15 남북 연결 도로를 폭파했다. 전쟁은 없었다. what 의 '미검증 단서'는 기억에 의한 재조사용 메모이며 판정 근거가 아니다.",
+  "summary": "북한이 10/9 남북 도로·철길 완전 단절을 통보하고 10/11 한국 무인기의 평양 전단 살포를 주장한 뒤, 10/13 전방 8개 포병여단에 사격준비태세를 지시하고 10/15 경의·동해선 도로를 폭파했다. 김정은은 10/14 국방·안전 협의회를 열고 10/17 한국을 '적국'이라 부르며 무력 사용을 위협했고, 11/8~9 에는 GPS 교란이 있었다. 켜진 것은 말·명분·경계태세·지도부 회의·단절 선언이었고, 대규모 병력 집결이나 쌍방 교전, 한국군의 경계 격상은 없었다. 대사관·시장·민심 자료는 찾지 못했다.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미확인. 미검증 단서: 대사관 철수 보도는 기억에 없음"
+      "what": "찾지 못함(주한 대사관 철수·정상 운영 어느 쪽 서술도 없음)"
     },
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "미검증 단서: 미 국무부 한국 여행경보는 1단계가 유지된 것으로 기억"
+      "what": "찾지 못함(여행경보 관련 서술 없음)"
     },
     {
       "h": "g_staff_restrict",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "g_regional_drawdown",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "g_attacker_evac",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "g_intel_warning",
       "status": "unknown",
-      "what": "미검증 단서: 합참·국방부가 '실제 도발 임박 징후 없음' 취지로 밝힌 것으로 기억"
+      "what": "'공격 임박' 경고는 찾지 못함. 합참의 10/14 '임박' 경고는 도로 폭파에 관한 것이었고, 국방부는 10/13 경계태세 강화 지시가 없다고 밝힘"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 10/9 총참모부 남북 도로·철길 완전 단절 통보, 10/11 외무성 '최후통첩' 성명(시한 없음), 10/17 헌법 '적대국' 공개"
+      "status": "yes",
+      "first": "2024-10-09",
+      "lead": null,
+      "public_then": true,
+      "what": "북 총참모부 10/9 남북 도로·철길 '완전 단절' 통보, 10/15 폭파, 10/17 헌법상 한국을 '적대국'으로 규정했다고 공개(시한 없음)",
+      "source": "https://en.wikipedia.org/wiki/Bombing_of_the_North-South_Joint_Railway_and_Highway#Background",
+      "confidence": "med"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증 단서: 진행 중인 협상이 없었음"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": true,
+      "what": "진행 중인 협상 자체가 없었음: 북한은 연초 통일·화해 노선을 폐기했고 유엔사 경유 접촉도 거부해 옴",
+      "source": "https://www.cnn.com/2024/10/15/asia/north-korea-blast-roads-south-intl-hnk/index.html",
+      "confidence": "med"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "미검증 단서: 8개 포병여단 사격대기 외 대규모 병력 집결은 기억에 없음(전선 방벽 공사는 4월부터)"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": true,
+      "what": "대규모 집결 확인 안 됨: 사격준비 지시는 기존 전방 8개 포병여단 대상, 한국 국방부는 10/13 경계 강화 지시 없다고 밝힘",
+      "source": "https://en.wikipedia.org/wiki/Bombing_of_the_North-South_Joint_Railway_and_Highway#Events",
+      "confidence": "med"
     },
     {
       "h": "m_logistics",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함(폭파 지점 대전차 방벽 공사 300~400명 투입은 방어 공사라 세지 않음)"
     },
     {
       "h": "m_mobilization",
       "status": "unknown",
-      "what": "미검증 단서: 10/16 관영매체 '청년 140만 명 입대·복대 탄원' — 선전이고 동원령은 아님"
+      "what": "동원령은 찾지 못함('청년 입대 탄원' 보도는 선전으로 i_state_mobilization 에 셈)"
     },
     {
       "h": "m_exercise_cover",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함(10/14 주한미군 MDL 인근 아파치 사격훈련 정상화 발표는 해당 없음)"
     },
     {
       "h": "m_strategic_assets",
       "status": "unknown",
-      "what": "미검증 단서: 11/3 B-1B 한미일 훈련(10/31 ICBM 대응), 11/13~15 프리덤 에지 항모 참가"
+      "what": "찾지 못함(11월 B-1B 전개·프리덤 에지 항모 참가 단서는 확인 못 함)"
     },
     {
       "h": "m_civil_defense",
       "status": "unknown",
-      "what": "미검증 단서: 10/15~16 경기도가 파주·김포·연천을 위험구역으로 설정(전단 살포 차단) — 대피 조치는 미확인"
+      "what": "대피·방공호 조치는 찾지 못함. 참고: 폭파 뒤 DMZ 관광지 긴급 폐쇄, 경기도가 파주·김포·연천 11곳을 전단 살포 금지 위험구역으로 지정"
     },
     {
       "h": "m_airspace",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함(11/8~9 GPS 교란으로 민항기 수십 대 운항 지장은 m_gps_ew 에 셈)"
     },
     {
       "h": "m_gps_ew",
-      "status": "unknown",
-      "what": "미검증 단서: 합참 11/9 '북이 11/8~9 해주·개성 일대에서 GPS 교란, 선박·민항기 수십 대 영향'"
+      "status": "yes",
+      "first": "2024-11-08",
+      "lead": null,
+      "public_then": true,
+      "what": "합참: 북한이 11/8~9 해주·개성 일대에서 GPS 교란, 선박 여러 척·민항기 수십 대 지장(5~6월보다 약한 신호)",
+      "source": "https://www.aljazeera.com/news/2024/11/9/south-koreas-military-blames-north-korea-on-gps-signal-jamming-attack",
+      "confidence": "med"
     },
     {
       "h": "m_cyber",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "미검증 단서: 10/15 폭파 직후 한국군의 MDL 이남 대응사격 1건"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": true,
+      "what": "교전 급증 없음: 10/15 폭파 직후 한국군이 MDL 이남에서 대응사격 1회 한 것뿐, 쌍방 교전·포격 보도 없음",
+      "source": "https://www.cnn.com/2024/10/15/asia/north-korea-blast-roads-south-intl-hnk/index.html",
+      "confidence": "med"
     },
     {
       "h": "m_alert_level",
-      "status": "unknown",
-      "what": "미검증 단서: 10/13 관영매체 — 총참모부가 10/12 국경선 부근 8개 포병여단에 '완전사격준비태세' 예비지시"
+      "status": "yes",
+      "first": "2024-10-13",
+      "lead": null,
+      "public_then": true,
+      "what": "북 국방성 10/13 저녁 발표: 총참모부가 국경선 부근 8개 포병여단에 사격준비태세 지시. 한국군은 격상 지시 없음",
+      "source": "https://en.wikipedia.org/wiki/Bombing_of_the_North-South_Joint_Railway_and_Highway#Events",
+      "confidence": "high"
     },
     {
       "h": "m_leadership",
-      "status": "unknown",
-      "what": "미검증 단서: 10/14 김정은이 국방·안전 분야 협의회 소집(첫 공개)"
+      "status": "yes",
+      "first": "2024-10-14",
+      "lead": null,
+      "public_then": true,
+      "what": "김정은이 10/14 국방·안전 분야 협의회를 소집해 '즉시적 군사행동' 방향 제시(10/15 보도). 합참의장 방미 취소",
+      "source": "https://www.france24.com/en/live-news/20241015-north-korea-s-kim-holds-security-meeting-over-drone-flights",
+      "confidence": "high"
     },
     {
       "h": "f_fx",
       "status": "unknown",
-      "what": "미검증 단서: 10월 원화 약세는 달러 강세·미 대선 요인으로 설명된 것으로 기억"
+      "what": "찾지 못함(원화 관련 기사 확인 못 함)"
     },
     {
       "h": "f_equity",
       "status": "unknown",
-      "what": "미검증 단서: 10/14 코스피 상승 마감, 북 리스크 영향이 미미했던 것으로 기억"
+      "what": "찾지 못함(10/14 코스피 영향 미미 단서는 기사로 확인 못 함)"
     },
     {
       "h": "f_sovereign",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "f_safe_haven",
       "status": "unknown",
-      "what": "미검증 단서: 10/14 국내 방산주 강세 보도"
+      "what": "찾지 못함(방산주 강세 단서 확인 못 함)"
     },
     {
       "h": "f_prediction",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "f_capital_flight",
       "status": "unknown",
-      "what": "미확인(검색 한도 소진)"
+      "what": "찾지 못함"
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 김정은 10/2 특수부대 시찰·10/7 국방종합대학 연설 '핵 사용 주저 않겠다', 10/17 2군단 '적국' 발언"
+      "status": "yes",
+      "first": "2024-10-17",
+      "lead": null,
+      "public_then": true,
+      "what": "김정은 10/17 2군단 시찰: 한국은 '적국', 주권 침해 시 '조건 없이 무력 사용'. 10월 초에는 핵무기 사용 위협(CNN)",
+      "source": "https://en.wikipedia.org/wiki/Bombing_of_the_North-South_Joint_Railway_and_Highway#Events",
+      "confidence": "high"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "미검증 단서: 10/11 외무성 '한국 무인기 평양 침투(10/3·9·10)' 주장 — 이후 한국 특검이 실제 침투 여부를 수사"
+      "status": "yes",
+      "first": "2024-10-11",
+      "lead": null,
+      "public_then": true,
+      "what": "북 외무성 10/11 '한국 무인기가 10/3·9·10 평양에 전단 살포' 주장, '모든 공격수단 준비'. 한국군은 부인",
+      "source": "https://www.aljazeera.com/news/2024/10/11/north-korea-accuses-south-korea-of-sending-propaganda-drones-to-pyongyang",
+      "confidence": "high"
     },
     {
       "h": "i_state_mobilization",
-      "status": "unknown",
-      "what": "미검증 단서: 10/12~13 노동신문 1면에 무인기 사건 게재, 10/16 '140만 명 입대 탄원'"
+      "status": "yes",
+      "first": "2024-10-31",
+      "lead": null,
+      "public_then": true,
+      "what": "북 관영매체: 10월 청년·학생들이 입대·복대 탄원서에 서명(날짜는 10월로만 확인), 무인기 사건을 대내 매체 1면에 게재",
+      "source": "https://www.aljazeera.com/news/2024/11/9/south-koreas-military-blames-north-korea-on-gps-signal-jamming-attack",
+      "confidence": "low"
     },
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미검증 단서: 10월 중순 외신 보도 급증(정량 근거 필요)"
+      "what": "정량 근거를 찾지 못함(CNN·알자지라·프랑스24 등 연속 보도는 확인)"
     },
     {
       "h": "i_public_anxiety",
       "status": "unknown",
-      "what": "미확인. 미검증 단서: 접경지 소음 피해 보도는 있었으나 사재기 보도는 기억에 없음"
+      "what": "찾지 못함(사재기·대피 문의 보도 확인 못 함)"
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증 단서: 사상자 없음. 평양 상공 무인기(상징성)와 북의 보복 다짐(10/11~13)이 해당하는지 판단 필요"
+      "status": "yes",
+      "first": "2024-10-11",
+      "lead": null,
+      "public_then": true,
+      "what": "사상자는 없으나 상징성 큰 사건: 평양 상공 무인기 주장(10/11)과 김여정 '재발 시 보복', 10/15 '비싼 대가' 다짐",
+      "source": "https://en.wikipedia.org/wiki/2024_South_Korean_drone_intrusion_incident_in_North_Korea#Events",
+      "confidence": "low"
     },
     {
       "h": "t_deadline",
       "status": "unknown",
-      "what": "미검증 단서: 명시적 시한 없음"
+      "what": "명시적 시한은 찾지 못함(경고는 '무인기 재발 시'라는 조건부였음)"
     }
   ],
-  "missed": "",
+  "missed": "북한의 조치가 공격 준비가 아니라 '차단·요새화'(도로 폭파, 대전차 방벽)였다는 점, 같은 시기 러시아 파병으로 병력이 바깥으로 나간 점은 코드북에 없는 반대 방향 신호다.",
   "retrieved": "2026-11-11"
 }

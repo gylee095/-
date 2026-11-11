@@ -1,0 +1,212 @@
+{
+  "id": "serbia-kosovo-2023",
+  "name": "세르비아–코소보 반스카 습격 뒤 국경 집결 위기",
+  "outcome": "no_war",
+  "onset": null,
+  "window": [
+    "2023-09-24",
+    "2023-10-06"
+  ],
+  "attacker": "세르비아",
+  "target": "코소보",
+  "kind": "interstate",
+  "surprise": false,
+  "summary": "2023년 9월 24일 세르비아계 무장조직이 반스카에서 코소보 경찰을 습격해 경찰 1명과 무장대원 3명이 죽었다. 이후 세르비아군이 국경에 포·전차·기계화보병을 집결시켰고 백악관이 '전례 없는 집결'이라고 공개 경고했다. 세르비아는 며칠 안에 병력을 물렸고 NATO가 KFOR를 증강해 전쟁은 나지 않았다. 대사관·시장 쪽 전조는 찾지 못했다.",
+  "signals": [
+    {
+      "h": "g_evac_order",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "g_leave_now",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "g_staff_restrict",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "g_regional_drawdown",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "g_attacker_evac",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "g_intel_warning",
+      "status": "yes",
+      "first": "2023-09-30",
+      "lead": null,
+      "public_then": true,
+      "what": "백악관(커비)이 세르비아군 포·전차·기계화보병의 '전례 없는' 국경 집결을 공개하고 즉각 완화 요구. 침공 결정이라고 하진 않음",
+      "source": "https://en.wikipedia.org/wiki/Banjska_attack#Serbian_military_buildup_and_base_construction",
+      "confidence": "low"
+    },
+    {
+      "h": "g_ultimatum",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "g_talks_collapse",
+      "status": "unknown",
+      "what": "EU 중재 대화는 계속 교착. 위키백과는 10월 브뤼셀 회담 '진전 없음'만 적어 결렬 선언 여부는 확인 못 함"
+    },
+    {
+      "h": "m_buildup",
+      "status": "yes",
+      "first": "2023-09-30",
+      "lead": null,
+      "public_then": true,
+      "what": "세르비아군이 코소보 국경에 이례적 규모로 집결(미국 확인). 부치치는 8,400명에서 4,400명으로 줄였다고 10/2 해명",
+      "source": "https://en.wikipedia.org/wiki/Banjska_attack#Serbian_military_buildup_and_base_construction",
+      "confidence": "high"
+    },
+    {
+      "h": "m_logistics",
+      "status": "unknown",
+      "what": "코소보 측이 10/2 국경 근처 세르비아 기지 건설을 주장·확인. 야전병원·연료·탄약 이동은 찾지 못함"
+    },
+    {
+      "h": "m_mobilization",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "m_exercise_cover",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "m_strategic_assets",
+      "status": "unknown",
+      "what": "NATO가 KFOR 병력을 증강(영국군)했으나 전략자산 급파에 해당하는지 불분명 — missed 에 적음"
+    },
+    {
+      "h": "m_civil_defense",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "m_airspace",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "m_gps_ew",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "m_cyber",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "m_border_fire",
+      "status": "unknown",
+      "what": "9/24 습격 한 건 외에 국경 교전 급증 서술은 찾지 못함(습격은 t_trigger 로 셈)"
+    },
+    {
+      "h": "m_alert_level",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "what": "부치치 10/2: 군에 '고도 경계령조차 서명하지 않았다'. 이 창에서 공식 경계 격상 발표 없음(5월 위기 때와 다름)",
+      "source": "https://edition.cnn.com/2023/10/02/europe/serbia-president-aleksandar-vucic-amanpour-interview-intl/index.html",
+      "confidence": "med"
+    },
+    {
+      "h": "m_leadership",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "f_fx",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "f_equity",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "f_sovereign",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "f_safe_haven",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "f_prediction",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "f_capital_flight",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "i_leader_threat",
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "what": "부치치는 '세르비아는 전쟁을 원치 않는다'고 공개 발언(9/28경), 직접적 무력 위협은 없었음. 코소보 경찰 기소 위협만",
+      "source": "https://www.aljazeera.com/news/2023/9/30/vucic-wants-war-kosovo-pm-accuses-belgrade-of-inciting-violence",
+      "confidence": "med"
+    },
+    {
+      "h": "i_pretext",
+      "status": "yes",
+      "first": "2023-09-24",
+      "lead": null,
+      "public_then": true,
+      "what": "부치치: 습격은 '쿠르티의 테러'를 못 견딘 세르비아계의 저항, 코소보 경찰이 부상자를 방치·저격했다고 주장",
+      "source": "https://en.wikipedia.org/wiki/Banjska_attack#Serbia",
+      "confidence": "med"
+    },
+    {
+      "h": "i_state_mobilization",
+      "status": "unknown",
+      "what": "국가 애도일(9/27)과 언론의 '영웅' 보도는 확인. 전시 동원 서사로 볼 근거는 부족"
+    },
+    {
+      "h": "i_news_surge",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "i_public_anxiety",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    },
+    {
+      "h": "t_trigger",
+      "status": "yes",
+      "first": "2023-09-24",
+      "lead": null,
+      "public_then": true,
+      "what": "9/24 반스카 습격·수도원 농성: 코소보 경찰 1명·무장대원 3명 사망. 코소보는 세르비아 배후를 지목, 세르비아는 경찰 처벌을 공언",
+      "source": "https://en.wikipedia.org/wiki/Banjska_attack#Attack",
+      "confidence": "med"
+    },
+    {
+      "h": "t_deadline",
+      "status": "unknown",
+      "what": "위키백과·열어 본 기사에서 찾지 못함"
+    }
+  ],
+  "missed": "미국이 정보를 공개하며 압박하자 곧 철수한 점(공개 경고가 억지로 작동). NATO의 KFOR 증강(영국군 추가, 루마니아 100명). 코소보 정보위원회가 10/2 국경 근처 세르비아 군기지 건설을 확인. 세르비아가 습격범을 위해 9/27 국가 애도일을 선포하고 언론이 '영웅'으로 부름. 9/5 무기고 적발·9/21 수류탄 폭발 등 습격 전 징후.",
+  "retrieved": "2026-11-11"
+}

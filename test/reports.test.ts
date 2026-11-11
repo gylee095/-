@@ -136,7 +136,7 @@ describe("리포트 = 그 순간의 대시보드 전체 (11/5: 요약은 정보�
     expect(route).toMatch(/Date\.now=\(function\(t\)\{return function\(\)\{return t\}\}\)\(\$\{r\.kind === "demo" \? Date\.now\(\) : r\.at\}\)/); // 실제 리포트는 그 시각, 예시는 만든 때
     expect(route).toMatch(/replace\(\/<\/g, "\\\\u003c"\)/); // 저장된 글에 </script> 가 있어도 화면이 깨지지 않게
     const dash = readFileSync(new URL("../src/worker/dashboard.ts", import.meta.url), "utf8");
-    expect(dash).toMatch(/if\(!window\.__KEW_REPORT__\)h\+=pushCard\(\);/);
+    expect(dash).toMatch(/if\(!window\.__KEW_REPORT__\)sy\+='<div class=\"card sum\">'\+pushCard\(\)/); // 알림 받기 카드는 '시스템' 묶음 안, 리포트에서는 숨김 (11/11 화면 정리)
     expect(dash).toMatch(/← 알림 목록/);
   });
 });

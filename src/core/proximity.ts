@@ -7,7 +7,7 @@ import type { BoardRow } from "./state.js";
 import type { EventBrief } from "./brief.js";
 import { kstDay } from "./store.js";
 import { PRECURSOR_DATA } from "./precursor_data.js";
-import { CLUSTER_LABEL, MODEL, evaluate, type Obs, type Proximity, type SignalNow } from "./precursors.js";
+import { CLUSTER_LABEL, INDEX_AT, MODEL, clashOfIndex, evaluate, type Obs, type Proximity, type SignalNow } from "./precursors.js";
 import { BANDS, PHASE_LABEL, eventFloors, fmtRiskPct, type Band, type Phase, type WarRisk } from "./warrisk.js";
 
 export const PROX_HIST_KEY = "prox:hist";
@@ -157,7 +157,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const onNames = p.signals.filter((s) => s.s === "on").map((s) => s.ko);
   const d1 = diff(1);
   const text =
-    `전쟁 근접도 ${p.index}점 (조용한 날 0 · 전조가 가장 많이 켜졌던 위기 100 — 위기의 크기이지 전쟁 확률이 아니다). ` +
+    `위기 지수 ${p.index}점 (조용한 날 0 · 20부터 긴장 · 45부터 위기 · 70부터 임박 — 위기의 크기이지 전쟁 확률이 아니다). ` +
     (onNames.length ? `켜진 전조 ${onNames.length}개: ${onNames.slice(0, 4).join(", ")}${onNames.length > 4 ? " 등" : ""}.` : "켜진 전조가 없어요.") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 ${Math.abs(d1)}점 ${d1 > 0 ? "높아요" : "낮아요"}.`);
   return {
@@ -181,15 +181,27 @@ const PHASE_HI: Record<number, number> = { 1: MODEL.PHASE[2], 2: MODEL.PHASE[3],
  * 규칙 3.0 판정: 단계와 확률은 전조 모형이 정하고, 실제 사건은 바닥을 준다(교전 → 5단계, 최근 14일 중대 사건 → 3단계 이상, 최근 7일 도발 → 2단계 이상).
  * 영역 수준·누가 먼저 움직였나 같은 설명은 이전 규칙(assessWarRisk)의 것을 그대로 둔다.
  */
-export function withProximity(legacy: WarRisk, prox: ProximityView, briefs: EventBrief[], now: number): WarRisk & { proximity: ProximityView } {
-  if (legacy.phase === 5) return { ...legacy, proximity: prox };
+export function withProximity(legacy: WarRisk, prox0: ProximityView, briefs: EventBrief[], now: number): WarRisk & { proximity: ProximityView } {
+  let prox = prox0;
+  if (legacy.phase === 5) return { ...legacy, proximity: { ...prox, index: 100 } };
   const f = eventFloors(briefs, now);
   // 공식 태세 변화·철수 보도(경보 단어)는 하나만 떠도 '평온'은 아니다 — 최소 2단계 (위기 3단계는 여전히 두 묶음 이상이 필요)
   const wire = briefs.find((b) => now - b.at < 7 * DAY && now - b.at >= -3600_000 && (b.evacuation || b.posture?.some((x) => x.level >= 2)));
   const floor = f.serious14.length ? 3 : f.prov7.length || wire ? 2 : 1;
   const phase = Math.max(prox.phase, floor) as Phase;
-  const clash = Math.min(Math.max(prox.clashPct, PHASE_LO[phase]), PHASE_HI[phase]);
-  const war = Math.min(prox.warPct, clash);
+  // 위기 지수 하나로 모은다: 사건 바닥은 지수를 그 단계의 시작점까지 올리고, 올린 만큼을 해당 묶음(도발·경보 → 군사, 중대 사건 → 계기)의 몫으로 적는다
+  const index = Math.max(prox.index, floor > 1 ? INDEX_AT[floor] : 0);
+  const bump = index - prox.index, bumpTo = floor === 3 ? "T" : "M";
+  const bumpNote = floor === 3 ? f.serious14[0]?.headline : f.prov7.length ? `최근 7일 도발 ${f.prov7.length}건` : wire?.headline;
+  const parts = prox.parts.map((x) => {
+    const mine = prox.signals.filter((g) => g.cluster === x.cluster && g.s === "on");
+    const notes = mine.slice(0, 2).map((g) => (g.ev && g.by === "analyst" ? g.ev : g.ko.split(" — ")[0]) + (g.weak ? " (약함)" : ""));
+    const extra = bump > 0 && x.cluster === bumpTo;
+    return { ...x, pts: x.pts + (extra ? bump : 0), notes: extra && bumpNote ? [bumpNote, ...notes].slice(0, 2) : notes };
+  });
+  prox = { ...prox, index, parts, text: prox.text.replace(/위기 지수 \d+점/, `위기 지수 ${index}점`) };
+  const clash = clashOfIndex(index, prox.quiet.clashPct);
+  const war = +Math.min(clash, prox.quiet.warPct + Math.max(0, clash - prox.quiet.clashPct) * (MODEL.Q_WAR / MODEL.Q_CLASH)).toFixed(clash < 5 ? 2 : 1);
   const pos = Math.min(0.95, Math.max(0.05, (clash - PHASE_LO[phase]) / (PHASE_HI[phase] - PHASE_LO[phase])));
   const band = (lo: number, hi: number, point: number): Band => ({ low: +Math.min(lo, point).toFixed(2), high: +Math.max(hi, point).toFixed(2), point: +point.toFixed(2) });
   const on = prox.signals.filter((s) => s.s === "on");
@@ -296,7 +308,7 @@ export function checklistText(p: ProximityView): string {
     return `${s.id} | ${s.ko} | ${mark(s)}${s.by === "analyst" ? "(분석관)" : ""} | ${s.ev ? ` | ${s.ev}` : ""}${guide ? ` | 확인: ${guide}` : ""}`;
   });
   return [
-    `전쟁 근접도 ${p.index}점 · 30일 국지 충돌 ${p.clashPct}% · 전면전 ${p.warPct}% · 켜진 전조 ${p.on}/${p.watched} · 분석관 확인 대기 ${p.waiting}개`,
+    `위기 지수 ${p.index}점 · 30일 국지 충돌 ${p.clashPct}% · 전면전 ${p.warPct}% · 켜진 전조 ${p.on}/${p.watched} · 분석관 확인 대기 ${p.waiting}개`,
     "id | 전조 | 지금 | 근거 | 확인 방법(분석관 전용 항목)",
     ...lines,
   ].join("\n");

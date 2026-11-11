@@ -1,6 +1,6 @@
 // 규칙 3.0 — 전조 모형과 한반도 적용 (proximity.ts · precursors.ts)
 import { describe, expect, it } from "vitest";
-import { ACTION_KEYS, MODEL, buildTable, caseEvidence, classOf, evaluate, ordinaryRate, rate, type CaseRecord, type SignalNow } from "../src/core/precursors.js";
+import { ACTION_KEYS, INDEX_AT, MODEL, clashOfIndex, buildTable, caseEvidence, classOf, evaluate, ordinaryRate, rate, type CaseRecord, type SignalNow } from "../src/core/precursors.js";
 import { PRECURSOR_DATA } from "../src/core/precursor_data.js";
 import { AUTO_IDS, ANALYST_GUIDE, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
 import { assessWarRisk } from "../src/core/warrisk.js";
@@ -29,7 +29,8 @@ describe("전조 모형", () => {
   it("말·태세·전략자산이 다 켜져도(2013년형) 임박(4단계)은 아니다 — 행동 신호가 둘 이상 있어야", () => {
     const p = ev(["i_leader_threat", "i_pretext", "i_state_mobilization", "m_alert_level", "m_strategic_assets", "m_cyber", "g_ultimatum"]);
     expect(p.phase).toBe(3);
-    const q = ev(["i_leader_threat", "i_pretext", "m_alert_level", "m_strategic_assets", "g_ultimatum", "g_evac_order", "m_logistics", "m_buildup"]);
+    // 우크라이나 2022년형: 넓게 켜지고(지수 70 이상) 행동 신호도 둘 이상
+    const q = ev(["g_evac_order", "g_leave_now", "g_attacker_evac", "g_intel_warning", "g_ultimatum", "m_buildup", "m_logistics", "m_exercise_cover", "m_civil_defense", "m_cyber", "m_border_fire", "f_equity", "i_leader_threat", "i_pretext"]);
     expect(q.phase).toBe(4);
     expect(ACTION_KEYS.every((k) => IDS.includes(k))).toBe(true);
   });
@@ -38,6 +39,17 @@ describe("전조 모형", () => {
     expect(a.index).toBeGreaterThan(b.index);
     expect(b.index).toBeGreaterThan(0);
     expect(ev(["g_evac_order", "m_buildup", "i_pretext"]).index).toBeGreaterThanOrEqual(a.index);
+  });
+  it("위기 지수 하나에서 단계·확률이 나온다: 구간과 단계가 일치하고, 다섯 묶음의 몫을 더하면 지수", () => {
+    for (const on of [[], ["g_evac_order"], ["i_pretext", "f_fx", "m_gps_ew"], ["i_leader_threat", "i_pretext", "m_alert_level", "m_strategic_assets", "g_ultimatum"], IDS]) {
+      const p = ev(on);
+      expect(p.phase).toBe(p.index >= INDEX_AT[4] ? 4 : p.index >= INDEX_AT[3] ? 3 : p.index >= INDEX_AT[2] ? 2 : 1);
+      expect(p.parts.reduce((a, x) => a + x.pts, 0)).toBe(p.index);
+      expect(p.clashPct).toBe(clashOfIndex(p.index, p.quiet.clashPct));
+    }
+    expect(clashOfIndex(20, 1.3)).toBe(MODEL.PHASE[2]);
+    expect(clashOfIndex(45, 1.3)).toBe(MODEL.PHASE[3]);
+    expect(clashOfIndex(70, 1.3)).toBe(MODEL.PHASE[4]);
   });
   it("전면전 % 는 국지 충돌 % 를 넘지 않는다", () => {
     for (const on of [[], ["g_evac_order"], IDS]) { const p = ev(on); expect(p.warPct).toBeLessThanOrEqual(p.clashPct); }
@@ -97,6 +109,14 @@ describe("한반도 적용", () => {
     expect(w.headline).toMatch(/1단계/);
     expect(w.proximity.waiting).toBeGreaterThan(0);
     expect(withProximity({ ...legacy, phase: 5 }, p, [], NOW).phase).toBe(5);
+    expect(withProximity({ ...legacy, phase: 5 }, p, [], NOW).proximity.index).toBe(100);
+    // 사건 바닥: 최근 도발이 있으면 지수가 긴장 구간의 시작점(20)까지 오르고, 그 몫은 군사 묶음에 적힌다
+    const prov = [{ at: NOW - 3600_000, headline: "북한, 탄도미사일 발사", isProvocation: true, danger: { level: 3, label: "", reason: "" } }] as any;
+    const w2 = withProximity(legacy, p, prov, NOW);
+    expect(w2.phase).toBe(2);
+    expect(w2.proximity.index).toBe(INDEX_AT[2]);
+    expect(w2.proximity.parts.reduce((a, x) => a + x.pts, 0)).toBe(INDEX_AT[2]);
+    expect(w2.proximity.parts.find((x) => x.cluster === "M")!.notes![0]).toMatch(/도발 1건/);
     expect(checklistText(p).split("\n").length).toBe(35);
   });
   it("하루 한 줄: 그날 가장 높았던 상태를 남기고, 날이 바뀌면 평소 빈도에 더한다 (3단계 이상이던 날은 빼고)", () => {

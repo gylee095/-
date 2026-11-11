@@ -224,8 +224,10 @@ export interface Proximity {
   signals: SignalView[];
   on: number;
   watched: number;
-  /** 0~100: 조용한 날 0, 사례집에서 가장 뚜렷했던 전쟁 전날 100 (로그 눈금) */
+  /** 위기 지수 0~100: 조용한 날 0 · 20부터 긴장 · 45부터 위기 · 70부터 임박 · 전조가 가장 많이 켜졌던 사례 100 */
   index: number;
+  /** 묶음별 몫 (더하면 index) */
+  parts: { cluster: ClusterId; label: string; pts: number; notes?: string[] }[];
   /** '평소와 얼마나 다른가'(위기 닮음)와 '위기 중에서도 전쟁 쪽인가'(전쟁 닮음)의 로그 배수 */
   abnormal: number;
   warLike: number;
@@ -274,7 +276,20 @@ function posterior(table: PrecursorTable, status: Record<string, SignalNow>, bas
   const Z = piO + surpriseW + surpriseK + m;
   const war = (tW + surpriseW) / Z;
   const clash = war + (tK + surpriseK) / Z;
-  return { war, clash, abnormal, warLike, mix: { ordinary: (piO + surpriseW + surpriseK) / Z, crisis: tC / Z, clash: tK / Z, war: tW / Z }, logOddsW: Math.log(m / (Z - m)) };
+  const byCluster = Object.fromEntries(CLUSTERS.map((c) => [c, damped(A[c])])) as Record<ClusterId, number>;
+  /** 위기가 아닐 때의 충돌 확률(기습 몫) — 지수 구간 경계를 확률 문턱에서 거꾸로 구할 때 쓴다 */
+  const floorFrac = (surpriseW + surpriseK) / (piO + surpriseW + surpriseK);
+  return { war, clash, abnormal, warLike, byCluster, floorFrac, mix: { ordinary: (piO + surpriseW + surpriseK) / Z, crisis: tC / Z, clash: tK / Z, war: tW / Z }, logOddsW: Math.log(m / (Z - m)) };
+}
+
+/** 위기 지수에서 단계가 시작되는 점 */
+export const INDEX_AT: Record<number, number> = { 2: 20, 3: 45, 4: 70 };
+/** 지수 → 30일 국지 충돌 % (판단값): 0 = 평소(기습 몫의 바닥) · 20 = 3% · 45 = 8% · 70 = 20% · 100 = 위기가 충돌로 번지는 비율(Q_CLASH) */
+export function clashOfIndex(index: number, quietPct: number): number {
+  const top = MODEL.Q_CLASH * 100 + quietPct;
+  const k: [number, number][] = [[0, quietPct], [INDEX_AT[2], MODEL.PHASE[2]], [INDEX_AT[3], MODEL.PHASE[3]], [INDEX_AT[4], MODEL.PHASE[4]], [100, top]];
+  for (let i = 0; i < 4; i++) if (index <= k[i + 1][0]) return +(k[i][1] + ((index - k[i][0]) / (k[i + 1][0] - k[i][0])) * (k[i + 1][1] - k[i][1])).toFixed(1);
+  return +top.toFixed(1);
 }
 
 /** 4단계에 필요한 '행동' 신호: 철수·출국 권고·역내 감축·공격 측 철수·병참·동원·병력 집결 */
@@ -297,22 +312,35 @@ export function evaluate(table: PrecursorTable, status: Record<string, SignalNow
   });
   const onSignals = signals.filter((s) => s.s === "on");
   const clustersOn = new Set(onSignals.map((s) => s.cluster)).size;
-  let clashPct = pct(now.clash), warPct = pct(now.war);
-  // 신호 하나·한 묶음만으로는 '위기'가 되지 않는다. '임박'은 정부나 군사 묶음의 확인된 신호가 있어야 한다
-  // '임박'(4단계)은 말·태세가 아니라 **비공개 정보를 가진 쪽의 행동과 실제 전쟁 준비**가 둘 이상 확인될 때만 (ACTION_KEYS).
-  // 사례 채점에서 배수로는 가르지 못했고, 한반도 위기(1994·2013·2017)는 위협·경계태세·전략자산이 다 켜지고도 전쟁이 없었다 — 문헌(그라보: 말보다 병참, 철수가 앞선다)을 따른 판단 규칙이다.
+  // ── 위기 지수 0~100 (11/11: 화면의 잣대를 이것 하나로 모은다 — 단계와 확률은 모두 이 숫자에서 나온다) ──
+  // 조용한 날(지켜보는 신호가 모두 꺼짐) = 0, 사례집에서 전조가 가장 많이 켜졌던 수준 = 100, 그 사이는 '평소와 다른 정도'(로그 배수)에 비례.
+  // 구간: 20부터 긴장 · 45부터 위기 · 70부터 임박 (INDEX_AT). 확률을 먼저 계산해 단계를 정하던 방식은 신호 몇 개만으로 100%에 붙어 버려
+  // 과거 위기들이 한 점에 몰렸다(1994·2013·2017 이 모두 같은 값) — 그래서 지수를 먼저 두고 확률은 지수에서 환산한다.
   const actions = onSignals.filter((s) => !s.weak && ACTION_KEYS.includes(s.id)).length;
-  if (clustersOn < 2) clashPct = Math.min(clashPct, MODEL.PHASE[3] - 0.1);
-  if (actions < 2) clashPct = Math.min(clashPct, MODEL.PHASE[4] - 0.1);
-  warPct = Math.min(warPct, clashPct);
-  const phase = clashPct >= MODEL.PHASE[4] ? 4 : clashPct >= MODEL.PHASE[3] ? 3 : clashPct >= MODEL.PHASE[2] ? 2 : 1;
   const span = (anchorLogOdds ?? 0) - quiet.logOddsW;
-  const index = anchorLogOdds === undefined || span <= 0 ? 0 : Math.round(clamp(((now.logOddsW - quiet.logOddsW) / span) * 100, 0, 100));
+  let index = anchorLogOdds === undefined || span <= 0 ? 0 : clamp(((now.logOddsW - quiet.logOddsW) / span) * 100, 0, 100);
+  // 신호 하나·한 묶음만으로는 '위기'가 되지 않는다. '임박'은 말·태세가 아니라 **비공개 정보를 가진 쪽의 행동과 실제 전쟁 준비**(ACTION_KEYS)가 둘 이상 확인될 때만 —
+  // 한반도 위기(1994·2013·2017)는 위협·경계태세·전략자산이 다 켜지고도 전쟁이 없었다. 문헌(그라보: 말보다 병참, 철수가 앞선다)을 따른 판단 규칙이다.
+  if (clustersOn < 2) index = Math.min(index, INDEX_AT[3] - 1);
+  if (actions < 2) index = Math.min(index, INDEX_AT[4] - 1);
+  index = Math.round(index);
+  const phase = index >= INDEX_AT[4] ? 4 : index >= INDEX_AT[3] ? 3 : index >= INDEX_AT[2] ? 2 : 1;
+  const q = { clash: pct(quiet.clash), war: pct(quiet.war) };
+  const clashPct = clashOfIndex(index, q.clash);
+  const warPct = +Math.min(clashPct, q.war + Math.max(0, clashPct - q.clash) * (MODEL.Q_WAR / MODEL.Q_CLASH)).toFixed(clashPct < 5 ? 2 : 1);
+  // 묶음별 몫: 조용한 날보다 얼마나 더 밀었나(로그 배수)의 비율로 지수를 나눈다 — 다섯 묶음을 더하면 지수가 된다
+  const delta = CLUSTERS.map((c) => Math.max(0, now.byCluster[c] - quiet.byCluster[c]));
+  const total = delta.reduce((a, b) => a + b, 0);
+  const raw = delta.map((d) => (total > 0 ? (d / total) * index : 0));
+  const pts = raw.map(Math.floor);
+  let left = index - pts.reduce((a, b) => a + b, 0);
+  for (const i of raw.map((r, k) => [r - Math.floor(r), k] as [number, number]).sort((a, b) => b[0] - a[0]).map((x) => x[1])) { if (left <= 0) break; if (raw[i] > 0) { pts[i]++; left--; } }
+  const parts = CLUSTERS.map((c, k) => ({ cluster: c, label: CLUSTER_LABEL[c], pts: pts[k] }));
   return {
     clashPct, warPct,
     mix: { ordinary: Math.round(now.mix.ordinary * 100), crisis: Math.round(now.mix.crisis * 100), clash: Math.round(now.mix.clash * 100), war: Math.round(now.mix.war * 100) },
-    quiet: { clashPct: pct(quiet.clash), warPct: pct(quiet.war) },
-    phase, clustersOn, signals, on: onSignals.length, watched: signals.filter((s) => s.s !== "unk").length, index,
+    quiet: { clashPct: q.clash, warPct: q.war },
+    phase, clustersOn, signals, on: onSignals.length, watched: signals.filter((s) => s.s !== "unk").length, index, parts,
     abnormal: +now.abnormal.toFixed(2), warLike: +now.warLike.toFixed(2),
   };
 }

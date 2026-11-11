@@ -11,17 +11,22 @@
   "target": "이스라엘",
   "kind": "interstate",
   "surprise": false,
-  "summary": "7/31 테헤란에서 하니예가 암살되자 이란이 보복을 다짐했고 몇 주 동안 공격이 예상됐지만 8/31까지 이란의 직접 공격은 없었다(경과와 창은 의뢰서 기준). 이번 조사에서 출처로 확인한 것은 미국의 전력 증파(8/2~3), 이스라엘 증시 하락(8/5), '이스라엘이 이란 공격에 대비' 보도 급증, 계기 사건 네 가지뿐이다. 웹 검색 한도가 소진돼 나머지 가설은 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "7/31 테헤란에서 하니예가 암살되자 하메네이가 복수를 다짐했고, 8/4~5 미국의 '24~48시간 내 공격' 통보·GPS 교란·영공 NOTAM·항공사 운항 중단·미 항모 증파·레바논 출국 권고가 한꺼번에 켜졌다. 그러나 8/31까지 이란의 직접 공격은 없었고 10/1에야 실행됐다. 전조가 대부분 켜진 헛경보 사례이며, 일부 신호(8/25 교전·비상사태·민방위)는 이란이 아닌 헤즈볼라 전선에서 나왔다. 돈 관련 가설과 대사관 조치는 출처를 찾지 못해 unknown.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미검증 단서: 캐나다가 8/7 이스라엘 주재 외교관의 자녀·보호자를 철수시키기로 결정"
+      "what": "주이스라엘 대사관 철수 명령은 확인 못함(캐나다 8/7 외교관 자녀 철수는 미검증 단서)"
     },
     {
       "h": "g_leave_now",
-      "status": "unknown",
-      "what": "미검증 단서: 캐나다 8/3 이스라엘 '모든 여행 금지', 미국 7/31 레바논 4단계, 미·영·프 등 '레바논 즉시 출국' 권고"
+      "status": "yes",
+      "first": "2024-08-05",
+      "lead": null,
+      "public_then": true,
+      "what": "미·유럽에 이어 일본·사우디·프랑스가 레바논 즉시 출국 권고(8/5), 프랑스는 이란 출국 지시 — 이스라엘 자체가 아니라 전장 예상국 대상",
+      "source": "https://www.aljazeera.com/news/2024/8/5/iran-and-hezbollah-attack-on-israel-imminent-blinken-tells-g7-report",
+      "confidence": "low"
     },
     {
       "h": "g_staff_restrict",
@@ -31,7 +36,7 @@
     {
       "h": "g_regional_drawdown",
       "status": "unknown",
-      "what": "미검증 단서: 영국이 8/3 베이루트 대사관 직원 가족 철수, 스웨덴이 베이루트 대사관 임시 폐쇄"
+      "what": "영국의 베이루트 대사관 가족 철수는 위키백과에 날짜 없이 적혀 있어 확정 못함"
     },
     {
       "h": "g_attacker_evac",
@@ -40,23 +45,38 @@
     },
     {
       "h": "g_intel_warning",
-      "status": "unknown",
-      "what": "미검증 단서: 블링컨이 8/4 G7에 '24~48시간 내 공격 가능' 통보(악시오스), 백악관 8/12 '이번 주에라도 가능'"
+      "status": "yes",
+      "first": "2024-08-05",
+      "lead": null,
+      "public_then": true,
+      "what": "블링컨이 8/4 G7 외교장관에게 이란·헤즈볼라가 24~48시간 내 공격할 수 있다고 통보(악시오스 인용, 8/5 보도) — 공개 성명이 아닌 유출",
+      "source": "https://www.aljazeera.com/news/2024/8/5/iran-and-hezbollah-attack-on-israel-imminent-blinken-tells-g7-report",
+      "confidence": "med"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 시한 있는 최후통첩은 없었던 것으로 기억(맞다면 no)"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "시한 있는 최후통첩·공식 무력 승인은 없었음 — 보복 다짐과 하메네이의 공격 지시 보도(NYT)만 있었고 양국은 미수교",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Ismail_Haniyeh#Aftermath",
+      "confidence": "low"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증 단서: 이란–이스라엘 협상은 없음; 가자 휴전 협상은 8/15 도하에서 재개돼 창 안에서 결렬되지 않음"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "이란–이스라엘 직접 협상은 없었음 — 미국이 외교 경로로 자제 메시지만 전달, 러시아·요르단이 테헤란 방문",
+      "source": "https://en.wikipedia.org/wiki/2024_Iran%E2%80%93Israel_conflict#Heightened_tensions_(August%E2%80%93September)",
+      "confidence": "low"
     },
     {
       "h": "m_buildup",
       "status": "unknown",
-      "what": "미검증 단서: 미 당국이 이란의 미사일 발사대 이동·군사 훈련을 포착했다는 보도(8월 초)"
+      "what": "위키백과에 \"이란이 공격 준비를 계속했다\"는 서술만 있고 위성·정부 확인은 찾지 못함"
     },
     {
       "h": "m_logistics",
@@ -71,7 +91,7 @@
     {
       "h": "m_exercise_cover",
       "status": "unknown",
-      "what": "미검증 단서: 8월 중순 혁명수비대의 서부 지역 훈련 보도"
+      "what": "8/7 이란이 \"군사 훈련\"을 이유로 영공 회피를 통보했다는 보도는 있으나 훈련 병력 잔류는 확인 못함"
     },
     {
       "h": "m_strategic_assets",
@@ -85,38 +105,68 @@
     },
     {
       "h": "m_civil_defense",
-      "status": "unknown",
-      "what": "미검증 단서: 8월 초 이스라엘 병원들의 지하 시설 이전 준비, 지자체 대피소 개방"
+      "status": "yes",
+      "first": "2024-08-25",
+      "lead": null,
+      "public_then": true,
+      "what": "8/25 이스라엘 후방사령부가 텔아비브까지 집회·교육 제한, 북부 대피소 개방(헤즈볼라 보복 대비). 7/31 직후에는 지침 변경 없었음",
+      "source": "https://www.jpost.com/israel-hamas-war/article-816158",
+      "confidence": "low"
     },
     {
       "h": "m_airspace",
-      "status": "unknown",
-      "what": "미검증 단서: 7/31~8/1부터 루프트한자·델타·유나이티드 등 텔아비브·베이루트 운항 중단, 요르단의 추가 연료 NOTAM"
+      "status": "yes",
+      "first": "2024-08-05",
+      "lead": null,
+      "public_then": true,
+      "what": "8/5 이란·요르단 영공 제한 NOTAM, 루프트한자·델타·유나이티드 등 이스라엘 운항 중단, 요르단은 8/4 추가 연료 요구",
+      "source": "https://en.wikipedia.org/wiki/2024_Iran%E2%80%93Israel_conflict#Heightened_tensions_(August%E2%80%93September)",
+      "confidence": "med"
     },
     {
       "h": "m_gps_ew",
-      "status": "unknown",
-      "what": "미검증 단서: 8월 초 이스라엘 중부로 GPS 교란이 다시 확대됐다는 보도"
+      "status": "yes",
+      "first": "2024-08-04",
+      "lead": null,
+      "public_then": true,
+      "what": "8/4 텔아비브·이스라엘 중부에서 GPS 교란 보고 — 북부에서는 상시였지만 중부는 드물었고 4월 이란 공격 전야와 같았음",
+      "source": "https://www.haaretz.com/israel-news/2024-08-04/ty-article/.premium/gps-jamming-reported-in-tel-aviv-and-central-israel-echoing-eve-of-aprils-iran-attack/00000191-1d01-d534-a9f9-7d09a4400000",
+      "confidence": "med"
     },
     {
       "h": "m_cyber",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "이스라엘 해커 집단의 이란 통신망 공격 주장, 이란의 벤구리온 공항 공격 주장이 있으나 날짜·실체 확인 못함"
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "미검증 단서: 8/25 이스라엘의 선제 공습(전투기 약 100대)과 헤즈볼라의 로켓·드론 수백 발"
+      "status": "yes",
+      "first": "2024-08-25",
+      "lead": null,
+      "public_then": true,
+      "what": "8/25 이스라엘이 전투기 약 100대로 레바논 선제 공습, 헤즈볼라가 로켓 320발 — 이란 본토가 아닌 헤즈볼라 전선의 급증",
+      "source": "https://en.wikipedia.org/wiki/Hezbollah%E2%80%93Israel_conflict_(2023%E2%80%93present)#Further_airstrikes_(July_%E2%80%93_September_2024)",
+      "confidence": "low"
     },
     {
       "h": "m_alert_level",
-      "status": "unknown",
-      "what": "미검증 단서: 8/25 이스라엘 국방장관이 48시간 전국 '후방 특별상황' 선포"
+      "status": "yes",
+      "first": "2024-08-25",
+      "lead": null,
+      "public_then": true,
+      "what": "8/25 갈란트 국방장관이 48시간 비상사태 선포. 8월 초에는 이스라엘군에 반격 준비 태세 지시(날짜 불명)",
+      "source": "https://en.wikipedia.org/wiki/Killing_of_Fuad_Shukr#Hezbollah_revenge_attack",
+      "confidence": "med"
     },
     {
       "h": "m_leadership",
-      "status": "unknown",
-      "what": "미검증 단서: 8월 초 이스라엘 지도부용 예루살렘 지하 지휘소 준비 보도"
+      "status": "yes",
+      "first": "2024-07-31",
+      "lead": null,
+      "public_then": true,
+      "what": "7/31 하메네이가 최고국가안보회의 긴급 소집, 8월 초 신베트가 네타냐후용 벙커를 준비했다는 보도",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Ismail_Haniyeh#Iran",
+      "confidence": "med"
     },
     {
       "h": "f_fx",
@@ -129,7 +179,7 @@
       "first": "2024-08-05",
       "lead": null,
       "public_then": true,
-      "what": "이란의 공격 우려로 이스라엘 증시가 연이틀 하락(8/5 블룸버그). 같은 날 세계 증시 급락과 겹쳐 귀속은 약함",
+      "what": "이란 공격 우려로 이스라엘 증시 연이틀 하락(8/5), 테헤란 증시도 1.9% 하락 — 세계 증시 급락과 겹쳐 귀속은 약함",
       "source": "https://bnnbloomberg.ca/business/2024/08/05/israeli-stocks-extend-slide-as-fears-of-iran-attack-mount",
       "confidence": "low"
     },
@@ -155,18 +205,33 @@
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 하메네이 7/31 '가혹한 처벌', '복수는 우리의 의무' 성명"
+      "status": "yes",
+      "first": "2024-07-31",
+      "lead": null,
+      "public_then": true,
+      "what": "하메네이: \"가혹한 처벌을 자초했다, 그의 피에 복수하는 것은 우리의 의무\"(7/31)",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Ismail_Haniyeh#Iran",
+      "confidence": "high"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "미검증 단서: 조작된 명분이 아니라 실제 암살(t_trigger)에 근거 — 맞다면 no"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "조작된 명분이 아니라 실제 암살(7/31)에 대한 보복 다짐이었음 — 유엔에서도 자위권을 주장",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Ismail_Haniyeh#Iran",
+      "confidence": "low"
     },
     {
       "h": "i_state_mobilization",
-      "status": "unknown",
-      "what": "미검증 단서: 7/31 잠카란 모스크에 '복수의 붉은 깃발' 게양"
+      "status": "yes",
+      "first": "2024-07-31",
+      "lead": null,
+      "public_then": true,
+      "what": "잠카란 모스크에 붉은 깃발, 테헤란 광장에 \"가혹한 처벌을 기다려라\" 현수막, 3일 국가 애도 — 징집 집회 수준은 아님",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Ismail_Haniyeh#Iran",
+      "confidence": "low"
     },
     {
       "h": "i_news_surge",
@@ -189,16 +254,21 @@
       "first": "2024-07-31",
       "lead": null,
       "public_then": true,
-      "what": "7/31 테헤란에서 하마스 지도자 하니예 암살, 이란이 보복 다짐 — 날짜는 의뢰서 기준이고 출처는 8/3 '이스라엘, 이란 공격 대비' 보도",
-      "source": "https://www.npr.org/2024/08/03/nx-s1-5062390/us-military-deployment-middle-east-israel-iran",
-      "confidence": "med"
+      "what": "7/31 테헤란에서 하마스 지도자 하니예 암살, 이란 최고지도자가 복수를 공개 다짐",
+      "source": "https://en.wikipedia.org/wiki/Assassination_of_Ismail_Haniyeh#Iran",
+      "confidence": "high"
     },
     {
       "h": "t_deadline",
-      "status": "unknown",
-      "what": "미검증 단서: 명시적 시한은 없었던 것으로 기억(맞다면 no)"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "명시적 시한은 없었음 — 미국도 \"정확한 시점은 모른다\"고 했고 일주일 뒤에도 공격은 없었음",
+      "source": "https://www.aljazeera.com/news/2024/8/5/iran-and-hezbollah-attack-on-israel-imminent-blinken-tells-g7-report",
+      "confidence": "low"
     }
   ],
-  "missed": "미검증 단서(재조사용): 이란이 보복을 가자 휴전 협상 진행과 연동해 미뤘다는 보도 — '예고만 하고 실행을 미루는' 유형. 8/25 이스라엘의 선제 공습과 헤즈볼라의 축소된 보복으로 압력이 일부 빠졌다는 해석. 전조가 거의 다 켜졌는데도 공격이 없었던 사례라 재조사 가치가 크다.",
+  "missed": "이란 대통령이 최고지도자에게 공격 자제를 건의했다는 보도(8/8)와 러시아·요르단의 테헤란 중재 방문 — '공격 쪽 내부의 공개된 이견'은 코드북에 없다. 이란이 이웃 나라에 '군사 훈련'을 이유로 영공 회피를 통보한 것(8/7)과 러시아의 방공체계 인도 보도(8/6)도 눈에 띄었다. 공격 쪽이 방어 준비를 하는 신호다.",
   "retrieved": "2026-11-11"
 }

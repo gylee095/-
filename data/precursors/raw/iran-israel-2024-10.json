@@ -11,7 +11,7 @@
   "target": "이스라엘",
   "kind": "interstate",
   "surprise": false,
-  "summary": "2024-10-01 이란이 이스라엘에 탄도미사일을 두 번째로 직접 발사했다 — 당일 미 해군의 요격 지원 보도(https://www.defensenews.com/pentagon/2024/10/01/navy-warships-helped-take-down-irans-attack-on-israel-pentagon-says)로 날짜만 확인했다. 계기(9/27 나스랄라 피살)와 창은 의뢰서 기준이다. 웹 검색 한도가 소진돼 33개 가설 모두 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다. 8월부터 이어진 신호(미 항모·항공 중단·여행경보)는 단서에 '8월부터'라고 적었다.",
+  "summary": "2024-10-01 이란이 탄도미사일 약 200발을 이스라엘에 발사했다(두 번째 직접 공격). 계기는 9/27 나스랄라·혁명수비대 장성 피살이고, 9/28 하메네이의 '궤멸적 타격' 경고와 은신 보도, 미국의 베이루트 대사관 인력 출국 명령이 나흘 안에 이어졌다. 미국의 '임박' 공개 경고는 개시 당일 몇 시간 전이었고 이란의 사전 통보도 4월(72시간)보다 훨씬 짧았다. 교전·비상사태·민방위 신호는 이스라엘–헤즈볼라 전선에서 나온 것이다. 돈 관련 가설은 출처를 찾지 못했다.",
   "signals": [
     {
       "h": "g_evac_order",
@@ -21,17 +21,22 @@
     {
       "h": "g_leave_now",
       "status": "unknown",
-      "what": "미검증 단서: 8월부터 각국의 이스라엘·레바논 최고 단계 경보가 이어짐; 9월 말 새 상향 여부는 확인 못함"
+      "what": "캐나다·호주가 9/23 무렵 레바논 즉시 출국을 재차 권고했으나 이스라엘 대상 최고 단계 상향은 확인 못함"
     },
     {
       "h": "g_staff_restrict",
       "status": "unknown",
-      "what": "미검증 단서: 주이스라엘 미 대사관이 9/28 무렵 직원 이동 제한, 10/1(당일) 대피 지시"
+      "what": "주이스라엘 대사관의 9월 말 이동 제한은 확인 못함"
     },
     {
       "h": "g_regional_drawdown",
-      "status": "unknown",
-      "what": "미검증 단서: 미국이 9/28 베이루트 대사관 가족 철수 명령·비필수 인력 출국 승인"
+      "status": "yes",
+      "first": "2024-09-28",
+      "lead": 3,
+      "public_then": true,
+      "what": "미 국무부가 9/28 레바논 주재 일부 직원과 가족에게 출국 명령",
+      "source": "https://edition.cnn.com/world/live-news/israel-lebanon-war-hezbollah-09-28-24",
+      "confidence": "med"
     },
     {
       "h": "g_attacker_evac",
@@ -40,18 +45,33 @@
     },
     {
       "h": "g_intel_warning",
-      "status": "unknown",
-      "what": "미검증 단서: 미국의 '탄도미사일 공격 임박' 공개 경고는 개시 당일(10/1) 몇 시간 전 — 맞다면 no"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "백악관의 '이란이 탄도미사일 공격을 임박하게 준비 중' 공개 경고는 개시 당일 10/1 오전, 몇 시간 전(선행 0일)",
+      "source": "https://edition.cnn.com/2024/10/01/politics/iran-missile-attack-israel/index.html",
+      "confidence": "high"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 최후통첩은 없었던 것으로 기억(맞다면 no)"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "시한 있는 최후통첩은 없었음 — 하메네이의 '궤멸적 타격' 경고뿐이고 이란은 몇 시간 전 아랍국에만 통보",
+      "source": "https://en.wikipedia.org/wiki/October_2024_Iranian_strikes_on_Israel#Strikes",
+      "confidence": "low"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증 단서: 이란–이스라엘 협상은 없음; 미·프의 21일 휴전안(9/25)을 이스라엘이 9/26~27 거부"
+      "status": "yes",
+      "first": "2024-09-27",
+      "lead": 4,
+      "public_then": true,
+      "what": "미·EU의 21일 휴전안(9/25)을 네타냐후가 9/26 부인, 9/27 나스랄라 피살로 무산 — 이란–이스라엘이 아닌 레바논 휴전 협상",
+      "source": "https://en.wikipedia.org/wiki/2024_Hezbollah_headquarters_strike#Background",
+      "confidence": "low"
     },
     {
       "h": "m_buildup",
@@ -66,7 +86,7 @@
     {
       "h": "m_mobilization",
       "status": "unknown",
-      "what": "미검증 단서: 이스라엘군이 9/25 북부 전선용 예비군 2개 여단 소집"
+      "what": "9/28 미 당국이 '이스라엘 병력 동원'을 언급했으나 예비군 소집 명령과 날짜는 확인 못함"
     },
     {
       "h": "m_exercise_cover",
@@ -76,17 +96,22 @@
     {
       "h": "m_strategic_assets",
       "status": "unknown",
-      "what": "8월 증파 전력(항모 전단 등)이 상주 중이었음; 미검증 단서: 9/23 추가 병력 발표, 9/29~30 전투기 대대 증파·링컨 연장"
+      "what": "9/23 미군이 '소수 인원'을 추가 파견한다는 발표만 확인. 8월 증파 전력은 이미 상주 중이라 새 집결로 보기 어려움"
     },
     {
       "h": "m_civil_defense",
-      "status": "unknown",
-      "what": "미검증 단서: 9/22~23 이스라엘 북부 휴교·집회 제한, 이후 중부로 확대"
+      "status": "yes",
+      "first": "2024-09-24",
+      "lead": 7,
+      "public_then": true,
+      "what": "9/24 이스라엘 북부 주민 100만 명이 대피소로 이동, 후방사령부가 하이파 포함 북부 전역 활동 제한(헤즈볼라 대비)",
+      "source": "https://en.wikipedia.org/wiki/September_2024_Israeli_attacks_against_Lebanon#24_September_in_Israel",
+      "confidence": "med"
     },
     {
       "h": "m_airspace",
       "status": "unknown",
-      "what": "미검증 단서: 8월부터 일부 항공사 중단 지속; 9/17 이후 텔아비브·베이루트 운항 중단이 다시 확대"
+      "what": "9/23 이집트항공·요르단 등이 베이루트 운항을 중단했으나 이스라엘·이란 영공 조치는 개시 전 것을 확인 못함"
     },
     {
       "h": "m_gps_ew",
@@ -100,38 +125,53 @@
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "미검증 단서: 9/17 호출기 폭발, 9/23 레바논 대규모 공습, 9/27 나스랄라 피살로 교전 급증(이스라엘–헤즈볼라 전선)"
+      "status": "yes",
+      "first": "2024-09-19",
+      "lead": 12,
+      "public_then": true,
+      "what": "9/19 이스라엘이 개전 뒤 최대 공습, 9/23 하루 1,600회 타격 — 이란의 동맹 헤즈볼라 전선의 급증(이란 본토 교전은 아님)",
+      "source": "https://en.wikipedia.org/wiki/Hezbollah%E2%80%93Israel_conflict_(2023%E2%80%93present)#September_attacks",
+      "confidence": "med"
     },
     {
       "h": "m_alert_level",
-      "status": "unknown",
-      "what": "미검증 단서: 이스라엘 정부가 9/23 전국 '후방 특별상황' 선포"
+      "status": "yes",
+      "first": "2024-09-23",
+      "lead": 8,
+      "public_then": true,
+      "what": "이스라엘 정부가 9/30까지 전국 비상사태 선포(9/23 공습 개시와 함께)",
+      "source": "https://en.wikipedia.org/wiki/September_2024_Israeli_attacks_against_Lebanon#Israel",
+      "confidence": "med"
     },
     {
       "h": "m_leadership",
-      "status": "unknown",
-      "what": "미검증 단서: 9/28 하메네이가 안전한 장소로 옮겨졌다는 로이터 보도"
+      "status": "yes",
+      "first": "2024-09-28",
+      "lead": 3,
+      "public_then": true,
+      "what": "9/27 하메네이가 자택에서 최고국가안보회의 긴급 소집, 안전한 장소로 옮겼다는 로이터 보도(9/28)",
+      "source": "https://en.wikipedia.org/wiki/2024_Hezbollah_headquarters_strike#Iran",
+      "confidence": "med"
     },
     {
       "h": "f_fx",
       "status": "unknown",
-      "what": "미검증 단서: 9월 말 셰켈은 오히려 강세였던 것으로 기억(맞다면 no)"
+      "what": "찾지 못함(셰켈 강세 기억은 미검증)"
     },
     {
       "h": "f_equity",
       "status": "unknown",
-      "what": "미검증 단서: 9월 말 텔아비브 증시는 사상 최고권이었던 것으로 기억(맞다면 no)"
+      "what": "찾지 못함(증시 최고권 기억은 미검증)"
     },
     {
       "h": "f_sovereign",
       "status": "unknown",
-      "what": "미검증 단서: 9/27 무디스가 이스라엘 신용등급을 두 단계 강등"
+      "what": "미검증 단서: 9/27 무디스의 이스라엘 신용등급 강등"
     },
     {
       "h": "f_safe_haven",
       "status": "unknown",
-      "what": "미검증 단서: 유가는 9월 내내 약세였고 10/1 당일에야 급등한 것으로 기억(맞다면 no)"
+      "what": "찾지 못함(유가가 10/1 당일에야 급등했다는 기억은 미검증)"
     },
     {
       "h": "f_prediction",
@@ -145,23 +185,33 @@
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 하메네이 9/28 '나스랄라의 피는 복수 없이 끝나지 않는다' 성명"
+      "status": "yes",
+      "first": "2024-09-28",
+      "lead": 3,
+      "public_then": true,
+      "what": "하메네이가 9/28 성명에서 5일 애도를 선포하고 이스라엘이 '궤멸적 타격'을 맞을 것이라고 경고",
+      "source": "https://edition.cnn.com/world/live-news/israel-lebanon-war-hezbollah-09-28-24",
+      "confidence": "high"
     },
     {
       "h": "i_pretext",
-      "status": "unknown",
-      "what": "미검증 단서: 조작된 명분이 아니라 실제 피살 사건(t_trigger)에 근거 — 맞다면 no"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "조작된 명분이 아니라 실제 피살 사건(하니예·나스랄라·닐포루샨)에 대한 보복이라고 밝힘",
+      "source": "https://en.wikipedia.org/wiki/October_2024_Iranian_strikes_on_Israel",
+      "confidence": "low"
     },
     {
       "h": "i_state_mobilization",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "5일 국가 애도와 추모 집회는 있었으나 전시 동원 서사로 볼 근거는 찾지 못함"
     },
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미검증 단서: 9/17~28 중동 전면전 우려 보도 급증(출처 확인 못함)"
+      "what": "보도량을 잰 출처는 찾지 못함"
     },
     {
       "h": "i_public_anxiety",
@@ -170,15 +220,25 @@
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "의뢰서 기준: 9/27 나스랄라(및 혁명수비대 장성) 피살, 이란 보복 다짐 — 출처 URL을 확인하지 못해 unknown"
+      "status": "yes",
+      "first": "2024-09-28",
+      "lead": 3,
+      "public_then": true,
+      "what": "9/27 베이루트 공습으로 나스랄라와 혁명수비대 닐포루샨 준장 피살(9/28 확인), 하메네이가 보복 경고",
+      "source": "https://en.wikipedia.org/wiki/2024_Hezbollah_headquarters_strike",
+      "confidence": "high"
     },
     {
       "h": "t_deadline",
-      "status": "unknown",
-      "what": "미검증 단서: 명시적 시한은 없었던 것으로 기억(맞다면 no)"
+      "status": "no",
+      "first": null,
+      "lead": null,
+      "public_then": null,
+      "what": "명시적 시한은 없었음 — 9/29까지 이란 지도부가 대응 여부를 두고 논쟁 중이라는 보도",
+      "source": "https://en.wikipedia.org/wiki/2024_Hezbollah_headquarters_strike#Iran",
+      "confidence": "low"
     }
   ],
-  "missed": "미검증 단서(재조사용): 미국의 '임박' 공개 경고가 개시 당일 몇 시간 전에야 나왔다는 점(4월보다 예고가 훨씬 짧음), 이란이 8월의 자제가 휴전 약속 때문이었다고 9월 말 공개 불만을 표시한 점.",
+  "missed": "8월에 보복을 예고하고 실행하지 않은 뒤 두 번째 계기 사건(9/27)이 겹치자 나흘 만에 실행됐다 — '미뤄 둔 보복 + 새 계기'의 누적은 코드북에 없다. 9/29 이란 지도부 내 강경·온건 논쟁 보도, 개시 몇 시간 전 아랍국 통보, 같은 날 새벽 이스라엘의 레바논 지상 침공 발표도 눈에 띄는 직전 신호였다.",
   "retrieved": "2026-11-11"
 }

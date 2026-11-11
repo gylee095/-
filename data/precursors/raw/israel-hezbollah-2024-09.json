@@ -11,17 +11,22 @@
   "target": "헤즈볼라(레바논)",
   "kind": "state_vs_nonstate",
   "surprise": false,
-  "summary": "9/17~18 호출기·무전기 폭발에 이어 9/23 이스라엘이 레바논 전역을 대규모 공습하며('북쪽 화살') 헤즈볼라와의 전쟁으로 넘어갔다 — 개시일과 경과는 의뢰서 기준이며 이번 조사에서 따로 출처 확인을 못 했다. 출처로 확인한 것은 창 안의 미국 전력 증파(8/2~3) 하나뿐이다. 웹 검색 한도가 소진돼 나머지 가설은 검증하지 못하고 unknown 으로 두었다 — what 의 '미검증 단서'는 재조사용 메모이며 근거가 아니다.",
+  "summary": "9/23 이스라엘이 '북쪽의 화살' 작전으로 레바논 전역을 대규모 공습해 하루 558명이 숨졌고(위키백과로 개시일 확인), 10/1 지상 침공으로 이어졌다. 전조는 두 겹이었다: 7/27 마즈달 샴스 공격 뒤 출국 권고·항공 중단·미 전력 증파·8/25 대규모 교전이 먼저 왔고, 개시 일주일 전에는 중재 종료(9/16)·전쟁 목표 추가(9/17)·호출기 폭발(9/17~18)·'무게중심 북쪽 이동' 선언(9/18)·최대 공습(9/19)이 몰렸다. 돈·동원·대사관 철수는 출처를 찾지 못했다.",
   "signals": [
     {
       "h": "g_evac_order",
       "status": "unknown",
-      "what": "미검증 단서: 영국 8/3 베이루트 대사관 가족 철수, 스웨덴 대사관 임시 폐쇄; 미국의 철수 명령은 개시 뒤 9/28"
+      "what": "영국의 베이루트 대사관 가족 철수는 위키백과에 날짜 없이 적혀 있어 확정 못함. 미국의 출국 명령은 개시 뒤 9/28"
     },
     {
       "h": "g_leave_now",
-      "status": "unknown",
-      "what": "미검증 단서: 6월 말 독일·캐나다 등 '레바논 출국' 권고, 미국 7/31 레바논 4단계·8/3 '아무 표나 구해 출국'"
+      "status": "yes",
+      "first": "2024-07-29",
+      "lead": 56,
+      "public_then": true,
+      "what": "7/29 독일·노르웨이가 레바논 출국 권고, 미국·덴마크는 여행 금지 재확인. 8/5까지 미·영·프·일·사우디 등 즉시 출국 권고",
+      "source": "https://en.wikipedia.org/wiki/Majdal_Shams_attack#29_July",
+      "confidence": "med"
     },
     {
       "h": "g_staff_restrict",
@@ -41,22 +46,37 @@
     {
       "h": "g_intel_warning",
       "status": "unknown",
-      "what": "미검증 단서: 갈란트 9/16 '남은 길은 군사행동뿐', 9/18 '전쟁의 새 국면, 무게중심이 북으로'"
+      "what": "8/4 블링컨의 경고는 이란·헤즈볼라의 대이스라엘 공격에 관한 것. 이스라엘의 대공습을 예고한 제3국 경고는 찾지 못함"
     },
     {
       "h": "g_ultimatum",
-      "status": "unknown",
-      "what": "미검증 단서: 이스라엘 안보내각이 9/17 '북부 주민 귀환'을 공식 전쟁 목표에 추가"
+      "status": "yes",
+      "first": "2024-09-17",
+      "lead": 6,
+      "public_then": true,
+      "what": "이스라엘 안보내각이 9/16 밤 '북부 주민의 안전한 귀환'을 공식 전쟁 목표에 추가(9/17 발표) — 무력 승인으로 본 것은 해석",
+      "source": "https://www.bbc.com/news/articles/cd7xnelvpepo",
+      "confidence": "low"
     },
     {
       "h": "g_talks_collapse",
-      "status": "unknown",
-      "what": "미검증 단서: 미 특사 호크스타인의 중재가 9/16 방문에서 성과 없이 끝나고 이스라엘이 '외교 시한 소진' 언급"
+      "status": "yes",
+      "first": "2024-09-16",
+      "lead": 7,
+      "public_then": true,
+      "what": "9/16 갈란트가 미 특사 호크스타인에게 북부 주민 귀환의 유일한 길은 '군사행동'이라고 통보 — 미·프 중재 성과 없이 종료",
+      "source": "https://www.bbc.com/news/articles/cd7xnelvpepo",
+      "confidence": "med"
     },
     {
       "h": "m_buildup",
-      "status": "unknown",
-      "what": "미검증 단서: 이스라엘군이 98사단을 가자에서 북부로 이동(9/18 보도)"
+      "status": "yes",
+      "first": "2024-09-18",
+      "lead": 5,
+      "public_then": true,
+      "what": "9/18 갈란트: '전쟁의 새 국면, 병력과 자원을 돌려 무게중심이 북쪽으로 이동' — 정부 발표이고 위성 확인은 아님",
+      "source": "https://www.bbc.com/news/articles/cz04m913m49o",
+      "confidence": "med"
     },
     {
       "h": "m_logistics",
@@ -66,7 +86,7 @@
     {
       "h": "m_mobilization",
       "status": "unknown",
-      "what": "미검증 단서: 북부용 예비군 여단 소집은 개시 뒤인 9/25로 기억(맞다면 no)"
+      "what": "북부용 예비군 여단 소집은 개시 뒤 9/25로 기억하나 출처 확인 못함"
     },
     {
       "h": "m_exercise_cover",
@@ -85,18 +105,33 @@
     },
     {
       "h": "m_civil_defense",
-      "status": "unknown",
-      "what": "미검증 단서: 9/22 이스라엘 북부 휴교·집회 제한, 하이파 병원 지하 이전"
+      "status": "yes",
+      "first": "2024-08-25",
+      "lead": 29,
+      "public_then": true,
+      "what": "8/25 이스라엘 후방사령부가 텔아비브까지 집회·교육 제한, 북부 대피소 개방. 9/17 호출기 폭발 직후에는 지침 변경 없었음",
+      "source": "https://www.jpost.com/israel-hamas-war/article-816158",
+      "confidence": "med"
     },
     {
       "h": "m_airspace",
-      "status": "unknown",
-      "what": "미검증 단서: 7/29 무렵부터 루프트한자·에어프랑스 등이 베이루트 운항 중단"
+      "status": "yes",
+      "first": "2024-07-29",
+      "lead": 56,
+      "public_then": true,
+      "what": "7/29 에어프랑스·루프트한자·스위스항공이 베이루트 운항 중단, 보험 문제도 겹침. 8/25 벤구리온 공항 일시 폐쇄",
+      "source": "https://en.wikipedia.org/wiki/Majdal_Shams_attack#29_July",
+      "confidence": "med"
     },
     {
       "h": "m_gps_ew",
-      "status": "unknown",
-      "what": "GPS 교란은 2023-10부터 상시 배경. 창 안의 변화는 찾지 못함"
+      "status": "yes",
+      "first": "2024-08-04",
+      "lead": 50,
+      "public_then": true,
+      "what": "8/4 이스라엘군의 GPS 교란이 북부(상시)에서 텔아비브·중부로 확대 보고 — 이란·헤즈볼라 보복 대비용",
+      "source": "https://www.haaretz.com/israel-news/2024-08-04/ty-article/.premium/gps-jamming-reported-in-tel-aviv-and-central-israel-echoing-eve-of-aprils-iran-attack/00000191-1d01-d534-a9f9-7d09a4400000",
+      "confidence": "low"
     },
     {
       "h": "m_cyber",
@@ -105,13 +140,23 @@
     },
     {
       "h": "m_border_fire",
-      "status": "unknown",
-      "what": "미검증 단서: 7/27 마즈달 샴스 12명 사망, 7/30 슈크르 피살, 8/25 대규모 교전, 9/17~22 급증"
+      "status": "yes",
+      "first": "2024-08-25",
+      "lead": 29,
+      "public_then": true,
+      "what": "8/25 이스라엘 전투기 100대 선제 공습·헤즈볼라 로켓 320발, 9/19 개전 뒤 최대 공습, 9/20 베이루트 공습으로 급증",
+      "source": "https://en.wikipedia.org/wiki/Hezbollah%E2%80%93Israel_conflict_(2023%E2%80%93present)#Further_airstrikes_(July_%E2%80%93_September_2024)",
+      "confidence": "high"
     },
     {
       "h": "m_alert_level",
-      "status": "unknown",
-      "what": "미검증 단서: 8/25 이스라엘 국방장관이 48시간 전국 '후방 특별상황' 선포"
+      "status": "yes",
+      "first": "2024-08-25",
+      "lead": 29,
+      "public_then": true,
+      "what": "8/25 갈란트 국방장관이 48시간 비상사태 선포. 전국 비상사태는 개시 당일 9/23",
+      "source": "https://en.wikipedia.org/wiki/Killing_of_Fuad_Shukr#Hezbollah_revenge_attack",
+      "confidence": "med"
     },
     {
       "h": "m_leadership",
@@ -150,13 +195,18 @@
     },
     {
       "h": "i_leader_threat",
-      "status": "unknown",
-      "what": "미검증 단서: 네타냐후 7/28 '헤즈볼라는 무거운 대가를 치를 것', 9/22 '메시지를 못 알아들었다면 알게 될 것'"
+      "status": "yes",
+      "first": "2024-07-28",
+      "lead": 57,
+      "public_then": true,
+      "what": "네타냐후: 마즈달 샴스 공격 뒤 헤즈볼라는 '지금까지 치르지 않은 무거운 대가를 치를 것'(7/27~28)",
+      "source": "https://en.wikipedia.org/wiki/Majdal_Shams_attack#Israel",
+      "confidence": "med"
     },
     {
       "h": "i_pretext",
       "status": "unknown",
-      "what": "찾지 못함"
+      "what": "헤즈볼라의 '10·7식 침공 계획' 발표는 개시 뒤 10/1. 창 안의 명분 만들기는 찾지 못함"
     },
     {
       "h": "i_state_mobilization",
@@ -166,24 +216,29 @@
     {
       "h": "i_news_surge",
       "status": "unknown",
-      "what": "미검증 단서: 7/27 이후와 9/17 이후 전면전 우려 보도 급증(출처 확인 못함)"
+      "what": "보도량을 잰 출처는 찾지 못함"
     },
     {
       "h": "i_public_anxiety",
       "status": "unknown",
-      "what": "미검증 단서: 8월 초 레바논 출국편 매진·사재기"
+      "what": "7/30·9/17 베이루트의 혼란 보도는 있으나 사재기·피란 문의 급증은 확인 못함"
     },
     {
       "h": "t_trigger",
-      "status": "unknown",
-      "what": "미검증 단서: 7/27 마즈달 샴스 로켓 공격(어린이 등 12명 사망)과 이스라엘의 보복 다짐"
+      "status": "yes",
+      "first": "2024-07-27",
+      "lead": 58,
+      "public_then": true,
+      "what": "7/27 마즈달 샴스 축구장 로켓 공격으로 어린이 등 12명 사망, 이스라엘이 헤즈볼라에 보복 다짐(7/30 슈크르 제거)",
+      "source": "https://en.wikipedia.org/wiki/Majdal_Shams_attack",
+      "confidence": "high"
     },
     {
       "h": "t_deadline",
       "status": "unknown",
-      "what": "미검증 단서: 명시적 시한은 없었던 것으로 기억(맞다면 no)"
+      "what": "명시적 시한은 찾지 못함"
     }
   ],
-  "missed": "미검증 단서(재조사용): 9/17~18 호출기·무전기 동시 폭발 — 공격 6일 전의 지휘통신 마비 공작으로 코드북의 m_cyber·m_border_fire 어디에도 딱 맞지 않는다('개전 직전 지휘통신 무력화'). 9/20 헤즈볼라 라드완 부대 지휘부 제거도 같은 계열.",
+  "missed": "9/17~18 호출기·무전기 동시 폭발(헤즈볼라 대원 약 1,500명 전투 불능)과 9/20 라드완 부대 지휘부 제거 — '개전 직전 지휘통신·지휘부 무력화'는 코드북의 m_cyber·m_border_fire 어디에도 딱 맞지 않는다. 9/15 남부 레바논에 뿌려진 이스라엘군 소개 전단(군은 미승인이라고 해명)과 개시 직전 레바논 주민에게 간 대피 전화·문자도 눈에 띄는 직전 신호였다.",
   "retrieved": "2026-11-11"
 }

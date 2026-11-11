@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "note": "위기 지수 채점표 (초안 2026-11-11). 점수는 판단값이다 — 사례 채점으로는 가중치를 정하지 못했다(docs/PRECURSORS.md). 대신 항목과 점수를 공개하고, 과거 한반도의 날들을 같은 표로 매겨 상식에 맞는지 확인한다.",
+  "zero": "모든 항목이 꺼진 상태 = 0점. 기준 시점: 2018년 가을(평양 정상회담·9·19 군사합의 직후).",
+  "phases": { "2": 20, "3": 35, "4": 60 },
+  "base": {
+    "label": "바탕 (오래 이어지는 구조적 긴장)", "max": 30,
+    "items": [
+      { "id": "s_talks", "pts": 5, "ko": "남북·북미 대화 채널이 모두 끊김" },
+      { "id": "s_agreement", "pts": 5, "ko": "충돌 방지 합의(9·19 군사합의·정전협정)가 파기·효력 정지" },
+      { "id": "s_doctrine", "pts": 5, "ko": "북한이 한국을 '적대국'으로 규정하거나 핵 선제사용을 법·헌법에 명시" },
+      { "id": "s_friction", "pts": 5, "ko": "접경의 상시 마찰 (확성기·전단·풍선·도로 폭파·GPS 교란이 몇 달째)" },
+      { "id": "s_tests", "pts": 5, "ko": "최근 12개월 안에 핵실험 또는 ICBM급 발사" },
+      { "id": "s_casualty", "pts": 5, "ko": "최근 5년 안에 사상자가 난 남북 무력 충돌" }
+    ]
+  },
+  "clusters": [
+    { "id": "G", "label": "정부·외교", "max": 25, "items": { "g_evac_order": 10, "g_leave_now": 8, "g_attacker_evac": 8, "g_regional_drawdown": 6, "g_intel_warning": 6, "g_staff_restrict": 4, "g_ultimatum": 4, "g_talks_collapse": 3 } },
+    { "id": "M", "label": "군사 준비", "max": 20, "items": { "m_logistics": 8, "m_mobilization": 7, "m_buildup": 7, "m_civil_defense": 4, "m_airspace": 4, "m_border_fire": 4, "m_exercise_cover": 3, "m_alert_level": 3, "m_strategic_assets": 2, "m_gps_ew": 2, "m_cyber": 2, "m_leadership": 2 } },
+    { "id": "T", "label": "계기", "max": 10, "items": { "t_trigger": 7, "t_major_test": 5, "t_deadline": 4, "t_provocation": 2 } },
+    { "id": "I", "label": "말·여론", "max": 8, "items": { "i_state_mobilization": 3, "i_leader_threat": 2, "i_pretext": 2, "i_news_surge": 1, "i_public_anxiety": 1 } },
+    { "id": "F", "label": "돈", "max": 7, "items": { "f_capital_flight": 3, "f_sovereign": 2, "f_fx": 2, "f_equity": 1, "f_prediction": 1, "f_safe_haven": 1 } }
+  ],
+  "rules": [
+    "약한(미확인·보도만) 신호는 절반 점수",
+    "위기(35점 이상)는 '지금의 변화'가 서로 다른 묶음 둘 이상에서 켜져야 한다 — 아니면 34점까지",
+    "임박(60점 이상)은 행동 신호(철수 명령·즉시 출국 권고·역내 감축·공격 측 철수·병참·동원·병력 집결)가 둘 이상 확인돼야 한다 — 아니면 59점까지",
+    "교전이 벌어지면 100점(5단계)"
+  ],
+  "extra_items": { "t_major_test": "최근 30일 안에 핵실험 또는 ICBM급 발사", "t_provocation": "최근 7일 안에 미사일 발사 등 도발" }
+}

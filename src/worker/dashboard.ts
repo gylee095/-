@@ -472,14 +472,14 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   if(unkS)h+='<div style="font-size:12.5px;color:var(--mute)">점선 '+unkS+'칸은 아직 확인하지 못한 징조예요 (분석관이 하루 두 번 확인).</div>';
   // 과거와 나란히 (11/12 사용자: 과거 기록이 따로 떨어져 있어 헷갈린다 — 그 목록 안에서 지금이 어디인지 바로 보이게)
   var an=(p.anchors||[]).slice(),OUT={W:"전쟁",N:"전쟁 안 남",K:"국지 충돌"};
-  var pc=function(a){return Math.round((a.signs+a.moves+a.context)/39*100)};
-  var rows=an.map(function(a){return {name:a.name,pct:pc(a),signs:a.signs,tag:OUT[a.cls]||"",now:false}});
-  rows.push({name:"지금 한반도",pct:PCT,signs:R.signs,tag:"",now:true});
-  rows.sort(function(x,y){return y.pct-x.pct||(x.now?-1:y.now?1:0)});
-  h+='<div style="font-size:13px;font-weight:700;margin-top:16px">과거와 나란히 놓으면 <span style="font-weight:400;color:var(--mute)">· 같은 39개로 센 것</span></div><div style="margin-top:6px">';
+  // 과거와 견주는 잣대는 '전쟁 전 징조 9개'만 쓴다 (11/12 사용자 지적): 39개 비율로 놓으면 징조 0개인 지금이 징조 3개였던 1994년 핵위기보다 위로 간다 —
+  // 과거 시점의 배경·움직임은 손으로 적었거나 조사에서 못 찾아 꺼진 것으로 들어가 있어 공평하지 않다. 징조 9개는 사례마다 조사한 것이다.
+  var rows=an.map(function(a){return {name:a.name,signs:a.signs,tag:OUT[a.cls]||"",now:false}});
+  rows.push({name:"지금 한반도",signs:R.signs,tag:unkS?"미확인 "+unkS:"",now:true});
+  rows.sort(function(x,y){return y.signs-x.signs||(x.now?-1:y.now?1:0)});
+  h+='<div style="font-size:13px;font-weight:700;margin-top:16px">과거와 나란히 놓으면 <span style="font-weight:400;color:var(--mute)">· 전쟁 전 징조 9개 중 몇 개였나</span></div><div style="margin-top:6px">';
   h+=rows.map(function(r){var c=r.now?col:'var(--mute)';
-    return '<div style="display:grid;grid-template-columns:1fr 58px 70px 36px;gap:8px;align-items:center;padding:'+(r.now?'7px 8px':'4px 8px')+';border-radius:8px;'+(r.now?'background:var(--chip);outline:1.5px solid '+col:'')+'"><span style="font-size:'+(r.now?'14.5px;font-weight:800':'13px')+';min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:'+(r.now?'var(--fg)':'var(--mute)')+'">'+esc(r.name)+'</span><span style="font-size:11.5px;color:'+(r.tag==="전쟁"?'var(--l4)':'var(--mute)')+';white-space:nowrap">'+esc(r.tag)+'</span><span style="height:7px;border-radius:4px;background:var(--line);overflow:hidden"><i style="display:block;height:100%;border-radius:4px;width:'+r.pct+'%;background:'+c+'"></i></span><b style="font-size:'+(r.now?'15px':'13px')+';text-align:right;color:'+(r.now?col:'var(--mute)')+'">'+r.pct+'%</b></div>'}).join("")+'</div>';
-  h+='<div style="font-size:12px;color:var(--mute);margin-top:4px">%는 39개 항목 중 켜진 비율이에요. 전쟁이 날 확률이 아니에요.</div>';
+    return '<div style="display:grid;grid-template-columns:1fr 58px 78px 16px;gap:8px;align-items:center;padding:'+(r.now?'7px 8px':'4px 8px')+';border-radius:8px;'+(r.now?'background:var(--chip);outline:1.5px solid '+col:'')+'"><span style="font-size:'+(r.now?'14.5px;font-weight:800':'13px')+';min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:'+(r.now?'var(--fg)':'var(--mute)')+'">'+esc(r.name)+'</span><span style="font-size:11.5px;color:'+(r.tag==="전쟁"?'var(--l4)':'var(--mute)')+';white-space:nowrap">'+esc(r.tag)+'</span><span style="display:flex;gap:2px">'+[1,2,3,4,5,6,7,8,9].map(function(i){return '<i style="flex:1;height:7px;border-radius:2px;background:'+(r.signs>=i?c:r.signs>=i-.5?'linear-gradient(90deg,'+c+' 50%,var(--line) 50%)':'var(--line)')+'"></i>'}).join("")+'</span><b style="font-size:'+(r.now?'15px':'13px')+';text-align:right;color:'+(r.now?col:'var(--mute)')+'">'+num(r.signs)+'</b></div>'}).join("")+'</div>';
   h+='<div style="font-size:16px;font-weight:700;margin-top:12px;line-height:1.45">'+esc(R.reason)+'</div>';
   var rec=(p.record||[]).filter(function(b){var n=Math.floor(R.signs);return n>=b.lo&&n<=b.hi})[0];
   if(rec)h+='<div style="font-size:13.5px;color:var(--mute);margin-top:6px">조사한 과거 사례에서 징조가 '+esc(rec.label)+'였던 '+rec.cases+'건 중 <b>'+rec.wars+'건</b>이 전쟁이었어요'+(rec.surprise?' — 모두 징조 없이 온 기습이라, 아래 \'조용한 움직임\'을 따로 봐요':'')+'.</div>';

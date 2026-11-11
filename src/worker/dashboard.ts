@@ -456,6 +456,11 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   h+='<div class="lead">지금 한반도 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
   var tot=R.signs+R.moves+R.context,PCT=Math.round(tot/39*100);
   h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+' '+PCT+'%</b><span>5단계 중</span></div>';
+  // 어제 대비 (11/12 사용자: 어제 몇 %였는데 오늘 몇 % — 그게 없어졌다): 하루 한 줄 기록에서 어제의 가장 높았던 값과 견준다
+  var d1=p.vs?p.vs.d1:undefined;
+  if(d1!==undefined&&d1!==null){var yv=PCT-d1;
+    h+='<div style="font-size:15px;font-weight:700;margin-top:4px;color:'+(d1>0?'var(--l4)':d1<0?'var(--ok,#34c759)':'var(--fg)')+'">어제 '+yv+'% → 오늘 '+PCT+'% <span style="font-weight:400;color:var(--mute)">'+(d1===0?'같아요':d1>0?'▲ '+d1+'%p 올랐어요':'▼ '+(-d1)+'%p 내렸어요')+'</span></div>'}
+  else h+='<div style="font-size:13px;color:var(--mute);margin-top:4px">어제와의 비교는 기록이 하루 쌓인 뒤(내일)부터 보여요.</div>';
   // 숫자는 실시간 (11/12 사용자: 운영자 대시보드는 계속 바뀌는 게 맞다). 대신 오늘 아침 판정과 견줘 무엇이 달라졌는지 한 줄
   var MG=O&&O.morning;
   if(MG){var df=[["징조",R.signs-MG.signs],["움직임",R.moves-MG.moves],["배경",R.context-MG.context]].filter(function(x){return x[1]!==0}).map(function(x){return x[0]+" "+(x[1]>0?"+":"")+num(x[1])});

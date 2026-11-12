@@ -103,6 +103,14 @@ describe("한반도 적용", () => {
     expect(autoStatus(row([{ site: "동창리", km: 3, frp: 40 }]), [], NOW).a_launch_prep).toMatchObject({ s: "on", w: 0.5 });
     expect(HOTSPOT).toEqual({ km: 5, frp: 5 });
   });
+  it("전략자산 집결: 군용기 수가 평소보다 많은 것만으로는 켜지지 않는다 — 정찰·급유기 5대 이상('이상')일 때만 약하게", () => {
+    const row = (id: string, value: number, state: string) => ({ id, label: id, stateLabel: state === "normal" ? "정상" : "상승", reading: { value, state, at: NOW } });
+    expect(autoStatus([row("air.mil_airborne", 4, "elevated"), row("air.isr_airborne", 0, "normal")] as any, [], NOW).m_strategic_assets.s).toBe("off"); // 11/12 실제 사례
+    expect(autoStatus([row("air.mil_airborne", 9, "anomalous"), row("air.isr_airborne", 3, "elevated")] as any, [], NOW).m_strategic_assets.s).toBe("off");
+    expect(autoStatus([row("air.isr_airborne", 5, "anomalous")] as any, [], NOW).m_strategic_assets).toMatchObject({ s: "on", w: 0.5 });
+    // 분석관이 실제 집결을 확인하면 온전히 켜진다
+    expect(koreaStatus([row("air.isr_airborne", 0, "normal")] as any, [], NOW, parseChecks("m_strategic_assets=1:미 항모 2척 동해 전개", NOW)).m_strategic_assets).toMatchObject({ s: "on", by: "analyst" });
+  });
   it("모르는 id·형식은 버린다", () => {
     expect(Object.keys(parseChecks("x_fake=1 hello g_ultimatum=2 t_deadline=0", NOW).items)).toEqual(["t_deadline"]);
   });

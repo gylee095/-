@@ -88,8 +88,11 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   wired("m_mobilization", "kr_mobilization");
   wired("m_cyber", "cyber_alert");
   wired("m_alert_level", "defcon_up", "watchcon_up", "defense_situation_a", "defense_situation", "nk_war_posture");
-  fromIndicators("m_strategic_assets", ["air.isr_airborne", "air.mil_airborne"]);
-  if (out.m_strategic_assets.s === "on") out.m_strategic_assets.w = 0.5; // 군용기 수만으로는 '전략자산 집결'의 약한 근거
+  // 전략자산 집결 (11/12 사용자: 군용기 4대 떴다고 켜지는 게 맞나 — 아니다): 이 징조는 과거 전쟁에서 항모·폭격기·급유기 편대의 '집결'을 센 것이다.
+  // ADS-B 에 보이는 군용기 수(수송기·연락기 포함)가 평소보다 많은 것은 근거가 못 된다 — 징후판에는 그대로 보이고 판정에는 넣지 않는다.
+  // 자동으로는 정찰·급유기가 한꺼번에 5대 이상('이상' 수준)일 때만 약한 신호로 켜고, 항모 입항·폭격기 전개 같은 실제 집결은 분석관이 보도로 확인한다.
+  if (lvl("air.isr_airborne") === 2) set("m_strategic_assets", "on", 0.5, `정찰·급유기 ${by["air.isr_airborne"]!.reading!.value}대 동시 비행`);
+  else set("m_strategic_assets", ok("air.isr_airborne") ? "off" : "unk");
   fromIndicators("m_civil_defense", ["official.civil_defense_alerts_6h"], wire("nk_border_evacuation"));
   fromIndicators("m_airspace", ["air.civil_airborne"], wire("airlines_suspend", "war_insurance"));
   if (out.m_airspace.s === "on" && !wire("airlines_suspend", "war_insurance")) out.m_airspace.w = 0.5;
@@ -310,6 +313,7 @@ export function parseChecks(text: string, now: number): AnalystChecks {
 
 /** 분석관만 확인할 수 있는 가설의 확인 방법 한 줄 (자동으로는 못 본다) */
 export const ANALYST_GUIDE: Record<string, string> = {
+  m_strategic_assets: "항모 전단 입항·폭격기 전개·급유기 편대 증파가 정례 순환을 넘어 늘었나 (자동은 정찰·급유기 5대 이상만 약하게 본다)",
   g_regional_drawdown: "주일미군 가족·주변국 공관 인력 감축, 평양 주재 공관 철수 권고",
   g_attacker_evac: "북한·중국·러시아가 한국·개성·접경에서 자기 사람을 뺌",
   g_ultimatum: "시한 달린 최후통첩, 무력사용 공식 승인, 단교·대사 소환",

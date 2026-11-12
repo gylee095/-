@@ -185,4 +185,8 @@ export interface Env {
   PAYAPP_LINKKEY?: string;
   PAYAPP_LINKVAL?: string;
   PAYAPP_REQUESTKEY?: string;
+  /** 스레드(Threads) 자동 홍보 게시 — 오래가는 사용자 토큰(비밀). 없으면 올리지 않는다 (threads.ts) */
+  THREADS_ACCESS_TOKEN?: string;
+  /** 하루 최대 스레드 글 수 (기본 3) */
+  THREADS_DAILY_MAX?: string;
 }

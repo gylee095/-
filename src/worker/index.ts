@@ -187,6 +187,12 @@ export default {
       // 1분 주기는 새 속보가 있을 때만 상관분석까지 간다 (나머지는 5분 주기가 매번 전체를 돈다)
       const report = await runAndRecord(env, store, ctrl.scheduledTime, `cron ${ctrl.cron}`, group, ctrl.cron === "* * * * *");
       if (!report || "error" in report) return;
+      // 스레드 자동 홍보: 이번 바퀴에 사건 알림이 나갔으면 공개 글 하나 (threads.ts). 하루 한 번은 토큰을 새로 받아 둔다
+      if (env.THREADS_ACCESS_TOKEN) {
+        const th = await import("../core/threads.js");
+        if (report.alerts.some((x) => x.sent)) await th.maybePostThreads(env, store, report, report.at).catch(() => undefined);
+        if (ctrl.cron === "41 2 * * *") await th.refreshThreadsToken(env, store, report.at).catch(() => undefined);
+      }
       const usage = await finishUsage(store, env, ctrl.scheduledTime);
       // 5분마다: 자동 판정을 기록하고(영구 보관), 특이한 날이면 Claude Code 심층 분석을 깨운다 (저장소 한도에 여유가 있을 때만)
       const tight = !!usage && usage.read > D1_FREE_LIMITS.read * 0.8;
@@ -595,6 +601,13 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     } catch (e) {
       return json({ error: String((e as Error)?.message ?? e) }, 200);
     }
+  }
+  if (url.pathname === "/api/threads" && req.method === "GET") {
+    // 스레드 자동 게시 상태: 최근 올린 글·실패 이유, 그리고 지금 사건이 생기면 나갈 글 네 가지 틀의 견본
+    const th = await import("../core/threads.js");
+    const [offRaw, prevRaw] = await Promise.all([store.getKv(th.OFFICIAL_KEY), store.getKv(th.OFFICIAL_PREV_KEY)]);
+    const facts = { headline: "북한, 탄도미사일 발사 → 동해 (견본)", label: "공식확인", ...th.verdictOf(offRaw ? JSON.parse(offRaw) : undefined, prevRaw ? JSON.parse(prevRaw) : undefined), url: env.PUBLIC_URL ?? url.origin };
+    return json({ ...(await th.threadsStatus(env, store)), samples: th.STYLES.map((style) => ({ style, text: th.threadsText(style, facts) })) });
   }
   if (url.pathname === "/api/ops/test-alert" && req.method === "POST") {
     // 손님용 알림 길 전체를 운영자가 직접 시험한다. 결제한 손님이 둘 이상이면 실제 손님에게도 가므로 막는다 (force 로만)

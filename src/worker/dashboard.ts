@@ -172,7 +172,7 @@ function pushCard(){var s=pushSupport();var code=actCode(),owner=!!tok();var h='
   if(!s.ok&&s.ios&&!s.standalone)h+='아이폰은 <strong>한 단계만 더</strong> 하면 끝나요.<ol style="margin:6px 0 0;padding-left:20px"><li>화면 아래 <b>공유</b> 버튼(네모에 위쪽 화살표)</li><li><b>홈 화면에 추가</b> → 추가</li><li>홈 화면에 생긴 <b>조기경보</b> 아이콘을 열고 <b>알림 켜기</b></li></ol><p style="font-size:12px;color:var(--mute);margin:6px 0 0">애플 규칙상 홈 화면에 추가한 앱만 알림을 받을 수 있어요. 코드는 자동으로 함께 옮겨져요.</p>';
   else if(!s.ok)h+='이 브라우저는 알림을 지원하지 않아요. 크롬(안드로이드)이나 사파리(아이폰, 홈 화면에 추가)에서 열어 주세요.';
   else if(Notification.permission==="denied")h+='알림이 꺼져 있어요. 휴대폰 설정 → 알림에서 이 앱(조기경보)의 알림을 켜 주세요.';
-  else h+='<span id="pushmsg">단계가 바뀌거나 실제 발사·경보가 있을 때만 옵니다. 평소엔 조용해요.</span><div style="margin-top:8px"><button class="btn" id="pushbtn" onclick="enablePush()">알림 켜기</button> <button class="btn" id="pushtest" onclick="testMyPush()" style="display:none">내 휴대폰으로 테스트</button></div>';
+  else h+='<span id="pushmsg">단계가 바뀌거나 실제 징조·발사·경보가 있을 때, 그리고 월요일 아침 주간 요약 때 옵니다.</span><div style="margin-top:8px"><button class="btn" id="pushbtn" onclick="enablePush()">알림 켜기</button> <button class="btn" id="pushtest" onclick="testMyPush()" style="display:none">내 휴대폰으로 테스트</button></div>';
   return h+'</div>'}
 function goPush(){var c=document.getElementById("pushcard");if(c)c.scrollIntoView({behavior:"smooth",block:"center"});return false}
 function b64uToU8(s){var p=s.replace(/-/g,"+").replace(/_/g,"/");p+="=".repeat((4-p.length%4)%4);var b=atob(p),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}

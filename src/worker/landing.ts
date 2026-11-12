@@ -143,7 +143,7 @@ export const LANDING_STORY = String.raw`<section id="hero" data-ch="00 / 전체"
   <div class="card">
     <p class="k hero-fade" style="animation-delay:.2s">KOREA EARLY WARNING</p>
     <h1 id="h1" aria-label="39가지 신호로 보는 한반도 전쟁 위험"></h1>
-    <p class="lead hero-fade" style="animation-delay:1.6s">5분마다 자동으로 판정하고 AI 분석관이 하루 두 번 다시 읽어, 위기 단계가 바뀌면 바로 폰으로 알려 드립니다.</p>
+    <p class="lead hero-fade" style="animation-delay:1.6s">5분마다 자동으로 판정하고 AI 분석관이 하루 두 번 다시 읽어, 위기 단계가 바뀌거나 실제 전쟁 징조가 나타나면 바로 폰으로 알려 드립니다.</p>
     <a class="cta hero-fade" style="animation-delay:1.9s" href="#buy">평생 알림 받기 <small>4,900원 · 1회</small></a>
     <div class="scrollhint hero-fade" style="animation-delay:2.4s"><i></i>어떤 신호를 보는지 — 아래로</div>
     <a class="already hero-fade" style="animation-delay:2.4s" href="/me">이미 결제했어요 · 알림함 →</a>
@@ -212,13 +212,14 @@ export const LANDING_STORY = String.raw`<section id="hero" data-ch="00 / 전체"
 <section data-ch="05 / 판정">
   <div class="band"></div>
   <div class="card reveal">
-    <p class="k">39 SIGNALS → 5 PHASES</p>
-    <h2>39가지 신호를<br>5단계로 판정합니다</h2>
+    <p class="k">42 WARS &amp; CRISES → 5 PHASES</p>
+    <h2>실제 전쟁 전에 나타난<br>징조가 몇 개 켜졌나</h2>
     <div class="ladder" aria-label="평온, 긴장, 위기, 임박, 교전">
-      <div>평온<small>1</small></div><div>긴장<small>2</small></div><div class="r">위기<small>3</small></div><div class="r">임박<small>4</small></div><div class="r">교전<small>5</small></div>
+      <div>평온<small>0~9%</small></div><div>긴장<small>10~24%</small></div><div class="r">위기<small>25~49%</small></div><div class="r">임박<small>50%~</small></div><div class="r">교전<small>실제 교전</small></div>
     </div>
-    <p class="lead">5분마다 자동으로 계산하고, <b>AI 분석관이 하루 두 번</b> 다시 읽습니다. 특이한 날에는 따로 깊게 조사합니다.</p>
-    <p class="note">북한의 말이나 기사만으로는 '위기'가 되지 않습니다. 정부나 시장이 함께 움직이거나 실제 사건이 있어야 단계가 오릅니다.</p>
+    <p class="lead">우크라이나·이란·걸프전 등 <b>실제 전쟁과 위기 42건</b>을 조사해, 전쟁 전에 공통으로 나타난 <b>징조 9개</b>를 골랐습니다. 여기에 사람·돈·군의 <b>조용한 움직임 18개</b>와 <b>불안한 배경 12개</b>를 더해, 39개 중 몇 개가 켜졌는지를 %로 보여 드립니다.</p>
+    <p class="lead">5분마다 자동으로 계산하고, <b>AI 분석관이 하루 두 번</b> 뉴스를 읽어 확인합니다.</p>
+    <p class="note">조사한 사례에서 징조가 5개 이상 켜졌던 17건 중 13건이 전쟁으로 갔습니다. %는 켜진 비율이며 전쟁이 날 확률은 아닙니다.</p>
   </div>
 </section>
 
@@ -229,7 +230,7 @@ export const LANDING_STORY = String.raw`<section id="hero" data-ch="00 / 전체"
       <div class="date">11월 5일 수요일</div><div class="clock">22:14</div>
       <div class="noti"><div class="h"><b><i></i>조기경보</b><span>지금</span></div>
         <div class="t"><em>⬆ 나빠짐</em>: 2단계 긴장 → 3단계 위기</div>
-        <div class="d">앞으로 30일 안 국지 충돌 가능성이 평소의 몇 배인지, 무엇이 바뀌었는지 함께 옵니다.</div></div>
+        <div class="d">지금 몇 %인지, 전쟁 전 징조가 9개 중 몇 개 켜졌는지, 무엇이 바뀌었는지 함께 옵니다.</div></div>
       <div class="ex">EXAMPLE · 예시 화면</div>
     </div>
     <p class="k">ALERT</p>

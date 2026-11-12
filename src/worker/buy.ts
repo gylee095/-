@@ -76,7 +76,7 @@ export function buyPage(payappUserid: string | undefined, origin: string): strin
   const ready = !!payappUserid;
   return String.raw`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>39가지 신호로 보는 한반도 전쟁 위험 — 한반도 조기경보</title>
-<meta name="description" content="공개 신호 39가지를 5분마다 판정하고, 한반도 위기 단계가 바뀌면 바로 폰으로 알려 드립니다. 4,900원 한 번 결제로 평생.">
+<meta name="description" content="공개 신호 39가지를 5분마다 판정하고, 실제 전쟁 전에 나타났던 징조가 켜지거나 위기 단계가 바뀌면 바로 폰으로 알려 드립니다. 4,900원 한 번 결제로 평생.">
 <meta property="og:type" content="website"><meta property="og:title" content="39가지 신호로 보는 한반도 전쟁 위험">
 <meta property="og:description" content="위기 단계가 바뀌는 순간 폰으로 알림. 4,900원 한 번 결제로 평생.">
 <meta property="og:url" content="${esc(origin)}/"><meta property="og:image" content="${esc(origin)}/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -97,7 +97,7 @@ ${LANDING_STORY}
     <ul class="checks">
       <li>구독이 아닙니다. 한 번 결제로 계속 받습니다.</li>
       <li>결제하면 그 시점의 판정 리포트를 바로 받습니다.</li>
-      <li>단계가 오를 때도, 내려갈 때도 알림과 리포트가 옵니다.</li>
+      <li>단계가 오를 때도, 내려갈 때도, 실제 징조가 나타날 때도 알림과 리포트가 옵니다. 변화가 없는 주에는 월요일 아침 요약 한 번.</li>
       <li>앱스토어 설치 없이 폰 알림으로. 가족 폰까지 3대.</li>
     </ul>
 ${ready
@@ -119,8 +119,9 @@ ${ready
 </ol>
 <h3>알아 두세요</h3>
 <ul>
-<li>한 가지 징후만으로는 단계를 올리지 않습니다. 정부나 시장이 함께 움직이거나 실제 사건이 있어야 '위기'가 됩니다.</li>
-<li>확률은 1999년 이후 실제 충돌 기록을 바탕으로 한 판단값이며, 통계 예측이 아닙니다.</li>
+<li>단계는 지켜보는 39개 항목(전쟁 전 징조 9 · 조용한 움직임 18 · 불안한 배경 12) 중 켜진 비율로 정합니다: 평온 0~9% · 긴장 10~24% · 위기 25~49% · 임박 50% 이상 · 교전은 실제 교전 보도.</li>
+<li>공개 징조 없이 오는 기습은 미리 알 수 없습니다. 그래서 사람·돈·군의 움직임을 따로 재지만, 이 방법으로 기습을 잡을 수 있는지는 아직 검증되지 않았습니다.</li>
+<li>%는 켜진 항목의 비율이며 전쟁이 날 확률이 아닙니다. 함께 적히는 30일 충돌 가능성은 판단값이고 통계 예측이 아닙니다.</li>
 <li>위 화면의 발사·어선·레이더 장면은 무엇을 보는지 설명하는 연출이며, 지금 상황이 아닙니다.</li>
 </ul>
 <p class="fine">공개 정보만 사용합니다. 공식 안보 정보가 아니니 대피 등 행동은 정부 재난문자와 국민재난안전포털을 따르세요. · <a href="/terms">이용약관·환불</a> · <a href="/me">알림함</a></p>

@@ -1,7 +1,7 @@
 // 알림은 전쟁 위험 단계가 실제로 바뀌었을 때만 (2026-11-03)
 // 10/31~11/3 휴대폰으로 간 다섯 번은 모두 심층 분석 보고서였고 결론이 같았다('2단계·국지 충돌 4~5%').
 import { RUBRIC_VERSION } from "../src/core/rubric.js";
-import { digestDue, digestMessage, realSigns } from "../src/core/phasealert.js";
+import { DIGEST_ON, digestDue, digestMessage, realSigns } from "../src/core/phasealert.js";
 import { describe, expect, it } from "vitest";
 import { decidePhaseAlert, notifyPhaseChange, PHASE_STATE_KEY, DOWN_HOLD_MS, PHASE_ALERTS_PER_DAY, type PhaseNotifyState } from "../src/core/phasealert.js";
 import { deepPushDecision } from "../src/core/deep.js";
@@ -98,12 +98,14 @@ describe("단계 알림 판단", () => {
     const late = decidePhaseAlert(decidePhaseAlert(st, moves, NOW + 65 * MIN).state, moves, NOW + 13 * 60 * MIN);
     expect(late.message?.body).toMatch(/기습 주의/);
   });
-  it("주간 요약: 월요일 오전 9시(한국 시간) 이후 한 번, 같은 주에는 다시 보내지 않는다", () => {
+  it("주간 요약은 꺼져 있다 (11/12). 켜면: 월요일 오전 9시(한국 시간) 이후 한 번, 같은 주에는 다시 보내지 않는다", () => {
+    expect(DIGEST_ON).toBe(false);
+    expect(digestDue({ phase: 2, at: NOW }, Date.parse("2026-11-16T00:05:00Z"))).toBeUndefined();
     const mon9 = Date.parse("2026-11-16T00:05:00Z"); // 월요일 09:05 KST
-    expect(digestDue({ phase: 2, at: NOW }, mon9)).toBe("2026-11-16");
-    expect(digestDue({ phase: 2, at: NOW, digest: "2026-11-16" }, mon9 + 3600_000)).toBeUndefined();
-    expect(digestDue({ phase: 2, at: NOW }, mon9 - 3600_000)).toBeUndefined(); // 월요일 8시
-    expect(digestDue({ phase: 2, at: NOW }, mon9 + 86400_000)).toBeUndefined(); // 화요일
+    expect(digestDue({ phase: 2, at: NOW }, mon9, true)).toBe("2026-11-16");
+    expect(digestDue({ phase: 2, at: NOW, digest: "2026-11-16" }, mon9 + 3600_000, true)).toBeUndefined();
+    expect(digestDue({ phase: 2, at: NOW }, mon9 - 3600_000, true)).toBeUndefined(); // 월요일 8시
+    expect(digestDue({ phase: 2, at: NOW }, mon9 + 86400_000, true)).toBeUndefined(); // 화요일
     const m = digestMessage({ ...w(2), proximity: { index: 15, vs: { d7: 0, days: 8 }, rubric: { signs: 0, moves: 0, context: 6 } } as any });
     expect(m.title).toBe("주간 요약 · 2단계 긴장 15%");
     expect(m.body).toMatch(/지난주와 같아요/);
@@ -137,20 +139,15 @@ describe("5분 주기에서 보내기", () => {
     expect(sent).toBe(0);
     expect(JSON.parse((await store.getKv(PHASE_STATE_KEY))!)).toMatchObject({ phase: 1, rule: RUBRIC_VERSION });
   });
-  it("주간 요약은 손님 알림으로 한 번 가고 리포트로 남는다. 직전 24시간 안에 다른 알림이 갔으면 그 주는 건너뛴다", async () => {
+  it("주간 요약은 꺼져 있어서 월요일 오전 9시가 지나도 손님에게 아무것도 가지 않는다 (11/12)", async () => {
     const mon9 = Date.parse("2026-11-16T00:05:00Z");
     const store = new MemoryStore();
-    const sentTitles: string[] = [];
-    const ok = (async (_u: any, init: any) => { try { const b = JSON.parse(init?.body ?? "{}"); if (b.title) sentTitles.push(b.title); } catch { /* 웹푸시 본문은 암호문 */ } return new Response("ok"); }) as unknown as typeof fetch;
+    let sent = 0;
+    const count = (async () => { sent++; return new Response("ok"); }) as unknown as typeof fetch;
     await store.setKv(PHASE_STATE_KEY, JSON.stringify({ phase: 2, at: NOW, rule: RUBRIC_VERSION }));
-    const r1 = await notifyPhaseChange(store, env, w(2), mon9, ok);
-    expect(r1.sent?.title).toMatch(/^주간 요약 · 2단계/);
-    const r2 = await notifyPhaseChange(store, env, w(2), mon9 + 5 * MIN, ok);
-    expect(r2.sent).toBeUndefined();
-    await store.setKv(PHASE_STATE_KEY, JSON.stringify({ phase: 2, at: NOW, rule: RUBRIC_VERSION, lastSentAt: mon9 - 3600_000 }));
-    const r3 = await notifyPhaseChange(store, env, w(2), mon9, ok);
-    expect(r3.sent).toBeUndefined();
-    expect(JSON.parse((await store.getKv(PHASE_STATE_KEY))!).digest).toBe("2026-11-16");
+    const r = await notifyPhaseChange(store, env, w(2), mon9, count);
+    expect(r.sent).toBeUndefined();
+    expect(sent).toBe(0);
   });
   it("못 보냈으면 다음 주기에 다시 (세 번 실패하면 넘어간다)", async () => {
     const store = new MemoryStore();

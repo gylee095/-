@@ -1,5 +1,5 @@
-// 손님 알림 (2026-11-12 사용자: 너무 자주도 너무 드물게도 안 된다) — 세 가지뿐:
-//   ① 단계가 바뀔 때  ② 같은 긴장 단계 안에서 실제 징조·조용한 움직임이 나타날 때  ③ 주간 요약(월요일 오전 9시)
+// 손님 알림 (2026-11-12 사용자: 너무 자주도 너무 드물게도 안 된다) — 두 가지뿐:
+//   ① 단계가 바뀔 때  ② 같은 긴장 단계 안에서 실제 징조·조용한 움직임이 나타날 때  (주간 요약은 넣었다가 같은 날 껐다 — DIGEST_ON)
 // 아래는 11/3 에 '단계가 바뀔 때만'으로 정한 이유 — 지금도 유효하다:
 // 알림은 '전쟁 위험 단계가 실제로 바뀌었을 때'만 (2026-11-03)
 // 그동안 휴대폰으로 간 것은 거의 심층 분석 보고서였다(10/31~11/3 다섯 번, 모두 '2단계·국지 충돌 4~5%'로 같은 결론) —
@@ -23,7 +23,9 @@ export const DOWN_HOLD_MS = 6 * 3600_000;
 export const PHASE_ALERTS_PER_DAY = 3;
 /** '긴장 안에서 실제 징조가 나타남' 알림은 이만큼 간격을 둔다 (켜졌다 꺼졌다 할 때 되풀이하지 않게) */
 export const SUB_GAP_MS = 12 * 3600_000;
-/** 주간 요약: 월요일 오전 9시(한국 시간). 변화가 없어도 '살아 있다'는 것과 지난주 대비를 알린다. 직전 24시간 안에 다른 알림이 갔으면 건너뛴다 */
+/** 주간 요약은 꺼 둔다 (11/12 사용자: 엄청 정확한 것도 아닌데 매주 알림이 오면 귀찮고 신빙성만 떨어져 환불하고 싶어질 수 있다) — 코드는 남겨 두고 이 값으로만 켠다 */
+export const DIGEST_ON = false;
+/** 주간 요약(꺼져 있음): 월요일 오전 9시(한국 시간). 변화가 없어도 '살아 있다'는 것과 지난주 대비를 알린다. 직전 24시간 안에 다른 알림이 갔으면 건너뛴다 */
 export const DIGEST_DOW = 1, DIGEST_HOUR = 9;
 
 export interface PhaseNotifyState {
@@ -106,7 +108,8 @@ export function digestMessage(w: Judged, opts?: { dashboardUrl?: string }): Phas
 }
 
 /** 이번 주 월요일(한국 날짜) — 주간 요약을 보낼 때가 됐으면 그 날짜 */
-export function digestDue(state: PhaseNotifyState, now: number): string | undefined {
+export function digestDue(state: PhaseNotifyState, now: number, on: boolean = DIGEST_ON): string | undefined {
+  if (!on) return undefined;
   const k = new Date(now + 9 * 3600_000);
   if (k.getUTCDay() !== DIGEST_DOW || k.getUTCHours() < DIGEST_HOUR) return undefined;
   const monday = k.toISOString().slice(0, 10);

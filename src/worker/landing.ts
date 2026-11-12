@@ -234,8 +234,8 @@ export const LANDING_STORY = String.raw`<section id="hero" data-ch="00 / 전체"
       <div class="ex">EXAMPLE · 예시 화면</div>
     </div>
     <p class="k">ALERT</p>
-    <h2>단계가 바뀔 때, 그리고 주 1회 요약</h2>
-    <p class="lead">매일 오는 뉴스 알림이 아닙니다. 단계가 바뀌거나 실제 징조가 나타난 그 순간의 <b>판정 화면 전체</b>가 폰에 쌓이고, 알림을 누르면 바로 열립니다. 변화가 없는 주에는 월요일 아침 요약 한 번만 옵니다.</p>
+    <h2>단계가 바뀌거나 실제 징조가 나타날 때만 울립니다</h2>
+    <p class="lead">매일 오는 뉴스 알림이 아닙니다. 단계가 바뀌거나 실제 징조가 나타난 그 순간의 <b>판정 화면 전체</b>가 폰에 쌓이고, 알림을 누르면 바로 열립니다.</p>
   </div>
 </section>`;
 

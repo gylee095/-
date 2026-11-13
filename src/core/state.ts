@@ -19,6 +19,7 @@ import { liveInputs, tensionOf, tensionView } from "./tension.js";
 import { checkFingerprints } from "./fingerprints.js";
 import { forecastMajor, loadMajorDays } from "./forecast.js";
 import { assessProximity, loadProx, withProximity } from "./proximity.js";
+import { NORM_LONG_KEY, assessNormal, type NormLong } from "./normal.js";
 
 export interface BoardRow {
   id: string;
@@ -133,9 +134,16 @@ export async function buildState(store: Store, since: number, disabledSources = 
   const judgments = judgmentsFromNotes(notes);
   const vsYesterday = compareWithYesterday(riskSeries, warRisk, board, enriched.map((e) => e.brief), now, tension.pct, judgments);
 
+  // 평소 범위와 이탈 (11/13): 신호마다의 평소 범위에서 나쁜 방향으로 벗어난 것이 몇 개인가, 그게 얼마나 드문가 (기록이 쌓일수록 정확)
+  const today = new Date(now + 9 * 3600_000).toISOString().slice(0, 10);
+  const pastK = (prox.hist?.days ?? []).filter((x) => x.d !== today && typeof x.k === "number").map((x) => x.k as number);
+  const longRaw = await store.getKv(NORM_LONG_KEY).catch(() => undefined);
+  const normal = assessNormal(board, pastK, longRaw ? (JSON.parse(longRaw) as NormLong) : undefined);
+
   return {
     now,
     threat,
+    normal,
     warRisk,
     tension,
     fingerprints,

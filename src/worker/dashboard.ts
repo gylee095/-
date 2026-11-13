@@ -349,6 +349,22 @@ function drawTension(t){var el=$("#tchart");if(!el||!t||!t.view)return;var w=t.v
     tip.style.display="block";var left=px*r.width/W+8;if(left>r.width-200)left=px*r.width/W-208;tip.style.left=Math.max(0,left)+"px"}
   hit.addEventListener("pointermove",show);hit.addEventListener("pointerdown",show);hit.addEventListener("pointerleave",function(){tip.style.display="none";cross.setAttribute("visibility","hidden")})}
 // 전쟁 직전의 지문: 다른 전쟁 직전 공개적으로 보였던 것 중 지금 켜진 것 (켜짐을 위로)
+// 평소 범위와 이탈 (11/13 사용자: 평범한 흔들림의 범위를 배워 두고 거기서 벗어나는 것을 잡는다): 신호마다 평소 범위(회색 띠)와 지금 위치(점)
+function normalCard(n){
+  var fmt=function(v){var a=Math.abs(v);return a>=100?Math.round(v):a>=10?v.toFixed(1):v.toFixed(2)};
+  var row=function(x){var lo=-4,hi=6,pos=function(z){return (Math.min(hi,Math.max(lo,z))-lo)/(hi-lo)*100};
+    var c=x.far?'var(--l4)':x.out?'var(--l3)':'var(--mute)';
+    return '<div style="padding:7px 0;border-top:1px solid var(--line)"><div style="display:flex;gap:8px;align-items:baseline"><span style="flex:1;min-width:0;font-size:13.5px;'+(x.out?'font-weight:700':'color:var(--mute)')+'">'+esc(x.label.replace(/\s*\(.*\)$/,""))+'</span><span style="flex:none;font-size:12px;color:'+c+';font-weight:700">'+(x.out?(x.far?'크게 벗어남':'범위 밖'):'범위 안')+'</span></div>'+
+      '<div style="position:relative;height:10px;margin:5px 0 3px;border-radius:5px;background:var(--line)" role="img" aria-label="평소 범위와 지금 위치"><span style="position:absolute;left:'+pos(-2)+'%;width:'+(pos(2)-pos(-2))+'%;top:0;bottom:0;border-radius:5px;background:var(--chip);outline:1px solid var(--mute)"></span><span style="position:absolute;left:'+pos(x.z)+'%;top:-2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:'+(x.out?c:'var(--fg)')+';box-shadow:0 0 0 2px var(--card)"></span></div>'+
+      '<div style="font-size:12px;color:var(--mute)">지금 '+fmt(x.value)+esc(x.unit||"")+' · 평소 '+fmt(x.baseline)+esc(x.unit||"")+' (±'+fmt(2*x.sd)+')'+(x.zLong!==undefined?' · 긴 평소 대비 '+(x.zLong>=2?'<b style="color:var(--l3)">범위 밖</b>':'범위 안'):'')+'</div></div>'};
+  var out=n.items.filter(function(x){return x.out}),rest=n.items.filter(function(x){return !x.out});
+  var h='<div class="card tm"><div class="th"><b>'+n.k+'개</b><span>평소 범위를 아는 신호 '+n.measured+'개 중 나쁜 방향으로 벗어난 것</span></div>';
+  h+='<div style="font-size:14px;margin:4px 0 2px">평소엔 하루 <b>'+n.usual+'개</b>쯤 벗어나요. '+esc(n.rarity.text)+'</div>';
+  h+='<div style="font-size:12px;color:var(--mute);margin-bottom:6px">회색 띠 = 평소 범위(최근 4주 같은 시간대의 평소 값 ± 2 표준편차) · 점 = 지금 · 오른쪽일수록 나쁜 방향</div>';
+  h+=out.map(row).join("");
+  h+='<details><summary>범위 안에 있는 신호 '+rest.length+'개 보기</summary>'+rest.map(row).join("")+'</details>';
+  h+='<div class="mk">신호마다 평소에 흔들리는 범위를 배워 두고, 그 범위를 벗어난 것을 세요. 신호 하나가 벗어나는 일은 흔해서, <b>몇 개가 함께 벗어났나</b>와 <b>그게 얼마나 드문가</b>를 봐요. '+(n.rarity.basis==="record"?'드문 정도는 실제 기록 '+n.rarity.days+'일로 계산했어요.':'지금은 기록이 '+n.rarity.days+'일뿐이라 드문 정도를 이론값으로 말해요. 기록이 14일 쌓이면 실제 기록으로 바뀌고, 쌓일수록 정확해져요.')+' 긴 평소(전체 기간)는 '+n.longDays+'일 쌓였고 30일부터 함께 보여 줘요.'+(n.learning?' 아직 평소를 배우는 중인 신호 '+n.learning+'개는 빠져 있어요.':'')+' 이 값은 아직 단계·%·알림에 쓰지 않아요 — 평소에 몇 개가 우연히 벗어나는지를 먼저 재는 중이에요.</div></div>';
+  return h}
 // 과거 기록과 한계 (11/11): 징조 수 구간별로 전쟁이 얼마나 났나, 과거 시점을 같은 방식으로 센 것, 이 숫자가 무엇이 아닌가
 function proxCard(p){
   var h='<div class="card tm">';
@@ -592,6 +608,7 @@ function render(){
     h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>'}
   // 1) 첫 화면: 지금 한반도 — 단계·확률·어제와 비교·이유·오를 조건·할 일·데이터 상태 (2026-11-02 새 화면)
   if(st.warRisk)h+=safe(summary,st,"지금 한반도");
+  if(st.normal)h+=group("normal","평소 범위에서 벗어난 신호 "+st.normal.k+"개","평소엔 하루 "+st.normal.usual+"개쯤 · 신호 "+st.normal.measured+"개의 평소 범위와 지금 위치",safe(normalCard,st.normal,"평소 범위"));
   var inner="";
   var an="";
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다

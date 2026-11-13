@@ -24,7 +24,8 @@ export interface AnalystChecks {
 }
 
 /** 하루 한 줄. s = 가설 순서대로 2(켜짐)·1(약함)·0(꺼짐)·?(못 봄) */
-export interface ProxDay { d: string; s: string; i: number; c: number; w: number; ph: number }
+/** k = 그날 평소 범위를 가장 많이 벗어났던 신호 수 (normal.ts, 11/13~) */
+export interface ProxDay { d: string; s: string; i: number; c: number; w: number; ph: number; k?: number }
 export interface ProxHist {
   v: 1;
   days: ProxDay[];
@@ -259,7 +260,7 @@ const code = (s?: SignalNow) => (!s || s.s === "unk" ? "?" : s.s === "off" ? "0"
 const worse = (a: string, b: string) => { const r = "?012"; return r.indexOf(a) >= r.indexOf(b) ? a : b; };
 
 /** 오늘 줄을 고친다(그날 가장 높았던 상태). 날이 바뀌면 지난 날들을 '평소 빈도' 재료에 더한다. 바뀐 것이 없으면 changed=false */
-export function foldProx(hist: ProxHist | undefined, prox: Proximity, phase: number, now: number): { hist: ProxHist; changed: boolean } {
+export function foldProx(hist: ProxHist | undefined, prox: Proximity, phase: number, now: number, k?: number): { hist: ProxHist; changed: boolean } {
   const h: ProxHist = hist ? { ...hist, days: [...hist.days], base: { ...hist.base } } : emptyHist();
   const d = kstDay(now);
   const s = HYP_IDS.map((id) => code(prox.signals.find((x) => x.id === id) as SignalNow | undefined)).join("");
@@ -279,8 +280,8 @@ export function foldProx(hist: ProxHist | undefined, prox: Proximity, phase: num
   const i = h.days.findIndex((x) => x.d === d);
   const cur = i >= 0 ? h.days[i] : undefined;
   const next: ProxDay = cur
-    ? { d, s: s.split("").map((ch, k) => worse(ch, cur.s[k] ?? "?")).join(""), i: Math.max(cur.i, prox.index), c: Math.max(cur.c, prox.clashPct), w: Math.max(cur.w, prox.warPct), ph: Math.max(cur.ph, phase) }
-    : { d, s, i: prox.index, c: prox.clashPct, w: prox.warPct, ph: phase };
+    ? { d, s: s.split("").map((ch, k) => worse(ch, cur.s[k] ?? "?")).join(""), i: Math.max(cur.i, prox.index), c: Math.max(cur.c, prox.clashPct), w: Math.max(cur.w, prox.warPct), ph: Math.max(cur.ph, phase), ...(k !== undefined || cur.k !== undefined ? { k: Math.max(cur.k ?? 0, k ?? 0) } : {}) }
+    : { d, s, i: prox.index, c: prox.clashPct, w: prox.warPct, ph: phase, ...(k !== undefined ? { k } : {}) };
   if (!cur || JSON.stringify(cur) !== JSON.stringify(next)) changed = true;
   if (i >= 0) h.days[i] = next; else h.days.push(next);
   if (h.days.length > HIST_DAYS) h.days = h.days.slice(-HIST_DAYS);
@@ -293,8 +294,8 @@ export async function loadProx(store: Kv): Promise<{ hist?: ProxHist; checks?: A
   return { hist: h ? (JSON.parse(h) as ProxHist) : undefined, checks: c ? (JSON.parse(c) as AnalystChecks) : undefined };
 }
 /** 5분 주기에서: 오늘 줄이 달라졌을 때만 쓴다 */
-export async function recordProx(store: Kv, prox: Proximity, phase: number, now: number, hist?: ProxHist): Promise<boolean> {
-  const r = foldProx(hist, prox, phase, now);
+export async function recordProx(store: Kv, prox: Proximity, phase: number, now: number, hist?: ProxHist, k?: number): Promise<boolean> {
+  const r = foldProx(hist, prox, phase, now, k);
   if (r.changed) await store.setKv(PROX_HIST_KEY, JSON.stringify(r.hist));
   return r.changed;
 }

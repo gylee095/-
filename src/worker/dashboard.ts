@@ -351,7 +351,7 @@ function drawTension(t){var el=$("#tchart");if(!el||!t||!t.view)return;var w=t.v
 // 전쟁 직전의 지문: 다른 전쟁 직전 공개적으로 보였던 것 중 지금 켜진 것 (켜짐을 위로)
 // 평소 범위와 이탈 (11/13 사용자: 평범한 흔들림의 범위를 배워 두고 거기서 벗어나는 것을 잡는다): 신호마다 평소 범위(회색 띠)와 지금 위치(점)
 function normalCard(n){
-  var fmt=function(v){var a=Math.abs(v);return a>=100?Math.round(v):a>=10?v.toFixed(1):v.toFixed(2)};
+  var fmt=function(v){var a=Math.abs(v);return Math.abs(v-Math.round(v))<1e-9?String(Math.round(v)):a>=100?Math.round(v):a>=10?v.toFixed(1):v.toFixed(2)};
   var row=function(x){var lo=-4,hi=6,pos=function(z){return (Math.min(hi,Math.max(lo,z))-lo)/(hi-lo)*100};
     var c=x.far?'var(--l4)':x.out?'var(--l3)':'var(--mute)';
     return '<div style="padding:7px 0;border-top:1px solid var(--line)"><div style="display:flex;gap:8px;align-items:baseline"><span style="flex:1;min-width:0;font-size:13.5px;'+(x.out?'font-weight:700':'color:var(--mute)')+'">'+esc(x.label.replace(/\s*\(.*\)$/,""))+'</span><span style="flex:none;font-size:12px;color:'+c+';font-weight:700">'+(x.out?(x.far?'크게 벗어남':'범위 밖'):'범위 안')+'</span></div>'+

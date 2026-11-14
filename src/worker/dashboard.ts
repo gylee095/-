@@ -484,7 +484,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   // 심상치 않은 일 (11/14 사용자: 숫자가 안 움직여도 '이 신호를 놓친 건 아니구나'가 보여야 한다) — 한반도 밖의 큰 사건을 %와 따로 한 줄로. 점수를 더 주지는 않는다
   var WE=[];R.layers[2].groups.forEach(function(g){g.items.forEach(function(x){if(["w_infra","w_new_war","w_power_clash"].indexOf(x.id)>=0&&x.s==="on")WE.push(x)})});
   if(WE.length)h+='<div style="margin:10px 0 6px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">심상치 않은 일 (세계 정세)</div>'+WE.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:4px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.ev||x.ko)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.weak?'원인 확인 중이에요 — 사고인지 공격인지 분석관이 확인하면 숫자에 반영해요 (지금은 반 개).':'분석관이 확인했어요 — 불안한 배경 1개로 반영했어요.')+'</div>'}).join("")+'</div>';
-  h+='<div style="font-size:13px;color:var(--mute);margin-top:2px">지켜보는 '+TOT+'개 항목 중 <b style="color:var(--fg)">'+num(tot)+'개</b>가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+')<br>%는 켜진 수를 고정 기준 39개에 견준 값이에요 — 지켜보는 항목을 늘려도 숫자는 그대로고, 실제로 켜질 때만 올라요.</div>';
+  h+='<div style="font-size:13px;color:var(--mute);margin-top:2px">지켜보는 '+TOT+'개 항목 중 <b style="color:var(--fg)">'+num(tot)+'개</b>가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+') · %는 고정 기준 39개 대비</div>';
   // 단계마다 몇 %부터 몇 %인지 (11/12 사용자): 다섯 칸 눈금 + 지금 위치. 교전은 %가 아니라 실제 교전 보도로 정해진다
   var BND=[0,10,25,50,100],RNG=["0~9%","10~24%","25~49%","50%~","실제 교전"],NM=["평온","긴장","위기","임박","교전"];
   var seg=Math.min(4,w.phase-1),within=seg>=4?0.5:Math.min(0.97,Math.max(0.03,(PCT-BND[seg])/(BND[seg+1]-BND[seg]))),mark=(seg+within)/5*100;

@@ -474,7 +474,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+' '+PCT+'%</b><span>5단계 중</span></div>';
   // 어제 대비 (11/12 사용자: 어제 몇 %였는데 오늘 몇 % — 그게 없어졌다): 하루 한 줄 기록에서 어제의 가장 높았던 값과 견준다
   // '어제'는 어제의 판정값(아침 8시에 정한 숫자)이다 (11/14 사용자: 어제 15%를 봤는데 '어제 17%'로 나왔다 — 하루 최고값을 썼기 때문). 없을 때만 기록의 값으로
-  var d1=O&&O.yesterday?PCT-O.yesterday.index:(p.vs?p.vs.d1:undefined);
+  var YD=(O&&O.yesterday)||w.yesterday,d1=YD?PCT-YD.index:(p.vs?p.vs.d1:undefined);
   if(d1!==undefined&&d1!==null){var yv=PCT-d1;
     h+='<div style="font-size:15px;font-weight:700;margin-top:4px;color:'+(d1>0?'var(--l4)':d1<0?'var(--ok,#34c759)':'var(--fg)')+'">어제 '+yv+'% → 오늘 '+PCT+'% <span style="font-weight:400;color:var(--mute)">'+(d1===0?'같아요':d1>0?'▲ '+d1+'%p 올랐어요':'▼ '+(-d1)+'%p 내렸어요')+'</span></div>'}
   else h+='<div style="font-size:13px;color:var(--mute);margin-top:4px">어제와의 비교는 기록이 하루 쌓인 뒤(내일)부터 보여요.</div>';

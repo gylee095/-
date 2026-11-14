@@ -441,7 +441,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     return json({
       ...st,
       // 시험 서버: 본 서버의 '오늘의 판정'(이전 규칙)이 아니라 이 코드의 지금 판정을 보인다 — 실험 결과를 보는 곳이므로
-      ...(ab ? { ab, warRisk: { ...st.warRisk.live, live: st.warRisk.live } } : {}),
+      ...(ab ? { ab, warRisk: { ...st.warRisk.live, live: st.warRisk.live, yesterday: st.warRisk.official?.yesterday } } : {}), // '어제' 비교만은 본 서버의 어제 판정을 그대로 쓴다
       setup: {
         ntfySubscribeUrl: env.NTFY_TOPIC ? `${env.NTFY_SERVER ?? "https://ntfy.sh"}/${env.NTFY_TOPIC}` : null,
         connectorUrl: `${url.origin}/mcp/${env.KEW_SECRET}`,

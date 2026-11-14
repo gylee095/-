@@ -481,10 +481,14 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   var MG=O&&O.morning;
   if(MG){var df=[["징조",R.signs-MG.signs],["움직임",R.moves-MG.moves],["배경",R.context-MG.context]].filter(function(x){return x[1]!==0}).map(function(x){return x[0]+" "+(x[1]>0?"+":"")+num(x[1])});
     h+='<div style="font-size:12.5px;color:'+(PCT>MG.index?'var(--l4)':'var(--mute)')+'">'+(PCT===MG.index&&!df.length?'오늘 아침 8시 판정('+MG.index+'%)과 같아요':'오늘 아침 8시 '+MG.index+'% → 지금 '+PCT+'%'+(df.length?' ('+df.join(", ")+')':''))+' · 실시간</div>'}
-  // 심상치 않은 일 (11/14 사용자: 숫자가 안 움직여도 '이 신호를 놓친 건 아니구나'가 보여야 한다) — 한반도 밖의 큰 사건을 %와 따로 한 줄로. 점수를 더 주지는 않는다
-  var WE=[];R.layers[2].groups.forEach(function(g){g.items.forEach(function(x){if(["w_infra","w_new_war","w_power_clash"].indexOf(x.id)>=0&&x.s==="on")WE.push(x)})});
-  if(WE.length)h+='<div style="margin:10px 0 6px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">심상치 않은 일 (세계 정세)</div>'+WE.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:4px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.ev||x.ko)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.weak?'원인 확인 중이에요 — 사고인지 공격인지 분석관이 확인하면 숫자에 반영해요 (지금은 반 개).':'분석관이 확인했어요 — 불안한 배경 1개로 반영했어요.')+'</div>'}).join("")+'</div>';
-  h+='<div style="font-size:13px;color:var(--mute);margin-top:2px">지켜보는 '+TOT+'개 항목 중 <b style="color:var(--fg)">'+num(tot)+'개</b>가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+') · %는 고정 기준 39개 대비</div>';
+  // 무슨 일이 있었나 (11/14 사용자: "사용자에게 중요한 건 북한이 미사일을 쐈는지, 미국에서 무슨 일이 났는지다 — 43개 중 몇 개인지는 운영자만 알면 된다")
+  // 숫자 바로 아래에 최근 사흘의 한반도 사건(위험도 2 이상·도발)과 세계의 심상치 않은 일을 둔다. 점수를 더 주지는 않는다. 항목 수 설명은 '자세히' 안에만.
+  var EV=[],seen={};(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
+    if(!wd&&!(b.isProvocation||(b.danger&&b.danger.level>=2)))return;if(seen[b.headline])return;seen[b.headline]=1;EV.push({t:b.headline,at:b.at,w:wd})});
+  var WOK={};R.layers[2].groups.forEach(function(g){g.items.forEach(function(x){if(["w_infra","w_new_war","w_power_clash"].indexOf(x.id)>=0&&x.s==="on"){if(x.ev&&!seen[x.ev]){seen[x.ev]=1;EV.push({t:x.ev,at:0,w:true})}if(x.ev)WOK[x.ev]=!x.weak}})});
+  EV.sort(function(a,b){return (a.w?1:0)-(b.w?1:0)||b.at-a.at});EV=EV.slice(0,4);
+  if(EV.length)h+='<div style="margin:10px 0 10px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">최근 있었던 일</div>'+EV.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.t)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.w?'세계 정세 · '+(WOK[x.t]?'분석관이 확인했어요.':'원인 확인 중이에요 — 사고인지 공격인지 확인되면 숫자에 반영해요.'):'한반도'+(x.at?' · '+when(x.at):''))+'</div>'}).join("")+'</div>';
+  else h+='<div style="font-size:13px;color:var(--mute);margin:8px 0 10px">최근 사흘 동안 눈에 띄는 사건은 없어요.</div>';
   // 단계마다 몇 %부터 몇 %인지 (11/12 사용자): 다섯 칸 눈금 + 지금 위치. 교전은 %가 아니라 실제 교전 보도로 정해진다
   var BND=[0,10,25,50,100],RNG=["0~9%","10~24%","25~49%","50%~","실제 교전"],NM=["평온","긴장","위기","임박","교전"];
   var seg=Math.min(4,w.phase-1),within=seg>=4?0.5:Math.min(0.97,Math.max(0.03,(PCT-BND[seg])/(BND[seg+1]-BND[seg]))),mark=(seg+within)/5*100;
@@ -518,6 +522,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
     return '<li style="list-style:none;margin:4px 0 4px -18px;font-size:13.5px;display:flex;gap:6px"><span style="flex:none">'+mark+'</span><span style="flex:1;min-width:0">'+esc(x.ko)+(x.weak?' <span style="color:var(--mute)">(약함·미확인)</span>':'')+(x.s==="unk"?' <span style="color:var(--mute)">(확인 대기)</span>':'')+(x.ev&&x.s==="on"?'<br><span style="color:var(--mute);font-size:12.5px">'+esc(x.ev)+'</span>':'')+'</span></li>'};
   var SUB={signs:function(L){return L.pts>0?"":"켜진 징조가 없어요"},moves:function(L){return R.surprise?"뉴스는 조용한데 측정값이 함께 움직여요 — 기습 주의":L.pts>0?"":"사람·돈·군이 평소대로예요"},context:function(L){return L.pts>0?"":"확인된 배경 요인이 없어요"},other:function(L){return ""}};
   h+='<h3 style="margin-top:18px">자세히</h3>';
+  h+='<div style="font-size:12.5px;color:var(--mute)">지켜보는 '+TOT+'개 항목 중 '+num(tot)+'개가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+') · %는 고정 기준 39개 대비</div>';
   h+=R.layers.map(function(L){var unk=0,ons=[];L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")unk++;if(x.got>0)ons.push(x.ko.split(" (")[0]+(x.weak?"(약함)":""))})});
     var sub=SUB[L.id](L)||ons.slice(0,2).join(" · ")+(ons.length>2?" 등 "+ons.length+"개":"");
     var c2=L.id==="signs"?col:L.id==="moves"?(R.surprise?"var(--l4)":"var(--fg)"):"var(--mute)";

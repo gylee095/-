@@ -1,9 +1,9 @@
 // 규칙 3.0 — 전조 모형과 한반도 적용 (proximity.ts · precursors.ts)
 import { describe, expect, it } from "vitest";
-import { clashOf, scoreRubric, RUBRIC, BASE_SEED, SIGNS, PCT_AT } from "../src/core/rubric.js";
+import { clashOf, scoreRubric, RUBRIC, BASE_SEED, SIGNS, PCT_AT, TOTAL_ITEMS } from "../src/core/rubric.js";
 import { ACTION_KEYS, INDEX_AT, MODEL, clashOfIndex as clashOfIndexOld, buildTable, caseEvidence, classOf, evaluate, ordinaryRate, rate, type CaseRecord, type SignalNow } from "../src/core/precursors.js";
 import { PRECURSOR_DATA } from "../src/core/precursor_data.js";
-import { ALL_IDS, AUTO_IDS, ANALYST_GUIDE, BASE_TTL, HOTSPOT, autoStatus, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
+import { ALL_IDS, AUTO_IDS, ANALYST_GUIDE, BASE_TTL, HOTSPOT, WORLD_EVENT_IDS, autoStatus, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
 import { assessWarRisk } from "../src/core/warrisk.js";
 
 const NOW = Date.parse("2026-11-11T03:00:00Z");
@@ -164,13 +164,14 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
   it("단계는 켜진 비율(%)의 구간: 10%부터 긴장 · 25%부터 위기 · 50%부터 임박", () => {
     expect(PCT_AT).toEqual({ 2: 10, 3: 25, 4: 50 });
     const some = (n: number) => on(...ALL_IDS.filter((i) => !RUBRIC.find((l) => l.id === "other")!.groups[0].items.some((x) => x.id === i)).slice(0, n));
-    expect(scoreRubric(some(3))).toMatchObject({ index: 8, phase: 1 });
-    expect(scoreRubric(some(4))).toMatchObject({ index: 10, phase: 2 });
-    expect(scoreRubric(some(9))).toMatchObject({ index: 23, phase: 2 });
-    expect(scoreRubric(some(10))).toMatchObject({ index: 26, phase: 3 });
-    expect(scoreRubric(some(20))).toMatchObject({ index: 51, phase: 4 });
-    expect(scoreRubric(some(39))).toMatchObject({ index: 100, phase: 4 });
-    for (let n = 0; n <= 39; n++) { const r = scoreRubric(some(n)); expect(r.phase).toBe(r.index >= 50 ? 4 : r.index >= 25 ? 3 : r.index >= 10 ? 2 : 1); }
+    expect(TOTAL_ITEMS).toBe(43);
+    expect(scoreRubric(some(4))).toMatchObject({ index: 9, phase: 1 });
+    expect(scoreRubric(some(5))).toMatchObject({ index: 12, phase: 2 });
+    expect(scoreRubric(some(10))).toMatchObject({ index: 23, phase: 2 });
+    expect(scoreRubric(some(11))).toMatchObject({ index: 26, phase: 3 });
+    expect(scoreRubric(some(22))).toMatchObject({ index: 51, phase: 4 });
+    expect(scoreRubric(some(43))).toMatchObject({ index: 100, phase: 4 });
+    for (let n = 0; n <= 43; n++) { const r = scoreRubric(some(n)); expect(r.phase).toBe(r.index >= 50 ? 4 : r.index >= 25 ? 3 : r.index >= 10 ? 2 : 1); }
   });
   it("약함·미확인은 반 개, 못 본 것은 세지 않고 '확인 대기'", () => {
     const r = scoreRubric({ ...all("off"), i_pretext: { s: "on", w: 0.5 }, m_buildup: { s: "on" }, g_ultimatum: undefined });
@@ -185,10 +186,10 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
     expect(scoreRubric(on("f_capital_flight", "m_airspace")).surprise).toBe(false);
     expect(scoreRubric(on("f_capital_flight", "m_airspace", "f_fx", ...SIGNS.slice(0, 3))).surprise).toBe(false);
   });
-  it("배경만 켜져 있어도 비율에 들어간다 — 지금(배경 6개)은 15%로 긴장", () => {
+  it("배경만 켜져 있어도 비율에 들어간다 — 배경 6개면 14%로 긴장", () => {
     const ctx = ALL_IDS.filter((i) => i.startsWith("s_") || i.startsWith("w_"));
     const r = scoreRubric(on(...ctx.slice(0, 6)));
-    expect(r).toMatchObject({ signs: 0, context: 6, index: 15, phase: 2 });
+    expect(r).toMatchObject({ signs: 0, context: 6, index: 14, phase: 2 });
     expect(r.reason).toMatch(/징조와 실제 움직임은 없고, 불안한 배경 6개/);
   });
   it("참고 신호(9개에 못 든 것)는 판정을 바꾸지 않는다", () => {
@@ -221,5 +222,29 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
     expect(clashOf(0, 1, 1.3)).toBe(1.3);
     expect(clashOf(0, 2, 1.3)).toBe(3);
     expect(clashOf(5, 3, 1.3)).toBe(8);
+  });
+});
+
+describe("세계 정세를 넓게 (11/14)", () => {
+  it("한반도 밖의 큰 사건을 제목에서 잡는다 — 동맹국 기반시설의 전국 규모 마비, 새 전쟁 개시. 한반도 기사·훈련·전망은 아니다", async () => {
+    const { worldEvent } = await import("../src/core/classify.js");
+    expect(worldEvent("美전역 항공기 운항중단 '올스톱' 사태…\"관제통신시스템 장애\"(종합2보)")).toBe("infra"); // 11/14 실제 제목
+    expect(worldEvent("美연방항공청, 美 전역 공항에 이례적 운항 중단 지시")).toBe("infra");
+    expect(worldEvent("유럽 주요 공항 사이버 공격에 체크인 마비")).toBe("infra");
+    expect(worldEvent("러, 발트 3국 침공 개시…나토 긴급회의")).toBe("war");
+    expect(worldEvent("미국 전역 정전 대비 훈련 실시")).toBeNull();
+    expect(worldEvent("전문가 \"대만 침공 개시 가능성 낮다\"")).toBeNull();
+    expect(worldEvent("北, 미국 전역 사정권 ICBM 발사")).toBeNull(); // 한반도 기사는 원래 길로
+    expect(worldEvent("인천공항에 비즈니스 항공단지 만든다")).toBeNull();
+  });
+  it("제목으로 잡은 세계 사건은 배경의 약한 신호(반 개) — 분석관이 확인하면 온전히, 아니라고 하면 내린다(7일 유효)", () => {
+    const b = [{ at: NOW - 3600_000, headline: "美전역 항공기 운항중단 '올스톱' 사태", danger: { level: 1, label: "", reason: "" }, isProvocation: false }] as any;
+    const s0 = koreaStatus([], b, NOW);
+    expect(s0.w_infra).toMatchObject({ s: "on", w: 0.5 });
+    expect(s0.w_new_war.s).toBe("off");
+    expect(koreaStatus([], b, NOW, parseChecks("w_infra=1:국가 배후 공격으로 확인", NOW)).w_infra).toMatchObject({ s: "on", by: "analyst" });
+    expect(koreaStatus([], [], NOW + 8 * 86400_000, parseChecks("w_power_clash=1:격추", NOW)).w_power_clash.s).toBe("unk"); // 7일이 지나면 다시 확인
+    expect(WORLD_EVENT_IDS.every((i) => ALL_IDS.includes(i))).toBe(true);
+    expect(RUBRIC.find((l) => l.id === "context")!.max).toBe(16);
   });
 });

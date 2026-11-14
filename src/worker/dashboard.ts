@@ -470,7 +470,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   // 맨 위는 단계 (11/12 사용자: 큰 숫자 0 이 '위험 0점'으로 읽혔다) — 그 아래 세 계기판을 같은 크기로: 징조 · 조용한 움직임 · 배경
   var MEAN={1:"전쟁 전 징조도, 불안한 배경도 거의 없어요.",2:"긴장된 상태예요.",3:"여러 징조가 함께 켜진 위기 상태예요.",4:"징조 대부분이 켜지고 실제 움직임도 확인됐어요.",5:"교전이 벌어지고 있어요."};
   h+='<div class="lead">지금 한반도 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
-  var tot=R.signs+R.moves+R.context,PCT=Math.round(tot/39*100);
+  var TOT=R.layers[0].max+R.layers[1].max+R.layers[2].max,tot=R.signs+R.moves+R.context,PCT=Math.round(tot/TOT*100);
   h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+' '+PCT+'%</b><span>5단계 중</span></div>';
   // 어제 대비 (11/12 사용자: 어제 몇 %였는데 오늘 몇 % — 그게 없어졌다): 하루 한 줄 기록에서 어제의 가장 높았던 값과 견준다
   var d1=p.vs?p.vs.d1:undefined;
@@ -481,7 +481,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   var MG=O&&O.morning;
   if(MG){var df=[["징조",R.signs-MG.signs],["움직임",R.moves-MG.moves],["배경",R.context-MG.context]].filter(function(x){return x[1]!==0}).map(function(x){return x[0]+" "+(x[1]>0?"+":"")+num(x[1])});
     h+='<div style="font-size:12.5px;color:'+(PCT>MG.index?'var(--l4)':'var(--mute)')+'">'+(PCT===MG.index&&!df.length?'오늘 아침 8시 판정('+MG.index+'%)과 같아요':'오늘 아침 8시 '+MG.index+'% → 지금 '+PCT+'%'+(df.length?' ('+df.join(", ")+')':''))+' · 실시간</div>'}
-  h+='<div style="font-size:13px;color:var(--mute);margin-top:2px">지켜보는 39개 항목 중 <b style="color:var(--fg)">'+num(tot)+'개</b>가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+')</div>';
+  h+='<div style="font-size:13px;color:var(--mute);margin-top:2px">지켜보는 '+TOT+'개 항목 중 <b style="color:var(--fg)">'+num(tot)+'개</b>가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+')</div>';
   // 단계마다 몇 %부터 몇 %인지 (11/12 사용자): 다섯 칸 눈금 + 지금 위치. 교전은 %가 아니라 실제 교전 보도로 정해진다
   var BND=[0,10,25,50,100],RNG=["0~9%","10~24%","25~49%","50%~","실제 교전"],NM=["평온","긴장","위기","임박","교전"];
   var seg=Math.min(4,w.phase-1),within=seg>=4?0.5:Math.min(0.97,Math.max(0.03,(PCT-BND[seg])/(BND[seg+1]-BND[seg]))),mark=(seg+within)/5*100;
@@ -499,7 +499,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   if(unkS)h+='<div style="font-size:12.5px;color:var(--mute)">점선 '+unkS+'칸은 아직 확인하지 못한 징조예요 (분석관이 하루 두 번 확인).</div>';
   // 과거와 나란히 (11/12 사용자: 과거 기록이 따로 떨어져 있어 헷갈린다 — 그 목록 안에서 지금이 어디인지 바로 보이게)
   var an=(p.anchors||[]).slice(),OUT={W:"전쟁",N:"전쟁 안 남",K:"국지 충돌"};
-  // 과거와 견주는 잣대는 '전쟁 전 징조 9개'만 쓴다 (11/12 사용자 지적): 39개 비율로 놓으면 징조 0개인 지금이 징조 3개였던 1994년 핵위기보다 위로 간다 —
+  // 과거와 견주는 잣대는 '전쟁 전 징조 9개'만 쓴다 (11/12 사용자 지적): 전체 비율로 놓으면 징조 0개인 지금이 징조 3개였던 1994년 핵위기보다 위로 간다 —
   // 과거 시점의 배경·움직임은 손으로 적었거나 조사에서 못 찾아 꺼진 것으로 들어가 있어 공평하지 않다. 징조 9개는 사례마다 조사한 것이다.
   var rows=an.map(function(a){return {name:a.name,signs:a.signs,tag:OUT[a.cls]||"",now:false}});
   rows.push({name:"지금 한반도",signs:R.signs,tag:unkS?"미확인 "+unkS:"",now:true});

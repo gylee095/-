@@ -8,7 +8,8 @@ import type { EventBrief } from "./brief.js";
 import { kstDay } from "./store.js";
 import { PRECURSOR_DATA } from "./precursor_data.js";
 import { MODEL, evaluate, type Obs, type Proximity, type SignalNow } from "./precursors.js";
-import { BASE_SEED, RUBRIC, clashOf, scoreRubric, type RubricScore } from "./rubric.js";
+import { BASE_SEED, RUBRIC, TOTAL_ITEMS, clashOf, scoreRubric, type RubricScore } from "./rubric.js";
+import { worldEvent } from "./classify.js";
 import { BANDS, PHASE_LABEL, eventFloors, fmtRiskPct, type Band, type Phase, type WarRisk } from "./warrisk.js";
 
 export const PROX_HIST_KEY = "prox:hist";
@@ -41,6 +42,9 @@ const HYP_IDS = PRECURSOR_DATA.table.hyps.map((h) => h.id);
 export const ALL_IDS = RUBRIC.flatMap((l) => l.groups.flatMap((g) => g.items.map((i) => i.id)));
 /** 바탕 항목의 분석관 확인이 유효한 시간 */
 export const BASE_TTL = 45 * 86400_000;
+/** 세계 정세 중 '사건'에 가까운 항목은 금방 낡는다 — 확인은 7일만 유효 */
+export const WORLD_EVENT_IDS = ["w_infra", "w_new_war", "w_power_clash"];
+export const WORLD_EVENT_TTL = 7 * 86400_000;
 const DAY = 86400_000;
 
 /** 발사장 인근 열점을 '발사 준비 정황'으로 세는 기준: 시설에서 이 거리 안 · 이 세기 이상 */
@@ -49,7 +53,7 @@ export const HOTSPOT = { km: 5, frp: 5 };
 /** 자동으로 볼 수 있는 가설 — 나머지는 분석관만 확인할 수 있다 */
 export const AUTO_IDS = new Set([
   "g_evac_order", "g_leave_now", "g_staff_restrict", "g_intel_warning", "m_buildup", "m_mobilization", "m_strategic_assets", "m_civil_defense", "m_airspace",
-  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark",
+  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_infra", "w_new_war",
 ]);
 
 /** 징후판·보도에서 자동으로 읽은 한반도 상태 */
@@ -132,6 +136,11 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   if (ok("thermal.launch_site_hotspots") && hot.length && out.a_launch_prep.s !== "on") set("a_launch_prep", "on", 0.5, `${hot[0].site} ${hot[0].km}km 안 열점 ${hot[0].frp}MW`);
   else if (out.a_launch_prep.s === "unk" && ok("thermal.launch_site_hotspots")) set("a_launch_prep", "off");
   fromIndicators("a_nk_dark", ["internet.kp_outage_alerts_24h", "nk.pyongyang_lights_pct"]);
+  // 세계 정세 사건 (11/14): 제목으로 잡은 것은 약한 신호(절반) — 원인·규모는 분석관이 확인해 올리거나 내린다
+  const worldOf = (kind: "infra" | "war", days: number) => briefs.find((b) => now - b.at < days * DAY && now - b.at >= -3600_000 && worldEvent(b.headline) === kind);
+  const wi = worldOf("infra", 7), ww = worldOf("war", 30);
+  set("w_infra", wi ? "on" : "off", 0.5, wi?.headline);
+  set("w_new_war", ww ? "on" : "off", 0.5, ww?.headline);
   return out;
 }
 
@@ -142,7 +151,7 @@ export function koreaStatus(board: BoardRow[], briefs: EventBrief[], now: number
   for (const id of ALL_IDS) {
     const isBase = id.startsWith("s_") || id.startsWith("w_");
     // 분석관 확인: 날마다 변하는 신호는 36시간, 천천히 변하는 바탕 항목은 45일 유효. 바탕은 확인이 없으면 코드에 적어 둔 값(BASE_SEED)
-    const c = checks && age < (isBase ? BASE_TTL : CHECK_TTL) ? checks.items[id] : undefined, a = st[id];
+    const c = checks && age < (WORLD_EVENT_IDS.includes(id) ? WORLD_EVENT_TTL : isBase ? BASE_TTL : CHECK_TTL) ? checks.items[id] : undefined, a = st[id];
     if (!c) {
       const seed = isBase ? BASE_SEED.items[id] : undefined;
       if (seed) st[id] = { s: seed.v ? "on" : "off", ...(seed.v === 0.5 ? { w: 0.5 } : {}), ev: seed.ev.slice(0, 120), by: "analyst" };
@@ -204,7 +213,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const d1 = diff(1);
   const rec = recordFor(r.signs);
   const text =
-    `켜진 비율 ${r.index}% (39개 중 ${r.signs + r.moves + r.context}개: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/18 · 배경 ${r.context}/12). ${r.reason}.` +
+    `켜진 비율 ${r.index}% (${TOTAL_ITEMS}개 중 ${r.signs + r.moves + r.context}개: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/18 · 배경 ${r.context}/16). ${r.reason}.` +
     (rec ? ` 과거 기록: 징조가 ${rec.label} 켜졌던 ${rec.cases}건 중 ${rec.wars}건이 전쟁으로 갔다${rec.surprise ? ` — 그 ${rec.surprise}건은 공개 징조 없이 온 기습` : ""} (조사한 사례 안에서 — 확률이 아니다).` : "") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 징조가 ${d1 > 0 ? "늘었어요" : "줄었어요"}.`);
   return {
@@ -327,6 +336,8 @@ export const ANALYST_GUIDE: Record<string, string> = {
   i_pretext: "'도발·학살' 주장, 자작극 의혹, '우리 국민 보호' 서사가 평소보다 격해짐",
   i_state_mobilization: "북한 관영매체의 전시 동원 서사 (입대 탄원 군중대회, 준전시 선포 보도)",
   t_deadline: "공개된 시한·날짜 조건의 만료가 임박",
+  w_power_clash: "(세계·사건) 강대국끼리 직접 부딪쳤나 — 격추, 함정 충돌, 교전 (7일 유효)",
+  w_us_commit: "(세계) 미국이 동맹 방위에서 발을 빼는 신호가 있나 — 주한미군 감축 발표, 방위비 갈등으로 철수 거론",
   w_us_war: "(세계·한 달에 한 번) 미국이 한반도 밖에서 전쟁·대규모 군사작전을 하고 있나",
   w_us_assets_out: "(세계) 주한미군·인도태평양 전력(사드·패트리엇·항모·탄약)이 다른 곳으로 빠져 있나",
   w_patron_war: "(세계) 러시아·중국이 전쟁 중이거나 북한이 파병했나",

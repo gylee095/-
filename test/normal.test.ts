@@ -54,3 +54,20 @@ describe("평소 범위와 이탈", () => {
     expect(foldProx(undefined, p, 1, NOW).hist.days[0].k).toBeUndefined();
   });
 });
+
+describe("사건 목록의 품질 (11/14)", () => {
+  it("항공기 급감·북한 인터넷 장애는 '주요 소식'이나 '도발'이 아니다 — 참고로만", async () => {
+    const { briefEvent } = await import("../src/core/brief.js");
+    const ev = (category: string, source: string, title: string) => ({ id: "e", categories: [category], status: "UNVERIFIED", basis: "sensor", severity: 45, firstDetectedTime: NOW, lastUpdatedTime: NOW, signalIds: ["s"], title } as any);
+    const sig = (category: string, source: string, title: string) => [{ id: "s", source, sourceKind: "sensor", category, title, detectedTime: NOW, severity: 45 }] as any;
+    const air = briefEvent(ev("airspace_anomaly", "adsb_lol", "한반도 상공 항공기 급감: 17대"), sig("airspace_anomaly", "adsb_lol", "한반도 상공 항공기 급감: 17대 (이 시간대 평소 37대)"));
+    expect(air.danger.level).toBe(1);
+    expect(air.isProvocation).toBe(false);
+    const ioda = briefEvent(ev("civil_alert_other", "ioda", "북한 인터넷 외부망 장애 경보 2건"), sig("civil_alert_other", "ioda", "북한 인터넷 외부망 장애 경보 2건 (24시간)"));
+    expect(ioda.isProvocation).toBe(false);
+  });
+  it("한반도 상공에 비행기가 하나도 안 잡히면 수집 이상으로 보고 값을 남기지 않는다", async () => {
+    const { airMetrics } = await import("../src/core/collectors/adsb.js");
+    expect(airMetrics([], []).some((m) => m.indicator === "air.civil_airborne")).toBe(false);
+  });
+});

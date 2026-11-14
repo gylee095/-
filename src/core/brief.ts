@@ -44,7 +44,7 @@ export interface EventBrief {
 const DANGER_LABEL = ["", "관심", "주의", "경계", "심각", "위급"] as const;
 const H = 3600_000;
 /** 북한의 '행동'이 아닌 사건 종류 — 발사 예고 항행경보·GPS 교란·항공기 급감·항공 비상·일반 지진은 도발(발사·포격) 목록에 넣지 않는다 */
-const NOT_AN_ACT = new Set(["launch_notice", "gps_interference", "airspace_anomaly", "aviation_emergency", "seismic_anomaly"]);
+const NOT_AN_ACT = new Set(["launch_notice", "gps_interference", "airspace_anomaly", "aviation_emergency", "seismic_anomaly", "world_event"]);
 const kstText = (ms: number, time = true) => {
   const d = new Date(ms + 9 * H);
   return `${d.getUTCMonth() + 1}/${d.getUTCDate()}${time ? ` ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}` : ""}`;
@@ -166,7 +166,8 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
     : [];
   // 북한의 실제 발사·사격인가: 1차 원천이면 그렇다. 언론만 있으면 '쐈다'는 보도나 북한 매체 발표가 하나는 있어야 하고,
   // 공식 인용 속보는 '…제원 분석 중' 같은 꼬리가 붙어도 인정한다. 지난 발사를 두고 하는 기사(meta)만으로는 새 발사가 아니다
-  const act = [...cats].some((c) => !NOT_AN_ACT.has(c));
+  // 북한 인터넷 장애 경보(IODA)는 센서 관측이지 북한의 행동이 아니다 — '마지막 도발'로 적히던 문제 (11/14)
+  const act = [...cats].some((c) => !NOT_AN_ACT.has(c)) && !(signals.length > 0 && signals.every((s) => s.source === "ioda"));
   const isProvocation =
     !evacOnly && !postureOnly && !e.drill && !e.retracted && act &&
     (e.basis === "primary" || kinds.some((k) => k === "report" || k === "self") || (e.basis === "official_quote" && kinds.includes("commentary")));
@@ -223,7 +224,8 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   else if (isProvocation && strikeLike) [level, reason] = [2, "미사일·방사포 발사"];
   else if (cats.has("launch_notice") && e.status !== "UNVERIFIED" && e.severity >= 55) [level, reason] = [2, "발사 예고 항행경보"];
   else if (cats.has("nuclear_test") || cats.has("seismic_anomaly")) [level, reason] = [2, "북한 지역 지진 (원인 확인 중)"];
-  else if (cats.has("airspace_anomaly") || cats.has("gps_interference")) [level, reason] = [cats.has("airspace_anomaly") ? 2 : 1, cats.has("airspace_anomaly") ? "항공기 급감" : "GPS 교란 정보"];
+  else if (cats.has("airspace_anomaly") || cats.has("gps_interference")) [level, reason] = [1, cats.has("airspace_anomaly") ? "항공기 급감 (센서 하나의 관측 — 참고)" : "GPS 교란 정보"]; // 11/14: 항공기 급감은 수신망 장애로도 생긴다 — 주요 소식이 아니라 참고로
+  if (cats.has("world_event")) reason = "세계 정세 (참고)";
   if (selfReport) reason += " · 북한 매체 발표";
 
   let headline: string;

@@ -72,7 +72,7 @@ export const RUBRIC: RubricLayer[] = [
     ],
   },
   {
-    id: "context", label: "배경", max: 12, why: "전쟁 전 징조는 아니지만 위험의 바탕 — 세지 않고 따로 보여 준다. 한 달에 한 번쯤 점검",
+    id: "context", label: "배경", max: 16, why: "전쟁 전 징조는 아니지만 위험의 바탕 — 세지 않고 따로 보여 준다. 한 달에 한 번쯤 점검",
     groups: [
       g("X", "세계 정세", [
         ["w_us_war", "미국이 다른 지역에서 전쟁·대규모 군사작전 중"],
@@ -81,6 +81,11 @@ export const RUBRIC: RubricLayer[] = [
         ["w_taiwan", "대만해협·동중국해의 군사 위기"],
         ["w_nuclear", "강대국의 핵 위협·핵실험 재개·군비통제 붕괴"],
         ["w_markets", "세계 금융의 전쟁 공포 (금·유가·변동성 급등)"],
+        // 11/14 사용자: 세계 정세를 더 넓게 — 전쟁은 서로 이어져 있다
+        ["w_infra", "미국·동맹국의 기반시설이 전국 규모로 마비되거나 공격받음 (최근 7일)"],
+        ["w_new_war", "새 전쟁·대규모 공격이 시작됨 (최근 30일)"],
+        ["w_power_clash", "강대국 사이의 직접 충돌 (격추·함정 충돌·교전)"],
+        ["w_us_commit", "미국의 동맹 방위 공약이 약해지는 신호 (주한미군 감축 발표·방위비 갈등으로 철수 거론)"],
       ]),
       g("S", "한반도의 구조적 긴장", [
         ["s_talks", "남북·북미 대화 채널이 모두 끊김"],
@@ -120,7 +125,7 @@ export interface RubricScore {
   moves: number;
   /** 배경 항목 중 켜진 수 */
   context: number;
-  /** 0~100 %: 징조 9 + 조용한 움직임 18 + 배경 12 = 39개 중 켜진 비율 (11/12 사용자: 단계 옆에 % 로) — 배점 없이 항목 하나를 1로 센다. 전쟁 확률이 아니다 */
+  /** 0~100 %: 징조 9 + 조용한 움직임 18 + 배경 16 = 43개 중 켜진 비율 (11/12 사용자: 단계 옆에 % 로) — 배점 없이 항목 하나를 1로 센다. 전쟁 확률이 아니다 */
   index: number;
   phase: 1 | 2 | 3 | 4;
   layers: ScoredLayer[];
@@ -165,7 +170,7 @@ export function scoreRubric(status: Record<string, SignalNow | undefined>): Rubr
 }
 
 /** 켜진 비율 %: (징조 + 조용한 움직임 + 배경) ÷ 39 */
-export const TOTAL_ITEMS = 9 + 18 + 12;
+export const TOTAL_ITEMS = RUBRIC.filter((l) => l.id !== "other").reduce((a, l) => a + l.max, 0);
 export const pctOn = (signs: number, moves: number, context: number) => Math.round(((signs + moves + context) / TOTAL_ITEMS) * 100);
 
 /** 30일 국지 충돌 % (판단값 — 알림 문구용): 징조 수에 따라, 단계가 다른 이유로 올랐으면 그 단계의 최소값 */

@@ -217,7 +217,7 @@ export const LANDING_STORY = String.raw`<section id="hero" data-ch="00 / 전체"
     <div class="ladder" aria-label="평온, 긴장, 위기, 임박, 교전">
       <div>평온<small>0~9%</small></div><div>긴장<small>10~24%</small></div><div class="r">위기<small>25~49%</small></div><div class="r">임박<small>50%~</small></div><div class="r">교전<small>실제 교전</small></div>
     </div>
-    <p class="lead">우크라이나·이란·걸프전 등 <b>실제 전쟁과 위기 42건</b>을 조사해, 전쟁 전에 공통으로 나타난 <b>징조 9개</b>를 골랐습니다. 여기에 사람·돈·군의 <b>조용한 움직임 18개</b>와 <b>불안한 배경 12개</b>를 더해, 39개 중 몇 개가 켜졌는지를 %로 보여 드립니다.</p>
+    <p class="lead">우크라이나·이란·걸프전 등 <b>실제 전쟁과 위기 42건</b>을 조사해, 전쟁 전에 공통으로 나타난 <b>징조 9개</b>를 골랐습니다. 여기에 사람·돈·군의 <b>조용한 움직임 18개</b>와 <b>세계 정세와 한반도의 불안한 배경 16개</b>를 더해, 43개 중 몇 개가 켜졌는지를 %로 보여 드립니다.</p>
     <p class="lead">5분마다 자동으로 계산하고, <b>AI 분석관이 하루 두 번</b> 뉴스를 읽어 확인합니다.</p>
     <p class="note">조사한 사례에서 징조가 5개 이상 켜졌던 17건 중 13건이 전쟁으로 갔습니다. %는 켜진 비율이며 전쟁이 날 확률은 아닙니다.</p>
   </div>

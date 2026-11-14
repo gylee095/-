@@ -17,6 +17,7 @@ export const GROUPS: Record<string, GroupRule> = {
   airspace: { categories: ["airspace_anomaly"], windowMs: 2 * 3600_000 },
   evacuation: { categories: ["evacuation"], windowMs: 24 * 3600_000 },
   posture: { categories: ["posture"], windowMs: 24 * 3600_000 },
+  world: { categories: ["world_event"], windowMs: 24 * 3600_000 },
 };
 
 export function groupOf(c: Category): string {

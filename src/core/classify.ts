@@ -25,6 +25,7 @@ export const BASE_SEVERITY: Record<Category, number> = {
   civil_alert_other: 30,
   evacuation: 90,
   posture: 88,
+  world_event: 15,
 };
 
 interface Rule {
@@ -55,6 +56,21 @@ const RULES: Rule[] = [
 export const KOREA_TERMS_RE =
   /북한|北|남북|한반도|김정은|김여정|평양|조선중앙|노동신문|인민군|NLL|북방한계선|휴전선|군사분계선|\bMDL\b|비무장지대|DMZ|대북|대남|판문점|개성공단|서해\s?5도|연평도?|백령도?|대청도|소청도|교동도|강화도|파주|연천|철원|North Korea|DPRK|Pyongyang|Korean Peninsula|Kim Jong Un/i;
 export const isKoreaContext = (text: string) => KOREA_TERMS_RE.test(text);
+
+/**
+ * 세계 정세 사건 (2026-11-14 사용자: "세계 정세가 나빠지고 미국이 위험해지면 한국 전쟁 확률도 오른다 — 모든 곳에서 신호를 잡아라").
+ * 한반도 밖의 일이라 '한반도 이야기인가' 거름망을 거치지 않고 따로 잡는다. 제목만 보고 잡으므로 약한 신호(절반)로만 쓰고, 분석관이 확인해 올리거나 내린다.
+ *  - infra: 미국·동맹국의 기반시설이 전국 규모로 멈춤 (원인이 공격인지 고장인지는 제목만으로 모른다)
+ *  - war: 새 전쟁·대규모 공격의 개시
+ */
+const WORLD_WHO = "美|미국|日|일본|유럽|나토|NATO|영국|독일|프랑스|대만|호주|캐나다";
+const WORLD_INFRA_RE = new RegExp(`(${WORLD_WHO})[^.]{0,24}(전역|전국|전체|전면)[^.]{0,24}(운항\\s*중단|이륙\\s*중단|마비|정전|올스톱|먹통|셧다운)|사이버\\s*공격[^.]{0,20}(마비|중단|정전|먹통)|해저\\s*케이블[^.]{0,12}(절단|파손)`);
+const WORLD_WAR_RE = /침공\s*(개시|시작|단행)|선전\s*포고|전면전\s*(돌입|개시)|핵\s*실험\s*(재개|단행)|핵무기\s*사용/;
+const WORLD_NOT_RE = /훈련|모의|가능성|우려|전망|경고|년 전|주년|영화|게임|드라마/;
+export function worldEvent(title: string): "infra" | "war" | null {
+  if (isKoreaContext(title) || WORLD_NOT_RE.test(title)) return null;
+  return WORLD_WAR_RE.test(title) ? "war" : WORLD_INFRA_RE.test(title) ? "infra" : null;
+}
 
 /** 한반도 관련성: 영문 항행경보·외신은 지역명이 있어야만 통과 */
 const REGION_RE =

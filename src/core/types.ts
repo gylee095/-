@@ -15,7 +15,8 @@ export type Category =
   | "aviation_emergency" // 비상 스쿼크(7500/7600/7700)
   | "civil_alert_other" // 기타 군사 관련 정부 안내
   | "evacuation" // 자국민·미군 가족이 한국을 떠나는 움직임 (철수 명령·출국 권고·후송) — 훈련·가짜는 따로 표시
-  | "posture"; // 경보 단어: 군·정부의 태세 격상, 북한의 전시 태세 명령, 돈·사람이 빠지는 행동 (tripwires.ts)
+  | "posture"
+  | "world_event"; // 세계 정세: 한반도 밖의 큰 사건 (동맹국 기반시설 마비·새 전쟁 개시 등) — 참고로만 보이고 알림은 없다 (11/14) // 경보 단어: 군·정부의 태세 격상, 북한의 전시 태세 명령, 돈·사람이 빠지는 행동 (tripwires.ts)
 
 export interface Signal {
   /** 출처 고유 ID 기반 지문(중복 제거 키) */

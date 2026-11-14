@@ -115,7 +115,7 @@ export const RUBRIC: RubricLayer[] = [
   },
 ];
 
-export interface ScoredItem extends RubricItem { s: Obs; weak: boolean; got: number; ev?: string; by?: string }
+export interface ScoredItem extends RubricItem { s: Obs; weak: boolean; got: number; ev?: string; by?: string; src?: { t: string; u: string }[] }
 export interface ScoredGroup { id: string; label: string; max: number; pts: number; items: ScoredItem[] }
 export interface ScoredLayer { id: LayerId; label: string; max: number; why: string; pts: number; groups: ScoredGroup[] }
 export interface RubricScore {
@@ -148,7 +148,7 @@ export function scoreRubric(status: Record<string, SignalNow | undefined>): Rubr
         const s: Obs = st?.s ?? "unk";
         const weak = s === "on" && (st?.w ?? 1) < 1;
         if (L.id !== "other") { if (s === "unk") waiting++; else watched++; }
-        return { ...it, s, weak, got: s === "on" ? (weak ? 0.5 : 1) : 0, ev: st?.ev, by: st?.by };
+        return { ...it, s, weak, got: s === "on" ? (weak ? 0.5 : 1) : 0, ev: st?.ev, by: st?.by, ...(st?.src?.length ? { src: st.src } : {}) };
       });
       return { id: gr.id, label: gr.label, max: gr.max, pts: items.reduce((a, x) => a + x.got, 0), items };
     });
@@ -189,18 +189,18 @@ export function clashOf(signs: number, phase: number, quietPct: number): number 
  * 배경 항목의 지금 상태 — 천천히 변하므로 코드에 날짜·근거와 함께 적어 두고, 분석관이 확인하면 그 값이 덮어 쓴다(record_precursor_checks, 45일 유효).
  * 확인하지 못한 항목은 세지 않고 화면에 '확인 대기'로 나온다 — 추측으로 켜지 않는다.
  */
-export const BASE_SEED: { asOf: string; items: Record<string, { v: 0 | 0.5 | 1; ev: string }> } = {
+export const BASE_SEED: { asOf: string; items: Record<string, { v: 0 | 0.5 | 1; ev: string; src?: [string, string][] }> } = {
   asOf: "2026-11-11",
   items: {
-    s_talks: { v: 1, ev: "11/10 김여정, 유엔 사무총장의 대화 촉구에 '한국 편향' 유감 표명 — 남북·북미 대화 없음" },
-    s_doctrine: { v: 1, ev: "11/11 북한, 헌법 전문 공개 — '두 국가' 반영 공식화 (연합뉴스)" },
-    s_agreement: { v: 0.5, ev: "9·19 군사합의는 2024년 6월 전면 효력정지 — 2026년 5월까지 '일부 복원 검토' 단계 (그 뒤는 미확인)" },
-    s_friction: { v: 0.5, ev: "확성기는 2025년 6월 양쪽 모두 중단. 2026년 10월 김여정이 대남 확성기 재개 예고 — 군은 가동 미확인" },
+    s_talks: { v: 1, ev: "11/10 김여정, 유엔 사무총장의 대화 촉구에 '한국 편향' 유감 표명 — 남북·북미 대화 없음", src: [["\"남부국경사태 時, 구테흐스 책임도\" 위협… (연합뉴스 계열)", "https://www.koreancenter.or.kr/news/articleView.html?idxno=1437388"], ["Pyongyang slams UN chief (The Star, 11/11)", "https://www.thestar.com.my/aseanplus/aseanplus-news/2026/11/11/pyongyang-slams-un-chief"], ["North Korea accuses UN chief of siding with South Korea over border tensions (Daily Maverick, 11/10)", "https://www.dailymaverick.co.za/article/2026-11-10-north-korea-accuses-un-chief-of-siding-with-south-korea-over-border-tensions/"]] },
+    s_doctrine: { v: 1, ev: "11/11 북한, 헌법 전문 공개 — '두 국가' 반영 공식화 (연합뉴스)", src: [["내나라, 2년 8개월 만에 헌법 재공개…정부 입수본과 대체로 일치", "https://www.koreancenter.or.kr/news/articleView.html?idxno=1437807"], ["North Korea unveils revised constitution reflecting 'two hostile states' policy (Korea JoongAng Daily)", "https://koreajoongangdaily.com/korea/north-korea-unveils-revised-constitution-reflecting-two-hostile-states-policy/12967144"]] },
+    s_agreement: { v: 0.5, ev: "9·19 군사합의는 2024년 6월 전면 효력정지 — 2026년 5월까지 '일부 복원 검토' 단계 (그 뒤는 미확인)", src: [["선제적 9·19 군사합의 일부 복원 가시화 (뉴스토마토)", "https://newstomato.com/ReadNews.aspx?no=1291765"], ["안보실장 “9·19 군사합의 복원 이 대통령 지침…” (2026.1.14)", "https://www.twig24.com/news/2026/01/14/20260114500125"]] },
+    s_friction: { v: 0.5, ev: "확성기는 2025년 6월 양쪽 모두 중단. 2026년 10월 김여정이 대남 확성기 재개 예고 — 군은 가동 미확인", src: [["남북, 작년 6월부터 중단…北김여정, 이달 대남확성기 재개 예고", "https://www.koreancenter.or.kr/news/articleView.html?idxno=1427878"], ["접경지역 긴장 고조 피하려는 듯…\"공사 지연 막기 위한 엄포용 카드\"", "https://www.koreancenter.or.kr/news/articleView.html?idxno=1432858"]] },
     s_tests: { v: 0, ev: "최근 12개월 ICBM 발사·핵실험 보도 없음 (2026년 3월 고체연료 엔진 시험만)" },
     s_casualty: { v: 0, ev: "최근 5년 사상자가 난 남북 충돌 없음" },
-    w_us_war: { v: 1, ev: "미국·이스라엘의 대이란 전쟁 (2026년 2월 28일 시작) — 11월 초 협상 중, 종결 미확인" },
-    w_us_assets_out: { v: 1, ev: "2026년 3~8월 주한미군 사드 일부·패트리엇·탄약이 중동으로 이동 (복귀 여부 미확인)" },
-    w_patron_war: { v: 1, ev: "러시아–우크라이나 전쟁 계속 (11월 기준 종전 합의 없음)" },
+    w_us_war: { v: 1, ev: "미국·이스라엘의 대이란 전쟁 (2026년 2월 28일 시작) — 11월 초 협상 중, 종결 미확인", src: [["Mediators continue US-Iran negotiations amid war rhetoric: What we know (Al Jazeera, 11/1)", "https://aljazeera.com/news/2026/11/1/mediators-continue-us-iran-negotiations-amid-war-rhetoric-what-we-know"], ["Iran says contacts over ending war continue after talks finish with no breakthrough (gCaptain/Reuters)", "https://gcaptain.com/iran-says-contacts-over-ending-war-continue-after-talks-finish-with-no-breakthrough/"], ["Trump says new attacks on Iran ‘highly unlikely’ as Middle East remains on edge (Saudi Gazette)", "https://saudigazette.com.sa/article/666111/world/trump-says-new-attacks-on-iran-highly-unlikely-as-middle-east-remains-on-edge"]] },
+    w_us_assets_out: { v: 1, ev: "2026년 3~8월 주한미군 사드 일부·패트리엇·탄약이 중동으로 이동 (복귀 여부 미확인)", src: [["미국, 주한미군 사드 일부 중동 이동…이란 보복 대비 방공망 재배치 (헤럴드경제)", "https://www.heraldk.com/article/2026030921544730774"], ["사드 기지에 있던 발사대 6대 모두 떠나 (YTN)", "https://www.ytn.co.kr/_ln/0101_202603111347125413"], ["“주한미군 사드, 이미 중동으로 이동” 美 언론 확인…한국 입장은?", "https://v.daum.net/v/20260310135900347"]] },
+    w_patron_war: { v: 1, ev: "러시아–우크라이나 전쟁 계속 (11월 기준 종전 합의 없음)", src: [["Russia, Ukraine meet for US-backed talks after Trump says broad deal possible (Al-Monitor, 11월)", "https://www.al-monitor.com/originals/2026/11/russia-ukraine-meet-us-backed-talks-after-trump-says-broad-deal-possible"], ["Russia and Ukraine agree on large-scale prisoner exchange as trilateral talks with US conclude in Abu Dhabi (11/11)", "https://newsonair.gov.in/russia-and-ukraine-agree-on-large-scale-prisoner-exchange-as-trilateral-talks-with-us-conclude-in-abu-dhabi/"]] },
     w_taiwan: { v: 0, ev: "긴장은 높지만 침공·봉쇄 같은 군사 위기는 없음" },
   },
 };

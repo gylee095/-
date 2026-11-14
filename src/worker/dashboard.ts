@@ -505,11 +505,21 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   var stat=function(L,name,hot){var u=unkOf(L),on=SUMOPEN===L.id;return '<button type="button" class="sumtab" data-l="'+L.id+'" aria-expanded="'+(on?'true':'false')+'" onclick="sumTap(this.dataset.l)" style="flex:1;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--chip);border:0;border-radius:12px;padding:10px 10px 8px;outline:'+(on?'2px solid var(--fg)':'none')+'"><div style="font-size:12.5px;color:var(--mute);font-weight:700">'+name+'</div><div style="font-size:26px;font-weight:800;line-height:1.15;color:'+(hot?col:'var(--fg)')+'">'+num(L.pts)+'<span style="font-size:13px;color:var(--mute);font-weight:400"> / '+L.max+'</span></div><div style="font-size:11.5px;color:var(--mute)">'+(u?'미확인 '+u:'모두 확인')+' <span class="sumchev" style="float:right">'+(on?'▴':'▾')+'</span></div></button>'};
   var NONE={signs:"켜진 징조가 없어요. 병력 집결·최후통첩·전선 교전 같은 전쟁 직전의 공개 징조가 지금은 보이지 않아요.",moves:"사람·돈·군이 평소대로예요. 철수·자금 이탈·병참 이동 같은 움직임이 보이지 않아요.",context:"확인된 불안 요인이 없어요."};
   var WHAT={signs:"실제 전쟁 직전에 공통으로 나타났던 공개 징조예요.",moves:"뉴스와 상관없이 직접 재는 사람·돈·군의 움직임이에요. 기습은 이쪽으로만 잡혀요.",context:"전쟁 징조는 아니지만 긴장을 높이는 세계 정세와 한반도 상황이에요."};
+  // 출처 (11/14 사용자: 켜진 것을 누르면 어디서 얻은 정보인지 — 뉴스면 기사 링크 목록으로). 분석관·바탕값이 적어 둔 링크 + 같은 제목의 수집 기사. 없으면 뉴스 검색 링크를 '검색'이라고 밝혀 준다
+  var host=function(u){var m=/^https?:\/\/(?:www\.)?([^\/]+)/.exec(u||"");return m?m[1]:""};
+  var srcOf=function(x){var L=[],seen={};(x.src||[]).forEach(function(q){if(q&&/^https?:\/\//.test(q.u)&&!seen[q.u]){seen[q.u]=1;L.push(q)}});
+    (st.events||[]).forEach(function(e){if(!e.brief||e.brief.headline!==x.ev)return;(e.signals||[]).forEach(function(g){if(g.url&&/^https?:\/\//.test(g.url)&&!seen[g.url]){seen[g.url]=1;L.push({t:g.title,u:g.url})}})});
+    var li=function(q){return '<a href="'+esc(q.u)+'" target="_blank" rel="noopener noreferrer" style="display:block;padding:6px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none"><span style="display:block;font-size:13.5px;text-decoration:underline;word-break:keep-all;overflow-wrap:anywhere">'+esc(q.t||host(q.u))+'</span><span style="font-size:11.5px;color:var(--mute)">'+esc(host(q.u))+' ↗</span></a>'};
+    var q=encodeURIComponent(short(x).replace(/[·()]/g," ")),find='<a href="https://search.naver.com/search.naver?where=news&query='+q+'" target="_blank" rel="noopener noreferrer" style="display:block;padding:6px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">관련 뉴스 직접 검색해 보기 ↗</a>';
+    if(L.length)return '<div style="font-size:12px;color:var(--mute);padding-bottom:4px">근거가 된 기사 '+L.length+'건 — 누르면 원문이 열려요</div>'+L.slice(0,6).map(li).join("")+find;
+    if(x.by==="auto"&&!x.src)return '<div style="font-size:13px">'+(L.length?'':'기사가 아니라 직접 잰 값이에요. 맨 아래 \'근거 전부 보기\'의 징후판에서 수치를 볼 수 있어요.')+'</div>'+find;
+    return '<div style="font-size:13px">분석관이 보도를 확인해 적었지만 기사 주소는 남기지 않았어요.</div>'+find};
   var panel=function(L){var ons=[],unk=[],all=[];L.groups.forEach(function(g){g.items.forEach(function(x){all.push(x);if(x.s==="on")ons.push(x);else if(x.s==="unk")unk.push(x)})});
     var b='<div class="sumpanel" data-l="'+L.id+'" style="display:'+(SUMOPEN===L.id?'block':'none')+';margin-top:8px;padding:12px;border-radius:12px;background:var(--chip)">';
     b+='<div style="font-size:14px;font-weight:700">'+esc(L.label.split(" (")[0])+' — 지금 켜진 것 '+num(L.pts)+'개</div><div style="font-size:12.5px;color:var(--mute);margin-top:2px">'+WHAT[L.id]+'</div>';
     if(!ons.length)b+='<div style="font-size:14px;margin-top:10px">'+NONE[L.id]+'</div>';
-    else b+=ons.map(function(x){return '<div style="display:flex;gap:8px;margin-top:10px"><b style="flex:none;color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;word-break:keep-all;overflow-wrap:anywhere">'+esc(short(x))+(x.weak?' <span style="font-weight:400;color:var(--mute);font-size:12.5px">반 개 · 약하거나 확인 중</span>':'')+'</div>'+(x.ev?'<div style="font-size:12.5px;color:var(--mute);word-break:keep-all;overflow-wrap:anywhere">'+esc(x.ev)+'</div>':'')+'</div></div>'}).join("");
+    else b+=ons.map(function(x){var on=!!SRCOPEN[x.id];
+      return '<button type="button" class="srctab" data-i="'+x.id+'" aria-expanded="'+(on?'true':'false')+'" onclick="srcTap(this.dataset.i)" style="display:flex;gap:8px;margin-top:10px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer"><b style="flex:none;color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b><span style="flex:1;min-width:0;display:block"><span style="display:block;font-size:14px;font-weight:600;word-break:keep-all;overflow-wrap:anywhere">'+esc(short(x))+(x.weak?' <span style="font-weight:400;color:var(--mute);font-size:12.5px">반 개 · 약하거나 확인 중</span>':'')+'</span>'+(x.ev?'<span style="display:block;font-size:12.5px;color:var(--mute);word-break:keep-all;overflow-wrap:anywhere">'+esc(x.ev)+'</span>':'')+'<span class="srchint" style="display:block;font-size:12px;color:var(--mute);text-decoration:underline">'+(on?'출처 닫기':'어디서 얻은 정보인가 ›')+'</span></span></button><div class="srcbox" data-i="'+x.id+'" style="display:'+(on?'block':'none')+';margin:6px 0 0 20px;padding:8px 10px;border-radius:10px;background:var(--card)">'+srcOf(x)+'</div>'}).join("");
     if(unk.length)b+='<div style="font-size:12.5px;color:var(--mute);margin-top:10px">아직 확인 못 한 것 '+unk.length+'개: '+unk.map(function(x){return esc(short(x))}).join(" · ")+' — 분석관이 하루 두 번 확인해요.</div>';
     b+='<details style="margin-top:10px"><summary style="cursor:pointer;font-size:13px;color:var(--mute)">지켜보는 '+all.length+'개 전부 보기</summary>'+L.groups.map(function(g){return (L.groups.length>1?'<div style="font-size:13px;font-weight:700;margin:10px 0 2px">'+esc(g.label)+'</div>':'')+'<ul style="margin:6px 0 0;padding-left:18px">'+g.items.map(it).join("")+'</ul>'}).join("")+'</details>';
     return b+'</div>'};
@@ -698,6 +708,10 @@ function render(){
 }
 // 접힌 묶음: 연 것은 이 기기에 기억한다 (5분마다 다시 그려도 그대로)
 var SUMOPEN="";
+var SRCOPEN={};
+function srcTap(id){SRCOPEN[id]=!SRCOPEN[id];var on=SRCOPEN[id],bs=document.querySelectorAll(".srcbox"),ts=document.querySelectorAll(".srctab"),i;
+  for(i=0;i<bs.length;i++)if(bs[i].dataset.i===id)bs[i].style.display=on?"block":"none";
+  for(i=0;i<ts.length;i++)if(ts[i].dataset.i===id){ts[i].setAttribute("aria-expanded",on?"true":"false");var h=ts[i].querySelector(".srchint");if(h)h.textContent=on?"출처 닫기":"어디서 얻은 정보인가 ›"}}
 function sumTap(id){SUMOPEN=SUMOPEN===id?"":id;
   var ps=document.querySelectorAll(".sumpanel"),ts=document.querySelectorAll(".sumtab"),i;
   for(i=0;i<ps.length;i++)ps[i].style.display=ps[i].dataset.l===SUMOPEN?"block":"none";

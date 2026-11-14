@@ -7,7 +7,7 @@ import type { BoardRow } from "./state.js";
 import type { EventBrief } from "./brief.js";
 import { kstDay } from "./store.js";
 import { PRECURSOR_DATA } from "./precursor_data.js";
-import { MODEL, evaluate, type Obs, type Proximity, type SignalNow } from "./precursors.js";
+import { MODEL, evaluate, type Obs, type Proximity, type SignalNow, type SourceLink } from "./precursors.js";
 import { BASE_SEED, RUBRIC, TOTAL_ITEMS, PCT_BASE, clashOf, scoreRubric, type RubricScore } from "./rubric.js";
 import { worldEvent } from "./classify.js";
 import { BANDS, PHASE_LABEL, eventFloors, fmtRiskPct, type Band, type Phase, type WarRisk } from "./warrisk.js";
@@ -21,7 +21,7 @@ export const HIST_DAYS = 400;
 /** 분석관이 남기는 확인: 가설 id → 1(켜짐)·0.5(약함·미확인)·0(없음) 과 근거 한 줄 */
 export interface AnalystChecks {
   at: number;
-  items: Record<string, { v: 0 | 0.5 | 1; ev?: string }>;
+  items: Record<string, { v: 0 | 0.5 | 1; ev?: string; src?: SourceLink[] }>;
 }
 
 /** 하루 한 줄. s = 가설 순서대로 2(켜짐)·1(약함)·0(꺼짐)·?(못 봄) */
@@ -154,14 +154,14 @@ export function koreaStatus(board: BoardRow[], briefs: EventBrief[], now: number
     const c = checks && age < (WORLD_EVENT_IDS.includes(id) ? WORLD_EVENT_TTL : isBase ? BASE_TTL : CHECK_TTL) ? checks.items[id] : undefined, a = st[id];
     if (!c) {
       const seed = isBase ? BASE_SEED.items[id] : undefined;
-      if (seed) st[id] = { s: seed.v ? "on" : "off", ...(seed.v === 0.5 ? { w: 0.5 } : {}), ev: seed.ev.slice(0, 120), by: "analyst" };
+      if (seed) st[id] = { s: seed.v ? "on" : "off", ...(seed.v === 0.5 ? { w: 0.5 } : {}), ev: seed.ev.slice(0, 120), by: "analyst", ...(seed.src ? { src: seed.src.map(([t, u]) => ({ t, u })) } : {}) };
       else if (!a) st[id] = { s: "unk" };
       continue;
     }
     const ev = c.ev?.slice(0, 90);
     if (c.v > 0) {
       if (a?.s === "on" && (a.w ?? 1) >= c.v) continue;
-      st[id] = { s: "on", ...(c.v < 1 ? { w: c.v } : {}), ev: ev ?? a?.ev, by: "analyst" };
+      st[id] = { s: "on", ...(c.v < 1 ? { w: c.v } : {}), ev: ev ?? a?.ev, by: "analyst", ...(c.src ? { src: c.src } : {}) };
     } else if (a?.s === "on") st[id] = { ...a, w: 0.5, ev: `${a.ev ?? ""}${ev ? ` — 분석관: ${ev}` : ""}`.slice(0, 120) };
     else st[id] = { s: "off", by: "analyst", ...(ev ? { ev } : {}) };
   }
@@ -310,13 +310,18 @@ export async function recordProx(store: Kv, prox: Proximity, phase: number, now:
 }
 
 /** 분석관 부호 한 줄을 읽는다: "g_ultimatum=0 g_talks_collapse=1:북미 실무회담 결렬 선언(11/9) m_logistics=0.5:…" — 근거는 다음 id= 앞까지 */
+const URL_RE = /https?:\/\/[^\s<>"']+/g;
+const hostOf = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u.slice(0, 40); } };
 export function parseChecks(text: string, now: number): AnalystChecks {
   const items: AnalystChecks["items"] = {};
   const re = /([a-z]_[a-z_]+)\s*=\s*(1|0\.5|0)(?![\d.])(?::([^\n]*?))?(?=\s+[a-z]_[a-z_]+\s*=|\s*$)/gm;
   for (const m of text.matchAll(re)) {
     if (!ALL_IDS.includes(m[1])) continue;
-    const ev = m[3]?.trim();
-    items[m[1]] = { v: Number(m[2]) as 0 | 0.5 | 1, ...(ev ? { ev: ev.slice(0, 90) } : {}) };
+    // 근거 뒤에 붙인 기사 주소(최대 3개)는 떼어 출처 링크로 둔다 (11/14 사용자: 항목을 누르면 어디서 얻은 정보인지 링크로)
+    const raw = m[3]?.trim() ?? "";
+    const urls = [...new Set(raw.match(URL_RE) ?? [])].slice(0, 3);
+    const ev = raw.replace(URL_RE, "").replace(/\s+/g, " ").replace(/[\s,·|]+$/, "").trim();
+    items[m[1]] = { v: Number(m[2]) as 0 | 0.5 | 1, ...(ev ? { ev: ev.slice(0, 90) } : {}), ...(urls.length ? { src: urls.map((u) => ({ t: hostOf(u), u })) } : {}) };
   }
   return { at: now, items };
 }

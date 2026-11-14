@@ -34,7 +34,7 @@ for (const scheme of ["light", "dark"] as const) {
   await page.waitForTimeout(800);
   await page.evaluate(() => {
     document.querySelectorAll("details").forEach((d) => ((d as HTMLDetailsElement).open = true));
-    document.querySelectorAll(".sumpanel").forEach((d) => ((d as HTMLElement).style.display = "block")); // 세 칸을 눌렀을 때 뜨는 설명도 모두 펼쳐 본다
+    document.querySelectorAll(".sumpanel,.srcbox").forEach((d) => ((d as HTMLElement).style.display = "block")); // 세 칸을 눌렀을 때 뜨는 설명도 모두 펼쳐 본다
     document.querySelectorAll(".ind").forEach((n) => n.classList.add("open"));
   });
   await page.waitForTimeout(800);

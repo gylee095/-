@@ -498,8 +498,24 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   h+='<div style="position:absolute;top:-5px;left:'+mark.toFixed(1)+'%;width:4px;height:20px;margin-left:-2px;border-radius:2px;background:var(--fg);box-shadow:0 0 0 2px var(--card)"><b style="position:absolute;top:-19px;left:50%;transform:translateX(-'+(mark<12?'15':mark>88?'85':'50')+'%);font-size:12px;white-space:nowrap">지금 '+PCT+'%</b></div></div>';
   h+='<div style="display:flex;gap:3px;margin-bottom:10px">'+[0,1,2,3,4].map(function(i){return '<span style="flex:1;text-align:center;font-size:11px;line-height:1.3;color:'+(i===seg?'var(--fg)':'var(--mute)')+';font-weight:'+(i===seg?700:400)+'">'+NM[i]+'<br>'+RNG[i]+'</span>'}).join("")+'</div>';
   var unkOf=function(L){var n=0;L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")n++})});return n};
-  var stat=function(L,name,hot){var u=unkOf(L);return '<div style="flex:1;min-width:0;background:var(--chip);border-radius:12px;padding:10px 10px 8px"><div style="font-size:12.5px;color:var(--mute);font-weight:700">'+name+'</div><div style="font-size:26px;font-weight:800;line-height:1.15;color:'+(hot?col:'var(--fg)')+'">'+num(L.pts)+'<span style="font-size:13px;color:var(--mute);font-weight:400"> / '+L.max+'</span></div><div style="font-size:11.5px;color:var(--mute)">'+(u?'미확인 '+u:'모두 확인')+'</div></div>'};
+  var it=function(x){var mark=x.s==="on"?'<b style="color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b>':x.s==="off"?'<span style="color:var(--mute)">○</span>':'<span style="color:var(--mute)">?</span>';
+    return '<li style="list-style:none;margin:4px 0 4px -18px;font-size:13.5px;display:flex;gap:6px"><span style="flex:none">'+mark+'</span><span style="flex:1;min-width:0">'+esc(x.ko)+(x.weak?' <span style="color:var(--mute)">(약함·미확인)</span>':'')+(x.s==="unk"?' <span style="color:var(--mute)">(확인 대기)</span>':'')+(x.ev&&x.s==="on"?'<br><span style="color:var(--mute);font-size:12.5px">'+esc(x.ev)+'</span>':'')+'</span></li>'};
+  // 세 칸을 누르면 바로 아래에 '무엇이 켜져 있나'만 뜬다 (11/14 사용자: "6.5가 무엇인지 누르면 뜨게 — 아래 자세히는 정보가 너무 많다. 핵심만 먼저, 원하면 전체를")
+  var short=function(x){return x.ko.split(" (")[0]};
+  var stat=function(L,name,hot){var u=unkOf(L),on=SUMOPEN===L.id;return '<button type="button" class="sumtab" data-l="'+L.id+'" aria-expanded="'+(on?'true':'false')+'" onclick="sumTap(this.dataset.l)" style="flex:1;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--chip);border:0;border-radius:12px;padding:10px 10px 8px;outline:'+(on?'2px solid var(--fg)':'none')+'"><div style="font-size:12.5px;color:var(--mute);font-weight:700">'+name+'</div><div style="font-size:26px;font-weight:800;line-height:1.15;color:'+(hot?col:'var(--fg)')+'">'+num(L.pts)+'<span style="font-size:13px;color:var(--mute);font-weight:400"> / '+L.max+'</span></div><div style="font-size:11.5px;color:var(--mute)">'+(u?'미확인 '+u:'모두 확인')+' <span class="sumchev" style="float:right">'+(on?'▴':'▾')+'</span></div></button>'};
+  var NONE={signs:"켜진 징조가 없어요. 병력 집결·최후통첩·전선 교전 같은 전쟁 직전의 공개 징조가 지금은 보이지 않아요.",moves:"사람·돈·군이 평소대로예요. 철수·자금 이탈·병참 이동 같은 움직임이 보이지 않아요.",context:"확인된 불안 요인이 없어요."};
+  var WHAT={signs:"실제 전쟁 직전에 공통으로 나타났던 공개 징조예요.",moves:"뉴스와 상관없이 직접 재는 사람·돈·군의 움직임이에요. 기습은 이쪽으로만 잡혀요.",context:"전쟁 징조는 아니지만 긴장을 높이는 세계 정세와 한반도 상황이에요."};
+  var panel=function(L){var ons=[],unk=[],all=[];L.groups.forEach(function(g){g.items.forEach(function(x){all.push(x);if(x.s==="on")ons.push(x);else if(x.s==="unk")unk.push(x)})});
+    var b='<div class="sumpanel" data-l="'+L.id+'" style="display:'+(SUMOPEN===L.id?'block':'none')+';margin-top:8px;padding:12px;border-radius:12px;background:var(--chip)">';
+    b+='<div style="font-size:14px;font-weight:700">'+esc(L.label.split(" (")[0])+' — 지금 켜진 것 '+num(L.pts)+'개</div><div style="font-size:12.5px;color:var(--mute);margin-top:2px">'+WHAT[L.id]+'</div>';
+    if(!ons.length)b+='<div style="font-size:14px;margin-top:10px">'+NONE[L.id]+'</div>';
+    else b+=ons.map(function(x){return '<div style="display:flex;gap:8px;margin-top:10px"><b style="flex:none;color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;word-break:keep-all;overflow-wrap:anywhere">'+esc(short(x))+(x.weak?' <span style="font-weight:400;color:var(--mute);font-size:12.5px">반 개 · 약하거나 확인 중</span>':'')+'</div>'+(x.ev?'<div style="font-size:12.5px;color:var(--mute);word-break:keep-all;overflow-wrap:anywhere">'+esc(x.ev)+'</div>':'')+'</div></div>'}).join("");
+    if(unk.length)b+='<div style="font-size:12.5px;color:var(--mute);margin-top:10px">아직 확인 못 한 것 '+unk.length+'개: '+unk.map(function(x){return esc(short(x))}).join(" · ")+' — 분석관이 하루 두 번 확인해요.</div>';
+    b+='<details style="margin-top:10px"><summary style="cursor:pointer;font-size:13px;color:var(--mute)">지켜보는 '+all.length+'개 전부 보기</summary>'+L.groups.map(function(g){return (L.groups.length>1?'<div style="font-size:13px;font-weight:700;margin:10px 0 2px">'+esc(g.label)+'</div>':'')+'<ul style="margin:6px 0 0;padding-left:18px">'+g.items.map(it).join("")+'</ul>'}).join("")+'</details>';
+    return b+'</div>'};
   h+='<div style="display:flex;gap:8px">'+stat(R.layers[0],"전쟁 전 징조",R.signs>=3)+stat(R.layers[1],"조용한 움직임",R.moves>=3)+stat(R.layers[2],"불안한 배경",R.context>=4)+'</div>';
+  h+='<div style="font-size:11.5px;color:var(--mute);margin-top:4px;text-align:right">칸을 누르면 무엇이 켜졌는지 보여요</div>';
+  h+=panel(R.layers[0])+panel(R.layers[1])+panel(R.layers[2]);
   // 9칸: 징조 하나에 한 칸 — 켜짐(색) · 약함(반) · 꺼짐(회색) · 아직 확인 못 함(점선)
   var SI=R.layers[0].groups[0].items.slice().sort(function(a,b){var o=function(x){return x.s==="on"?(x.weak?1:0):x.s==="unk"?2:3};return o(a)-o(b)}),unkS=SI.filter(function(x){return x.s==="unk"}).length;
   h+='<div style="font-size:13px;font-weight:700;margin-top:14px">전쟁 전 징조 9개</div>';
@@ -518,13 +534,10 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   h+='<div style="font-size:16px;font-weight:700;margin-top:12px;line-height:1.45">'+esc(R.reason)+'</div>';
   var rec=(p.record||[]).filter(function(b){var n=Math.floor(R.signs);return n>=b.lo&&n<=b.hi})[0];
   if(rec)h+='<div style="font-size:13.5px;color:var(--mute);margin-top:6px">조사한 과거 사례에서 징조가 '+esc(rec.label)+'였던 '+rec.cases+'건 중 <b>'+rec.wars+'건</b>이 전쟁이었어요'+(rec.surprise?' — 모두 징조 없이 온 기습이라, 아래 \'조용한 움직임\'을 따로 봐요':'')+'.</div>';
-  // 세 줄: 징조 · 조용한 움직임 · 배경. 누르면 항목과 근거
-  var it=function(x){var mark=x.s==="on"?'<b style="color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b>':x.s==="off"?'<span style="color:var(--mute)">○</span>':'<span style="color:var(--mute)">?</span>';
-    return '<li style="list-style:none;margin:4px 0 4px -18px;font-size:13.5px;display:flex;gap:6px"><span style="flex:none">'+mark+'</span><span style="flex:1;min-width:0">'+esc(x.ko)+(x.weak?' <span style="color:var(--mute)">(약함·미확인)</span>':'')+(x.s==="unk"?' <span style="color:var(--mute)">(확인 대기)</span>':'')+(x.ev&&x.s==="on"?'<br><span style="color:var(--mute);font-size:12.5px">'+esc(x.ev)+'</span>':'')+'</span></li>'};
   var SUB={signs:function(L){return L.pts>0?"":"켜진 징조가 없어요"},moves:function(L){return R.surprise?"뉴스는 조용한데 측정값이 함께 움직여요 — 기습 주의":L.pts>0?"":"사람·돈·군이 평소대로예요"},context:function(L){return L.pts>0?"":"확인된 배경 요인이 없어요"},other:function(L){return ""}};
   h+='<h3 style="margin-top:18px">자세히</h3>';
   h+='<div style="font-size:12.5px;color:var(--mute)">지켜보는 '+TOT+'개 항목 중 '+num(tot)+'개가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+') · %는 고정 기준 39개 대비</div>';
-  h+=R.layers.map(function(L){var unk=0,ons=[];L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")unk++;if(x.got>0)ons.push(x.ko.split(" (")[0]+(x.weak?"(약함)":""))})});
+  h+=R.layers.filter(function(L){return L.id==="other"}).map(function(L){var unk=0,ons=[];L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")unk++;if(x.got>0)ons.push(x.ko.split(" (")[0]+(x.weak?"(약함)":""))})});
     var sub=SUB[L.id](L)||ons.slice(0,2).join(" · ")+(ons.length>2?" 등 "+ons.length+"개":"");
     var c2=L.id==="signs"?col:L.id==="moves"?(R.surprise?"var(--l4)":"var(--fg)"):"var(--mute)";
     return '<details style="border-top:1px solid var(--line);padding:9px 0"><summary style="list-style:none;cursor:pointer"><div style="display:flex;align-items:baseline;gap:10px"><span style="flex:1;font-size:15px;font-weight:700;color:var(--fg)">'+esc(L.label)+'</span><span style="font-size:15px;font-weight:800;color:'+c2+'">'+num(L.pts)+'<span style="color:var(--mute);font-weight:400;font-size:12px"> / '+L.max+'개</span></span></div><div style="font-size:13px;color:var(--mute);margin-top:2px">'+esc(sub)+(unk&&L.id!=="other"?' · 확인 대기 '+unk+'개':'')+'</div></summary><div style="font-size:12.5px;color:var(--mute);margin:8px 0 0">'+esc(L.why)+'</div>'+L.groups.map(function(g){return (L.groups.length>1?'<div style="font-size:13px;font-weight:700;margin:10px 0 2px">'+esc(g.label)+'</div>':'')+'<ul style="margin:6px 0 0;padding-left:18px">'+g.items.map(it).join("")+'</ul>'}).join("")+'</details>'}).join("");
@@ -684,6 +697,11 @@ function render(){
   try{drawRiskChart(st)}catch(e){}
 }
 // 접힌 묶음: 연 것은 이 기기에 기억한다 (5분마다 다시 그려도 그대로)
+var SUMOPEN="";
+function sumTap(id){SUMOPEN=SUMOPEN===id?"":id;
+  var ps=document.querySelectorAll(".sumpanel"),ts=document.querySelectorAll(".sumtab"),i;
+  for(i=0;i<ps.length;i++)ps[i].style.display=ps[i].dataset.l===SUMOPEN?"block":"none";
+  for(i=0;i<ts.length;i++){var on=ts[i].dataset.l===SUMOPEN;ts[i].setAttribute("aria-expanded",on?"true":"false");ts[i].style.outline=on?"2px solid var(--fg)":"none";var c=ts[i].querySelector(".sumchev");if(c)c.textContent=on?"▴":"▾"}}
 var OPEN={};try{OPEN=JSON.parse(localStorage.getItem("kew:open")||"{}")||{}}catch(e){OPEN={}}
 function group(id,title,sub,inner,force){if(!inner)return "";
   return '<details class="more" data-g="'+id+'"'+(OPEN[id]||force?' open':'')+'><summary><div>'+esc(title)+'<span>'+esc(sub)+'</span></div></summary><div class="gbody">'+inner+'</div></details>'}

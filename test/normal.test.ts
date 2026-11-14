@@ -70,4 +70,10 @@ describe("사건 목록의 품질 (11/14)", () => {
     const { airMetrics } = await import("../src/core/collectors/adsb.js");
     expect(airMetrics([], []).some((m) => m.indicator === "air.civil_airborne")).toBe(false);
   });
+  it("예전에 저장된 '0대 (평소 56대)' 사건은 목록에서 빠진다 — 실제 급감(17대/37대)은 남는다", async () => {
+    const { isSensorGlitch } = await import("../src/core/brief.js");
+    expect(isSensorGlitch({ categories: ["airspace_anomaly"], title: "한반도 상공 항공기 급감: 0대 (이 시간대 평소 56대)" })).toBe(true);
+    expect(isSensorGlitch({ categories: ["airspace_anomaly"], title: "한반도 상공 항공기 급감: 17대 (이 시간대 평소 37대)" })).toBe(false);
+    expect(isSensorGlitch({ categories: ["airspace_anomaly", "missile_launch"], title: "한반도 상공 항공기 급감: 0대 (이 시간대 평소 56대)" })).toBe(false);
+  });
 });

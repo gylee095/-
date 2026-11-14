@@ -309,3 +309,10 @@ export function currentThreat(briefs: EventBrief[], now = Date.now()) {
     lastProvocation: last ? { headline: last.headline, at: last.at, ...(last.selfReport ? { dateOnly: last.selfReport.day } : {}) } : null,
   };
 }
+
+/** 이미 저장된 '항공기 급감' 사건 중 평소의 10% 아래로 적힌 것은 수집 이상이다 (11/13 '0대 (평소 56대)') — 화면 목록에서 뺀다. 새로는 pipeline 이 만들지 않는다 */
+export function isSensorGlitch(e: { categories: string[]; title: string }): boolean {
+  if (e.categories.length !== 1 || e.categories[0] !== "airspace_anomaly") return false;
+  const m = /급감:\s*(\d+)대.*평소\s*(\d+)대/.exec(e.title);
+  return !!m && +m[1] < +m[2] * 0.1;
+}

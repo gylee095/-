@@ -7,7 +7,7 @@ import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { activeSources } from "./sources.js";
-import { briefEvent, mergeFollowUps, currentThreat } from "./brief.js";
+import { briefEvent, isSensorGlitch, mergeFollowUps, currentThreat } from "./brief.js";
 import type { Reading, Signal } from "./types.js";
 import { GROUP_LABEL, INDICATORS, LEARNING_RULE, STATE_LABEL } from "./indicators.js";
 import type { Pattern } from "./patterns.js";
@@ -75,6 +75,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     await store.putEvents(missing).catch(() => {});
   }
   const enriched = events
+    .filter((e) => !isSensorGlitch(e))
     .map(({ evidence, ...e }) => {
       const sigs = evidence ?? [];
       return { ...e, signals: sigs, brief: briefEvent(e, sigs) };

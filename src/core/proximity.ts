@@ -8,7 +8,7 @@ import type { EventBrief } from "./brief.js";
 import { kstDay } from "./store.js";
 import { PRECURSOR_DATA } from "./precursor_data.js";
 import { MODEL, evaluate, type Obs, type Proximity, type SignalNow } from "./precursors.js";
-import { BASE_SEED, RUBRIC, TOTAL_ITEMS, clashOf, scoreRubric, type RubricScore } from "./rubric.js";
+import { BASE_SEED, RUBRIC, TOTAL_ITEMS, PCT_BASE, clashOf, scoreRubric, type RubricScore } from "./rubric.js";
 import { worldEvent } from "./classify.js";
 import { BANDS, PHASE_LABEL, eventFloors, fmtRiskPct, type Band, type Phase, type WarRisk } from "./warrisk.js";
 
@@ -213,7 +213,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const d1 = diff(1);
   const rec = recordFor(r.signs);
   const text =
-    `켜진 비율 ${r.index}% (${TOTAL_ITEMS}개 중 ${r.signs + r.moves + r.context}개: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/18 · 배경 ${r.context}/16). ${r.reason}.` +
+    `긴장 ${r.index}% (지켜보는 ${TOTAL_ITEMS}개 중 ${r.signs + r.moves + r.context}개 켜짐 — %는 고정 기준 ${PCT_BASE}개 대비: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/18 · 배경 ${r.context}/16). ${r.reason}.` +
     (rec ? ` 과거 기록: 징조가 ${rec.label} 켜졌던 ${rec.cases}건 중 ${rec.wars}건이 전쟁으로 갔다${rec.surprise ? ` — 그 ${rec.surprise}건은 공개 징조 없이 온 기습` : ""} (조사한 사례 안에서 — 확률이 아니다).` : "") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 징조가 ${d1 > 0 ? "늘었어요" : "줄었어요"}.`);
   return {

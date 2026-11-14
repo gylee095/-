@@ -125,7 +125,7 @@ export interface RubricScore {
   moves: number;
   /** 배경 항목 중 켜진 수 */
   context: number;
-  /** 0~100 %: 징조 9 + 조용한 움직임 18 + 배경 16 = 43개 중 켜진 비율 (11/12 사용자: 단계 옆에 % 로) — 배점 없이 항목 하나를 1로 센다. 전쟁 확률이 아니다 */
+  /** 0~100 %: 켜진 수(징조 + 조용한 움직임 + 배경) ÷ 고정 기준 39(PCT_BASE) (11/12 사용자: 단계 옆에 % 로) — 배점 없이 항목 하나를 1로 센다. 전쟁 확률이 아니다 */
   index: number;
   phase: 1 | 2 | 3 | 4;
   layers: ScoredLayer[];
@@ -171,7 +171,12 @@ export function scoreRubric(status: Record<string, SignalNow | undefined>): Rubr
 
 /** 켜진 비율 %: (징조 + 조용한 움직임 + 배경) ÷ 39 */
 export const TOTAL_ITEMS = RUBRIC.filter((l) => l.id !== "other").reduce((a, l) => a + l.max, 0);
-export const pctOn = (signs: number, moves: number, context: number) => Math.round(((signs + moves + context) / TOTAL_ITEMS) * 100);
+/**
+ * %의 기준은 고정한다 (11/14 사용자: "자가 바뀌어도 %는 유지돼야 한다 — 앞으로도 항목은 계속 늘 텐데 그때마다 숫자가 바뀌면 혼란스럽다").
+ * 지켜보는 항목을 늘려도 세상이 달라진 게 아니므로 %는 그대로이고, 새 항목이 실제로 켜질 때만 오른다. 이 값을 바꾸지 않는다 — 단계 구간(PCT_AT)도 이 기준에 맞춰져 있다.
+ */
+export const PCT_BASE = 39;
+export const pctOn = (signs: number, moves: number, context: number) => Math.min(100, Math.round(((signs + moves + context) / PCT_BASE) * 100));
 
 /** 30일 국지 충돌 % (판단값 — 알림 문구용): 징조 수에 따라, 단계가 다른 이유로 올랐으면 그 단계의 최소값 */
 export function clashOf(signs: number, phase: number, quietPct: number): number {

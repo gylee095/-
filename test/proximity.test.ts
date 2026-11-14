@@ -1,6 +1,6 @@
 // 규칙 3.0 — 전조 모형과 한반도 적용 (proximity.ts · precursors.ts)
 import { describe, expect, it } from "vitest";
-import { clashOf, scoreRubric, RUBRIC, BASE_SEED, SIGNS, PCT_AT, TOTAL_ITEMS } from "../src/core/rubric.js";
+import { clashOf, scoreRubric, RUBRIC, BASE_SEED, SIGNS, PCT_AT, TOTAL_ITEMS, PCT_BASE } from "../src/core/rubric.js";
 import { ACTION_KEYS, INDEX_AT, MODEL, clashOfIndex as clashOfIndexOld, buildTable, caseEvidence, classOf, evaluate, ordinaryRate, rate, type CaseRecord, type SignalNow } from "../src/core/precursors.js";
 import { PRECURSOR_DATA } from "../src/core/precursor_data.js";
 import { ALL_IDS, AUTO_IDS, ANALYST_GUIDE, BASE_TTL, HOTSPOT, WORLD_EVENT_IDS, autoStatus, assessProximity, checklistText, foldProx, koreaStatus, parseChecks, withProximity } from "../src/core/proximity.js";
@@ -165,12 +165,13 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
     expect(PCT_AT).toEqual({ 2: 10, 3: 25, 4: 50 });
     const some = (n: number) => on(...ALL_IDS.filter((i) => !RUBRIC.find((l) => l.id === "other")!.groups[0].items.some((x) => x.id === i)).slice(0, n));
     expect(TOTAL_ITEMS).toBe(43);
-    expect(scoreRubric(some(4))).toMatchObject({ index: 9, phase: 1 });
-    expect(scoreRubric(some(5))).toMatchObject({ index: 12, phase: 2 });
-    expect(scoreRubric(some(10))).toMatchObject({ index: 23, phase: 2 });
-    expect(scoreRubric(some(11))).toMatchObject({ index: 26, phase: 3 });
-    expect(scoreRubric(some(22))).toMatchObject({ index: 51, phase: 4 });
-    expect(scoreRubric(some(43))).toMatchObject({ index: 100, phase: 4 });
+    expect(PCT_BASE).toBe(39); // 고정 — 항목을 늘려도 %가 바뀌지 않게 (11/14 사용자). 이 숫자를 바꾸면 같은 상황의 %가 달라진다
+    expect(scoreRubric(some(3))).toMatchObject({ index: 8, phase: 1 });
+    expect(scoreRubric(some(4))).toMatchObject({ index: 10, phase: 2 });
+    expect(scoreRubric(some(9))).toMatchObject({ index: 23, phase: 2 });
+    expect(scoreRubric(some(10))).toMatchObject({ index: 26, phase: 3 });
+    expect(scoreRubric(some(20))).toMatchObject({ index: 51, phase: 4 });
+    expect(scoreRubric(some(43))).toMatchObject({ index: 100, phase: 4 }); // 100을 넘지 않는다
     for (let n = 0; n <= 43; n++) { const r = scoreRubric(some(n)); expect(r.phase).toBe(r.index >= 50 ? 4 : r.index >= 25 ? 3 : r.index >= 10 ? 2 : 1); }
   });
   it("약함·미확인은 반 개, 못 본 것은 세지 않고 '확인 대기'", () => {
@@ -186,10 +187,10 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
     expect(scoreRubric(on("f_capital_flight", "m_airspace")).surprise).toBe(false);
     expect(scoreRubric(on("f_capital_flight", "m_airspace", "f_fx", ...SIGNS.slice(0, 3))).surprise).toBe(false);
   });
-  it("배경만 켜져 있어도 비율에 들어간다 — 배경 6개면 14%로 긴장", () => {
+  it("배경만 켜져 있어도 비율에 들어간다 — 배경 6개면 15%로 긴장 (항목을 43개로 늘려도 그대로)", () => {
     const ctx = ALL_IDS.filter((i) => i.startsWith("s_") || i.startsWith("w_"));
     const r = scoreRubric(on(...ctx.slice(0, 6)));
-    expect(r).toMatchObject({ signs: 0, context: 6, index: 14, phase: 2 });
+    expect(r).toMatchObject({ signs: 0, context: 6, index: 15, phase: 2 });
     expect(r.reason).toMatch(/징조와 실제 움직임은 없고, 불안한 배경 6개/);
   });
   it("참고 신호(9개에 못 든 것)는 판정을 바꾸지 않는다", () => {

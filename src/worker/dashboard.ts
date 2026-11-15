@@ -478,10 +478,10 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   if(d1!==undefined&&d1!==null){var yv=PCT-d1;
     h+='<div style="font-size:15px;font-weight:700;margin-top:4px;color:'+(d1>0?'var(--l4)':d1<0?'var(--ok,#34c759)':'var(--fg)')+'">어제 '+yv+'% → 오늘 '+PCT+'% <span style="font-weight:400;color:var(--mute)">'+(d1===0?'같아요':d1>0?'▲ '+d1+'%p 올랐어요':'▼ '+(-d1)+'%p 내렸어요')+'</span></div>'}
   else h+='<div style="font-size:13px;color:var(--mute);margin-top:4px">어제와의 비교는 기록이 하루 쌓인 뒤(내일)부터 보여요.</div>';
-  // 숫자는 실시간 (11/12 사용자: 운영자 대시보드는 계속 바뀌는 게 맞다). 대신 오늘 아침 판정과 견줘 무엇이 달라졌는지 한 줄
-  var MG=O&&O.morning;
-  if(MG){var df=[["징조",R.signs-MG.signs],["움직임",R.moves-MG.moves],["배경",R.context-MG.context]].filter(function(x){return x[1]!==0}).map(function(x){return x[0]+" "+(x[1]>0?"+":"")+num(x[1])});
-    h+='<div style="font-size:12.5px;color:'+(PCT>MG.index?'var(--l4)':'var(--mute)')+'">'+(PCT===MG.index&&!df.length?'오늘 아침 8시 판정('+MG.index+'%)과 같아요':'오늘 아침 8시 '+MG.index+'% → 지금 '+PCT+'%'+(df.length?' ('+df.join(", ")+')':''))+' · 실시간</div>'}
+  // 왜 올랐나·내렸나 한 줄 (11/14 사용자: "15%에서 17%가 됐는데 이유를 안 알려 주면 사용자는 왜 올랐는지 알 수 없다 — 맨 위에 간략하게"). 어제 판정 뒤로 새로 켜진 것·꺼진 것의 이름만
+  if(YD&&d1){var UP=YD.up||[],DN=YD.down||[],nm=function(a){return a.slice(0,2).map(function(x){return "'"+x.ko+"'"}).join(", ")+(a.length>2?" 등 "+a.length+"개":"")};
+    var why=d1>0?(UP.length?nm(UP)+(UP.length>1?" 항목들이":" 항목이")+" 새로 켜졌기 때문이에요.":""):(DN.length?nm(DN)+(DN.length>1?" 항목들이":" 항목이")+" 꺼졌기 때문이에요.":"");
+    if(why)h+='<div style="font-size:14px;margin-top:4px;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere"><b>'+(d1>0?'오른 이유':'내린 이유')+'</b> · '+esc(why)+(d1>0&&UP[0]&&UP[0].ev?'<br><span style="font-size:12.5px;color:var(--mute)">'+esc(UP[0].ev)+'</span>':'')+'</div>'}
   // 무슨 일이 있었나 (11/14 사용자: "사용자에게 중요한 건 북한이 미사일을 쐈는지, 미국에서 무슨 일이 났는지다 — 43개 중 몇 개인지는 운영자만 알면 된다")
   // 숫자 바로 아래에 최근 사흘의 한반도 사건(위험도 2 이상·도발)과 세계의 심상치 않은 일을 둔다. 점수를 더 주지는 않는다. 항목 수 설명은 '자세히' 안에만.
   var EV=[],seen={};(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
@@ -640,7 +640,6 @@ function render(){
     h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>'}
   // 1) 첫 화면: 지금 한반도 — 단계·확률·어제와 비교·이유·오를 조건·할 일·데이터 상태 (2026-11-02 새 화면)
   if(st.warRisk)h+=safe(summary,st,"지금 한반도");
-  if(st.normal)h+=group("normal","평소 범위에서 벗어난 신호 "+st.normal.k+"개","평소엔 하루 "+st.normal.usual+"개쯤 · 신호 "+st.normal.measured+"개의 평소 범위와 지금 위치",safe(normalCard,st.normal,"평소 범위"));
   var inner="";
   var an="";
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다
@@ -666,8 +665,6 @@ function render(){
   var ref=rest.filter(function(e){return !(e.brief.isProvocation||e.brief.danger.level>=2)});
   if(main.length){ev+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,8).map(row).join("")+'</div>'}
   if(ref.length)ev+='<details class="card"><summary>참고 기사 '+ref.length+'건 (논평·분석, 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
-  inner+=group("events","사건","가장 최근 소식 · 이전 30일 · 참고 기사",ev,lvl>1);
-  inner+=group("analysis","클로드 분석 전문","분석관 판단 · 심층 분석 · 분석 뒤 바뀐 것",an);
   var bd=st.board||[];var abn=bd.filter(function(r){return r.reading&&(r.reading.state==="anomalous"||r.reading.state==="elevated")&&r.stateLabel!=="측정 불가"}).length;var fl=bd.filter(function(r){return r.failing}).length;
   inner+=group("board","신호 "+bd.length+"개 — 숫자","평소와 다른 것 "+abn+"개"+(fl?" · 못 받는 것 "+fl+"개":"")+" · 전체 "+bd.length+"개",'<div class="card">'+board(bd)+'</div>');
   var au="";
@@ -682,7 +679,6 @@ function render(){
   if(pats.length){au+='<div class="sec" id="patterns">감지된 징후 조합 · '+ago(st.patternsAt)+'</div>';
     au+=pats.map(function(p){return '<div class="card pat '+p.confidence+'"><div class="pn">'+esc(p.name)+' <span class="chip">'+CONF[p.confidence]+' · '+p.score+'점</span></div><div class="ps">'+esc(p.summary)+'</div>'+
       '<details><summary>다른 설명 가능성 · 확인 방법</summary><ul>'+p.alternatives.map(function(a){return '<li>'+esc(a)+'</li>'}).join("")+'</ul><ul style="margin-top:6px">'+p.checks.map(function(c){return '<li>🔎 '+esc(c)+'</li>'}).join("")+'</ul></details></div>'}).join("")}
-  inner+=group("auto","자동 해설","규칙 기반 힌트 · 징후 조합"+(pats.length?" "+pats.length+"개":""),au,patLvl>1);
   var sy="";
   // 7) 시스템
   if(!window.__KEW_REPORT__)sy+='<div class="card sum">'+pushCard()+'</div>';
@@ -698,8 +694,15 @@ function render(){
   if(window.__KEW_REPORT__)inner+=group("sys","데이터 출처","수집 상태 · 어디서 가져왔나",'<div class="card">'+health(st)+'</div>');
   else inner+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
   if(st.ab){var AB=st.ab,dif=!AB.a||AB.a.phase!==AB.b.phase||AB.a.clash.point!==AB.b.clash.point;inner+=group("ab","🧪 실험 비교 (시험 서버)",dif?"본 서버 규칙과 결과가 달라요":"본 서버 규칙과 결과가 같아요",abPanel(AB))}
-  if(st.warRisk&&st.warRisk.proximity)inner=group("prox","이 숫자를 얼마나 믿을 수 있나","징조 수별로 전쟁이 얼마나 났나 · 한계",safe(proxCard,st.warRisk.proximity,"과거 기록"))+inner;
-  h+=group("all","근거 전부 보기","사건 · 신호 "+bd.length+"개 · 분석관 글 · 과거 사례 · 시스템",inner);
+  // 화면 순서 (11/14 사용자: "가장 보게 되는 건 사건, 그다음 클로드 분석이다. '이 숫자를 얼마나 믿을 수 있나'·'평소 범위에서 벗어난 신호'는 안 본다 — 그건 정확도를 올리려는 것이지 사람이 보라는 게 아니다")
+  // ① 사건 ② 클로드 분석(분석관 판단 + 자동 해설을 하나로) ③ 나머지는 전부 '자료·시스템' 하나 안에
+  var cut=function(t,n){t=String(t||"");return t.length>n?t.slice(0,n)+"…":t};
+  h+=group("events","사건"+(evs.length?" "+evs.length+"건":""),(top?"가장 최근: "+cut(top.brief.headline,42):evs.length?"참고 기사만 있어요":"최근 사건 없음"),ev||'<div class="card" style="font-size:14px;color:var(--mute)">최근 30일 동안 기록된 사건이 없어요.</div>',lvl>1);
+  if(au)an+='<details class="card"'+(patLvl>1?' open':'')+'><summary>자동 해설 — 규칙으로 뽑은 힌트'+(pats.length?' · 징후 조합 '+pats.length+'개':'')+'</summary>'+au+'</details>';
+  h+=group("analysis","클로드 분석",(st.assessment&&st.assessment.data&&st.assessment.data.overall?cut(st.assessment.data.overall,46):"분석관 판단(하루 두 번) · 자동 해설"),an,patLvl>1);
+  if(st.normal)inner+=group("normal","평소 범위에서 벗어난 신호 "+st.normal.k+"개","평소엔 하루 "+st.normal.usual+"개쯤 · 신호 "+st.normal.measured+"개의 평소 범위와 지금 위치",safe(normalCard,st.normal,"평소 범위"));
+  if(st.warRisk&&st.warRisk.proximity)inner+=group("prox","과거 기록과 한계","징조 수별로 전쟁이 얼마나 났나 · 추세",safe(proxCard,st.warRisk.proximity,"과거 기록"));
+  h+=group("all","자료·시스템","신호 "+bd.length+"개 숫자 · 평소 범위 · 과거 기록 · 수집 상태",inner);
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
   bindGroups(top);

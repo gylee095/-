@@ -86,6 +86,15 @@ describe("운영자 대시보드의 개수·% 는 실시간, 오늘 아침 값�
     // 오늘 단계가 바뀌어 다시 정했으면(이전 것도 오늘) 어제 판정이 없다
     expect(applyOfficial({ ...w(2, 3), at: D8 + 7200_000, proximity: prox(17, 0.5) }, tOff, makeOfficial({ ...w(2, 3), proximity: prox(15, 0) }, D8 - 3600_000 + 3600_000, "daily")).official!.yesterday).toBeUndefined();
   });
+  it("어제 판정 뒤로 무엇이 새로 켜졌고 꺼졌는지 이름을 붙인다 — 화면 맨 위 '오른 이유' (11/14)", () => {
+    const DAY = 86400_000;
+    const lay = (items: [string, string, number, string?][]) => [{ id: "context", groups: [{ items: items.map(([id, ko, got, ev]) => ({ id, ko, got, ev })) }] }];
+    const yOff = makeOfficial({ ...w(2, 3), proximity: { ...prox(15, 0), rubric: { ...prox(15, 0).rubric, layers: lay([["a", "가 (설명)", 1], ["b", "나", 0], ["c", "다", 1]]) } } } as any, D8 - DAY, "daily");
+    const cur = { ...w(2, 3), at: D8 + 3600_000, proximity: { ...prox(17, 0), rubric: { ...prox(17, 0).rubric, layers: lay([["a", "가 (설명)", 1], ["b", "나", 0.5, "기사 제목"], ["c", "다", 0]]) } } } as any;
+    const yd = applyOfficial(cur, yOff, undefined).official!.yesterday!;
+    expect(yd.up).toEqual([{ ko: "나", ev: "기사 제목" }]);
+    expect(yd.down).toEqual([{ ko: "다" }]);
+  });
   it("이전 규칙으로 정한 판정(전조 기록 없음)이면 아침 기준이 없다", () => {
     expect(applyOfficial({ ...w(2, 3), proximity: prox(17, 0.5) }, makeOfficial(w(2, 3.8), D8, "daily"), undefined).official!.morning).toBeUndefined();
   });

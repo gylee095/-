@@ -43,7 +43,7 @@ export interface OfficialView {
   /** 오늘 아침 판정 때의 켜진 비율·개수 (실시간 값과 견주는 기준) */
   morning?: { index: number; signs: number; moves: number; context: number };
   /** 어제의 판정(어제 가장 늦게 정한 '오늘의 판정')의 % — 화면의 '어제 X% → 오늘 Y%' 는 이것과 견준다 (11/14 사용자: 어제 본 숫자와 같아야 한다. 하루 최고값이 아니다) */
-  yesterday?: { index: number; at: number };
+  yesterday?: { index: number; at: number; /** 어제 판정 뒤로 새로 켜지거나 세진 것(up) · 꺼지거나 약해진 것(down) — 화면 맨 위 '왜 올랐나' 한 줄 (11/14 사용자) */ up?: { ko: string; ev?: string }[]; down?: { ko: string }[] };
   // readiness 는 내부 계산용으로 Official 에 남지만 화면(OfficialView)에는 내보내지 않는다 (11/6 사용자: 새 정보 말고 기존 %의 정확도를 올려라)
 }
 
@@ -153,7 +153,16 @@ export function applyOfficial(w: WarRisk, off: Official | undefined, prev: Offic
   const today = kstDay(Number.isFinite(w.at) ? w.at : off.at);
   const y = [off, prev].filter((o): o is Official => !!o && kstDay(o.at) < today && !!o.proximity?.rubric && "signs" in o.proximity.rubric).sort((a, b) => b.at - a.at)[0];
   const yr = y?.proximity?.rubric;
-  const yesterday = y && yr ? { index: pctOn(yr.signs, yr.moves, yr.context), at: y.at } : undefined;
+  const gotOf = (r: { layers?: { id: string; groups: { items: { id: string; ko: string; got: number; ev?: string }[] }[] }[] } | undefined) => {
+    const m = new Map<string, { ko: string; got: number; ev?: string }>();
+    for (const l of r?.layers ?? []) if (l.id !== "other") for (const g of l.groups) for (const x of g.items) m.set(x.id, x);
+    return m;
+  };
+  const was = gotOf(yr as never), nowIs = gotOf(w.proximity?.rubric as never);
+  const short = (ko: string) => ko.split(" (")[0];
+  const up = was.size && nowIs.size ? [...nowIs].filter(([id, x]) => x.got > (was.get(id)?.got ?? 0)).map(([, x]) => ({ ko: short(x.ko), ...(x.ev ? { ev: x.ev } : {}) })) : [];
+  const down = was.size && nowIs.size ? [...was].filter(([id, x]) => x.got > (nowIs.get(id)?.got ?? 0)).map(([, x]) => ({ ko: short(x.ko) })) : [];
+  const yesterday = y && yr ? { index: pctOn(yr.signs, yr.moves, yr.context), at: y.at, ...(up.length ? { up } : {}), ...(down.length ? { down } : {}) } : undefined;
   return {
     ...w,
     phase: off.phase,

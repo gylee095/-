@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { correlate } from "../src/core/correlate.js";
 import { MemoryStore } from "../src/core/store.js";
 import {
-  INTRO_TEXTS, NEWS_TEXTS, PROMO_IMAGES, SIGNAL_COUNT, THREADS_GAP_MS, THREADS_MAX_CHARS, THREADS_STATE_KEY, THREADS_TOKEN_KEY,
+  INTRO_TEXTS, NEWS_TEXTS, PROMO_IMAGES, THREADS_TOPIC, SIGNAL_COUNT, THREADS_GAP_MS, THREADS_MAX_CHARS, THREADS_STATE_KEY, THREADS_TOKEN_KEY,
   maybePostThreads, maybePostThreadsRise, postThreadsManual, riseOf, RISE_HOLD_MS, newsLine, postable, refreshThreadsToken, threadsText, type ThreadsState,
 } from "../src/core/threads.js";
 import type { CrisisEvent, Signal } from "../src/core/types.js";
@@ -56,6 +56,9 @@ describe("글 (11/16 사용자: 담백하게, 판정은 넣지 않는다)", () =
     for (const t of all) expect(t).not.toMatch(/써\s*봤|대박|후기|안전합니다|100%|적중|큰일|지금 당장|🚨/);
     expect(readFileSync(new URL("../src/worker/landing.ts", import.meta.url), "utf8")).toContain(`${SIGNAL_COUNT}가지 신호`);
     expect(readFileSync(new URL("../src/core/threads.ts", import.meta.url), "utf8")).not.toMatch(/audience: "all"/);
+  });
+  it("모든 글에 '전쟁'이 들어간다 (검색 최신 탭에 뜨게)", () => {
+    for (const t of all) expect(t).toContain("전쟁");
   });
   it("문장을 번갈아 쓴다 (소개 I1→I4→I1, 뉴스 N1→N3→N1)", () => {
     expect(INTRO_TEXTS.map((_, i) => threadsText("intro", i, "x").style)).toEqual(["I1", "I2", "I3", "I4"]);
@@ -232,6 +235,34 @@ describe("③ 개발 소식 — 사용자가 시킬 때 (11/16)", () => {
     expect((await postThreadsManual({ ...env, STAGING: "1" }, store, "a", T0, f)).skipped).toMatch(/시험 서버/);
     expect((await postThreadsManual({ PUBLIC_URL: "x" } as any, store, "a", T0, f)).skipped).toMatch(/토큰 없음/);
     expect(calls).toHaveLength(0);
+  });
+});
+
+describe("주제 태그 (11/16 사용자)", () => {
+  it("글만·사진 묶음·개발 소식 모두 '전쟁' 태그를 단다 (사진 한 장씩 담는 것에는 달지 않는다)", async () => {
+    expect(THREADS_TOPIC).toBe("전쟁");
+    const store = await withMorning(prox(17, []));
+    const { f, calls } = fakeApi();
+    await maybePostThreads(env, store, report(launch()), T0, f, noSleep);
+    await postThreadsManual(env, store, "", T0 + 60_000, f, noSleep, { intro: true });
+    await postThreadsManual(env, store, "11.16\n\n- 고침", T0 + 120_000, f, noSleep);
+    const made = posts(calls);
+    expect(made.map((c) => [c.body.get("media_type"), c.body.get("topic_tag")])).toEqual([
+      ["TEXT", "전쟁"], ["IMAGE", null], ["IMAGE", null], ["CAROUSEL", "전쟁"], ["TEXT", "전쟁"],
+    ]);
+  });
+  it("태그 때문에 거절되면 태그 없이 다시 담아 올린다", async () => {
+    const store = new MemoryStore();
+    const calls: URLSearchParams[] = [];
+    const f = (async (url: string, init?: RequestInit) => {
+      const body = new URLSearchParams(String(init?.body ?? ""));
+      calls.push(body);
+      if (body.get("topic_tag")) return new Response(JSON.stringify({ error: { message: "Invalid parameter", code: 100 } }), { status: 400 });
+      return new Response(JSON.stringify({ id: url.endsWith("threads_publish") ? "post1" : "box1" }));
+    }) as unknown as typeof fetch;
+    const r = await maybePostThreads(env, store, report(launch()), T0, f, noSleep);
+    expect(r.posted).toMatchObject({ ok: true });
+    expect(calls.map((b) => b.get("topic_tag"))).toEqual(["전쟁", null, null]);
   });
 });
 

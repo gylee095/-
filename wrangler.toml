@@ -31,7 +31,6 @@ NTFY_SERVER = "https://ntfy.sh"
 DISABLED_SOURCES = "opensky,gdelt,bluesky"   # Cloudflare 서버에서 opensky 무응답, gdelt 429, bluesky 403 (2026-10-30 실측)
 # 심층 분석(Claude Code 예약 작업 API 트리거) 사용량 안전장치 — 바꾸려면 이 값만 고쳐 다시 배포
 DEEP_DAILY_MAX = "2"                 # 하루(한국 날짜) 최대 자동 실행 수
-THREADS_SEARCH_MIN = "150"           # 네이버 전쟁 불안 검색이 평소의 이 %를 넘은 날에도 스레드 글을 올린다
 THREADS_DAILY_MAX = "3"              # 스레드 자동 홍보 글 하루 최대 수 (src/core/threads.ts) — 토큰(THREADS_ACCESS_TOKEN)이 없으면 올리지 않는다
 DEEP_MONTHLY_MAX_RUNS = "30"         # 한 달 최대 심층 분석 수 (수동 실행 포함) — 1회 출력 약 3천~9천 토큰(2026-10-31 실측)
 

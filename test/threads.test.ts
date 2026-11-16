@@ -3,9 +3,10 @@ import { correlate } from "../src/core/correlate.js";
 import { MemoryStore } from "../src/core/store.js";
 import {
   INTRO_TEXTS, NEWS_TEXTS, PROMO_IMAGES, SIGNAL_COUNT, THREADS_GAP_MS, THREADS_MAX_CHARS, THREADS_STATE_KEY, THREADS_TOKEN_KEY,
-  maybePostThreads, maybePostThreadsSearch, newsLine, postable, refreshThreadsToken, threadsText, type ThreadsState,
+  maybePostThreads, maybePostThreadsRise, postThreadsManual, riseOf, RISE_HOLD_MS, newsLine, postable, refreshThreadsToken, threadsText, type ThreadsState,
 } from "../src/core/threads.js";
 import type { CrisisEvent, Signal } from "../src/core/types.js";
+import { OFFICIAL_KEY } from "../src/core/official.js";
 
 const T0 = Date.UTC(2026, 10, 12, 3, 0);
 const media = (i: number, title: string, t: number, citesOfficial = true, breaking = false): Signal => ({
@@ -34,7 +35,6 @@ function fakeApi(fail: string[] = []) {
 }
 const env = { THREADS_ACCESS_TOKEN: "TOK", PUBLIC_URL: "https://koreasiren.com", BARK_KEY: "k" } as any;
 const report = (e: CrisisEvent, sent = true, kind = "new") => ({ alerts: [{ eventId: e.id, kind, sent }], events: [e] });
-const nv = (value: number, dataDate = "2026-11-15") => [{ indicator: "psych.naver_war_search", value, state: value >= 200 ? "elevated" : "normal", meta: { dataDate, worstGroup: "전쟁 불안" } }];
 const noSleep = async () => {};
 const posts = (calls: { url: string; body: URLSearchParams }[]) => calls.filter((c) => c.url.includes("/me/threads") && !c.url.endsWith("publish"));
 
@@ -131,44 +131,96 @@ describe("② 큰 뉴스 — 발사·포격 사건 알림이 나가면", () => {
   });
 });
 
-describe("① 앱 소개 — 네이버 전쟁 불안 검색이 오른 날", () => {
-  it("평소의 1.5배 이상이면 예시 화면 2장을 넘겨 보기로 붙여 한 번 올린다", async () => {
-    const store = new MemoryStore();
+// 채점표 모양만 흉내 낸 근접도: index(%)와 켜진 징조·움직임·배경 항목
+const prox = (index: number, on: string[], ctx: string[] = []) => ({
+  index,
+  rubric: { index, layers: [
+    { id: "signs", groups: [{ items: ["i_leader_threat", "i_pretext"].map((id) => ({ id, ko: id, got: on.includes(id) ? 1 : 0 })) }] },
+    { id: "moves", groups: [{ items: ["m_airspace", "a_nk_dark", "m_gps_ew"].map((id) => ({ id, ko: id, got: on.includes(id) ? 1 : 0 })) }] },
+    { id: "context", groups: [{ items: ["w_us_war", "p_search"].map((id) => ({ id, ko: id, got: ctx.includes(id) ? 1 : 0 })) }] },
+  ] },
+});
+async function withMorning(p: ReturnType<typeof prox>) {
+  const store = new MemoryStore();
+  await store.setKv(OFFICIAL_KEY, JSON.stringify({ proximity: p }));
+  return store;
+}
+
+describe("① 앱 소개 — 앱의 % 가 의미 있게 올랐을 때 (11/16 사용자)", () => {
+  it("배경만 늘거나, 잡음 항목(북한 인터넷 장애)만 켜지거나, 5%p 미만이면 오른 게 아니다", () => {
+    const m = prox(17, [], ["w_us_war"]);
+    expect(riseOf(prox(19, [], ["w_us_war", "p_search"]), m).up).toBe(false); // 배경만 +1
+    expect(riseOf(prox(25, [], ["w_us_war", "p_search"]), m).up).toBe(false); // 배경만으로 크게 올라도
+    expect(riseOf(prox(20, ["a_nk_dark"], ["w_us_war"]), m).up).toBe(false); // 인터넷 장애 하나
+    expect(riseOf(prox(25, ["a_nk_dark"], ["w_us_war", "p_search"]), m).up).toBe(false); // 인터넷 장애 + 배경
+    expect(riseOf(prox(20, ["m_airspace"], ["w_us_war"]), m).up).toBe(false); // 진짜 움직임이지만 +3%p
+    expect(riseOf(prox(23, ["m_airspace", "a_nk_dark"], ["w_us_war"]), m)).toMatchObject({ up: true, pts: 6, added: ["m_airspace"] });
+    expect(riseOf(prox(23, ["m_airspace"]), undefined).up).toBe(false); // 아침 판정 없음
+  });
+  it("30분 이어져야 올리고, 예시 화면 2장을 넘겨 보기로 붙이며, 하루 한 번", async () => {
+    const store = await withMorning(prox(17, []));
     const { f, calls } = fakeApi();
-    expect((await maybePostThreadsSearch(env, store, nv(149), T0, f, noSleep)).skipped).toMatch(/문턱 150%/);
+    const live = { proximity: prox(23, ["m_airspace", "i_pretext"]) };
+    expect((await maybePostThreadsRise(env, store, live, T0, f, noSleep)).skipped).toMatch(/30분/);
+    expect((await maybePostThreadsRise(env, store, live, T0 + 10 * 60_000, f, noSleep)).skipped).toMatch(/30분/);
     expect(calls).toHaveLength(0);
-    const r = await maybePostThreadsSearch(env, store, nv(206), T0, f, noSleep);
-    expect(r.posted).toMatchObject({ ok: true, kind: "intro", style: "I1", images: 2, eventId: "search:2026-11-15" });
+    const r = await maybePostThreadsRise(env, store, live, T0 + RISE_HOLD_MS, f, noSleep);
+    expect(r.posted).toMatchObject({ ok: true, kind: "intro", style: "I1", images: 2 });
     const made = posts(calls);
     expect(made.map((c) => c.body.get("media_type"))).toEqual(["IMAGE", "IMAGE", "CAROUSEL"]);
     expect(made.slice(0, 2).map((c) => c.body.get("image_url"))).toEqual(PROMO_IMAGES.map((p) => "https://koreasiren.com" + p));
     expect(made.slice(0, 2).every((c) => c.body.get("is_carousel_item") === "true")).toBe(true);
     expect(made[2].body.get("children")).toBe("box1,box2");
-    expect(made[2].body.get("text")).toBe(r.posted!.text);
-    expect(r.posted!.text).not.toMatch(/배|%/);
-    expect((await maybePostThreadsSearch(env, store, nv(206), T0 + 5 * 3600_000, f, noSleep)).skipped).toMatch(/이미 올림/);
+    expect(r.posted!.text).not.toMatch(/%|단계\(|\d단계/);
+    expect((await maybePostThreadsRise(env, store, live, T0 + 5 * 3600_000, f, noSleep)).skipped).toMatch(/오늘 이미/);
+  });
+  it("중간에 내려가면 처음부터 다시 잰다", async () => {
+    const store = await withMorning(prox(17, []));
+    const { f, calls } = fakeApi();
+    const up = { proximity: prox(23, ["m_airspace", "i_pretext"]) }, down = { proximity: prox(17, []) };
+    await maybePostThreadsRise(env, store, up, T0, f, noSleep);
+    await maybePostThreadsRise(env, store, down, T0 + 20 * 60_000, f, noSleep);
+    expect((await maybePostThreadsRise(env, store, up, T0 + 35 * 60_000, f, noSleep)).skipped).toMatch(/30분/);
+    expect(calls).toHaveLength(0);
   });
   it("사진 올리기가 안 되면 글만이라도 올린다", async () => {
-    const store = new MemoryStore();
+    const store = await withMorning(prox(17, []));
     const { f, calls } = fakeApi(["IMAGE"]);
-    const r = await maybePostThreadsSearch(env, store, nv(300), T0, f, noSleep);
+    const live = { proximity: prox(23, ["m_airspace", "i_pretext"]) };
+    await maybePostThreadsRise(env, store, live, T0, f, noSleep);
+    const r = await maybePostThreadsRise(env, store, live, T0 + RISE_HOLD_MS, f, noSleep);
     expect(r.posted).toMatchObject({ ok: true, images: 0 });
     expect(posts(calls).map((c) => c.body.get("media_type"))).toEqual(["IMAGE", "TEXT"]);
   });
-  it("뉴스 글과 같은 하루 한도·간격을 나눠 쓰고, 문장 차례는 따로 센다", async () => {
-    const store = new MemoryStore();
+  it("뉴스 글과 같은 하루 한도·간격을 나눠 쓴다; 시험 서버·토큰 없음은 건너뛴다", async () => {
+    const store = await withMorning(prox(17, []));
     const { f } = fakeApi();
+    const live = { proximity: prox(23, ["m_airspace", "i_pretext"]) };
     await maybePostThreads(env, store, report(launch()), T0, f, noSleep);
-    expect((await maybePostThreadsSearch(env, store, nv(300), T0 + 3600_000, f, noSleep)).skipped).toMatch(/2시간/);
-    expect((await maybePostThreadsSearch(env, store, nv(300), T0 + THREADS_GAP_MS + 1, f, noSleep)).posted).toMatchObject({ ok: true, style: "I1" });
+    await maybePostThreadsRise(env, store, live, T0 + 60_000, f, noSleep);
+    expect((await maybePostThreadsRise(env, store, live, T0 + 60_000 + RISE_HOLD_MS, f, noSleep)).skipped).toMatch(/2시간/);
+    expect((await maybePostThreadsRise(env, store, live, T0 + THREADS_GAP_MS + 1, f, noSleep)).posted).toMatchObject({ ok: true, style: "I1" });
+    expect((await maybePostThreadsRise({ ...env, STAGING: "1" }, store, live, T0, f)).skipped).toMatch(/시험 서버/);
+    expect((await maybePostThreadsRise({ PUBLIC_URL: "x" } as any, store, live, T0, f)).skipped).toMatch(/토큰 없음/);
   });
-  it("문턱은 THREADS_SEARCH_MIN, 시험 서버·토큰 없음·자료 없음은 건너뛴다", async () => {
+});
+
+describe("③ 개발 소식 — 사용자가 시킬 때 (11/16)", () => {
+  it("받은 글을 그대로 글만으로 올리고 기록한다; 한도·간격은 보지 않는다", async () => {
     const store = new MemoryStore();
     const { f, calls } = fakeApi();
-    expect((await maybePostThreadsSearch({ ...env, THREADS_SEARCH_MIN: "300" }, store, nv(250), T0, f)).skipped).toMatch(/문턱 300%/);
-    expect((await maybePostThreadsSearch({ ...env, STAGING: "1" }, store, nv(500), T0, f)).skipped).toMatch(/시험 서버/);
-    expect((await maybePostThreadsSearch({ PUBLIC_URL: "x" } as any, store, nv(500), T0, f)).skipped).toMatch(/토큰 없음/);
-    expect((await maybePostThreadsSearch(env, store, [], T0, f)).skipped).toMatch(/검색량 없음/);
+    await maybePostThreads(env, store, report(launch()), T0, f, noSleep);
+    const r = await postThreadsManual(env, store, "오늘 고친 것\n- 알림 화면 글씨를 키웠어요\nkoreasiren.com", T0 + 60_000, f, noSleep);
+    expect(r.posted).toMatchObject({ ok: true, kind: "dev" });
+    expect(posts(calls).pop()!.body.get("text")).toBe("오늘 고친 것\n- 알림 화면 글씨를 키웠어요\nkoreasiren.com");
+  });
+  it("빈 글·500자 넘는 글·시험 서버·토큰 없음은 올리지 않는다", async () => {
+    const store = new MemoryStore();
+    const { f, calls } = fakeApi();
+    expect((await postThreadsManual(env, store, "  ", T0, f)).skipped).toMatch(/비어/);
+    expect((await postThreadsManual(env, store, "가".repeat(501), T0, f)).skipped).toMatch(/500자/);
+    expect((await postThreadsManual({ ...env, STAGING: "1" }, store, "a", T0, f)).skipped).toMatch(/시험 서버/);
+    expect((await postThreadsManual({ PUBLIC_URL: "x" } as any, store, "a", T0, f)).skipped).toMatch(/토큰 없음/);
     expect(calls).toHaveLength(0);
   });
 });

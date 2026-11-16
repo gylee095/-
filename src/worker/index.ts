@@ -193,8 +193,6 @@ export default {
         if (report.alerts.some((x) => x.sent)) await th.maybePostThreads(env, store, report, report.at).catch(() => undefined);
         if (ctrl.cron === "41 2 * * *") {
           await th.refreshThreadsToken(env, store, report.at).catch(() => undefined);
-          // 네이버 전쟁 불안 검색이 평소의 1.5배를 넘은 날에도 한 번 올린다 (11/16 사용자: 발사만 기다리면 홍보가 너무 드물다)
-          await th.maybePostThreadsSearch(env, store, report.readings, report.at).catch(() => undefined);
         }
       }
       const usage = await finishUsage(store, env, ctrl.scheduledTime);
@@ -224,6 +222,11 @@ export default {
           });
           // 오늘의 판정 (11/6): 오전 8시에 한 번, 또는 확인된 단계가 바뀌면 바로 새로 정한다
           await updateOfficial(store, st.warRisk.live, report.at).catch(() => undefined);
+          // 스레드 ① 앱 소개: 앱의 % 가 아침 판정보다 의미 있게 올라 30분 이어지면 그날 한 번 (threads.ts — 잡음 항목만 켜진 것은 제외)
+          if (env.THREADS_ACCESS_TOKEN) {
+            const th = await import("../core/threads.js");
+            await th.maybePostThreadsRise(env, store, st.warRisk.live, report.at).catch(() => undefined);
+          }
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
             await maybeFireDeep(store, env, { warRisk: st.warRisk.live, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined) });
         } catch (e) {
@@ -624,6 +627,12 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
       ...th.NEWS_TEXTS.map((_, i) => th.threadsText("news", i, site, "북한, 탄도미사일 2발 발사 → 동해 (견본)")),
     ];
     return json({ ...(await th.threadsStatus(env, store)), samples });
+  }
+  if (url.pathname === "/api/threads/post" && req.method === "POST") {
+    // 스레드 ③ 개발 소식: 사용자가 "오늘 수정한 것들 올리자"고 할 때 에이전트가 쓴 글을 올린다 (운영자 비밀값)
+    const body = (await req.json().catch(() => ({}))) as { text?: string };
+    const th = await import("../core/threads.js");
+    return json(await th.postThreadsManual(env, store, String(body.text ?? ""), Date.now()));
   }
   if (url.pathname === "/api/ops/test-alert" && req.method === "POST") {
     // 손님용 알림 길 전체를 운영자가 직접 시험한다. 결제한 손님이 둘 이상이면 실제 손님에게도 가므로 막는다 (force 로만)

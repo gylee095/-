@@ -1,13 +1,15 @@
 // 스레드(Threads) 자동 홍보 게시 — 글은 담백하게, 오글거리지 않게 (2026-11-16 사용자 결정)
-//   ① 앱 소개: 네이버 전쟁 불안 검색이 평소의 1.5배를 넘은 날 — 예시 화면 2장(알림함·대시보드, '예시 화면' 띠) + 소개 글 + 주소
+//   ① 앱 소개: 앱의 % 가 오늘 아침 판정보다 5%p 넘게 오르고 징조·움직임이 새로 켜져 30분 이어질 때(잡음 항목 제외) — 예시 화면 2장 + 소개 글 + 주소
+//   ③ 개발 소식: 사용자가 "오늘 수정한 것들 올리자"고 할 때 에이전트가 요약해 /api/threads/post 로
 //   ② 큰 뉴스: 운영자 사건 알림이 나간 북한 발사·포격 사건 — 무슨 일인지 한 줄 + 짧은 소개 + 주소
-//   넣지 않는 것: 우리 판정(단계·%·어제 대비·검색 배율) — 그건 결제한 손님이 받는 정보다(11/16 사용자: 스레드에 다 적으면 살 이유가 없다).
+//   넣지 않는 것: 우리 판정(단계·%·어제 대비) — 그건 결제한 손님이 받는 정보다(11/16 사용자: 스레드에 다 적으면 살 이유가 없다).
 //                손님인 척하는 후기·없는 적중 사례·'안 울리면 안전' 같은 장담·공포를 부추기는 말.
 //   같은 글이 되풀이되지 않게 정해 둔 문장 여러 개를 번갈아 쓴다(문장을 그때그때 지어내지 않는다 — 사람이 보지 않고 공개된다).
 //   하루 THREADS_DAILY_MAX(기본 3)번, 글 사이 2시간. 시험 서버에는 토큰을 넣지 않는다(deploy.yml) — 크론도 없어 올라가지 않는다.
 import { briefEvent } from "./brief.js";
 import { sendPush, type PushEnv } from "./notify.js";
 import { kstDay } from "./store.js";
+import { OFFICIAL_KEY } from "./official.js";
 import type { CrisisEvent } from "./types.js";
 import { hash } from "./util.js";
 
@@ -26,7 +28,7 @@ export const PROMO_IMAGES = ["/promo/1.jpg", "/promo/2.jpg"];
 /** 웹사이트 첫 화면의 신호 수와 같아야 한다 ('39가지 신호로 보는 한반도 전쟁 위험') */
 export const SIGNAL_COUNT = 39;
 
-export type PostKind = "intro" | "news";
+export type PostKind = "intro" | "news" | "dev";
 
 /** ① 앱 소개 글 — 예시 화면 2장과 함께 */
 export const INTRO_TEXTS: ((url: string) => string)[] = [
@@ -68,6 +70,8 @@ export interface ThreadsState {
   /** 종류별로 올린 수 — 문장을 번갈아 고르는 데 쓴다 */
   nk?: Partial<Record<PostKind, number>>;
   failDay?: string;
+  /** ① 앱의 % 가 의미 있게 오르기 시작한 시각 (30분 이어지는지 본다) */
+  riseSince?: number;
 }
 
 /** 사건 한 줄: 확인 전 속보는 그렇다고 적는다 */
@@ -256,30 +260,84 @@ export async function maybePostThreads(
   return postOne(env, store, token, e.id, "news", newsLine(p.headline, p.unconfirmed), now, fetchImpl, sleep);
 }
 
-/** 네이버 전쟁 불안 검색이 평소의 이 배(%) 이상인 날 소개 글을 올린다 (11/16 사용자: 발사만 기다리면 홍보가 너무 드물다). 징후판의 '높음'(200%)보다 낮게 둔다 */
-export const SEARCH_POST_MIN = 150;
+/** ① 앱 소개를 올리는 때 (11/16 사용자): 앱의 % 가 오늘 아침 판정보다 이만큼(%p) 넘게 오르고 */
+export const RISE_MIN_PTS = 5;
+/** 그 상태가 이만큼 이어지고 (한 번 튄 값으로 올리지 않게) */
+export const RISE_HOLD_MS = 30 * 60_000;
+/** 전쟁 전 징조·조용한 움직임 가운데 '잡음'으로 보는 항목 — 이것만 새로 켜져서는 올리지 않는다.
+ *  a_nk_dark: 북한 인터넷 외부망 장애 경보는 자주 울리고 대개 위기와 상관없다 (사용자 11/16 예시) */
+export const NOISY_ITEMS = ["a_nk_dark"];
+
+type Rubricish = { index?: number; rubric?: { index: number; layers?: { id: string; groups: { items: { id: string; ko?: string; got: number }[] }[] }[] } };
+
+/** 전쟁 전 징조·조용한 움직임 가운데 켜진 항목 (잡음 항목 제외) */
+export function realItems(p?: Rubricish): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const l of p?.rubric?.layers ?? []) {
+    if (l.id !== "signs" && l.id !== "moves") continue;
+    for (const g of l.groups) for (const it of g.items) if (it.got > 0 && !NOISY_ITEMS.includes(it.id)) out.set(it.id, it.ko ?? it.id);
+  }
+  return out;
+}
+
+/** 지금(5분 계산)과 오늘 아침 판정을 견줘 '의미 있게 올랐나'. 배경(세계 정세·검색량·시장)만 늘어난 것은 아니다 — 징조나 움직임이 하나는 새로 켜져야 한다 */
+export function riseOf(live?: Rubricish, morning?: Rubricish): { up: boolean; pts: number; added: string[] } {
+  const li = live?.rubric?.index ?? live?.index, mi = morning?.rubric?.index ?? morning?.index;
+  if (li === undefined || mi === undefined) return { up: false, pts: 0, added: [] };
+  const before = realItems(morning);
+  const added = [...realItems(live)].filter(([id]) => !before.has(id)).map(([, ko]) => ko);
+  const pts = li - mi;
+  return { up: pts >= RISE_MIN_PTS && added.length > 0, pts, added };
+}
 
 /**
- * ① 앱 소개: 하루 한 번(네이버 검색량을 받는 11:41 크론) 부른다. 어제 검색이 평소의 1.5배를 넘었으면 그날 한 번 올린다.
- * 글에 검색 배율은 쓰지 않는다 — 올리는 때를 고르는 데만 쓴다.
+ * ① 앱 소개: 5분마다 부른다. 앱의 % 가 오늘 아침 판정보다 5%p 넘게 오르고, 징조·움직임이 새로 켜졌고(잡음 제외),
+ * 그 상태가 30분 이어지면 그날 한 번 소개 글을 올린다. 글에는 % 나 단계를 쓰지 않는다 — 올리는 때를 고르는 데만 쓴다.
  */
-export async function maybePostThreadsSearch(
+export async function maybePostThreadsRise(
   env: PushEnv,
   store: Kv,
-  readings: { indicator: string; value: number; state: string; meta?: Record<string, unknown> }[],
+  live: { proximity?: Rubricish } | undefined,
   now: number,
   fetchImpl: typeof fetch = fetch,
   sleep?: (ms: number) => Promise<void>,
 ): Promise<ThreadsResult> {
   if (env.STAGING) return { skipped: "시험 서버" };
-  const r = readings.find((x) => x.indicator === "psych.naver_war_search");
-  if (!r || r.state === "unavailable") return { skipped: "네이버 검색량 없음" };
-  const min = Number(env.THREADS_SEARCH_MIN ?? SEARCH_POST_MIN);
-  if (!(r.value >= min)) return { skipped: `검색량 평소의 ${r.value}% (문턱 ${min}%)` };
+  if (!env.THREADS_ACCESS_TOKEN) return { skipped: "스레드 토큰 없음" };
+  const offRaw = await store.getKv(OFFICIAL_KEY);
+  const morning = offRaw ? (JSON.parse(offRaw) as { proximity?: Rubricish }).proximity : undefined;
+  const r = riseOf(live?.proximity, morning);
+  const st = await loadState(store);
+  const key = `rise:${kstDay(now)}`;
+  if (!r.up) {
+    if (st.riseSince) { st.riseSince = undefined; await store.setKv(THREADS_STATE_KEY, JSON.stringify(st)); }
+    return { skipped: r.pts > 0 ? `+${r.pts}%p · 새 징조·움직임 ${r.added.length}개 — 문턱 아래` : "오르지 않음" };
+  }
+  if (st.posted[key]) return { skipped: "오늘 이미 올림" };
+  if (!st.riseSince) { st.riseSince = now; await store.setKv(THREADS_STATE_KEY, JSON.stringify(st)); return { skipped: "오름 — 30분 이어지는지 확인 중" }; }
+  if (now - st.riseSince < RISE_HOLD_MS) return { skipped: "오름 — 30분 이어지는지 확인 중" };
   const token = await currentToken(env, store);
   if (!token) return { skipped: "스레드 토큰 없음" };
-  const meta = r.meta as { dataDate?: string } | undefined;
-  return postOne(env, store, token, `search:${meta?.dataDate ?? kstDay(now)}`, "intro", "", now, fetchImpl, sleep);
+  return postOne(env, store, token, key, "intro", "", now, fetchImpl, sleep);
+}
+
+/**
+ * ③ 개발 소식 (11/16 사용자): "오늘 수정한 것들 스레드에 올리자" 라고 하면 에이전트가 오늘 본 서버(main)에 올라간 변경을
+ * 담백하게 요약해 이걸로 올린다. 사람이 직접 시킨 글이라 하루 한도·간격을 보지 않는다. 판정·비밀값·내부 용어는 넣지 않는다.
+ */
+export async function postThreadsManual(env: PushEnv, store: Kv, text: string, now: number, fetchImpl: typeof fetch = fetch, sleep?: (ms: number) => Promise<void>): Promise<ThreadsResult> {
+  if (env.STAGING) return { skipped: "시험 서버" };
+  const t = text.trim();
+  if (!t) return { skipped: "글이 비어 있음" };
+  if (t.length > THREADS_MAX_CHARS) return { skipped: `${t.length}자 — ${THREADS_MAX_CHARS}자 넘음` };
+  const token = await currentToken(env, store);
+  if (!token) return { skipped: "스레드 토큰 없음" };
+  const res = await publishThreads(token, t, fetchImpl, sleep);
+  const st = await loadState(store);
+  const entry: ThreadsLog = { at: now, eventId: `dev:${now}`, kind: "dev", style: "D", text: t, images: 0, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
+  st.log = [...st.log, entry].slice(-40);
+  await store.setKv(THREADS_STATE_KEY, JSON.stringify(st));
+  return { posted: entry };
 }
 
 /** 운영자가 보는 상태 — 토큰은 내보내지 않는다 */

@@ -772,13 +772,32 @@ function ind(r){var rd=r.reading,unavail=!rd||r.stateLabel==="측정 불가";var
   var attr=rd&&rd.meta&&rd.meta.attribution&&/Global Fishing Watch/.test(rd.meta.attribution)?'<div class="ib" style="margin-top:2px"><a href="https://globalfishingwatch.org" target="_blank" rel="noopener" onclick="event.stopPropagation()">Powered by Global Fishing Watch</a></div>':"";
   var meaning=ST&&ST.interpretation&&ST.interpretation.perIndicator?ST.interpretation.perIndicator[r.id]:"";
   var narrow=r.coverage&&rd&&!unavail&&rd.value===0?'<span class="chip" style="font-size:11px;padding:1px 7px;background:var(--l2);color:#fff;vertical-align:2px">범위 제한</span>':'';
-  return '<div class="ind" onclick="this.classList.toggle(\'open\')"><span class="st '+stc+'"></span><div class="il">'+esc(r.label)+'</div><div class="iv">'+(unavail?"—":fmtVal(r))+' '+narrow+'</div><div class="ib'+(r.failing?' fail':'')+'">'+esc(base)+'</div>'+spark(r.history)+noteLine(r)+(extra?'<div class="ib" style="margin-top:2px">'+esc(extra).slice(0,70)+'</div>':"")+attr+'<div class="why">'+(meaning?'<b>뜻:</b> '+esc(meaning)+'<br>':'')+'<b>왜 보나:</b> '+esc(r.why)+'<br><b>지연:</b> '+esc(r.latency)+'<br><b>주의:</b> '+esc(r.caveats)+(r.coverage?'<br><b>범위 제한:</b> '+esc(r.coverage):'')+(rd?'<br><b>관측:</b> '+kst(rd.at):'')+'</div></div>'}
+  return '<div class="ind" onclick="this.classList.toggle(\'open\')"><span class="st '+stc+'"></span><div class="il">'+esc(r.label)+'</div><div class="iv">'+(unavail?"—":fmtVal(r))+' '+narrow+'</div><div class="ib'+(r.failing?' fail':'')+'">'+esc(base)+'</div>'+spark(r.history)+epChip(r)+noteLine(r)+(extra?'<div class="ib" style="margin-top:2px">'+esc(extra).slice(0,70)+'</div>':"")+attr+'<div class="why">'+timeline(r)+(meaning?'<b>뜻:</b> '+esc(meaning)+'<br>':'')+'<b>왜 보나:</b> '+esc(r.why)+'<br><b>지연:</b> '+esc(r.latency)+'<br><b>주의:</b> '+esc(r.caveats)+(r.coverage?'<br><b>범위 제한:</b> '+esc(r.coverage):'')+(rd?'<br><b>관측:</b> '+kst(rd.at):'')+'</div></div>'}
+// 이상 구간 타임라인 (11/16 사용자: "10분만 4대였다가 사라질 수도 있다 — 하루 중 언제 동안 그런 신호가 잡혔는지. 신호를 누르면 타임라인까지 나오게")
+// 닫힌 칸에는 '24시간 안 이상 N번'만, 칸을 누르면 24시간 막대(이상이던 구간만 색)와 구간 목록(언제~언제 · 몇 분 · 최고값 · 그때의 세부)
+function epDur(ms){var m=Math.max(5,Math.round(ms/60000));return m<60?m+"분":m<1440?Math.floor(m/60)+"시간"+(m%60?" "+(m%60)+"분":""):Math.floor(m/1440)+"일 "+Math.floor(m%1440/60)+"시간"}
+function epHm(ms){var d=new Date(ms+9*3600000);return String(d.getUTCHours()).padStart(2,"0")+":"+String(d.getUTCMinutes()).padStart(2,"0")}
+function epDay(ms){var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()}
+function epChip(r){var now=ST.now,l=(r.episodes||[]).filter(function(e){return !e.to||now-e.to<24*3600000});if(!l.length)return "";
+  var on=l.some(function(e){return !e.to});
+  return '<div class="ib" style="margin-top:3px;white-space:normal;color:'+(on?'var(--l3)':'var(--mute)')+'">'+(on?'지금 평소와 달라요 · '+epDur(now-l[l.length-1].from)+'째':'지금은 정상 · 24시간 안에 '+l.length+'번 평소와 달랐어요')+' <span style="text-decoration:underline">타임라인 ›</span></div>'}
+function timeline(r){var eps=r.episodes||[];if(!eps.length)return "";var now=ST.now,t0=now-24*3600000,u=r.unit||"";
+  var fmt=function(v){return Math.abs(v-Math.round(v))<1e-9?String(Math.round(v)):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2)};
+  var segs=eps.map(function(e){var a=Math.max(t0,e.from),b=Math.min(now,e.to||now);if(b<=t0)return "";var L=(a-t0)/864000,W=Math.max(1.2,(b-a)/864000);
+    return '<span style="position:absolute;top:0;bottom:0;left:'+L.toFixed(2)+'%;width:'+Math.min(100-L,W).toFixed(2)+'%;border-radius:3px;background:'+(e.level==="anomalous"?'var(--l4)':'var(--l3)')+'"></span>'}).join("");
+  var ticks=[0,6,12,18,24].map(function(h){return '<span style="flex:1;text-align:'+(h===0?'left':h===24?'right':'center')+'">'+(h===24?'지금':epHm(t0+h*3600000))+'</span>'});
+  var h='<div style="margin-bottom:10px"><b>지난 24시간 타임라인</b><div style="position:relative;height:12px;margin:6px 0 3px;border-radius:4px;background:var(--line)" role="img" aria-label="지난 24시간 중 평소와 달랐던 구간 '+eps.length+'번">'+segs+'</div><div style="display:flex;font-size:10.5px;color:var(--mute)">'+ticks[0]+ticks[2]+ticks[4]+'</div>';
+  h+=eps.slice(0,6).map(function(e){var end=e.to||now,same=epDay(e.from)===epDay(end);
+    return '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--line)"><b style="color:'+(e.level==="anomalous"?'var(--l4)':'var(--l3)')+'">'+epDay(e.from)+' '+epHm(e.from)+' ~ '+(e.to?(same?'':epDay(end)+' ')+epHm(end):'지금')+'</b> · '+epDur(end-e.from)+(e.to?'':' (이어지는 중)')+'<br>가장 크게 벗어난 값 '+fmt(e.peak)+esc(u)+(e.baseline!==undefined&&e.baseline!==null?' (평소 '+fmt(e.baseline)+esc(u)+')':'')+(e.detail?'<br><span style="color:var(--mute)">그때: '+esc(e.detail)+'</span>':'')+'</div>'}).join("");
+  if(eps.length>6)h+='<div style="margin-top:6px;color:var(--mute)">이전 구간 '+(eps.length-6)+'개 더 (최근 3일)</div>';
+  return h+'</div>'}
 // 신호별 '왜 이런가' (11/16 사용자: 평소와 다른 신호가 잡히면 클로드가 원인을 알아내 그 신호 옆에 적는다). 평소와 다른데 아직 설명이 없으면 언제 확인하는지 적는다
 function noteLine(r){var rd=r.reading,ab=rd&&(rd.state==="anomalous"||rd.state==="elevated")&&r.stateLabel!=="측정 불가",n=r.note;
   // 설명은 지금 평소와 다른 신호에만 보인다 (11/16 사용자: 정상 범위인 신호에 분석이 붙으면 안 된다) — 신호가 정상으로 돌아오면 남아 있던 설명도 숨긴다
-  if(!ab)return "";
+  var recent=(r.episodes||[]).some(function(e){return !e.to||ST.now-e.to<24*3600000});
+  if(!ab&&!recent)return "";
   if(n)return '<div class="ib" style="grid-column:1/-1;margin-top:4px;padding:6px 8px;border-radius:8px;background:var(--chip);color:var(--fg);white-space:normal;word-break:keep-all;overflow-wrap:anywhere"><b>클로드</b> · '+esc(n.text)+' <span style="color:var(--mute)">('+esc(ago(n.at))+')</span>'+((n.src||[]).length?'<br>'+n.src.map(function(q){return '<a href="'+esc(q.u)+'" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="color:var(--mute);text-decoration:underline;margin-right:8px">'+esc(q.t)+' ↗</a>'}).join(""):'')+'</div>';
-  if(ab)return '<div class="ib" style="grid-column:1/-1;margin-top:4px;white-space:normal">왜 이런지는 클로드가 다음 분석(08:09 · 20:09) 때 확인해 여기에 적어요.</div>';
+  if(ab||recent)return '<div class="ib" style="grid-column:1/-1;margin-top:4px;white-space:normal">왜 이런지는 클로드가 다음 분석(08:09 · 20:09) 때 확인해 여기에 적어요.</div>';
   return ""}
 function assessment(a){var LK={high:"가능성 높음",medium:"가능성 보통",low:"가능성 낮음"};
   var h='<div class="ov"><span class="lv lv'+a.overall_level+'"></span>'+a.overall_level+'단계 · '+esc(a.overall)+'</div>';

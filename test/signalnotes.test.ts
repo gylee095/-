@@ -30,7 +30,7 @@ describe("신호별 '왜 이런가' 한 줄 (11/16)", () => {
     const tool = readFileSync(new URL("../src/mcp/tools_indicators.ts", import.meta.url), "utf8");
     expect(tool).toMatch(/parseSignalNotes\(notes, abnormal, now\)/);
     const dash = readFileSync(new URL("../src/worker/dashboard.ts", import.meta.url), "utf8");
-    expect(dash).toMatch(/if\(!ab\)return "";/);
+    expect(dash).toMatch(/if\(!ab&&!recent\)return "";/); // 지금 이상이거나 지난 24시간 안에 이상 구간이 있었던 신호에만
     expect(parseSignalNotes("air.mil_airborne: 설명", [], NOW)).toEqual({}); // 지금 이상인 신호 목록에 없으면 저장되지 않는다
   });
 });

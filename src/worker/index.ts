@@ -216,6 +216,11 @@ export default {
             const { NORM_LONG_KEY, foldLong } = await import("../core/normal.js");
             const longRaw = await store.getKv(NORM_LONG_KEY);
             await store.setKv(NORM_LONG_KEY, JSON.stringify(foldLong(longRaw ? JSON.parse(longRaw) : undefined, st.board, report.at))).catch(() => undefined);
+            // 신호의 이상 구간 (11/16): 잠깐 떴다 사라진 신호도 언제부터 언제까지였는지 남긴다 — 바뀐 때만 쓴다
+            const { EPISODES_KEY, foldEpisodes, parseEpisodes } = await import("../core/episodes.js");
+            const epRaw = await store.getKv(EPISODES_KEY);
+            const epNext = JSON.stringify(foldEpisodes(parseEpisodes(epRaw), st.board, report.at));
+            if (epNext !== epRaw) await store.setKv(EPISODES_KEY, epNext).catch(() => undefined);
           }
           // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
           // 단계 알림은 5분마다 하는 계산(live)으로 판단한다 — 공식 판정(하루 한 번)으로 하면 바뀐 단계를 늦게 알게 된다

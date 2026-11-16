@@ -91,12 +91,28 @@ describe("단계 알림 판단", () => {
     expect(r.message?.body).toMatch(/9개 중 3개/);
     st = r.state;
     expect(decidePhaseAlert(st, signs, NOW + 10 * MIN).message).toBeUndefined(); // 이미 알렸다
-    // 꺼졌다가 한 시간 뒤 다시 켜져도 12시간 안에는 알리지 않는다
+    // 잠깐 꺼졌다 다시 켜지면(6시간 안) 같은 상황이 이어지는 것 — 다시 알리지도, '가라앉았다'고 하지도 않는다
     st = decidePhaseAlert(st, calm, NOW + 15 * MIN).state;
-    st = decidePhaseAlert(st, moves, NOW + 60 * MIN).state;
-    expect(decidePhaseAlert(st, moves, NOW + 65 * MIN).message).toBeUndefined();
-    const late = decidePhaseAlert(decidePhaseAlert(st, moves, NOW + 65 * MIN).state, moves, NOW + 13 * 60 * MIN);
-    expect(late.message?.body).toMatch(/기습 주의/);
+    expect(st.sub).toBe(true);
+    const back = decidePhaseAlert(st, moves, NOW + 60 * MIN);
+    expect(back.message).toBeUndefined();
+    expect(back.state.subOff).toBeUndefined();
+    // 마무리 (11/17): 징조가 사라져 6시간 이어지면 '가라앉았어요'를 조용한 알림으로 한 번
+    st = decidePhaseAlert(back.state, calm, NOW + 2 * H).state;
+    expect(decidePhaseAlert(st, calm, NOW + 7 * H).message).toBeUndefined(); // 5시간째
+    const clear = decidePhaseAlert(st, calm, NOW + 8 * H + MIN);
+    expect(clear.message).toMatchObject({ title: "2단계 긴장 20% · 실제 징조가 가라앉았어요", priority: 2, direction: "down", note: true });
+    expect(clear.state.sub).toBe(false);
+    expect(decidePhaseAlert(clear.state, calm, NOW + 9 * H).message).toBeUndefined(); // 한 번만
+    // 가라앉은 뒤 다시 나타나면(처음 알린 지 12시간 뒤) 새로 알린다
+    const again = decidePhaseAlert(decidePhaseAlert(clear.state, moves, NOW + 13 * H).state, moves, NOW + 13 * H + 5 * MIN);
+    expect(again.message?.body).toMatch(/기습 주의/);
+  });
+  it("마무리 알림은 하루 한도와 상관없이 간다 — 안심시키는 소식이 막히면 안 된다", () => {
+    const prox = (signs: number) => ({ index: 20, vs: { days: 0 }, rubric: { signs, moves: 0, context: 6, surprise: false } }) as any;
+    const day = new Date(NOW + 8 * H + 9 * H).toISOString().slice(0, 10);
+    const st: PhaseNotifyState = { phase: 2, at: NOW, sub: true, subOff: NOW, sent: { [day]: PHASE_ALERTS_PER_DAY } };
+    expect(decidePhaseAlert(st, { ...w(2), proximity: prox(0) }, NOW + 8 * H).message?.title).toMatch(/가라앉았어요/);
   });
   it("주간 요약은 꺼져 있다 (11/12). 켜면: 월요일 오전 9시(한국 시간) 이후 한 번, 같은 주에는 다시 보내지 않는다", () => {
     expect(DIGEST_ON).toBe(false);
@@ -271,5 +287,89 @@ describe("알림의 '이전 값'은 언제 것인지 함께 적는다 (2026-11-0
     expect(s2).toMatchObject({ clashAgo: 3.4, agoLabel: "11/2 6시 (30시간 전)" });
     const { changeLine } = await import("../src/core/pushtext.js");
     expect(changeLine(s2!)).toBe("● 변화 없음: 30일 국지 충돌 3.4%(11/2 6시 (30시간 전)) → 3.4%(지금) · 긴장");
+  });
+});
+
+describe("손님 알림 ③ 큰 사건 · ④ 눈에 띄는 상승과 마무리 (11/17)", () => {
+  const lay = (ids: string[]) => [{ id: "signs", groups: [{ items: ids.filter((i) => i.startsWith("i_")).map((id) => ({ id, ko: id + " 항목 (설명)", got: 1 })) }] }, { id: "moves", groups: [{ items: ids.filter((i) => !i.startsWith("i_")).map((id) => ({ id, ko: id, got: 1 })) }] }];
+  const px = (index: number, ids: string[] = []) => ({ index, vs: { days: 0 }, rubric: { index, signs: 0, moves: 0, context: 6, surprise: false, layers: lay(ids) } }) as any;
+  it("④ 아침보다 5%p 넘게 오르고 징조·움직임이 새로 켜져 30분 이어지면 한 번 — 배경만 늘었거나 잡음 항목만이면 아니다", async () => {
+    const { decideRise } = await import("../src/core/phasealert.js");
+    const base: PhaseNotifyState = { phase: 2, at: NOW };
+    const up = { ...w(2), proximity: px(23, ["i_leader_threat"]) };
+    expect(decideRise(base, { ...w(2), proximity: px(23) }, px(17), NOW).state.riseSeen).toBeUndefined(); // 배경만
+    expect(decideRise(base, { ...w(2), proximity: px(23, ["a_nk_dark"]) }, px(17), NOW).state.riseSeen).toBeUndefined(); // 잡음 항목만
+    let r = decideRise(base, up, px(17), NOW);
+    expect(r.message).toBeUndefined();
+    r = decideRise(r.state, up, px(17), NOW + 20 * MIN);
+    expect(r.message).toBeUndefined(); // 아직 30분이 안 됨
+    r = decideRise(r.state, up, px(17), NOW + 31 * MIN);
+    expect(r.message?.title).toBe("2단계 긴장 23% · 오늘 아침 17%에서 올랐어요");
+    expect(r.message?.body).toMatch(/'i_leader_threat 항목' 항목이 새로 켜졌어요\. 단계는 그대로 2단계예요\.[\s\S]*가라앉으면 다시 알려 드려요/);
+    expect(r.state.rise).toEqual({ base: 17, at: NOW + 31 * MIN });
+    // 다음 날 아침 판정이 23%가 돼도(기준이 바뀌어도) 다시 알리지 않고, 기억해 둔 기준으로 가라앉음을 본다
+    expect(decideRise(r.state, up, px(23, ["i_leader_threat"]), NOW + 20 * H).message).toBeUndefined();
+    let c = decideRise(r.state, { ...w(2), proximity: px(18) }, px(23), NOW + 21 * H);
+    expect(c.message).toBeUndefined();
+    c = decideRise(c.state, { ...w(2), proximity: px(18) }, px(23), NOW + 27 * H + MIN);
+    expect(c.message).toMatchObject({ title: "2단계 긴장 18% · 평소 수준으로 돌아왔어요", priority: 2, note: true });
+    expect(c.state.rise).toBeUndefined();
+  });
+  it("④ 방금 다른 알림이 갔으면 겹쳐 보내지 않고(마무리만 따로 가는 일도 없다), 일주일 지나도 안 내려오면 기억을 지운다", async () => {
+    const { decideRise, RISE_FORGET_MS } = await import("../src/core/phasealert.js");
+    const up = { ...w(2), proximity: px(23, ["i_leader_threat"]) };
+    const r = decideRise({ phase: 2, at: NOW, riseSeen: NOW - H, lastSentAt: NOW - H }, up, px(17), NOW);
+    expect(r.message).toBeUndefined();
+    expect(r.state.rise).toBeUndefined();
+    expect(decideRise({ phase: 2, at: NOW, rise: { base: 17, at: NOW } }, up, px(23), NOW + RISE_FORGET_MS + 1).state.rise).toBeUndefined();
+  });
+  it("③ 운영자 사건 알림이 나간 북한 발사는 손님에게도 — '단계는 그대로'와 함께, 하루 한 번. 훈련·미확인 보도·알림이 안 나간 사건은 아니다", async () => {
+    const { decideEvent } = await import("../src/core/phasealert.js");
+    const ev = (id: string, o: Record<string, unknown> = {}) => ({ id, categories: ["missile_launch"], status: "CONFIRMED", basis: "official", severity: 80, firstDetectedTime: NOW, lastUpdatedTime: NOW, signalIds: ["s"], title: "북한, 동해상으로 탄도미사일 발사", evidence: [{ id: "s", source: "jcs", sourceKind: "official", category: "missile_launch", title: "합참 \"북한, 동해상으로 탄도미사일 발사\"", detectedTime: NOW, severity: 80 }], ...o }) as any;
+    const rep = (events: any[], sent = true) => ({ events, alerts: events.map((e) => ({ eventId: e.id, kind: "new", sent })) });
+    const base: PhaseNotifyState = { phase: 2, at: NOW };
+    const cur = { ...w(2), proximity: px(17) };
+    const d = decideEvent(base, cur, rep([ev("e1")]), NOW);
+    expect(d.message?.title).toMatch(/발사.* · 단계는 그대로 2단계$/);
+    expect(d.message?.body).toMatch(/전쟁 위험 단계는 그대로 2단계 긴장예요|전쟁 위험 단계는 그대로 2단계/);
+    expect(d.message).toMatchObject({ priority: 3, note: true });
+    expect(decideEvent(d.state, cur, rep([ev("e2")]), NOW + H).message).toBeUndefined(); // 하루 한 번
+    expect(decideEvent(d.state, cur, rep([ev("e2")]), NOW + 24 * H).message).toBeDefined(); // 다음 날
+    expect(decideEvent(base, cur, rep([ev("e1")], false), NOW).message).toBeUndefined(); // 운영자 알림이 안 나간 사건
+    expect(decideEvent(base, cur, rep([ev("e1", { drill: true })]), NOW).message).toBeUndefined(); // 훈련
+    expect(decideEvent(base, cur, rep([ev("e1", { status: "UNVERIFIED", basis: "media" })]), NOW).message).toBeUndefined(); // 미확인 보도
+    // 단계가 막 오르는 중이면 '그대로'라고 하지 않는다
+    expect(decideEvent({ ...base, pending: { phase: 3, since: NOW, seen: 1 } }, cur, rep([ev("e1")]), NOW).message?.title).toMatch(/단계 확인 중$/);
+  });
+  it("코드: 손님에게 가는 길은 여전히 phasealert.ts 뿐이고, 5분 주기가 사건 알림을 부른다. 단계가 바뀌어도 상승·사건 기억을 잃지 않는다", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync(new URL("../src/worker/index.ts", import.meta.url), "utf8")).toMatch(/notifyCustomerEvent\(store, env, st\.warRisk\.live, report, report\.at/);
+    let st: PhaseNotifyState = { phase: 2, at: NOW, rise: { base: 17, at: NOW }, evDay: "2026-11-03", evIds: ["e1"] };
+    st = decidePhaseAlert(st, w(3), NOW).state;
+    st = decidePhaseAlert(st, w(3), NOW + 5 * MIN).state;
+    expect(st).toMatchObject({ phase: 3, rise: { base: 17 }, evDay: "2026-11-03", evIds: ["e1"] });
+  });
+});
+
+describe("③ 큰 사건 알림이 실제로 나가는 길 (11/17)", () => {
+  it("리포트를 알림 제목 그대로 한 장 남기고, 같은 사건은 다시 보내지 않는다. 방금 단계 알림이 갔으면 건너뛴다", async () => {
+    const { notifyCustomerEvent } = await import("../src/core/phasealert.js");
+    const { loadReports } = await import("../src/core/reports.js");
+    const store = new MemoryStore();
+    await store.setKv(PHASE_STATE_KEY, JSON.stringify({ phase: 2, at: NOW, rule: RUBRIC_VERSION }));
+    const e = { id: "e1", categories: ["missile_launch"], status: "CONFIRMED", basis: "official", severity: 80, firstDetectedTime: NOW, lastUpdatedTime: NOW, signalIds: ["s"], title: "북한, 동해상으로 탄도미사일 발사", evidence: [{ id: "s", source: "jcs", sourceKind: "official", category: "missile_launch", title: "합참 \"북한, 동해상으로 탄도미사일 발사\"", detectedTime: NOW, severity: 80 }] } as any;
+    const rep = { events: [e], alerts: [{ eventId: "e1", kind: "new", sent: true }] };
+    const full = { warRisk: { phase: 2 } };
+    const cur = { ...w(2), domains: [], restraints: [], war30d: { low: 0, high: 0, point: 0.5 } } as unknown as WarRisk;
+    const r1 = await notifyCustomerEvent(store, { DASHBOARD_URL: "https://kew.example" } as any, cur, rep, NOW, (async () => new Response("")) as any, full);
+    expect(r1.sent?.title).toMatch(/단계는 그대로 2단계$/);
+    const reports = await loadReports(store);
+    expect(reports).toHaveLength(1);
+    expect(reports[0]).toMatchObject({ kind: "change", headline: r1.sent!.title, phase: 2, from: 2 });
+    const st = JSON.parse((await store.getKv(PHASE_STATE_KEY))!);
+    expect(st).toMatchObject({ evIds: ["e1"], rule: RUBRIC_VERSION, phase: 2 });
+    expect((await notifyCustomerEvent(store, { DASHBOARD_URL: "https://kew.example" } as any, cur, rep, NOW + 5 * MIN, (async () => new Response("")) as any, full)).sent).toBeUndefined();
+    await store.setKv(PHASE_STATE_KEY, JSON.stringify({ phase: 3, at: NOW, rule: RUBRIC_VERSION, lastSentAt: NOW + 24 * H - MIN }));
+    expect((await notifyCustomerEvent(store, {} as any, cur, { events: [{ ...e, id: "e2" }], alerts: [{ eventId: "e2", kind: "new", sent: true }] }, NOW + 24 * H, (async () => new Response("")) as any)).sent).toBeUndefined();
   });
 });

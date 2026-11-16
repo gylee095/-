@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, OPS_MANIFEST, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
-import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
 import { SHELL_HEAD, buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
@@ -214,12 +214,22 @@ export default {
             const { NORM_LONG_KEY, foldLong } = await import("../core/normal.js");
             const longRaw = await store.getKv(NORM_LONG_KEY);
             await store.setKv(NORM_LONG_KEY, JSON.stringify(foldLong(longRaw ? JSON.parse(longRaw) : undefined, st.board, report.at))).catch(() => undefined);
+            // 신호의 이상 구간 (11/16): 잠깐 떴다 사라진 신호도 언제부터 언제까지였는지 남긴다 — 바뀐 때만 쓴다
+            const { EPISODES_KEY, foldEpisodes, parseEpisodes } = await import("../core/episodes.js");
+            const epRaw = await store.getKv(EPISODES_KEY);
+            const epNext = JSON.stringify(foldEpisodes(parseEpisodes(epRaw), st.board, report.at));
+            if (epNext !== epRaw) await store.setKv(EPISODES_KEY, epNext).catch(() => undefined);
           }
           // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
           // 단계 알림은 5분마다 하는 계산(live)으로 판단한다 — 공식 판정(하루 한 번)으로 하면 바뀐 단계를 늦게 알게 된다
           await notifyPhaseChange(store, env, st.warRisk.live, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
             await store.setKv("phase_notify:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
+          // 손님 알림 ③ 큰 사건 (11/17): 이번 바퀴에 운영자 사건 알림이 나간 북한 발사·포격이 있으면 '단계는 그대로인지'와 함께 손님에게도 (phasealert.ts, 하루 한 번)
+          if (report.alerts.some((x) => x.sent)) {
+            const { notifyCustomerEvent } = await import("../core/phasealert.js");
+            await notifyCustomerEvent(store, env, st.warRisk.live, report, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(() => undefined);
+          }
           // 오늘의 판정 (11/6): 오전 8시에 한 번, 또는 확인된 단계가 바뀌면 바로 새로 정한다
           await updateOfficial(store, st.warRisk.live, report.at).catch(() => undefined);
           // 스레드 ① 앱 소개: 앱의 % 가 아침 판정보다 의미 있게 올라 30분 이어지면 그날 한 번 (threads.ts — 잡음 항목만 켜진 것은 제외)
@@ -397,6 +407,12 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
       const first = await snapshotForPurchase(store, Date.now(), full).catch(() => undefined);
       if (first) await attachStartReport(store, r.order.orderId, first.id, Date.now()).catch(() => {});
     }
+    // 결제·취소가 확정되면 운영자에게만 알린다 (11/17 사용자). 같은 통보가 다시 와도 'already' 라 한 번만 간다. 알림이 실패해도 페이앱 응답은 그대로 보낸다
+    if (r.reply === "SUCCESS" && (r.action === "paid" || r.action === "revoked") && r.order) {
+      const m = paymentPush(r.action, r.order, await loadOrders(store).catch(() => [r.order!]), Date.now());
+      // store 를 넘겨야 운영자 앱(웹 푸시)에도 간다 — 없으면 Bark 등 외부 채널로만 간다. 화면을 얼릴 필요는 없어 링크는 운영자 알림 목록으로
+      await sendPush(env, { ...m, url: env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops/app` : undefined }, fetch, store).catch(() => []);
+    }
     if (r.reply === "FAIL")
       await store
         .setKv("billing:last_reject", JSON.stringify({ at: Date.now(), reason: r.reason, state: form.pay_state, order: form.var1, price: form.price, responsedate: form.responsedate, fields: Object.keys(form).sort(), match: { userid: form.userid === cfg.userid, linkkey: form.linkkey === cfg.linkkey, linkval: form.linkval === cfg.linkval, hashPresent: !!form.hash } }))
@@ -418,7 +434,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const s = await addSub(store, body.subscription, "paid", Date.now());
     // 켜자마자 이 기기 하나에만 '켜졌어요' 알림 — 고객이 바로 확인하고(체감), 서비스 제공이 시작됐다는 기록도 된다. 다른 구독자에게는 가지 않는다
     const keys = await loadVapid(store, env.DASHBOARD_URL ?? url.origin);
-    const welcome = await sendWebPush(keys, body.subscription, { title: "✅ 알림이 켜졌어요 — 한반도 조기경보", body: "앞으로 전쟁 위험 단계가 바뀔 때만 이렇게 알려 드려요. 평소엔 조용합니다.\n지금 상황 리포트는 알림함에 있어요.", url: `${url.origin}/me`, tag: "kew-welcome" }).catch(() => ({ ok: false }));
+    const welcome = await sendWebPush(keys, body.subscription, { title: "✅ 알림이 켜졌어요 — 한반도 조기경보", body: "앞으로 전쟁 위험 단계가 바뀌거나 북한 발사 같은 큰 사건이 있을 때 이렇게 알려 드려요. 평소엔 조용합니다.\n지금 상황 리포트는 알림함에 있어요.", url: `${url.origin}/me`, tag: "kew-welcome" }).catch(() => ({ ok: false }));
     return json({ ok: true, who: s.who, devicesUsed: r.order.devices.length, devicesMax: DEVICES_PER_CODE, welcome: welcome.ok });
   }
   if (url.pathname === "/api/push/key" && req.method === "GET") {

@@ -252,3 +252,23 @@ describe("경로 규칙 (코드 검사)", () => {
     expect(orderRoute).toMatch(/smsuse: "y"/);
   });
 });
+
+describe("결제 알림 — 운영자에게만 (11/17)", () => {
+  it("결제·취소가 확정되면 금액·시각·주문 끝 4자리·이용 중 인원만 담는다 — 손님 정보는 없다", async () => {
+    const { paymentPush } = await import("../src/core/billing.js");
+    const o = (id: string, status: string) => ({ orderId: id, claim: "c", amount: 4900, status, createdAt: 0, devices: [] }) as any;
+    const now = Date.parse("2026-11-17T14:03:00+09:00");
+    const m = paymentPush("paid", o("kew-abc-1234", "paid"), [o("kew-abc-1234", "paid"), o("x2", "paid"), o("x3", "refunded"), o("x4", "created")], now);
+    expect(m.title).toBe("💰 결제 들어옴 — 4,900원");
+    expect(m.body).toBe("지금 이용 중 2명 (합계 9,800원) · 취소 1건\n주문 …1234 · 11/17 14:03");
+    expect(paymentPush("revoked", o("kew-abc-1234", "refunded"), [o("kew-abc-1234", "refunded")], now).title).toBe("↩️ 결제 취소됨 — 4,900원");
+    expect(JSON.stringify(m)).not.toMatch(/audience|01\d-|claim/);
+  });
+  it("코드: 결제통보 처리에서 paid·revoked 일 때만, 운영자에게만(audience 없음) 보낸다", async () => {
+    const { readFileSync } = await import("node:fs");
+    const idx = readFileSync(new URL("../src/worker/index.ts", import.meta.url), "utf8");
+    expect(idx).toMatch(/\(r\.action === "paid" \|\| r\.action === "revoked"\) && r\.order\) \{\s*const m = paymentPush\(/);
+    expect(idx).not.toMatch(/paymentPush[\s\S]{0,300}audience/);
+    expect(idx).toMatch(/\/ops\/app` : undefined \}, fetch, store\)/); // 운영자 앱(웹 푸시)에도 가게 store 를 넘긴다
+  });
+});

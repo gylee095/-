@@ -93,6 +93,38 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
   );
 
   server.registerTool(
+    "record_signal_notes",
+    {
+      title: "신호별 원인 한 줄 기록 (분석관)",
+      description:
+        "징후판에서 **지금 주의·이상이거나 지난 24시간 안에 이상 구간(episodes_24h)이 있었던 신호에만** '왜 이런가'를 확인해 한 줄로 남긴다(내내 정상이던 신호는 조사하지도 적지도 않는다 — 적어도 저장되지 않는다). 이미 사라진 신호는 언제부터 언제까지 얼마였는지와 함께 적는다. 화면의 그 신호 바로 아래에 '클로드:'로 보인다. " +
+        "한 줄에 하나: '징후id: 설명 https://근거주소'. 예: 'air.mil_airborne: 4대 중 3대는 미 공군 수송기(C-17·C-130) 정례 운항, 1대는 한국군 훈련기 — 정찰·급유기는 없어 위협 신호 아님'. " +
+        "설명은 사실(기종·시각·보도)과 판단(위협인지 평범한 원인인지)을 함께, 200자 안쪽, 쉬운 말로. 원인을 못 찾았으면 '원인 미확인 — 무엇을 봤는지'를 적는다(추측으로 단정하지 않는다). 36시간 유효, 같은 신호는 새 설명으로 바뀐다. 판정(단계·%)은 바꾸지 않는다.",
+      inputSchema: { notes: z.string().min(5).max(6000).describe("줄마다 '징후id: 설명 [https://주소 …]'") },
+    },
+    async ({ notes }) => {
+      try {
+        const { parseSignalNotes, mergeSignalNotes, SIGNAL_NOTES_KEY } = await import("../core/signalnotes.js");
+        const now = Date.now();
+        // 지금 주의·이상인 신호에만 적는다 — 정상 범위인 신호의 설명은 받지 않는다
+        const rd = JSON.parse((await store.getKv("readings")) ?? "{}") as Record<string, { state?: string }>;
+        // …또는 지난 24시간 안에 이상 구간이 있었던 신호 (잠깐 떴다 사라진 것도 원인을 적는다)
+        const { EPISODES_KEY, episodesBy, parseEpisodes } = await import("../core/episodes.js");
+        const hadEpisode = Object.keys(episodesBy(parseEpisodes(await store.getKv(EPISODES_KEY)), now, 24 * 3600_000));
+        const abnormal = INDICATORS.map((d) => d.id).filter((id) => rd[id]?.state === "anomalous" || rd[id]?.state === "elevated" || hadEpisode.includes(id));
+        const add = parseSignalNotes(notes, abnormal, now);
+        const n = Object.keys(add).length;
+        if (!n) return fail(new Error("저장할 줄이 없다 — '징후id: 설명' 형식인지, 그리고 그 신호가 지금 주의·이상이거나 지난 24시간 안에 이상 구간이 있었는지 확인 (내내 정상이던 신호에는 적지 않는다)"));
+        const prev = await store.getKv(SIGNAL_NOTES_KEY);
+        await store.setKv(SIGNAL_NOTES_KEY, JSON.stringify(mergeSignalNotes(prev ? JSON.parse(prev) : undefined, add, now)));
+        return out({ saved: Object.keys(add) });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
     "record_precursor_checks",
     {
       title: "전조 확인 기록 (분석관)",
@@ -187,7 +219,12 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
         }).filter((r) => !only_abnormal || r.stateCode === "elevated" || r.stateCode === "anomalous");
         const events = await store.getEvents(now - 7 * 86400_000);
         const patterns = detectPatterns(readings, events, now);
+        // 지난 24시간의 이상 구간: 지금은 정상이어도 잠깐 떴다 사라진 신호가 여기 남는다 — 분석관이 원인을 확인할 대상
+        const { EPISODES_KEY, episodesBy, parseEpisodes } = await import("../core/episodes.js");
+        const eps = episodesBy(parseEpisodes(await store.getKv(EPISODES_KEY)), now, 24 * 3600_000);
+        const episodes_24h = Object.entries(eps).flatMap(([id, l]) => l.map((e) => ({ id, label: INDICATOR_BY_ID[id]?.label, from: fmtKst(e.from), to: e.to ? fmtKst(e.to) : "이어지는 중", minutes: Math.max(5, Math.round(((e.to ?? now) - e.from) / 60_000)), peak: e.peak, usual: e.baseline, level: e.level === "anomalous" ? "이상" : "주의", detail: e.detail })));
         return out({
+          episodes_24h,
           now: fmtKst(now),
           context: { chineseFishingMoratorium: inChineseMoratorium(now), usRokExerciseSeason: inExerciseSeason(now) },
           patterns,

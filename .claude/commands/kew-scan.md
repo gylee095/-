@@ -34,6 +34,7 @@ description: 한반도 위기 조기감지 — 징후·경보(I&W) 분석 1회 �
    - 상승/이상 항목은 **왜 그런지 원인을 드릴다운**한다 (`get_indicator_history` 로 시작 시각, 해당 `check_*` 도구로 실물 확인).
    - '학습 중'이 많으면 아직 평소(최근 4주 기록, 7일부터 판정)를 모른다는 뜻 — 결론을 보수적으로. 2~6일째인 징후는 아주 큰 변화만 '이상'으로 잡힌다.
    - `context` 의 연합훈련 철·중국 휴어기 여부를 해석에 반영한다.
+2-1. **평소와 다른 신호마다 '왜 이런가'를 적는다 (매번 — 11/16 사용자: 신호가 잡히면 클로드가 원인을 알아내 그 신호 옆에 적는다).** 징후판에서 **지금 주의·이상인 신호와, `get_indicator_board` 의 `episodes_24h`(지난 24시간의 이상 구간 — 잠깐 떴다 사라진 신호도 여기 남는다)에 있는 신호만**(내내 정상이던 신호는 조사하지도 적지도 않는다) 하나하나를. 이미 사라진 신호는 '언제부터 언제까지 최고 얼마였고(구간의 detail 에 그때의 기종·제목이 남아 있다) 확인해 보니 무엇이었다'로 적는다. 그렇게 그 신호에 맞는 도구로 확인한다(군용기 → `check_military_aircraft` 로 기종·소속, 열점 → `check_thermal_anomalies`, 어선 → `check_chinese_fishing_fleet`·`check_sea_weather`, 시장·검색·보도 → `check_markets`·`search_news`). 그런 다음 `record_signal_notes` 로 줄마다 `징후id: 설명 https://근거주소` 를 남긴다. 설명은 사실(무엇이 몇 대·언제)과 판단(위협인지, 정례 운항·날씨·수집 문제 같은 평범한 원인인지)을 쉬운 말로 한 문장씩. 원인을 못 찾았으면 '원인 미확인'이라고 쓰고 무엇을 봤는지 적는다. 이 설명은 6번 `record_assessment` 의 가설·`anomalies` 에도 그대로 근거로 쓴다(따로 놀지 않게).
 3. **패턴이 있으면** 그 패턴의 `checks` 를 그대로 수행해 확인/반증한다. 예:
    - 발사 준비 → `check_navigational_warnings(keyword=ROCKET)` 로 발신 당국·기간, `check_military_aircraft` 로 정찰기 기종·등록번호, `check_state_media` 로 명분 담화.
    - 공역 통제 의심 → `check_airspace_detail(region=korea)` 로 실제 대수·군용기 비중, `search_news('결항 우회 기상')`.

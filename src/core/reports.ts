@@ -149,6 +149,19 @@ export async function addChangeReport(store: Pick<Store, "getKv" | "setKv">, w: 
 }
 
 /**
+ * 단계는 그대로인데 손님에게 알릴 일이 있을 때(큰 사건 · 눈에 띄는 상승 · 가라앉음)의 리포트 — 목록 한 줄은 알림 제목 그대로.
+ * 같은 제목이 한 시간 안에 이미 있으면 그것을 쓴다(보내기 재시도).
+ */
+export async function addNoteReport(store: Pick<Store, "getKv" | "setKv">, w: RiskLike, now: number, headline: string, direction: "up" | "down", full?: Record<string, unknown>): Promise<Report> {
+  const list = await loadReports(store);
+  const last = [...list].reverse().find((r) => r.kind === "change" && r.headline === headline);
+  if (last && now - last.at < 60 * 60_000) return last;
+  const r = await appendReport(store, { ...reportFromRisk(w, now, "change", w.phase), headline, direction });
+  if (full) await saveFull(store, r.id, full);
+  return r;
+}
+
+/**
  * 결제 순간의 첫 리포트: 5분마다 덮어 둔 현재 상황을 한 장으로 남긴다. 직전 가입 리포트와 내용이 같으면 그것을 같이 쓴다.
  * 현재 상황이 아직 없으면(배포 직후 몇 분) undefined — 알림함은 "곧 첫 리포트가 들어옵니다"를 보여 준다.
  */

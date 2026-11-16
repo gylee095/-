@@ -1,18 +1,17 @@
-// 스레드(Threads) 자동 홍보 게시 (2026-11-12 사용자: 북한 도발 뉴스가 떠서 사람들이 관심을 가질 때마다 자동으로 글을 올린다)
-//   언제: 운영자 사건 알림이 실제로 나간 '북한의 발사·포격·경보' 사건 — 사건 하나에 한 번, 하루 THREADS_DAILY_MAX(기본 3)번, 2시간 간격
-//   무엇: 사건 한 줄 + 그 순간의 '오늘의 판정'(화면과 같은 숫자 — official) + 주소. 글은 정해 둔 네 가지 틀(A~D)을 번갈아 쓴다.
-//         사람이 보지 않고 바로 공개되므로 문장을 그때그때 지어내지 않는다 — 들어가는 사실은 수집한 사건 요약과 판정뿐이다.
-//   금지: 손님인 척하는 후기('써 봤는데 대박')·없는 적중 사례·'안 울리면 안전하다' 같은 장담. 만든 사람이 자기 계정에 올리는 글이다.
-//   시험 서버에는 토큰을 넣지 않는다(deploy.yml) — 크론도 없어 올라가지 않는다.
+// 스레드(Threads) 자동 홍보 게시 — 글은 담백하게, 오글거리지 않게 (2026-11-16 사용자 결정)
+//   ① 앱 소개: 앱의 % 가 오늘 아침 판정보다 5%p 넘게 오르고 징조·움직임이 새로 켜져 30분 이어질 때(잡음 항목 제외) — 예시 화면 2장 + 소개 글 + 주소
+//   ③ 개발 소식: 사용자가 "오늘 수정한 것들 올리자"고 할 때 에이전트가 요약해 /api/threads/post 로
+//   ② 큰 뉴스: 운영자 사건 알림이 나간 북한 발사·포격 사건 — 무슨 일인지 한 줄 + 짧은 소개 + 주소
+//   넣지 않는 것: 우리 판정(단계·%·어제 대비) — 그건 결제한 손님이 받는 정보다(11/16 사용자: 스레드에 다 적으면 살 이유가 없다).
+//                손님인 척하는 후기·없는 적중 사례·'안 울리면 안전' 같은 장담·공포를 부추기는 말.
+//   같은 글이 되풀이되지 않게 정해 둔 문장 여러 개를 번갈아 쓴다(문장을 그때그때 지어내지 않는다 — 사람이 보지 않고 공개된다).
+//   하루 THREADS_DAILY_MAX(기본 3)번, 글 사이 2시간. 시험 서버에는 토큰을 넣지 않는다(deploy.yml) — 크론도 없어 올라가지 않는다.
 import { briefEvent } from "./brief.js";
 import { sendPush, type PushEnv } from "./notify.js";
-import { OFFICIAL_KEY, OFFICIAL_PREV_KEY, type Official } from "./official.js";
-export { OFFICIAL_KEY, OFFICIAL_PREV_KEY };
-import { STATUS_LABEL } from "./policy.js";
 import { kstDay } from "./store.js";
+import { OFFICIAL_KEY } from "./official.js";
 import type { CrisisEvent } from "./types.js";
 import { hash } from "./util.js";
-import { fmtRiskPct } from "./warrisk.js";
 
 export const THREADS_API = "https://graph.threads.com";
 /** 스레드 글 길이 한도 (그림말은 바이트로 세므로 여유를 둔다) */
@@ -24,82 +23,81 @@ export const THREADS_GAP_MS = 2 * 3600_000;
 export const TOKEN_REFRESH_MS = 7 * 86400_000;
 export const THREADS_STATE_KEY = "threads:state";
 export const THREADS_TOKEN_KEY = "threads:token";
-export const STYLES = ["A", "B", "C", "D"] as const;
-export type ThreadsStyle = (typeof STYLES)[number];
+/** 소개 글에 붙이는 예시 화면 (src/worker/promo.ts 가 내준다) */
+export const PROMO_IMAGES = ["/promo/1.jpg", "/promo/2.jpg"];
+/** 웹사이트 첫 화면의 신호 수와 같아야 한다 ('39가지 신호로 보는 한반도 전쟁 위험') */
+export const SIGNAL_COUNT = 39;
+
+export type PostKind = "intro" | "news" | "dev";
+
+/** ① 앱 소개 글 — 예시 화면 2장과 함께 */
+export const INTRO_TEXTS: ((url: string) => string)[] = [
+  (u) => `직접 만든 앱 소개할게요.\n\n전쟁 얘기 나올 때마다 계속 찾아보게 돼서,\n공개된 신호 ${SIGNAL_COUNT}개를 매일 지켜보다가 위험 단계가 바뀌면 알림을 주는 앱을 만들었어요.\n평소엔 조용하고, 뭔가 달라질 때만 와요.\n\n${u}`,
+  (u) => `한반도 전쟁 위험 알림 앱을 만들었어요.\n\n뉴스, 항공기, 환율, 검색량 같은 공개 신호 ${SIGNAL_COUNT}개를 매일 보고,\n위험 단계가 바뀌거나 징조가 보이면 휴대폰으로 알려 줘요.\n\n${u}`,
+  (u) => `전쟁 뉴스를 일일이 찾아보지 않으려고 만든 앱이에요.\n\n공개 신호 ${SIGNAL_COUNT}개를 매일 확인하고, 단계가 바뀔 때만 알림이 와요.\n사진은 단계가 올라갔을 때 오는 알림의 예시 화면이에요.\n\n${u}`,
+  (u) => `혼자 만든 앱이라 완벽하진 않아요.\n그래도 공개 신호 ${SIGNAL_COUNT}개를 매일 보고, 위험 단계가 바뀌면 바로 알려 줘요.\n평소엔 알림이 거의 없어요.\n\n${u}`,
+];
+
+/** ② 큰 뉴스 글 — 무슨 일인지 한 줄(누구나 아는 뉴스) + 짧은 소개. 우리 판정은 넣지 않는다 */
+export const NEWS_TEXTS: ((what: string, u: string) => string)[] = [
+  (w, u) => `${w}\n\n이번 일로 한반도 위험 단계가 바뀌는지는 앱에서 알림으로 알려 드려요.\n${u}`,
+  (w, u) => `${w}\n\n공개 신호 ${SIGNAL_COUNT}개를 매일 보고, 위험 단계가 바뀌면 알림을 보내는 앱을 만들어 운영하고 있어요.\n${u}`,
+  (w, u) => `${w}\n\n뉴스를 계속 찾아보지 않아도, 단계가 바뀌면 알림이 와요.\n${u}`,
+];
 
 type Kv = { getKv(k: string): Promise<string | undefined>; setKv(k: string, v: string): Promise<void> };
 
 export interface ThreadsLog {
   at: number;
   eventId: string;
-  style: ThreadsStyle;
+  kind?: PostKind;
+  /** 쓴 문장 번호 (I1~I4 · N1~N3) — 어느 글이 반응이 좋은지 스레드 앱에서 견줄 때 */
+  style: string;
   text: string;
+  /** 붙인 사진 수 (사진 올리기에 실패하면 글만 올리고 0) */
+  images?: number;
   ok: boolean;
-  /** 올라간 글의 번호 (스레드 앱에서 반응을 견줄 때) */
   postId?: string;
   error?: string;
 }
 
 export interface ThreadsState {
-  /** 사건 → 올린 시각 (사건 하나에 한 번) */
+  /** 사건·날짜 → 올린 시각 (같은 것은 한 번) */
   posted: Record<string, number>;
   log: ThreadsLog[];
-  /** 지금까지 올린 수 — 틀을 번갈아 고르는 데 쓴다 */
+  /** 지금까지 올린 수 (예전 기록) */
   n: number;
-  /** 실패를 운영자에게 알린 한국 날짜 (하루 한 번만) */
+  /** 종류별로 올린 수 — 문장을 번갈아 고르는 데 쓴다 */
+  nk?: Partial<Record<PostKind, number>>;
   failDay?: string;
+  /** ① 앱의 % 가 의미 있게 오르기 시작한 시각 (30분 이어지는지 본다) */
+  riseSince?: number;
 }
 
-export interface PostFacts {
-  headline: string;
-  /** '공식확인' · '교차확인' · '속보·공식발표 인용' */
-  label: string;
-  /** 지금 판정 한 줄 (없으면 판정 줄을 뺀다) */
-  verdict?: string;
-  /** 어제 판정과 견준 말 */
-  change?: string;
-  url: string;
-  /** event = 북한 발사·포격 사건 (기본), search = 네이버 전쟁 불안 검색이 오른 날 */
-  kind?: "event" | "search";
+/** 사건 한 줄: 확인 전 속보는 그렇다고 적는다 */
+export function newsLine(headline: string, unconfirmed: boolean): string {
+  const h = headline.replace(/(\d)\s+발/g, "$1발"); // 화면용 요약은 '2 발' — 글에서는 '2발'
+  return unconfirmed ? `${h} (속보, 아직 확인 중)` : h;
 }
 
-/** 화면과 같은 숫자(오늘의 판정)로 한 줄을 만든다 */
-export function verdictOf(off?: Official, prev?: Official): Pick<PostFacts, "verdict" | "change"> {
-  if (!off) return {};
-  const verdict = `${off.phase}단계(${off.phaseLabel}) · 앞으로 30일 국지 충돌 약 ${fmtRiskPct(off.clash30d.point)}`;
-  if (!prev) return { verdict };
-  const change = prev.phase === off.phase ? "어제와 같은 단계" : `어제 ${prev.phase}단계에서 ${off.phase > prev.phase ? "올라감" : "내려감"}`;
-  return { verdict, change };
-}
-
-/** 네 가지 틀 — A 속보 · B 차분 · C 제작기 · D 질문. 어느 틀이 반응이 좋은지는 기록(log.style)과 스레드 앱의 반응으로 견준다 */
-export function threadsText(style: ThreadsStyle, f: PostFacts): string {
-  const what = `${f.headline} [${f.label}]`;
-  const v = f.verdict;
-  const vc = v ? `${v}${f.change ? ` (${f.change})` : ""}` : undefined;
-  const search = f.kind === "search";
-  const lines: (string | undefined | false)[] =
-    style === "A"
-      ? [`${search ? "📈" : "🚨"} ${what}`, "", vc && `지금 한반도 전쟁 위험 판정\n→ ${vc}`, vc && "", "공개 정보를 5분마다 살피고, 전쟁 위험 단계가 실제로 바뀔 때만 알림을 보냅니다.", f.url]
-      : style === "B"
-        ? [what, "", search ? "불안한 마음에 검색해 보신 분이 많았다는 뜻이죠." : "속보가 뜰 때마다 '이번엔 진짜인가' 싶죠.", v && `지금 판정은 ${v}${f.change ? `, ${f.change}` : ""}입니다.`, "", search ? "검색량 하나가 아니라 여러 신호를 함께 봅니다. 전쟁 위험 단계가 실제로 바뀔 때만 알려 드립니다." : "도발 하나하나가 아니라, 전쟁 위험 단계가 실제로 바뀔 때만 알려 드립니다.", f.url]
-        : style === "C"
-          ? ["혼자 만들고 있는 한반도 조기경보입니다.", "", `${search ? "" : "방금: "}${what}`, vc && `${search ? "지금" : "이 순간"} 판정: ${vc}`, "", "뉴스·항공기·환율 같은 공개 정보를 5분마다 모아 계산합니다. 예언이 아니라, 평소와 무엇이 다른지 보여 주는 계기판입니다.", f.url]
-          : [search ? `${f.headline}. 그래서 실제로 얼마나 위험한 걸까요?` : `"${f.headline}" — 그래서 지금 얼마나 위험한 걸까요?`, "", v, f.change, v && "", "숫자는 하루 한 번 정하고, 단계가 바뀌면 바로 알림이 갑니다.", f.url];
-  const text = lines.filter((x): x is string => typeof x === "string").join("\n").replace(/\n{3,}/g, "\n\n");
-  if (text.length <= THREADS_MAX_CHARS - 20) return text;
-  // 너무 길면 사건 한 줄을 줄인다 (주소·판정은 남긴다)
-  const over = text.length - (THREADS_MAX_CHARS - 20);
-  return threadsText(style, { ...f, headline: f.headline.slice(0, Math.max(20, f.headline.length - over - 1)) + "…" });
+/** 글 만들기: 종류별로 n 번째 문장 (번갈아). 500자를 넘으면 사건 줄을 줄인다 */
+export function threadsText(kind: PostKind, n: number, url: string, what = ""): { style: string; text: string } {
+  if (kind === "intro") {
+    const i = n % INTRO_TEXTS.length;
+    return { style: `I${i + 1}`, text: INTRO_TEXTS[i](url) };
+  }
+  const i = n % NEWS_TEXTS.length;
+  let text = NEWS_TEXTS[i](what, url);
+  if (text.length > THREADS_MAX_CHARS - 20) text = NEWS_TEXTS[i](what.slice(0, Math.max(20, what.length - (text.length - THREADS_MAX_CHARS + 21))) + "…", url);
+  return { style: `N${i + 1}`, text };
 }
 
 /** 공개로 올려도 되는 사건인가 — 훈련·정정·논평 기사·확인 안 된 단일 보도는 올리지 않는다 */
-export function postable(e: CrisisEvent): { ok: boolean; headline: string; label: string } {
+export function postable(e: CrisisEvent): { ok: boolean; headline: string; unconfirmed: boolean } {
   const brief = briefEvent(e, e.evidence ?? []);
   const quote = e.basis === "official_quote" && e.status === "UNVERIFIED";
-  const label = quote ? "속보·공식발표 인용" : STATUS_LABEL[e.status];
   const ok = brief.isProvocation && !e.drill && !e.retracted && (e.status !== "UNVERIFIED" || (quote && e.breaking));
-  return { ok, headline: brief.headline, label };
+  return { ok, headline: brief.headline, unconfirmed: e.status === "UNVERIFIED" };
 }
 
 async function loadState(store: Kv): Promise<ThreadsState> {
@@ -147,17 +145,43 @@ async function call(fetchImpl: typeof fetch, path: string, params: Record<string
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-/** 글 하나를 올린다: 담을 것을 만들고(1) 공개한다(2). 공개는 준비가 덜 됐다고 거절될 수 있어 잠깐 쉬고 두 번 더 해 본다 */
-export async function publishThreads(token: string, text: string, fetchImpl: typeof fetch = fetch, sleep: (ms: number) => Promise<void> = wait): Promise<{ id?: string; error?: string }> {
-  const made = await call(fetchImpl, "threads", { media_type: "TEXT", text, access_token: token });
-  if (!made.id) return made;
+/** 담아 둔 것을 공개한다. 준비(사진 내려받기 등)가 덜 됐다고 거절될 수 있어 쉬어 가며 몇 번 더 해 본다 */
+async function publishContainer(token: string, id: string, fetchImpl: typeof fetch, sleep: (ms: number) => Promise<void>, pauses: number[]): Promise<{ id?: string; error?: string }> {
   let out: { id?: string; error?: string } = {};
-  for (const pause of [0, 3000, 8000]) {
+  for (const pause of pauses) {
     if (pause) await sleep(pause);
-    out = await call(fetchImpl, "threads_publish", { creation_id: made.id, access_token: token });
+    out = await call(fetchImpl, "threads_publish", { creation_id: id, access_token: token });
     if (out.id) return out;
   }
   return out;
+}
+
+/** 글만 올린다 */
+export async function publishThreads(token: string, text: string, fetchImpl: typeof fetch = fetch, sleep: (ms: number) => Promise<void> = wait): Promise<{ id?: string; error?: string }> {
+  const made = await call(fetchImpl, "threads", { media_type: "TEXT", text, access_token: token });
+  if (!made.id) return made;
+  return publishContainer(token, made.id, fetchImpl, sleep, [0, 3000, 8000]);
+}
+
+/** 사진 여러 장(넘겨 보기) + 글. 사진 한 장씩 담고 → 묶고 → 공개. 사진 쪽이 실패하면 글만 올린다 */
+export async function publishThreadsWithImages(token: string, text: string, imageUrls: string[], fetchImpl: typeof fetch = fetch, sleep: (ms: number) => Promise<void> = wait): Promise<{ id?: string; error?: string; images: number }> {
+  if (imageUrls.length >= 2) {
+    const items: string[] = [];
+    for (const image_url of imageUrls) {
+      const it = await call(fetchImpl, "threads", { media_type: "IMAGE", is_carousel_item: "true", image_url, access_token: token });
+      if (!it.id) break;
+      items.push(it.id);
+    }
+    if (items.length === imageUrls.length) {
+      await sleep(5000); // 스레드가 사진을 내려받을 시간
+      const box = await call(fetchImpl, "threads", { media_type: "CAROUSEL", children: items.join(","), text, access_token: token });
+      if (box.id) {
+        const out = await publishContainer(token, box.id, fetchImpl, sleep, [0, 5000, 15000, 30000]);
+        if (out.id) return { ...out, images: imageUrls.length };
+      }
+    }
+  }
+  return { ...(await publishThreads(token, text, fetchImpl, sleep)), images: 0 };
 }
 
 export interface ThreadsResult {
@@ -165,12 +189,8 @@ export interface ThreadsResult {
   skipped?: string;
 }
 
-/**
- * 감시 한 바퀴가 끝난 뒤 부른다. 이번 바퀴에 운영자 알림이 나간 사건 가운데 공개로 올릴 만한 것 하나를 골라 올린다.
- * 올리지 못하면 운영자에게 하루 한 번 알린다 (토큰이 끊긴 채 조용히 멈춰 있지 않게).
- */
-/** 한도(하루 최대 수·간격)를 보고 글 하나를 올린다. 사건 글과 검색 글이 같은 한도를 나눠 쓴다 */
-async function postOne(env: PushEnv, store: Kv, token: string, key: string, facts: Omit<PostFacts, "verdict" | "change" | "url">, now: number, fetchImpl: typeof fetch, sleep?: (ms: number) => Promise<void>): Promise<ThreadsResult> {
+/** 한도(하루 최대 수·간격)를 보고 글 하나를 올린다. 소개 글과 뉴스 글이 같은 한도를 나눠 쓴다 */
+async function postOne(env: PushEnv, store: Kv, token: string, key: string, kind: PostKind, what: string, now: number, fetchImpl: typeof fetch, sleep?: (ms: number) => Promise<void>): Promise<ThreadsResult> {
   const st = await loadState(store);
   if (st.posted[key]) return { skipped: "이미 올림" };
   const today = kstDay(now);
@@ -180,20 +200,20 @@ async function postOne(env: PushEnv, store: Kv, token: string, key: string, fact
   const last = okLog.length ? okLog[okLog.length - 1].at : 0;
   if (now - last < THREADS_GAP_MS) return { skipped: "직전 글에서 2시간이 안 지남" };
 
-  const [offRaw, prevRaw] = await Promise.all([store.getKv(OFFICIAL_KEY), store.getKv(OFFICIAL_PREV_KEY)]);
-  const style = STYLES[st.n % STYLES.length];
-  const text = threadsText(style, {
-    ...facts,
-    ...verdictOf(offRaw ? (JSON.parse(offRaw) as Official) : undefined, prevRaw ? (JSON.parse(prevRaw) as Official) : undefined),
-    url: env.PUBLIC_URL ?? "https://koreasiren.com",
-  });
-  const res = await publishThreads(token, text, fetchImpl, sleep);
-  const entry: ThreadsLog = { at: now, eventId: key, style, text, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
+  const site = env.PUBLIC_URL ?? "https://koreasiren.com";
+  const url = site.replace(/^https?:\/\//, "");
+  const nk = st.nk ?? {};
+  const { style, text } = threadsText(kind, nk[kind] ?? 0, url, what);
+  const res = kind === "intro"
+    ? await publishThreadsWithImages(token, text, PROMO_IMAGES.map((p) => site + p), fetchImpl, sleep)
+    : { ...(await publishThreads(token, text, fetchImpl, sleep)), images: 0 };
+  const entry: ThreadsLog = { at: now, eventId: key, kind, style, text, images: res.images, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
 
   st.log = [...st.log, entry].slice(-40);
   if (entry.ok) {
     st.posted[key] = now;
     st.n++;
+    st.nk = { ...nk, [kind]: (nk[kind] ?? 0) + 1 };
     for (const [id, at] of Object.entries(st.posted)) if (now - at > 7 * 86400_000) delete st.posted[id];
   } else if (st.failDay !== today) {
     st.failDay = today;
@@ -213,7 +233,7 @@ async function postOne(env: PushEnv, store: Kv, token: string, key: string, fact
 }
 
 /**
- * 감시 한 바퀴가 끝난 뒤 부른다. 이번 바퀴에 운영자 알림이 나간 사건 가운데 공개로 올릴 만한 것 하나를 골라 올린다.
+ * ② 큰 뉴스: 감시 한 바퀴가 끝난 뒤 부른다. 이번 바퀴에 운영자 알림이 나간 사건 가운데 공개로 올릴 만한 것 하나를 골라 올린다.
  * 올리지 못하면 운영자에게 하루 한 번 알린다 (토큰이 끊긴 채 조용히 멈춰 있지 않게).
  */
 export async function maybePostThreads(
@@ -237,42 +257,95 @@ export async function maybePostThreads(
     .sort((a, b) => b.e.severity - a.e.severity);
   if (!picks.length) return { skipped: "올릴 만한 사건 없음 (훈련·정정·미확인·이미 올림)" };
   const { e, p } = picks[0];
-  return postOne(env, store, token, e.id, { headline: p.headline, label: p.label, kind: "event" }, now, fetchImpl, sleep);
+  return postOne(env, store, token, e.id, "news", newsLine(p.headline, p.unconfirmed), now, fetchImpl, sleep);
 }
 
-/** 네이버 전쟁 불안 검색이 평소의 이 배(%) 이상이면 글을 올린다 (11/16 사용자: 발사만 기다리면 홍보가 너무 드물다). 징후판의 '높음'(200%)보다 낮게 둔다 */
-export const SEARCH_POST_MIN = 150;
+/** ① 앱 소개를 올리는 때 (11/16 사용자): 앱의 % 가 오늘 아침 판정보다 이만큼(%p) 넘게 오르고 */
+export const RISE_MIN_PTS = 5;
+/** 그 상태가 이만큼 이어지고 (한 번 튄 값으로 올리지 않게) */
+export const RISE_HOLD_MS = 30 * 60_000;
+/** 전쟁 전 징조·조용한 움직임 가운데 '잡음'으로 보는 항목 — 이것만 새로 켜져서는 올리지 않는다.
+ *  a_nk_dark: 북한 인터넷 외부망 장애 경보는 자주 울리고 대개 위기와 상관없다 (사용자 11/16 예시) */
+export const NOISY_ITEMS = ["a_nk_dark"];
 
-/** 검색 글의 사건 한 줄: "어제 네이버 '전쟁 불안' 검색이 평소의 2.1배" */
-export function searchHeadline(value: number, group?: string): string {
-  const x = value / 100;
-  const times = x >= 10 ? Math.round(x) : +x.toFixed(1);
-  const what = group ? `'${group}'` : "전쟁·대피 관련";
-  return `어제 네이버 ${what} 검색이 평소의 ${times}배`;
+type Rubricish = { index?: number; rubric?: { index: number; layers?: { id: string; groups: { items: { id: string; ko?: string; got: number }[] }[] }[] } };
+
+/** 전쟁 전 징조·조용한 움직임 가운데 켜진 항목 (잡음 항목 제외) */
+export function realItems(p?: Rubricish): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const l of p?.rubric?.layers ?? []) {
+    if (l.id !== "signs" && l.id !== "moves") continue;
+    for (const g of l.groups) for (const it of g.items) if (it.got > 0 && !NOISY_ITEMS.includes(it.id)) out.set(it.id, it.ko ?? it.id);
+  }
+  return out;
+}
+
+/** 지금(5분 계산)과 오늘 아침 판정을 견줘 '의미 있게 올랐나'. 배경(세계 정세·검색량·시장)만 늘어난 것은 아니다 — 징조나 움직임이 하나는 새로 켜져야 한다 */
+export function riseOf(live?: Rubricish, morning?: Rubricish): { up: boolean; pts: number; added: string[] } {
+  const li = live?.rubric?.index ?? live?.index, mi = morning?.rubric?.index ?? morning?.index;
+  if (li === undefined || mi === undefined) return { up: false, pts: 0, added: [] };
+  const before = realItems(morning);
+  const added = [...realItems(live)].filter(([id]) => !before.has(id)).map(([, ko]) => ko);
+  const pts = li - mi;
+  return { up: pts >= RISE_MIN_PTS && added.length > 0, pts, added };
 }
 
 /**
- * 하루 한 번(네이버 검색량을 받는 11:41 크론) 부른다. 어제 검색이 평소의 1.5배를 넘었으면 그날 한 번 올린다.
- * 사건 글과 같은 하루 한도·간격을 나눠 쓴다.
+ * ① 앱 소개: 5분마다 부른다. 앱의 % 가 오늘 아침 판정보다 5%p 넘게 오르고, 징조·움직임이 새로 켜졌고(잡음 제외),
+ * 그 상태가 30분 이어지면 그날 한 번 소개 글을 올린다. 글에는 % 나 단계를 쓰지 않는다 — 올리는 때를 고르는 데만 쓴다.
  */
-export async function maybePostThreadsSearch(
+export async function maybePostThreadsRise(
   env: PushEnv,
   store: Kv,
-  readings: { indicator: string; value: number; state: string; meta?: Record<string, unknown> }[],
+  live: { proximity?: Rubricish } | undefined,
   now: number,
   fetchImpl: typeof fetch = fetch,
   sleep?: (ms: number) => Promise<void>,
 ): Promise<ThreadsResult> {
   if (env.STAGING) return { skipped: "시험 서버" };
-  const r = readings.find((x) => x.indicator === "psych.naver_war_search");
-  if (!r || r.state === "unavailable") return { skipped: "네이버 검색량 없음" };
-  const min = Number(env.THREADS_SEARCH_MIN ?? SEARCH_POST_MIN);
-  if (!(r.value >= min)) return { skipped: `검색량 평소의 ${r.value}% (문턱 ${min}%)` };
+  if (!env.THREADS_ACCESS_TOKEN) return { skipped: "스레드 토큰 없음" };
+  const offRaw = await store.getKv(OFFICIAL_KEY);
+  const morning = offRaw ? (JSON.parse(offRaw) as { proximity?: Rubricish }).proximity : undefined;
+  const r = riseOf(live?.proximity, morning);
+  const st = await loadState(store);
+  const key = `rise:${kstDay(now)}`;
+  if (!r.up) {
+    if (st.riseSince) { st.riseSince = undefined; await store.setKv(THREADS_STATE_KEY, JSON.stringify(st)); }
+    return { skipped: r.pts > 0 ? `+${r.pts}%p · 새 징조·움직임 ${r.added.length}개 — 문턱 아래` : "오르지 않음" };
+  }
+  if (st.posted[key]) return { skipped: "오늘 이미 올림" };
+  if (!st.riseSince) { st.riseSince = now; await store.setKv(THREADS_STATE_KEY, JSON.stringify(st)); return { skipped: "오름 — 30분 이어지는지 확인 중" }; }
+  if (now - st.riseSince < RISE_HOLD_MS) return { skipped: "오름 — 30분 이어지는지 확인 중" };
   const token = await currentToken(env, store);
   if (!token) return { skipped: "스레드 토큰 없음" };
-  const meta = r.meta as { dataDate?: string; worstGroup?: string } | undefined;
-  const key = `search:${meta?.dataDate ?? kstDay(now)}`;
-  return postOne(env, store, token, key, { headline: searchHeadline(r.value, meta?.worstGroup), label: "네이버 데이터랩", kind: "search" }, now, fetchImpl, sleep);
+  return postOne(env, store, token, key, "intro", "", now, fetchImpl, sleep);
+}
+
+/**
+ * ③ 개발 소식 (11/16 사용자): "오늘 수정한 것들 스레드에 올리자" 라고 하면 에이전트가 오늘 본 서버(main)에 올라간 변경을
+ * 담백하게 요약해 이걸로 올린다. 사람이 직접 시킨 글이라 하루 한도·간격을 보지 않는다. 판정·비밀값·내부 용어는 넣지 않는다.
+ */
+export async function postThreadsManual(env: PushEnv, store: Kv, text: string, now: number, fetchImpl: typeof fetch = fetch, sleep?: (ms: number) => Promise<void>, opts: { intro?: boolean } = {}): Promise<ThreadsResult> {
+  if (env.STAGING) return { skipped: "시험 서버" };
+  const st = await loadState(store);
+  const site = env.PUBLIC_URL ?? "https://koreasiren.com";
+  // intro: 사용자가 '앱 소개를 지금 올려'라고 할 때 — 정해 둔 소개 문장(차례대로) + 예시 화면 2장
+  const made = opts.intro ? threadsText("intro", st.nk?.intro ?? 0, site.replace(/^https?:\/\//, "")) : { style: "D", text: text.trim() };
+  const t = made.text;
+  if (!t) return { skipped: "글이 비어 있음" };
+  if (t.length > THREADS_MAX_CHARS) return { skipped: `${t.length}자 — ${THREADS_MAX_CHARS}자 넘음` };
+  const token = await currentToken(env, store);
+  if (!token) return { skipped: "스레드 토큰 없음" };
+  const res = opts.intro
+    ? await publishThreadsWithImages(token, t, PROMO_IMAGES.map((p) => site + p), fetchImpl, sleep)
+    : { ...(await publishThreads(token, t, fetchImpl, sleep)), images: 0 };
+  const kind: PostKind = opts.intro ? "intro" : "dev";
+  const entry: ThreadsLog = { at: now, eventId: `${opts.intro ? "intro-manual" : "dev"}:${now}`, kind, style: made.style, text: t, images: res.images, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
+  const st2 = await loadState(store);
+  st2.log = [...st2.log, entry].slice(-40);
+  if (entry.ok && opts.intro) st2.nk = { ...(st2.nk ?? {}), intro: (st2.nk?.intro ?? 0) + 1 };
+  await store.setKv(THREADS_STATE_KEY, JSON.stringify(st2));
+  return { posted: entry };
 }
 
 /** 운영자가 보는 상태 — 토큰은 내보내지 않는다 */

@@ -193,8 +193,6 @@ export default {
         if (report.alerts.some((x) => x.sent)) await th.maybePostThreads(env, store, report, report.at).catch(() => undefined);
         if (ctrl.cron === "41 2 * * *") {
           await th.refreshThreadsToken(env, store, report.at).catch(() => undefined);
-          // 네이버 전쟁 불안 검색이 평소의 1.5배를 넘은 날에도 한 번 올린다 (11/16 사용자: 발사만 기다리면 홍보가 너무 드물다)
-          await th.maybePostThreadsSearch(env, store, report.readings, report.at).catch(() => undefined);
         }
       }
       const usage = await finishUsage(store, env, ctrl.scheduledTime);
@@ -229,6 +227,11 @@ export default {
           });
           // 오늘의 판정 (11/6): 오전 8시에 한 번, 또는 확인된 단계가 바뀌면 바로 새로 정한다
           await updateOfficial(store, st.warRisk.live, report.at).catch(() => undefined);
+          // 스레드 ① 앱 소개: 앱의 % 가 아침 판정보다 의미 있게 올라 30분 이어지면 그날 한 번 (threads.ts — 잡음 항목만 켜진 것은 제외)
+          if (env.THREADS_ACCESS_TOKEN) {
+            const th = await import("../core/threads.js");
+            await th.maybePostThreadsRise(env, store, st.warRisk.live, report.at).catch(() => undefined);
+          }
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
             await maybeFireDeep(store, env, { warRisk: st.warRisk.live, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined) });
         } catch (e) {
@@ -340,6 +343,11 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const code = url.searchParams.get("code") ?? "";
     const m = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code) ? { ...WEB_MANIFEST, start_url: `/me?code=${code}` } : WEB_MANIFEST;
     return new Response(JSON.stringify(m), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "no-cache" } });
+  }
+  if (url.pathname.startsWith("/promo/")) {
+    const { PROMO_JPG_BASE64 } = await import("./promo.js");
+    const b64 = PROMO_JPG_BASE64[url.pathname];
+    if (b64) return new Response(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" } });
   }
   if (url.pathname === "/og.jpg") return new Response(Uint8Array.from(atob(OG_JPG_BASE64), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" } });
   const iconSize = { "/icon-180.png": 180, "/apple-touch-icon.png": 180, "/apple-touch-icon-precomposed.png": 180, "/icon-192.png": 192, "/icon-512.png": 512 }[url.pathname];
@@ -616,11 +624,21 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     }
   }
   if (url.pathname === "/api/threads" && req.method === "GET") {
-    // 스레드 자동 게시 상태: 최근 올린 글·실패 이유, 그리고 지금 사건이 생기면 나갈 글 네 가지 틀의 견본
+    // 스레드 자동 게시 상태: 최근 올린 글·실패 이유, 그리고 나갈 글의 견본 (소개 글 전부 · 뉴스 글 전부)
     const th = await import("../core/threads.js");
-    const [offRaw, prevRaw] = await Promise.all([store.getKv(th.OFFICIAL_KEY), store.getKv(th.OFFICIAL_PREV_KEY)]);
-    const facts = { headline: "북한, 탄도미사일 발사 → 동해 (견본)", label: "공식확인", ...th.verdictOf(offRaw ? JSON.parse(offRaw) : undefined, prevRaw ? JSON.parse(prevRaw) : undefined), url: env.PUBLIC_URL ?? url.origin };
-    return json({ ...(await th.threadsStatus(env, store)), samples: th.STYLES.map((style) => ({ style, text: th.threadsText(style, facts) })) });
+    const site = (env.PUBLIC_URL ?? url.origin).replace(/^https?:\/\//, "");
+    const samples = [
+      ...th.INTRO_TEXTS.map((_, i) => ({ ...th.threadsText("intro", i, site), images: th.PROMO_IMAGES.map((p) => (env.PUBLIC_URL ?? url.origin) + p) })),
+      ...th.NEWS_TEXTS.map((_, i) => th.threadsText("news", i, site, "북한, 탄도미사일 2발 발사 → 동해 (견본)")),
+    ];
+    return json({ ...(await th.threadsStatus(env, store)), samples });
+  }
+  if (url.pathname === "/api/threads/post" && req.method === "POST") {
+    // 스레드 ③ 개발 소식: 사용자가 "오늘 수정한 것들 올리자"고 할 때 에이전트가 쓴 글을 올린다 (운영자 비밀값)
+    // {"intro": true} 이면 앱 소개 글(정해 둔 문장) + 예시 화면 2장을 지금 올린다
+    const body = (await req.json().catch(() => ({}))) as { text?: string; intro?: boolean };
+    const th = await import("../core/threads.js");
+    return json(await th.postThreadsManual(env, store, String(body.text ?? ""), Date.now(), fetch, undefined, { intro: body.intro === true }));
   }
   if (url.pathname === "/api/ops/test-alert" && req.method === "POST") {
     // 손님용 알림 길 전체를 운영자가 직접 시험한다. 결제한 손님이 둘 이상이면 실제 손님에게도 가므로 막는다 (force 로만)

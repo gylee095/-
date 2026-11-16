@@ -225,6 +225,11 @@ export default {
           await notifyPhaseChange(store, env, st.warRisk.live, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
             await store.setKv("phase_notify:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
+          // 손님 알림 ③ 큰 사건 (11/17): 이번 바퀴에 운영자 사건 알림이 나간 북한 발사·포격이 있으면 '단계는 그대로인지'와 함께 손님에게도 (phasealert.ts, 하루 한 번)
+          if (report.alerts.some((x) => x.sent)) {
+            const { notifyCustomerEvent } = await import("../core/phasealert.js");
+            await notifyCustomerEvent(store, env, st.warRisk.live, report, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(() => undefined);
+          }
           // 오늘의 판정 (11/6): 오전 8시에 한 번, 또는 확인된 단계가 바뀌면 바로 새로 정한다
           await updateOfficial(store, st.warRisk.live, report.at).catch(() => undefined);
           // 스레드 ① 앱 소개: 앱의 % 가 아침 판정보다 의미 있게 올라 30분 이어지면 그날 한 번 (threads.ts — 잡음 항목만 켜진 것은 제외)
@@ -429,7 +434,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const s = await addSub(store, body.subscription, "paid", Date.now());
     // 켜자마자 이 기기 하나에만 '켜졌어요' 알림 — 고객이 바로 확인하고(체감), 서비스 제공이 시작됐다는 기록도 된다. 다른 구독자에게는 가지 않는다
     const keys = await loadVapid(store, env.DASHBOARD_URL ?? url.origin);
-    const welcome = await sendWebPush(keys, body.subscription, { title: "✅ 알림이 켜졌어요 — 한반도 조기경보", body: "앞으로 전쟁 위험 단계가 바뀔 때만 이렇게 알려 드려요. 평소엔 조용합니다.\n지금 상황 리포트는 알림함에 있어요.", url: `${url.origin}/me`, tag: "kew-welcome" }).catch(() => ({ ok: false }));
+    const welcome = await sendWebPush(keys, body.subscription, { title: "✅ 알림이 켜졌어요 — 한반도 조기경보", body: "앞으로 전쟁 위험 단계가 바뀌거나 북한 발사 같은 큰 사건이 있을 때 이렇게 알려 드려요. 평소엔 조용합니다.\n지금 상황 리포트는 알림함에 있어요.", url: `${url.origin}/me`, tag: "kew-welcome" }).catch(() => ({ ok: false }));
     return json({ ok: true, who: s.who, devicesUsed: r.order.devices.length, devicesMax: DEVICES_PER_CODE, welcome: welcome.ok });
   }
   if (url.pathname === "/api/push/key" && req.method === "GET") {

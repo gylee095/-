@@ -1,6 +1,6 @@
 // 언론(GDELT, RSS) — 알림 트리거가 아니라 교차검증과 '뉴스 대비 리드타임' 측정용
 import type { CollectResult, Metric, Signal } from "../types.js";
-import { OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind } from "../classify.js";
+import { BASE_SEVERITY, OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind, worldEvent } from "../classify.js";
 import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 
 const GDELT_QUERY =
@@ -142,6 +142,9 @@ const EVAC_OFFICIAL_RE = /국무부|대사관|주한미군|외무성|외교부|�
 
 function mediaSignal(source: string, url: string, title: string, published: number | undefined, now: number, domain?: string): Signal[] {
   if (!title) return [];
+  // 세계 정세 사건은 한반도 거름망과 따로 잡는다 — 참고로만 (알림 없음, 심각도 낮게)
+  if (worldEvent(title))
+    return [{ id: `${source}:${hash(url || title)}`, source, sourceKind: "media", category: "world_event", title: title.slice(0, 120), summary: `${domain ?? outletOf(url, source)} · 세계 정세`, url, eventTime: undefined, publishedTime: published, detectedTime: now, severity: BASE_SEVERITY.world_event }];
   const cls = classifyText(title);
   if (!cls || cls.category === "civil_alert_other") return [];
   // 철수·후송·경보 단어는 분류기가 한국 맥락을 이미 확인했다 (제목에 '북한'이 없어도 된다)

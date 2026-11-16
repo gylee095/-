@@ -5,6 +5,7 @@
 // 하루하루는 어제의 공식 판정과 비교해 "무엇이 바뀌었나"와 "의미 있는 변화인가(단계가 바뀌었나)"를 같이 적는다.
 import { fmtRiskPct, type WarRisk } from "./warrisk.js";
 import { kstDay, kstMidnight } from "./store.js";
+import { pctOn } from "./rubric.js";
 import { readinessScore, type ReadinessScale } from "./casereplay.js";
 import { CASEBOOK } from "./casebook_data.js";
 
@@ -41,6 +42,8 @@ export interface OfficialView {
   basis: string;
   /** 오늘 아침 판정 때의 켜진 비율·개수 (실시간 값과 견주는 기준) */
   morning?: { index: number; signs: number; moves: number; context: number };
+  /** 어제의 판정(어제 가장 늦게 정한 '오늘의 판정')의 % — 화면의 '어제 X% → 오늘 Y%' 는 이것과 견준다 (11/14 사용자: 어제 본 숫자와 같아야 한다. 하루 최고값이 아니다) */
+  yesterday?: { index: number; at: number };
   // readiness 는 내부 계산용으로 Official 에 남지만 화면(OfficialView)에는 내보내지 않는다 (11/6 사용자: 새 정보 말고 기존 %의 정확도를 올려라)
 }
 
@@ -146,6 +149,11 @@ export function applyOfficial(w: WarRisk, off: Official | undefined, prev: Offic
     off.reason === "phase"
       ? `오늘의 판정 · ${hm} 단계가 바뀌어 새로 정했어요. 숫자는 하루 한 번(오전 ${OFFICIAL_HOUR}시) 정하고, 단계가 바뀔 때만 바로 바뀌어요.`
       : `오늘의 판정 · ${hm} 기준. 숫자는 하루 한 번(오전 ${OFFICIAL_HOUR}시) 정하고, 단계가 바뀔 때만 바로 바뀌어요.`;
+  // 어제의 판정: 오늘 이전에 정한 것 중 가장 늦은 것. %는 저장된 값이 아니라 그때의 켜진 수를 지금 기준으로 다시 계산한다 (기준이 달라도 같은 자로 견주게)
+  const today = kstDay(Number.isFinite(w.at) ? w.at : off.at);
+  const y = [off, prev].filter((o): o is Official => !!o && kstDay(o.at) < today && !!o.proximity?.rubric && "signs" in o.proximity.rubric).sort((a, b) => b.at - a.at)[0];
+  const yr = y?.proximity?.rubric;
+  const yesterday = y && yr ? { index: pctOn(yr.signs, yr.moves, yr.context), at: y.at } : undefined;
   return {
     ...w,
     phase: off.phase,
@@ -159,7 +167,8 @@ export function applyOfficial(w: WarRisk, off: Official | undefined, prev: Offic
     live: w,
     official: { at: off.at, reason: off.reason, note, change: changeText(prev, off), basis: BASIS,
       // 운영자 대시보드의 개수·% 는 실시간으로 두고(11/12 사용자), 오늘 아침 값은 견줄 기준으로만 붙인다
-      ...(off.proximity?.rubric && "signs" in off.proximity.rubric ? { morning: { index: off.proximity.index, signs: off.proximity.rubric.signs, moves: off.proximity.rubric.moves, context: off.proximity.rubric.context } } : {}) },
+      ...(off.proximity?.rubric && "signs" in off.proximity.rubric ? { morning: { index: off.proximity.index, signs: off.proximity.rubric.signs, moves: off.proximity.rubric.moves, context: off.proximity.rubric.context } } : {}),
+      ...(yesterday ? { yesterday } : {}) },
   };
 }
 

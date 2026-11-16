@@ -222,7 +222,8 @@ export function airMetrics(korea: Aircraft[], neAsiaMil: Aircraft[]): Metric[] {
   // 정찰·급유기는 한반도·서해·동해(일본 서해안까지)만 — 도쿄 근처 호주 공군 P-8·급유기가 '동해 상공 2대'로 세어졌다 (11/2)
   const isr = describeIsr(milAir.filter((a) => inBox(a, AREAS.isrWatch)));
   return [
-    { indicator: "air.civil_airborne", value: civil.length, meta: { total: airborne.length } },
+    // 한반도 상공에 떠 있는 비행기가 하나도 안 잡히면 수신망·API 장애다 — 값으로 남기지 않는다 (11/13 '0대'가 급감 사건이 됐다)
+    ...(airborne.length ? [{ indicator: "air.civil_airborne", value: civil.length, meta: { total: airborne.length } }] : []),
     { indicator: "air.mil_airborne", value: nearKorea.length, meta: { types: countBy(nearKorea.map((a) => a.type ?? "?")), elsewhere: milAir.length - nearKorea.length } },
     { indicator: "air.isr_airborne", value: isr.length, meta: { aircraft: isr.slice(0, 20) } },
   ];

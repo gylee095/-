@@ -75,6 +75,17 @@ describe("운영자 대시보드의 개수·% 는 실시간, 오늘 아침 값�
     expect(shown.proximity!.index).toBe(17);
     expect(shown.official!.morning).toEqual({ index: 15, signs: 0, moves: 0, context: 6 });
   });
+  it("'어제'는 어제의 판정값이다 — 하루 최고값이 아니라 어제 아침에 정해 화면에 보였던 숫자 (11/14)", () => {
+    const DAY = 86400_000;
+    const yOff = makeOfficial({ ...w(2, 3), proximity: prox(14, 0) }, D8 - DAY, "daily"); // 저장된 14(옛 기준)가 아니라 켜진 수 6개를 지금 기준으로: 15
+    const tOff = makeOfficial({ ...w(2, 3), proximity: prox(17, 0.5) }, D8, "daily");
+    const shown = applyOfficial({ ...w(2, 3), at: D8 + 3600_000, proximity: prox(17, 0.5) }, tOff, yOff);
+    expect(shown.official!.yesterday).toEqual({ index: 15, at: D8 - DAY });
+    // 오늘 판정이 아직 없으면(어제 것만 있으면) 그것이 어제의 판정
+    expect(applyOfficial({ ...w(2, 3), at: D8 + 3600_000, proximity: prox(17, 0.5) }, yOff, undefined).official!.yesterday!.index).toBe(15);
+    // 오늘 단계가 바뀌어 다시 정했으면(이전 것도 오늘) 어제 판정이 없다
+    expect(applyOfficial({ ...w(2, 3), at: D8 + 7200_000, proximity: prox(17, 0.5) }, tOff, makeOfficial({ ...w(2, 3), proximity: prox(15, 0) }, D8 - 3600_000 + 3600_000, "daily")).official!.yesterday).toBeUndefined();
+  });
   it("이전 규칙으로 정한 판정(전조 기록 없음)이면 아침 기준이 없다", () => {
     expect(applyOfficial({ ...w(2, 3), proximity: prox(17, 0.5) }, makeOfficial(w(2, 3.8), D8, "daily"), undefined).official!.morning).toBeUndefined();
   });

@@ -207,7 +207,11 @@ export default {
           // 규칙 3.0: 오늘의 전조 한 줄을 남긴다 (달라졌을 때만 쓴다) — 쌓인 기록이 '한반도 평소 빈도'를 고친다
           if (st.warRisk.live.proximity) {
             const { loadProx, recordProx } = await import("../core/proximity.js");
-            await recordProx(store, st.warRisk.live.proximity, st.warRisk.live.phase, report.at, (await loadProx(store)).hist).catch(() => false);
+            await recordProx(store, st.warRisk.live.proximity, st.warRisk.live.phase, report.at, (await loadProx(store)).hist, st.normal.k).catch(() => false);
+            // 긴 평소: 신호마다 하루 평균의 긴 기록을 쌓는다 (최근 4주 평소가 긴 긴장을 '평소'로 만들어 버리는 것을 보완)
+            const { NORM_LONG_KEY, foldLong } = await import("../core/normal.js");
+            const longRaw = await store.getKv(NORM_LONG_KEY);
+            await store.setKv(NORM_LONG_KEY, JSON.stringify(foldLong(longRaw ? JSON.parse(longRaw) : undefined, st.board, report.at))).catch(() => undefined);
           }
           // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
           // 단계 알림은 5분마다 하는 계산(live)으로 판단한다 — 공식 판정(하루 한 번)으로 하면 바뀐 단계를 늦게 알게 된다
@@ -443,7 +447,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     return json({
       ...st,
       // 시험 서버: 본 서버의 '오늘의 판정'(이전 규칙)이 아니라 이 코드의 지금 판정을 보인다 — 실험 결과를 보는 곳이므로
-      ...(ab ? { ab, warRisk: { ...st.warRisk.live, live: st.warRisk.live } } : {}),
+      ...(ab ? { ab, warRisk: { ...st.warRisk.live, live: st.warRisk.live, yesterday: st.warRisk.official?.yesterday } } : {}), // '어제' 비교만은 본 서버의 어제 판정을 그대로 쓴다
       setup: {
         ntfySubscribeUrl: env.NTFY_TOPIC ? `${env.NTFY_SERVER ?? "https://ntfy.sh"}/${env.NTFY_TOPIC}` : null,
         connectorUrl: `${url.origin}/mcp/${env.KEW_SECRET}`,

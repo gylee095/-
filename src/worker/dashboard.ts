@@ -349,6 +349,22 @@ function drawTension(t){var el=$("#tchart");if(!el||!t||!t.view)return;var w=t.v
     tip.style.display="block";var left=px*r.width/W+8;if(left>r.width-200)left=px*r.width/W-208;tip.style.left=Math.max(0,left)+"px"}
   hit.addEventListener("pointermove",show);hit.addEventListener("pointerdown",show);hit.addEventListener("pointerleave",function(){tip.style.display="none";cross.setAttribute("visibility","hidden")})}
 // 전쟁 직전의 지문: 다른 전쟁 직전 공개적으로 보였던 것 중 지금 켜진 것 (켜짐을 위로)
+// 평소 범위와 이탈 (11/13 사용자: 평범한 흔들림의 범위를 배워 두고 거기서 벗어나는 것을 잡는다): 신호마다 평소 범위(회색 띠)와 지금 위치(점)
+function normalCard(n){
+  var fmt=function(v){var a=Math.abs(v);return Math.abs(v-Math.round(v))<1e-9?String(Math.round(v)):a>=100?Math.round(v):a>=10?v.toFixed(1):v.toFixed(2)};
+  var row=function(x){var lo=-4,hi=6,pos=function(z){return (Math.min(hi,Math.max(lo,z))-lo)/(hi-lo)*100};
+    var c=x.far?'var(--l4)':x.out?'var(--l3)':'var(--mute)';
+    return '<div style="padding:7px 0;border-top:1px solid var(--line)"><div style="display:flex;gap:8px;align-items:baseline"><span style="flex:1;min-width:0;font-size:13.5px;'+(x.out?'font-weight:700':'color:var(--mute)')+'">'+esc(x.label.replace(/\s*\(.*\)$/,""))+'</span><span style="flex:none;font-size:12px;color:'+c+';font-weight:700">'+(x.out?(x.far?'크게 벗어남':'범위 밖'):'범위 안')+'</span></div>'+
+      '<div style="position:relative;height:10px;margin:5px 0 3px;border-radius:5px;background:var(--line)" role="img" aria-label="평소 범위와 지금 위치"><span style="position:absolute;left:'+pos(-2)+'%;width:'+(pos(2)-pos(-2))+'%;top:0;bottom:0;border-radius:5px;background:var(--chip);outline:1px solid var(--mute)"></span><span style="position:absolute;left:'+pos(x.z)+'%;top:-2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:'+(x.out?c:'var(--fg)')+';box-shadow:0 0 0 2px var(--card)"></span></div>'+
+      '<div style="font-size:12px;color:var(--mute)">지금 '+fmt(x.value)+esc(x.unit||"")+' · 평소 '+fmt(x.baseline)+esc(x.unit||"")+' (±'+fmt(2*x.sd)+')'+(x.zLong!==undefined?' · 긴 평소 대비 '+(x.zLong>=2?'<b style="color:var(--l3)">범위 밖</b>':'범위 안'):'')+'</div></div>'};
+  var out=n.items.filter(function(x){return x.out}),rest=n.items.filter(function(x){return !x.out});
+  var h='<div class="card tm"><div class="th"><b>'+n.k+'개</b><span>평소 범위를 아는 신호 '+n.measured+'개 중 나쁜 방향으로 벗어난 것</span></div>';
+  h+='<div style="font-size:14px;margin:4px 0 2px">평소엔 하루 <b>'+n.usual+'개</b>쯤 벗어나요. '+esc(n.rarity.text)+'</div>';
+  h+='<div style="font-size:12px;color:var(--mute);margin-bottom:6px">회색 띠 = 평소 범위(최근 4주 같은 시간대의 평소 값 ± 2 표준편차) · 점 = 지금 · 오른쪽일수록 나쁜 방향</div>';
+  h+=out.map(row).join("");
+  h+='<details><summary>범위 안에 있는 신호 '+rest.length+'개 보기</summary>'+rest.map(row).join("")+'</details>';
+  h+='<div class="mk">신호마다 평소에 흔들리는 범위를 배워 두고, 그 범위를 벗어난 것을 세요. 신호 하나가 벗어나는 일은 흔해서, <b>몇 개가 함께 벗어났나</b>와 <b>그게 얼마나 드문가</b>를 봐요. '+(n.rarity.basis==="record"?'드문 정도는 실제 기록 '+n.rarity.days+'일로 계산했어요.':'지금은 기록이 '+n.rarity.days+'일뿐이라 드문 정도를 이론값으로 말해요. 기록이 14일 쌓이면 실제 기록으로 바뀌고, 쌓일수록 정확해져요.')+' 긴 평소(전체 기간)는 '+n.longDays+'일 쌓였고 30일부터 함께 보여 줘요.'+(n.learning?' 아직 평소를 배우는 중인 신호 '+n.learning+'개는 빠져 있어요.':'')+' 이 값은 아직 단계·%·알림에 쓰지 않아요 — 평소에 몇 개가 우연히 벗어나는지를 먼저 재는 중이에요.</div></div>';
+  return h}
 // 과거 기록과 한계 (11/11): 징조 수 구간별로 전쟁이 얼마나 났나, 과거 시점을 같은 방식으로 센 것, 이 숫자가 무엇이 아닌가
 function proxCard(p){
   var h='<div class="card tm">';
@@ -454,10 +470,11 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   // 맨 위는 단계 (11/12 사용자: 큰 숫자 0 이 '위험 0점'으로 읽혔다) — 그 아래 세 계기판을 같은 크기로: 징조 · 조용한 움직임 · 배경
   var MEAN={1:"전쟁 전 징조도, 불안한 배경도 거의 없어요.",2:"긴장된 상태예요.",3:"여러 징조가 함께 켜진 위기 상태예요.",4:"징조 대부분이 켜지고 실제 움직임도 확인됐어요.",5:"교전이 벌어지고 있어요."};
   h+='<div class="lead">지금 한반도 · '+esc(O?kst(O.at)+' 기준':when(w.at))+'</div>';
-  var tot=R.signs+R.moves+R.context,PCT=Math.round(tot/39*100);
+  var TOT=R.layers[0].max+R.layers[1].max+R.layers[2].max,tot=R.signs+R.moves+R.context,PCT=Math.min(100,Math.round(tot/39*100)); // %의 기준 39 는 고정(rubric.ts PCT_BASE) — 항목을 늘려도 %가 안 변한다
   h+='<div class="phase"><b style="color:'+col+'">'+w.phase+'단계 '+esc(w.phaseLabel)+' '+PCT+'%</b><span>5단계 중</span></div>';
   // 어제 대비 (11/12 사용자: 어제 몇 %였는데 오늘 몇 % — 그게 없어졌다): 하루 한 줄 기록에서 어제의 가장 높았던 값과 견준다
-  var d1=p.vs?p.vs.d1:undefined;
+  // '어제'는 어제의 판정값(아침 8시에 정한 숫자)이다 (11/14 사용자: 어제 15%를 봤는데 '어제 17%'로 나왔다 — 하루 최고값을 썼기 때문). 없을 때만 기록의 값으로
+  var YD=(O&&O.yesterday)||w.yesterday,d1=YD?PCT-YD.index:(p.vs?p.vs.d1:undefined);
   if(d1!==undefined&&d1!==null){var yv=PCT-d1;
     h+='<div style="font-size:15px;font-weight:700;margin-top:4px;color:'+(d1>0?'var(--l4)':d1<0?'var(--ok,#34c759)':'var(--fg)')+'">어제 '+yv+'% → 오늘 '+PCT+'% <span style="font-weight:400;color:var(--mute)">'+(d1===0?'같아요':d1>0?'▲ '+d1+'%p 올랐어요':'▼ '+(-d1)+'%p 내렸어요')+'</span></div>'}
   else h+='<div style="font-size:13px;color:var(--mute);margin-top:4px">어제와의 비교는 기록이 하루 쌓인 뒤(내일)부터 보여요.</div>';
@@ -465,7 +482,14 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   var MG=O&&O.morning;
   if(MG){var df=[["징조",R.signs-MG.signs],["움직임",R.moves-MG.moves],["배경",R.context-MG.context]].filter(function(x){return x[1]!==0}).map(function(x){return x[0]+" "+(x[1]>0?"+":"")+num(x[1])});
     h+='<div style="font-size:12.5px;color:'+(PCT>MG.index?'var(--l4)':'var(--mute)')+'">'+(PCT===MG.index&&!df.length?'오늘 아침 8시 판정('+MG.index+'%)과 같아요':'오늘 아침 8시 '+MG.index+'% → 지금 '+PCT+'%'+(df.length?' ('+df.join(", ")+')':''))+' · 실시간</div>'}
-  h+='<div style="font-size:13px;color:var(--mute);margin-top:2px">지켜보는 39개 항목 중 <b style="color:var(--fg)">'+num(tot)+'개</b>가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+')</div>';
+  // 무슨 일이 있었나 (11/14 사용자: "사용자에게 중요한 건 북한이 미사일을 쐈는지, 미국에서 무슨 일이 났는지다 — 43개 중 몇 개인지는 운영자만 알면 된다")
+  // 숫자 바로 아래에 최근 사흘의 한반도 사건(위험도 2 이상·도발)과 세계의 심상치 않은 일을 둔다. 점수를 더 주지는 않는다. 항목 수 설명은 '자세히' 안에만.
+  var EV=[],seen={};(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
+    if(!wd&&!(b.isProvocation||(b.danger&&b.danger.level>=2)))return;if(seen[b.headline])return;seen[b.headline]=1;EV.push({t:b.headline,at:b.at,w:wd})});
+  var WOK={};R.layers[2].groups.forEach(function(g){g.items.forEach(function(x){if(["w_infra","w_new_war","w_power_clash"].indexOf(x.id)>=0&&x.s==="on"){if(x.ev&&!seen[x.ev]){seen[x.ev]=1;EV.push({t:x.ev,at:0,w:true})}if(x.ev)WOK[x.ev]=!x.weak}})});
+  EV.sort(function(a,b){return (a.w?1:0)-(b.w?1:0)||b.at-a.at});EV=EV.slice(0,4);
+  if(EV.length)h+='<div style="margin:10px 0 10px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">최근 있었던 일</div>'+EV.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.t)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.w?'세계 정세 · '+(WOK[x.t]?'분석관이 확인했어요.':'원인 확인 중이에요 — 사고인지 공격인지 확인되면 숫자에 반영해요.'):'한반도'+(x.at?' · '+when(x.at):''))+'</div>'}).join("")+'</div>';
+  else h+='<div style="font-size:13px;color:var(--mute);margin:8px 0 10px">최근 사흘 동안 눈에 띄는 사건은 없어요.</div>';
   // 단계마다 몇 %부터 몇 %인지 (11/12 사용자): 다섯 칸 눈금 + 지금 위치. 교전은 %가 아니라 실제 교전 보도로 정해진다
   var BND=[0,10,25,50,100],RNG=["0~9%","10~24%","25~49%","50%~","실제 교전"],NM=["평온","긴장","위기","임박","교전"];
   var seg=Math.min(4,w.phase-1),within=seg>=4?0.5:Math.min(0.97,Math.max(0.03,(PCT-BND[seg])/(BND[seg+1]-BND[seg]))),mark=(seg+within)/5*100;
@@ -483,7 +507,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   if(unkS)h+='<div style="font-size:12.5px;color:var(--mute)">점선 '+unkS+'칸은 아직 확인하지 못한 징조예요 (분석관이 하루 두 번 확인).</div>';
   // 과거와 나란히 (11/12 사용자: 과거 기록이 따로 떨어져 있어 헷갈린다 — 그 목록 안에서 지금이 어디인지 바로 보이게)
   var an=(p.anchors||[]).slice(),OUT={W:"전쟁",N:"전쟁 안 남",K:"국지 충돌"};
-  // 과거와 견주는 잣대는 '전쟁 전 징조 9개'만 쓴다 (11/12 사용자 지적): 39개 비율로 놓으면 징조 0개인 지금이 징조 3개였던 1994년 핵위기보다 위로 간다 —
+  // 과거와 견주는 잣대는 '전쟁 전 징조 9개'만 쓴다 (11/12 사용자 지적): 전체 비율로 놓으면 징조 0개인 지금이 징조 3개였던 1994년 핵위기보다 위로 간다 —
   // 과거 시점의 배경·움직임은 손으로 적었거나 조사에서 못 찾아 꺼진 것으로 들어가 있어 공평하지 않다. 징조 9개는 사례마다 조사한 것이다.
   var rows=an.map(function(a){return {name:a.name,signs:a.signs,tag:OUT[a.cls]||"",now:false}});
   rows.push({name:"지금 한반도",signs:R.signs,tag:unkS?"미확인 "+unkS:"",now:true});
@@ -499,6 +523,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
     return '<li style="list-style:none;margin:4px 0 4px -18px;font-size:13.5px;display:flex;gap:6px"><span style="flex:none">'+mark+'</span><span style="flex:1;min-width:0">'+esc(x.ko)+(x.weak?' <span style="color:var(--mute)">(약함·미확인)</span>':'')+(x.s==="unk"?' <span style="color:var(--mute)">(확인 대기)</span>':'')+(x.ev&&x.s==="on"?'<br><span style="color:var(--mute);font-size:12.5px">'+esc(x.ev)+'</span>':'')+'</span></li>'};
   var SUB={signs:function(L){return L.pts>0?"":"켜진 징조가 없어요"},moves:function(L){return R.surprise?"뉴스는 조용한데 측정값이 함께 움직여요 — 기습 주의":L.pts>0?"":"사람·돈·군이 평소대로예요"},context:function(L){return L.pts>0?"":"확인된 배경 요인이 없어요"},other:function(L){return ""}};
   h+='<h3 style="margin-top:18px">자세히</h3>';
+  h+='<div style="font-size:12.5px;color:var(--mute)">지켜보는 '+TOT+'개 항목 중 '+num(tot)+'개가 켜져 있어요 (징조 '+num(R.signs)+' + 움직임 '+num(R.moves)+' + 배경 '+num(R.context)+') · %는 고정 기준 39개 대비</div>';
   h+=R.layers.map(function(L){var unk=0,ons=[];L.groups.forEach(function(g){g.items.forEach(function(x){if(x.s==="unk")unk++;if(x.got>0)ons.push(x.ko.split(" (")[0]+(x.weak?"(약함)":""))})});
     var sub=SUB[L.id](L)||ons.slice(0,2).join(" · ")+(ons.length>2?" 등 "+ons.length+"개":"");
     var c2=L.id==="signs"?col:L.id==="moves"?(R.surprise?"var(--l4)":"var(--fg)"):"var(--mute)";
@@ -592,6 +617,7 @@ function render(){
     h+='<div class="scale">';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?"on":"")+'"></i>';h+='</div></div>'}
   // 1) 첫 화면: 지금 한반도 — 단계·확률·어제와 비교·이유·오를 조건·할 일·데이터 상태 (2026-11-02 새 화면)
   if(st.warRisk)h+=safe(summary,st,"지금 한반도");
+  if(st.normal)h+=group("normal","평소 범위에서 벗어난 신호 "+st.normal.k+"개","평소엔 하루 "+st.normal.usual+"개쯤 · 신호 "+st.normal.measured+"개의 평소 범위와 지금 위치",safe(normalCard,st.normal,"평소 범위"));
   var inner="";
   var an="";
   // 2) 클로드 분석관 판단 — 맨 위. 아래는 전부 세부사항이다

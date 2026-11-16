@@ -167,6 +167,8 @@ export function eventFingerprint(e: CrisisEvent): string {
 function airspaceSignal(readings: Reading[], now: number): Signal | null {
   const r = readings.find((x) => x.indicator === "air.civil_airborne");
   if (!r || r.state !== "anomalous" || r.baseline === undefined || r.value >= r.baseline || r.baseline < 15) return null;
+  // 평소 수십 대인데 갑자기 한 자릿수(평소의 10% 미만)면 공역 폐쇄보다 수신망·API 장애일 가능성이 훨씬 크다 (11/13 '0대 (평소 56대)'가 사건으로 떴다) — 사건으로 만들지 않는다
+  if (r.value < r.baseline * 0.1) return null;
   return {
     id: `adsb_lol:airspace:${Math.floor(now / (30 * 60_000))}`,
     source: "adsb_lol",

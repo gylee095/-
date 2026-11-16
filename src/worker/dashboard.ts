@@ -482,6 +482,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   if(YD&&d1){var UP=YD.up||[],DN=YD.down||[],nm=function(a){return a.slice(0,2).map(function(x){return "'"+x.ko+"'"}).join(", ")+(a.length>2?" 등 "+a.length+"개":"")};
     var why=d1>0?(UP.length?nm(UP)+(UP.length>1?" 항목들이":" 항목이")+" 새로 켜졌기 때문이에요.":""):(DN.length?nm(DN)+(DN.length>1?" 항목들이":" 항목이")+" 꺼졌기 때문이에요.":"");
     if(why)h+='<div style="font-size:14px;margin-top:4px;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere"><b>'+(d1>0?'오른 이유':'내린 이유')+'</b> · '+esc(why)+(d1>0&&UP[0]&&UP[0].ev?'<br><span style="font-size:12.5px;color:var(--mute)">'+esc(UP[0].ev)+'</span>':'')+'</div>'}
+  h+='<!--AN-->'; // 클로드 분석 줄이 들어갈 자리 (render 가 채운다)
   // 무슨 일이 있었나 (11/14 사용자: "사용자에게 중요한 건 북한이 미사일을 쐈는지, 미국에서 무슨 일이 났는지다 — 43개 중 몇 개인지는 운영자만 알면 된다")
   // 숫자 바로 아래에 최근 사흘의 한반도 사건(위험도 2 이상·도발)과 세계의 심상치 않은 일을 둔다. 점수를 더 주지는 않는다. 항목 수 설명은 '자세히' 안에만.
   var EV=[],seen={};(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
@@ -666,7 +667,8 @@ function render(){
   if(main.length){ev+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,8).map(row).join("")+'</div>'}
   if(ref.length)ev+='<details class="card"><summary>참고 기사 '+ref.length+'건 (논평·분석, 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
   var bd=st.board||[];var abn=bd.filter(function(r){return r.reading&&(r.reading.state==="anomalous"||r.reading.state==="elevated")&&r.stateLabel!=="측정 불가"}).length;var fl=bd.filter(function(r){return r.failing}).length;
-  inner+=group("board","신호 "+bd.length+"개 — 숫자","평소와 다른 것 "+abn+"개"+(fl?" · 못 받는 것 "+fl+"개":"")+" · 전체 "+bd.length+"개",'<div class="card">'+board(bd)+'</div>');
+  var NM=st.normal;
+  inner+=group("board","신호 "+bd.length+"개","평소 범위를 벗어난 것 "+(NM?NM.k:abn)+"개"+(fl?" · 못 받는 것 "+fl+"개":"")+" · 직접 재는 숫자 전부",(NM?safe(normalCard,NM,"평소 범위"):"")+'<div class="card">'+board(bd)+'</div>');
   var au="";
   // 2a) 지금 상황 해설 (규칙 기반, 5분마다 갱신)
   var it=st.interpretation;
@@ -691,18 +693,23 @@ function render(){
   var pushWarn=lastFail&&(!lastOk||lastFail.sentAt>lastOk.sentAt)?'<p style="font-size:13px;color:var(--l4)">⚠ 최근 알림 발송 실패('+esc(lastFail.channel||"")+') '+ago(lastFail.sentAt)+': '+esc(lastFail.error||"원인 미기록")+(lastFail.channel==="ntfy"&&chans.indexOf("bark")<0?'<br>ntfy.sh 는 발신 IP 단위 제한이 있어 서버에서 가끔 막힙니다. 확실히 하려면 Bark 앱(무료·계정 불필요) 키를 추가하세요 (docs/DEPLOY.md).':'')+'</p>':"";
   var ntfyUi=chans.indexOf("ntfy")>=0&&st.setup?'<p style="font-size:14px">ntfy 앱 구독 주소</p><button class="btn" onclick="copy(\''+esc(st.setup.ntfySubscribeUrl)+'\')">토픽 주소 복사</button>':'';
   sy+='<details class="card"'+(pushWarn?' open':'')+'><summary>알림 설정'+(pushWarn?' ⚠':'')+'</summary>'+pushWarn+'<p style="font-size:13px">휴대폰 알림은 <b>전쟁 위험 단계가 실제로 바뀔 때</b>, <b>긴장 단계 안에서 실제 징조·조용한 움직임이 나타날 때</b>(올라가면 5분 주기 두 번 확인 뒤, 내려가면 6시간 이어진 뒤)와 <b>실제 사건</b>(발사 속보·민방위 경보·철수 권고)일 때만 갑니다. 확률 숫자의 작은 흔들림, 징후 조합, 결론이 같은 심층 분석은 화면에만 남깁니다. <b>테스트 푸시와 시스템 경고는 운영자 기기(Bark·운영자 구독)에만</b> 가고, 다른 구독자에게는 실제 알림(단계 변화·사건·심층 분석)만 갑니다. 이 휴대폰: <b id="pushst">확인 중</b> · 로그인: <b>'+(st.public?"안 됨 (공개 화면)":"운영자")+'</b> <a href="#pushcard" onclick="return goPush()">알림 켜기·끄기는 첫 화면 카드에서 ↑</a></p><p style="font-size:13px">'+(st.phaseNotify?' 지금 기억한 단계: <b>'+st.phaseNotify.phase+'단계</b> ('+esc(kst(st.phaseNotify.at))+'부터)'+(st.phaseNotify.pending?' · 확인 중: '+st.phaseNotify.pending.phase+'단계':''):'')+'</p>'+(st.setup&&tok()?'<p style="font-size:13px;color:var(--mute)">설정된 채널: '+esc((st.setup.pushChannels||[]).join(", ")||"없음")+'</p>'+ntfyUi+'<button class="btn" onclick="testPush()">테스트 푸시</button>':"")+'</details>';
-  if(window.__KEW_REPORT__)inner+=group("sys","데이터 출처","수집 상태 · 어디서 가져왔나",'<div class="card">'+health(st)+'</div>');
-  else inner+=group("sys","시스템","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
+  if(!window.__KEW_REPORT__)inner+=group("sys","운영자 설정","사용량 · 수집 상태 · 알림 설정"+(pushWarn?" ⚠":""),sy,!!pushWarn);
   if(st.ab){var AB=st.ab,dif=!AB.a||AB.a.phase!==AB.b.phase||AB.a.clash.point!==AB.b.clash.point;inner+=group("ab","🧪 실험 비교 (시험 서버)",dif?"본 서버 규칙과 결과가 달라요":"본 서버 규칙과 결과가 같아요",abPanel(AB))}
-  // 화면 순서 (11/14 사용자: "가장 보게 되는 건 사건, 그다음 클로드 분석이다. '이 숫자를 얼마나 믿을 수 있나'·'평소 범위에서 벗어난 신호'는 안 본다 — 그건 정확도를 올리려는 것이지 사람이 보라는 게 아니다")
-  // ① 사건 ② 클로드 분석(분석관 판단 + 자동 해설을 하나로) ③ 나머지는 전부 '자료·시스템' 하나 안에
+  // 화면 순서 (11/14~16 사용자): 클로드 분석은 결과이므로 맨 위 숫자 옆에 — 누르면 요약, 그 안에서 전문. 아래는 ① 사건 ② 신호 숫자(평소 범위를 벗어난 것 포함) 둘뿐.
+  // '과거 기록과 한계'는 화면에서 뺐다(안 본다). 시스템(사용량·수집 상태·알림 설정)은 운영자의 실시간 화면에만 '운영자 설정'으로 남기고, 손님이 보는 리포트에는 넣지 않는다.
   var cut=function(t,n){t=String(t||"");return t.length>n?t.slice(0,n)+"…":t};
-  h+=group("events","사건"+(evs.length?" "+evs.length+"건":""),(top?"가장 최근: "+cut(top.brief.headline,42):evs.length?"참고 기사만 있어요":"최근 사건 없음"),ev||'<div class="card" style="font-size:14px;color:var(--mute)">최근 30일 동안 기록된 사건이 없어요.</div>',lvl>1);
   if(au)an+='<details class="card"'+(patLvl>1?' open':'')+'><summary>자동 해설 — 규칙으로 뽑은 힌트'+(pats.length?' · 징후 조합 '+pats.length+'개':'')+'</summary>'+au+'</details>';
-  h+=group("analysis","클로드 분석",(st.assessment&&st.assessment.data&&st.assessment.data.overall?cut(st.assessment.data.overall,46):"분석관 판단(하루 두 번) · 자동 해설"),an,patLvl>1);
-  if(st.normal)inner+=group("normal","평소 범위에서 벗어난 신호 "+st.normal.k+"개","평소엔 하루 "+st.normal.usual+"개쯤 · 신호 "+st.normal.measured+"개의 평소 범위와 지금 위치",safe(normalCard,st.normal,"평소 범위"));
-  if(st.warRisk&&st.warRisk.proximity)inner+=group("prox","과거 기록과 한계","징조 수별로 전쟁이 얼마나 났나 · 추세",safe(proxCard,st.warRisk.proximity,"과거 기록"));
-  h+=group("all","자료·시스템","신호 "+bd.length+"개 숫자 · 평소 범위 · 과거 기록 · 수집 상태",inner);
+  var A=st.assessment&&st.assessment.data,anRow="";
+  if(A||an){var one=A&&A.overall?A.overall:"분석관 판단과 자동 해설";
+    anRow='<button type="button" id="antab" aria-expanded="'+(ANOPEN?'true':'false')+'" onclick="anTap()" style="display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--chip);border:0;border-radius:12px;padding:10px 12px;margin:10px 0 0"><span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:var(--mute)">클로드 분석'+(st.assessment&&st.assessment.at?' · '+esc(ago(st.assessment.at)):'')+'</span><span id="anone" style="display:block;font-size:14px;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere">'+esc(ANOPEN?one:cut(one,58))+'</span></span><span id="anchev" style="flex:none;color:var(--mute)">'+(ANOPEN?'▴':'▾')+'</span></button>';
+    var sm="";
+    if(A){if(A.war_reasoning)sm+='<div style="font-size:13.5px;margin-top:8px;line-height:1.5"><b>왜 이렇게 봤나</b> · '+esc(A.war_reasoning)+'</div>';
+      if(A.anomalies&&A.anomalies.length)sm+='<div style="font-size:13.5px;margin-top:8px;line-height:1.5"><b>새로 눈에 띈 것</b> · '+esc(A.anomalies.slice(0,3).join(" · "))+'</div>';
+      if(A.tripwires&&A.tripwires.length)sm+='<div style="font-size:13.5px;margin-top:8px;line-height:1.5"><b>이러면 달라져요</b><ul style="margin:4px 0 0;padding-left:18px">'+A.tripwires.slice(0,3).map(function(t){return '<li>'+esc(t)+'</li>'}).join("")+'</ul></div>'}
+    anRow+='<div id="anbox" data-full="'+esc(one)+'" data-cut="'+esc(cut(one,58))+'" style="display:'+(ANOPEN?'block':'none')+';padding:2px 12px 10px;margin-top:-6px;border-radius:0 0 12px 12px;background:var(--chip)">'+sm+(an?'<details style="margin-top:10px"><summary style="cursor:pointer;font-size:13px;color:var(--mute)">분석 전문 보기</summary><div style="margin-top:8px">'+an+'</div></details>':'')+'</div>'}
+  h=h.replace("<!--AN-->",anRow);
+  h+=group("events","사건"+(evs.length?" "+evs.length+"건":""),(top?"가장 최근: "+cut(top.brief.headline,42):evs.length?"참고 기사만 있어요":"최근 사건 없음"),ev||'<div class="card" style="font-size:14px;color:var(--mute)">최근 30일 동안 기록된 사건이 없어요.</div>',lvl>1);
+  h+=inner;
   h+='<div class="foot">공개 정보만 사용합니다. 위험도와 패턴은 관측 사실의 요약·추론이며 전쟁 예측이 아닙니다. 대피 등 행동은 정부 재난문자·국민재난안전포털 안내를 따르세요.</div>';
   $("#app").innerHTML=h;
   bindGroups(top);
@@ -711,6 +718,10 @@ function render(){
 }
 // 접힌 묶음: 연 것은 이 기기에 기억한다 (5분마다 다시 그려도 그대로)
 var SUMOPEN="";
+var ANOPEN=false;
+function anTap(){ANOPEN=!ANOPEN;var b=document.getElementById("anbox"),t=document.getElementById("antab"),o=document.getElementById("anone"),c=document.getElementById("anchev");
+  if(b)b.style.display=ANOPEN?"block":"none";if(t)t.setAttribute("aria-expanded",ANOPEN?"true":"false");if(c)c.textContent=ANOPEN?"▴":"▾";
+  if(o&&b)o.textContent=ANOPEN?b.getAttribute("data-full"):b.getAttribute("data-cut")}
 var SRCOPEN={};
 function srcTap(id){SRCOPEN[id]=!SRCOPEN[id];var on=SRCOPEN[id],bs=document.querySelectorAll(".srcbox"),ts=document.querySelectorAll(".srctab"),i;
   for(i=0;i<bs.length;i++)if(bs[i].dataset.i===id)bs[i].style.display=on?"block":"none";

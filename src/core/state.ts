@@ -7,6 +7,7 @@ import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { activeSources } from "./sources.js";
+import { SIGNAL_NOTES_KEY, liveNotes, type SignalNote } from "./signalnotes.js";
 import { briefEvent, isSensorGlitch, mergeFollowUps, currentThreat } from "./brief.js";
 import type { Reading, Signal } from "./types.js";
 import { GROUP_LABEL, INDICATORS, LEARNING_RULE, STATE_LABEL } from "./indicators.js";
@@ -36,6 +37,8 @@ export interface BoardRow {
   /** 기준선 대신 고정 문턱으로 판정하는 징후의 문턱 ('나쁜 방향' 크기) */
   absolute?: { elevated: number; anomalous: number };
   reading?: Reading;
+  /** AI 분석관이 적은 '왜 이런가' 한 줄 (36시간 유효) */
+  note?: SignalNote;
   stateLabel: string;
   /** 최근 24시간 시간별 평균 (스파크라인) */
   history: { hour: number; avg: number }[];
@@ -85,6 +88,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
   mergeFollowUps(enriched);
 
   const readings: Record<string, Reading> = readingsRaw ? JSON.parse(readingsRaw) : {};
+  const sigNotes = liveNotes(await store.getKv(SIGNAL_NOTES_KEY).catch(() => null), now);
   const board: BoardRow[] = INDICATORS.map((d) => {
     const r = readings[d.id];
     // 30시간 넘게 갱신이 없으면 측정 불가로 본다 (일간 지표 포함)
@@ -92,6 +96,7 @@ export async function buildState(store: Store, since: number, disabledSources = 
     return {
       id: d.id, label: d.label, group: d.group, groupLabel: GROUP_LABEL[d.group], unit: d.unit, direction: d.direction, why: d.why, latency: d.latency, caveats: d.caveats, coverage: d.coverage, absolute: d.absolute,
       reading: r,
+      ...(sigNotes[d.id] ? { note: sigNotes[d.id] } : {}),
       stateLabel: !r || stale ? STATE_LABEL.unavailable : STATE_LABEL[r.state],
       history: hourlySeries(hourly, d.id, now - 24 * 3600_000),
     };

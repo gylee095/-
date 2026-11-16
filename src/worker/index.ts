@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, OPS_MANIFEST, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
-import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
 import { SHELL_HEAD, buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
@@ -401,6 +401,11 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
       const full = await buildState(store, Date.now() - 168 * 3600_000, env.DISABLED_SOURCES).then((st) => freezeState(st as unknown as Record<string, unknown>)).catch(() => undefined);
       const first = await snapshotForPurchase(store, Date.now(), full).catch(() => undefined);
       if (first) await attachStartReport(store, r.order.orderId, first.id, Date.now()).catch(() => {});
+    }
+    // 결제·취소가 확정되면 운영자에게만 알린다 (11/17 사용자). 같은 통보가 다시 와도 'already' 라 한 번만 간다. 알림이 실패해도 페이앱 응답은 그대로 보낸다
+    if (r.reply === "SUCCESS" && (r.action === "paid" || r.action === "revoked") && r.order) {
+      const m = paymentPush(r.action, r.order, await loadOrders(store).catch(() => [r.order!]), Date.now());
+      await sendPush(env, { ...m, url: env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined }).catch(() => []);
     }
     if (r.reply === "FAIL")
       await store

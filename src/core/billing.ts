@@ -309,3 +309,19 @@ export async function billingSummary(store: Pick<Store, "getKv">, now: number) {
     refunded: orders.filter((o) => o.status === "refunded").length,
   };
 }
+
+/**
+ * 결제·취소가 확정되면 운영자에게만 가는 알림 문구 (2026-11-17 사용자: "누군가 결제하면 내가 알 수 있게").
+ * 손님 정보(전화번호·카드)는 넣지 않는다 — 금액, 시각, 주문번호 끝 4자리, 지금까지의 결제·취소 건수만.
+ */
+export function paymentPush(action: "paid" | "revoked", order: Order, orders: Order[], now: number): { title: string; body: string; priority: number; tag: string } {
+  const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
+  const d = new Date(now + 9 * 3600_000);
+  const when = `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+  const paid = orders.filter((o) => o.status === "paid"), refunded = orders.filter((o) => o.status === "refunded").length;
+  const total = `지금 이용 중 ${paid.length}명 (합계 ${won(paid.reduce((a, o) => a + o.amount, 0))})${refunded ? ` · 취소 ${refunded}건` : ""}`;
+  const tail = `주문 …${order.orderId.slice(-4)} · ${when}`;
+  return action === "paid"
+    ? { title: `💰 결제 들어옴 — ${won(order.amount)}`, body: `${total}\n${tail}`, priority: 3, tag: `kew-pay-${order.orderId}` }
+    : { title: `↩️ 결제 취소됨 — ${won(order.amount)}`, body: `${total}\n${tail}`, priority: 3, tag: `kew-pay-${order.orderId}` };
+}

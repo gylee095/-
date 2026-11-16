@@ -97,7 +97,7 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
     {
       title: "신호별 원인 한 줄 기록 (분석관)",
       description:
-        "징후판에서 평소와 다른(주의·이상) 신호마다 '왜 이런가'를 확인해 한 줄로 남긴다. 화면의 그 신호 바로 아래에 '클로드:'로 보인다. " +
+        "징후판에서 **지금 주의·이상인 신호에만** '왜 이런가'를 확인해 한 줄로 남긴다(정상 범위인 신호는 조사하지도 적지도 않는다 — 적어도 저장되지 않는다). 화면의 그 신호 바로 아래에 '클로드:'로 보인다. " +
         "한 줄에 하나: '징후id: 설명 https://근거주소'. 예: 'air.mil_airborne: 4대 중 3대는 미 공군 수송기(C-17·C-130) 정례 운항, 1대는 한국군 훈련기 — 정찰·급유기는 없어 위협 신호 아님'. " +
         "설명은 사실(기종·시각·보도)과 판단(위협인지 평범한 원인인지)을 함께, 200자 안쪽, 쉬운 말로. 원인을 못 찾았으면 '원인 미확인 — 무엇을 봤는지'를 적는다(추측으로 단정하지 않는다). 36시간 유효, 같은 신호는 새 설명으로 바뀐다. 판정(단계·%)은 바꾸지 않는다.",
       inputSchema: { notes: z.string().min(5).max(6000).describe("줄마다 '징후id: 설명 [https://주소 …]'") },
@@ -106,9 +106,12 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
       try {
         const { parseSignalNotes, mergeSignalNotes, SIGNAL_NOTES_KEY } = await import("../core/signalnotes.js");
         const now = Date.now();
-        const add = parseSignalNotes(notes, INDICATORS.map((d) => d.id), now);
+        // 지금 주의·이상인 신호에만 적는다 — 정상 범위인 신호의 설명은 받지 않는다
+        const rd = JSON.parse((await store.getKv("readings")) ?? "{}") as Record<string, { state?: string }>;
+        const abnormal = INDICATORS.map((d) => d.id).filter((id) => rd[id]?.state === "anomalous" || rd[id]?.state === "elevated");
+        const add = parseSignalNotes(notes, abnormal, now);
         const n = Object.keys(add).length;
-        if (!n) return fail(new Error("읽을 수 있는 줄이 없다 — '징후id: 설명' 형식이고 id 가 징후판의 id 와 같은지 확인"));
+        if (!n) return fail(new Error("저장할 줄이 없다 — '징후id: 설명' 형식인지, 그리고 그 신호가 지금 주의·이상인지 확인 (정상 범위인 신호에는 적지 않는다)"));
         const prev = await store.getKv(SIGNAL_NOTES_KEY);
         await store.setKv(SIGNAL_NOTES_KEY, JSON.stringify(mergeSignalNotes(prev ? JSON.parse(prev) : undefined, add, now)));
         return out({ saved: Object.keys(add) });

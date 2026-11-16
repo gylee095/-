@@ -25,4 +25,12 @@ describe("신호별 '왜 이런가' 한 줄 (11/16)", () => {
     expect(scan).toMatch(/record_signal_notes/);
     expect(readFileSync(new URL("../src/mcp/tools_indicators.ts", import.meta.url), "utf8")).toMatch(/"record_signal_notes"/);
   });
+  it("정상 범위인 신호에는 설명을 받지도 보이지도 않는다", async () => {
+    const { readFileSync } = await import("node:fs");
+    const tool = readFileSync(new URL("../src/mcp/tools_indicators.ts", import.meta.url), "utf8");
+    expect(tool).toMatch(/parseSignalNotes\(notes, abnormal, now\)/);
+    const dash = readFileSync(new URL("../src/worker/dashboard.ts", import.meta.url), "utf8");
+    expect(dash).toMatch(/if\(!ab\)return "";/);
+    expect(parseSignalNotes("air.mil_airborne: 설명", [], NOW)).toEqual({}); // 지금 이상인 신호 목록에 없으면 저장되지 않는다
+  });
 });

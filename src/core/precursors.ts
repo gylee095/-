@@ -191,7 +191,10 @@ export interface SignalNow {
   ev?: string;
   /** 누가 확인했나: auto = 자동 지표·보도, analyst = AI 분석관 */
   by?: "auto" | "analyst";
+  /** 근거가 된 기사 링크 (제목·주소) — 화면에서 항목을 누르면 목록으로 보인다 (11/14 사용자) */
+  src?: SourceLink[];
 }
+export interface SourceLink { t: string; u: string }
 
 export interface SignalView {
   id: string;

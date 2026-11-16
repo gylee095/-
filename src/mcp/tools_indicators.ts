@@ -100,7 +100,7 @@ export function registerIndicatorTools(server: McpServer, ctx: { env: Env; store
         "점검표에서 분석관이 확인한 항목을 부호로 남긴다. 형식: 'id=값:근거' 를 공백으로 이어 쓴다. 값은 1(확인됨) · 0.5(보도만·미확인) · 0(찾아봤지만 없음). " +
         "예: 'g_talks_collapse=0 i_leader_threat=1:김정은 11/9 연설에서 \"영토 평정\" 언급 m_logistics=0'. 근거는 60자 안쪽, 켜짐·약함에만 쓴다. " +
         "찾아보지 않은 항목은 쓰지 않는다(0 은 '찾아봤지만 없음'이다). 자동으로 켜진 항목을 0 으로 적으면 '약함'으로만 낮아진다. 36시간 유효.",
-      inputSchema: { checks: z.string().min(3).max(4000).describe("'id=1:근거 id=0 id=0.5:근거' 형식") },
+      inputSchema: { checks: z.string().min(3).max(4000).describe("'id=1:근거 https://기사주소 id=0 id=0.5:근거' 형식 — 켠 항목은 근거 뒤에 기사 주소 1~3개(화면에 출처 링크로 나온다)") },
     },
     async ({ checks }) => {
       try {

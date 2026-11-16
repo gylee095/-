@@ -249,3 +249,20 @@ describe("세계 정세를 넓게 (11/14)", () => {
     expect(RUBRIC.find((l) => l.id === "context")!.max).toBe(16);
   });
 });
+
+describe("출처 링크 (11/14)", () => {
+  it("분석관이 근거 뒤에 붙인 기사 주소는 떼어 출처로 둔다 — 근거 글에는 남기지 않는다", () => {
+    const c = parseChecks("w_power_clash=1:남중국해에서 미·중 함정 충돌 https://www.yna.co.kr/view/AKR1 https://example.com/a?x=1 g_ultimatum=0", NOW);
+    expect(c.items.w_power_clash).toEqual({ v: 1, ev: "남중국해에서 미·중 함정 충돌", src: [{ t: "yna.co.kr", u: "https://www.yna.co.kr/view/AKR1" }, { t: "example.com", u: "https://example.com/a?x=1" }] });
+    expect(c.items.g_ultimatum).toEqual({ v: 0 });
+    const st = koreaStatus([], [], NOW, c);
+    expect(st.w_power_clash.src?.[0].u).toBe("https://www.yna.co.kr/view/AKR1");
+  });
+  it("코드에 적어 둔 바탕값 중 켜진 것은 모두 기사 링크가 있다", () => {
+    for (const [id, x] of Object.entries(BASE_SEED.items)) if (x.v > 0) { expect(x.src?.length, id).toBeGreaterThan(0); for (const [t, u] of x.src!) { expect(t.length).toBeGreaterThan(5); expect(u).toMatch(/^https:\/\//); } }
+    const r = scoreRubric(koreaStatus([], [], NOW));
+    const lit = r.layers.flatMap((l) => l.groups.flatMap((g) => g.items)).filter((x) => x.s === "on");
+    expect(lit.length).toBeGreaterThan(0);
+    for (const x of lit) expect(x.src?.length, x.id).toBeGreaterThan(0);
+  });
+});

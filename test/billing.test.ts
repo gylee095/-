@@ -269,5 +269,6 @@ describe("결제 알림 — 운영자에게만 (11/17)", () => {
     const idx = readFileSync(new URL("../src/worker/index.ts", import.meta.url), "utf8");
     expect(idx).toMatch(/\(r\.action === "paid" \|\| r\.action === "revoked"\) && r\.order\) \{\s*const m = paymentPush\(/);
     expect(idx).not.toMatch(/paymentPush[\s\S]{0,300}audience/);
+    expect(idx).toMatch(/\/ops\/app` : undefined \}, fetch, store\)/); // 운영자 앱(웹 푸시)에도 가게 store 를 넘긴다
   });
 });

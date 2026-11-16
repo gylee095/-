@@ -405,7 +405,8 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     // 결제·취소가 확정되면 운영자에게만 알린다 (11/17 사용자). 같은 통보가 다시 와도 'already' 라 한 번만 간다. 알림이 실패해도 페이앱 응답은 그대로 보낸다
     if (r.reply === "SUCCESS" && (r.action === "paid" || r.action === "revoked") && r.order) {
       const m = paymentPush(r.action, r.order, await loadOrders(store).catch(() => [r.order!]), Date.now());
-      await sendPush(env, { ...m, url: env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined }).catch(() => []);
+      // store 를 넘겨야 운영자 앱(웹 푸시)에도 간다 — 없으면 Bark 등 외부 채널로만 간다. 화면을 얼릴 필요는 없어 링크는 운영자 알림 목록으로
+      await sendPush(env, { ...m, url: env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops/app` : undefined }, fetch, store).catch(() => []);
     }
     if (r.reply === "FAIL")
       await store

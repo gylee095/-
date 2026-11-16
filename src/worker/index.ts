@@ -336,6 +336,11 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const m = /^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code) ? { ...WEB_MANIFEST, start_url: `/me?code=${code}` } : WEB_MANIFEST;
     return new Response(JSON.stringify(m), { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "no-cache" } });
   }
+  if (url.pathname.startsWith("/promo/")) {
+    const { PROMO_JPG_BASE64 } = await import("./promo.js");
+    const b64 = PROMO_JPG_BASE64[url.pathname];
+    if (b64) return new Response(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" } });
+  }
   if (url.pathname === "/og.jpg") return new Response(Uint8Array.from(atob(OG_JPG_BASE64), (c) => c.charCodeAt(0)), { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" } });
   const iconSize = { "/icon-180.png": 180, "/apple-touch-icon.png": 180, "/apple-touch-icon-precomposed.png": 180, "/icon-192.png": 192, "/icon-512.png": 512 }[url.pathname];
   const opsIcon = { "/icon-ops-180.png": 180, "/icon-ops-192.png": 192, "/icon-ops-512.png": 512 }[url.pathname];
@@ -611,11 +616,14 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     }
   }
   if (url.pathname === "/api/threads" && req.method === "GET") {
-    // 스레드 자동 게시 상태: 최근 올린 글·실패 이유, 그리고 지금 사건이 생기면 나갈 글 네 가지 틀의 견본
+    // 스레드 자동 게시 상태: 최근 올린 글·실패 이유, 그리고 나갈 글의 견본 (소개 글 전부 · 뉴스 글 전부)
     const th = await import("../core/threads.js");
-    const [offRaw, prevRaw] = await Promise.all([store.getKv(th.OFFICIAL_KEY), store.getKv(th.OFFICIAL_PREV_KEY)]);
-    const facts = { headline: "북한, 탄도미사일 발사 → 동해 (견본)", label: "공식확인", ...th.verdictOf(offRaw ? JSON.parse(offRaw) : undefined, prevRaw ? JSON.parse(prevRaw) : undefined), url: env.PUBLIC_URL ?? url.origin };
-    return json({ ...(await th.threadsStatus(env, store)), samples: th.STYLES.map((style) => ({ style, text: th.threadsText(style, facts) })) });
+    const site = (env.PUBLIC_URL ?? url.origin).replace(/^https?:\/\//, "");
+    const samples = [
+      ...th.INTRO_TEXTS.map((_, i) => ({ ...th.threadsText("intro", i, site), images: th.PROMO_IMAGES.map((p) => (env.PUBLIC_URL ?? url.origin) + p) })),
+      ...th.NEWS_TEXTS.map((_, i) => th.threadsText("news", i, site, "북한, 탄도미사일 2발 발사 → 동해 (견본)")),
+    ];
+    return json({ ...(await th.threadsStatus(env, store)), samples });
   }
   if (url.pathname === "/api/ops/test-alert" && req.method === "POST") {
     // 손님용 알림 길 전체를 운영자가 직접 시험한다. 결제한 손님이 둘 이상이면 실제 손님에게도 가므로 막는다 (force 로만)

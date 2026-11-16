@@ -325,18 +325,26 @@ export async function maybePostThreadsRise(
  * ③ 개발 소식 (11/16 사용자): "오늘 수정한 것들 스레드에 올리자" 라고 하면 에이전트가 오늘 본 서버(main)에 올라간 변경을
  * 담백하게 요약해 이걸로 올린다. 사람이 직접 시킨 글이라 하루 한도·간격을 보지 않는다. 판정·비밀값·내부 용어는 넣지 않는다.
  */
-export async function postThreadsManual(env: PushEnv, store: Kv, text: string, now: number, fetchImpl: typeof fetch = fetch, sleep?: (ms: number) => Promise<void>): Promise<ThreadsResult> {
+export async function postThreadsManual(env: PushEnv, store: Kv, text: string, now: number, fetchImpl: typeof fetch = fetch, sleep?: (ms: number) => Promise<void>, opts: { intro?: boolean } = {}): Promise<ThreadsResult> {
   if (env.STAGING) return { skipped: "시험 서버" };
-  const t = text.trim();
+  const st = await loadState(store);
+  const site = env.PUBLIC_URL ?? "https://koreasiren.com";
+  // intro: 사용자가 '앱 소개를 지금 올려'라고 할 때 — 정해 둔 소개 문장(차례대로) + 예시 화면 2장
+  const made = opts.intro ? threadsText("intro", st.nk?.intro ?? 0, site.replace(/^https?:\/\//, "")) : { style: "D", text: text.trim() };
+  const t = made.text;
   if (!t) return { skipped: "글이 비어 있음" };
   if (t.length > THREADS_MAX_CHARS) return { skipped: `${t.length}자 — ${THREADS_MAX_CHARS}자 넘음` };
   const token = await currentToken(env, store);
   if (!token) return { skipped: "스레드 토큰 없음" };
-  const res = await publishThreads(token, t, fetchImpl, sleep);
-  const st = await loadState(store);
-  const entry: ThreadsLog = { at: now, eventId: `dev:${now}`, kind: "dev", style: "D", text: t, images: 0, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
-  st.log = [...st.log, entry].slice(-40);
-  await store.setKv(THREADS_STATE_KEY, JSON.stringify(st));
+  const res = opts.intro
+    ? await publishThreadsWithImages(token, t, PROMO_IMAGES.map((p) => site + p), fetchImpl, sleep)
+    : { ...(await publishThreads(token, t, fetchImpl, sleep)), images: 0 };
+  const kind: PostKind = opts.intro ? "intro" : "dev";
+  const entry: ThreadsLog = { at: now, eventId: `${opts.intro ? "intro-manual" : "dev"}:${now}`, kind, style: made.style, text: t, images: res.images, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
+  const st2 = await loadState(store);
+  st2.log = [...st2.log, entry].slice(-40);
+  if (entry.ok && opts.intro) st2.nk = { ...(st2.nk ?? {}), intro: (st2.nk?.intro ?? 0) + 1 };
+  await store.setKv(THREADS_STATE_KEY, JSON.stringify(st2));
   return { posted: entry };
 }
 

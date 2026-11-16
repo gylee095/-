@@ -214,6 +214,16 @@ describe("③ 개발 소식 — 사용자가 시킬 때 (11/16)", () => {
     expect(r.posted).toMatchObject({ ok: true, kind: "dev" });
     expect(posts(calls).pop()!.body.get("text")).toBe("오늘 고친 것\n- 알림 화면 글씨를 키웠어요\nkoreasiren.com");
   });
+  it("intro 를 주면 정해 둔 소개 문장 + 예시 화면 2장을 지금 올리고, 다음 자동 소개는 다음 문장", async () => {
+    const store = await withMorning(prox(17, []));
+    const { f, calls } = fakeApi();
+    const r = await postThreadsManual(env, store, "", T0, f, noSleep, { intro: true });
+    expect(r.posted).toMatchObject({ ok: true, kind: "intro", style: "I1", images: 2 });
+    expect(posts(calls).map((c) => c.body.get("media_type"))).toEqual(["IMAGE", "IMAGE", "CAROUSEL"]);
+    const live = { proximity: prox(23, ["m_airspace", "i_pretext"]) };
+    await maybePostThreadsRise(env, store, live, T0 + THREADS_GAP_MS, f, noSleep);
+    expect((await maybePostThreadsRise(env, store, live, T0 + THREADS_GAP_MS + RISE_HOLD_MS, f, noSleep)).posted).toMatchObject({ style: "I2" });
+  });
   it("빈 글·500자 넘는 글·시험 서버·토큰 없음은 올리지 않는다", async () => {
     const store = new MemoryStore();
     const { f, calls } = fakeApi();

@@ -630,9 +630,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   }
   if (url.pathname === "/api/threads/post" && req.method === "POST") {
     // 스레드 ③ 개발 소식: 사용자가 "오늘 수정한 것들 올리자"고 할 때 에이전트가 쓴 글을 올린다 (운영자 비밀값)
-    const body = (await req.json().catch(() => ({}))) as { text?: string };
+    // {"intro": true} 이면 앱 소개 글(정해 둔 문장) + 예시 화면 2장을 지금 올린다
+    const body = (await req.json().catch(() => ({}))) as { text?: string; intro?: boolean };
     const th = await import("../core/threads.js");
-    return json(await th.postThreadsManual(env, store, String(body.text ?? ""), Date.now()));
+    return json(await th.postThreadsManual(env, store, String(body.text ?? ""), Date.now(), fetch, undefined, { intro: body.intro === true }));
   }
   if (url.pathname === "/api/ops/test-alert" && req.method === "POST") {
     // 손님용 알림 길 전체를 운영자가 직접 시험한다. 결제한 손님이 둘 이상이면 실제 손님에게도 가므로 막는다 (force 로만)

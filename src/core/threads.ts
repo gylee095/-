@@ -59,6 +59,8 @@ export interface PostFacts {
   /** 어제 판정과 견준 말 */
   change?: string;
   url: string;
+  /** event = 북한 발사·포격 사건 (기본), search = 네이버 전쟁 불안 검색이 오른 날 */
+  kind?: "event" | "search";
 }
 
 /** 화면과 같은 숫자(오늘의 판정)로 한 줄을 만든다 */
@@ -75,14 +77,15 @@ export function threadsText(style: ThreadsStyle, f: PostFacts): string {
   const what = `${f.headline} [${f.label}]`;
   const v = f.verdict;
   const vc = v ? `${v}${f.change ? ` (${f.change})` : ""}` : undefined;
+  const search = f.kind === "search";
   const lines: (string | undefined | false)[] =
     style === "A"
-      ? [`🚨 ${what}`, "", vc && `지금 한반도 전쟁 위험 판정\n→ ${vc}`, vc && "", "공개 정보를 5분마다 살피고, 전쟁 위험 단계가 실제로 바뀔 때만 알림을 보냅니다.", f.url]
+      ? [`${search ? "📈" : "🚨"} ${what}`, "", vc && `지금 한반도 전쟁 위험 판정\n→ ${vc}`, vc && "", "공개 정보를 5분마다 살피고, 전쟁 위험 단계가 실제로 바뀔 때만 알림을 보냅니다.", f.url]
       : style === "B"
-        ? [what, "", "속보가 뜰 때마다 '이번엔 진짜인가' 싶죠.", v && `지금 판정은 ${v}${f.change ? `, ${f.change}` : ""}입니다.`, "", "도발 하나하나가 아니라, 전쟁 위험 단계가 실제로 바뀔 때만 알려 드립니다.", f.url]
+        ? [what, "", search ? "불안한 마음에 검색해 보신 분이 많았다는 뜻이죠." : "속보가 뜰 때마다 '이번엔 진짜인가' 싶죠.", v && `지금 판정은 ${v}${f.change ? `, ${f.change}` : ""}입니다.`, "", search ? "검색량 하나가 아니라 여러 신호를 함께 봅니다. 전쟁 위험 단계가 실제로 바뀔 때만 알려 드립니다." : "도발 하나하나가 아니라, 전쟁 위험 단계가 실제로 바뀔 때만 알려 드립니다.", f.url]
         : style === "C"
-          ? ["혼자 만들고 있는 한반도 조기경보입니다.", "", `방금: ${what}`, vc && `이 순간 판정: ${vc}`, "", "뉴스·항공기·환율 같은 공개 정보를 5분마다 모아 계산합니다. 예언이 아니라, 평소와 무엇이 다른지 보여 주는 계기판입니다.", f.url]
-          : [`"${f.headline}" — 그래서 지금 얼마나 위험한 걸까요?`, "", v, f.change, v && "", "숫자는 하루 한 번 정하고, 단계가 바뀌면 바로 알림이 갑니다.", f.url];
+          ? ["혼자 만들고 있는 한반도 조기경보입니다.", "", `${search ? "" : "방금: "}${what}`, vc && `${search ? "지금" : "이 순간"} 판정: ${vc}`, "", "뉴스·항공기·환율 같은 공개 정보를 5분마다 모아 계산합니다. 예언이 아니라, 평소와 무엇이 다른지 보여 주는 계기판입니다.", f.url]
+          : [search ? `${f.headline}. 그래서 실제로 얼마나 위험한 걸까요?` : `"${f.headline}" — 그래서 지금 얼마나 위험한 걸까요?`, "", v, f.change, v && "", "숫자는 하루 한 번 정하고, 단계가 바뀌면 바로 알림이 갑니다.", f.url];
   const text = lines.filter((x): x is string => typeof x === "string").join("\n").replace(/\n{3,}/g, "\n\n");
   if (text.length <= THREADS_MAX_CHARS - 20) return text;
   // 너무 길면 사건 한 줄을 줄인다 (주소·판정은 남긴다)
@@ -166,28 +169,10 @@ export interface ThreadsResult {
  * 감시 한 바퀴가 끝난 뒤 부른다. 이번 바퀴에 운영자 알림이 나간 사건 가운데 공개로 올릴 만한 것 하나를 골라 올린다.
  * 올리지 못하면 운영자에게 하루 한 번 알린다 (토큰이 끊긴 채 조용히 멈춰 있지 않게).
  */
-export async function maybePostThreads(
-  env: PushEnv,
-  store: Kv,
-  report: { alerts: { eventId: string; kind: string; sent: boolean }[]; events: CrisisEvent[] },
-  now: number,
-  fetchImpl: typeof fetch = fetch,
-  sleep?: (ms: number) => Promise<void>,
-): Promise<ThreadsResult> {
-  if (env.STAGING) return { skipped: "시험 서버" };
-  const sentIds = new Set(report.alerts.filter((a) => a.sent && (a.kind === "new" || a.kind === "upgrade")).map((a) => a.eventId));
-  if (!sentIds.size) return { skipped: "이번에 나간 사건 알림 없음" };
-  const token = await currentToken(env, store);
-  if (!token) return { skipped: "스레드 토큰 없음" };
-
+/** 한도(하루 최대 수·간격)를 보고 글 하나를 올린다. 사건 글과 검색 글이 같은 한도를 나눠 쓴다 */
+async function postOne(env: PushEnv, store: Kv, token: string, key: string, facts: Omit<PostFacts, "verdict" | "change" | "url">, now: number, fetchImpl: typeof fetch, sleep?: (ms: number) => Promise<void>): Promise<ThreadsResult> {
   const st = await loadState(store);
-  const picks = report.events
-    .filter((e) => sentIds.has(e.id) && !st.posted[e.id])
-    .map((e) => ({ e, p: postable(e) }))
-    .filter((x) => x.p.ok)
-    .sort((a, b) => b.e.severity - a.e.severity);
-  if (!picks.length) return { skipped: "올릴 만한 사건 없음 (훈련·정정·미확인·이미 올림)" };
-
+  if (st.posted[key]) return { skipped: "이미 올림" };
   const today = kstDay(now);
   const okLog = st.log.filter((l) => l.ok);
   const max = Number(env.THREADS_DAILY_MAX ?? THREADS_DAILY_MAX);
@@ -195,21 +180,19 @@ export async function maybePostThreads(
   const last = okLog.length ? okLog[okLog.length - 1].at : 0;
   if (now - last < THREADS_GAP_MS) return { skipped: "직전 글에서 2시간이 안 지남" };
 
-  const { e, p } = picks[0];
   const [offRaw, prevRaw] = await Promise.all([store.getKv(OFFICIAL_KEY), store.getKv(OFFICIAL_PREV_KEY)]);
   const style = STYLES[st.n % STYLES.length];
   const text = threadsText(style, {
-    headline: p.headline,
-    label: p.label,
+    ...facts,
     ...verdictOf(offRaw ? (JSON.parse(offRaw) as Official) : undefined, prevRaw ? (JSON.parse(prevRaw) as Official) : undefined),
     url: env.PUBLIC_URL ?? "https://koreasiren.com",
   });
   const res = await publishThreads(token, text, fetchImpl, sleep);
-  const entry: ThreadsLog = { at: now, eventId: e.id, style, text, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
+  const entry: ThreadsLog = { at: now, eventId: key, style, text, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
 
   st.log = [...st.log, entry].slice(-40);
   if (entry.ok) {
-    st.posted[e.id] = now;
+    st.posted[key] = now;
     st.n++;
     for (const [id, at] of Object.entries(st.posted)) if (now - at > 7 * 86400_000) delete st.posted[id];
   } else if (st.failDay !== today) {
@@ -227,6 +210,69 @@ export async function maybePostThreads(
   }
   await store.setKv(THREADS_STATE_KEY, JSON.stringify(st));
   return { posted: entry };
+}
+
+/**
+ * 감시 한 바퀴가 끝난 뒤 부른다. 이번 바퀴에 운영자 알림이 나간 사건 가운데 공개로 올릴 만한 것 하나를 골라 올린다.
+ * 올리지 못하면 운영자에게 하루 한 번 알린다 (토큰이 끊긴 채 조용히 멈춰 있지 않게).
+ */
+export async function maybePostThreads(
+  env: PushEnv,
+  store: Kv,
+  report: { alerts: { eventId: string; kind: string; sent: boolean }[]; events: CrisisEvent[] },
+  now: number,
+  fetchImpl: typeof fetch = fetch,
+  sleep?: (ms: number) => Promise<void>,
+): Promise<ThreadsResult> {
+  if (env.STAGING) return { skipped: "시험 서버" };
+  const sentIds = new Set(report.alerts.filter((a) => a.sent && (a.kind === "new" || a.kind === "upgrade")).map((a) => a.eventId));
+  if (!sentIds.size) return { skipped: "이번에 나간 사건 알림 없음" };
+  const token = await currentToken(env, store);
+  if (!token) return { skipped: "스레드 토큰 없음" };
+  const st = await loadState(store);
+  const picks = report.events
+    .filter((e) => sentIds.has(e.id) && !st.posted[e.id])
+    .map((e) => ({ e, p: postable(e) }))
+    .filter((x) => x.p.ok)
+    .sort((a, b) => b.e.severity - a.e.severity);
+  if (!picks.length) return { skipped: "올릴 만한 사건 없음 (훈련·정정·미확인·이미 올림)" };
+  const { e, p } = picks[0];
+  return postOne(env, store, token, e.id, { headline: p.headline, label: p.label, kind: "event" }, now, fetchImpl, sleep);
+}
+
+/** 네이버 전쟁 불안 검색이 평소의 이 배(%) 이상이면 글을 올린다 (11/16 사용자: 발사만 기다리면 홍보가 너무 드물다). 징후판의 '높음'(200%)보다 낮게 둔다 */
+export const SEARCH_POST_MIN = 150;
+
+/** 검색 글의 사건 한 줄: "어제 네이버 '전쟁 불안' 검색이 평소의 2.1배" */
+export function searchHeadline(value: number, group?: string): string {
+  const x = value / 100;
+  const times = x >= 10 ? Math.round(x) : +x.toFixed(1);
+  const what = group ? `'${group}'` : "전쟁·대피 관련";
+  return `어제 네이버 ${what} 검색이 평소의 ${times}배`;
+}
+
+/**
+ * 하루 한 번(네이버 검색량을 받는 11:41 크론) 부른다. 어제 검색이 평소의 1.5배를 넘었으면 그날 한 번 올린다.
+ * 사건 글과 같은 하루 한도·간격을 나눠 쓴다.
+ */
+export async function maybePostThreadsSearch(
+  env: PushEnv,
+  store: Kv,
+  readings: { indicator: string; value: number; state: string; meta?: Record<string, unknown> }[],
+  now: number,
+  fetchImpl: typeof fetch = fetch,
+  sleep?: (ms: number) => Promise<void>,
+): Promise<ThreadsResult> {
+  if (env.STAGING) return { skipped: "시험 서버" };
+  const r = readings.find((x) => x.indicator === "psych.naver_war_search");
+  if (!r || r.state === "unavailable") return { skipped: "네이버 검색량 없음" };
+  const min = Number(env.THREADS_SEARCH_MIN ?? SEARCH_POST_MIN);
+  if (!(r.value >= min)) return { skipped: `검색량 평소의 ${r.value}% (문턱 ${min}%)` };
+  const token = await currentToken(env, store);
+  if (!token) return { skipped: "스레드 토큰 없음" };
+  const meta = r.meta as { dataDate?: string; worstGroup?: string } | undefined;
+  const key = `search:${meta?.dataDate ?? kstDay(now)}`;
+  return postOne(env, store, token, key, { headline: searchHeadline(r.value, meta?.worstGroup), label: "네이버 데이터랩", kind: "search" }, now, fetchImpl, sleep);
 }
 
 /** 운영자가 보는 상태 — 토큰은 내보내지 않는다 */

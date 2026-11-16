@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { correlate } from "../src/core/correlate.js";
 import { MemoryStore } from "../src/core/store.js";
 import { OFFICIAL_KEY, OFFICIAL_PREV_KEY } from "../src/core/official.js";
-import { STYLES, THREADS_GAP_MS, THREADS_MAX_CHARS, THREADS_STATE_KEY, THREADS_TOKEN_KEY, maybePostThreads, postable, refreshThreadsToken, threadsText, verdictOf, type ThreadsState } from "../src/core/threads.js";
+import { STYLES, THREADS_GAP_MS, THREADS_MAX_CHARS, THREADS_STATE_KEY, THREADS_TOKEN_KEY, maybePostThreads, maybePostThreadsSearch, searchHeadline, postable, refreshThreadsToken, threadsText, verdictOf, type ThreadsState } from "../src/core/threads.js";
 import type { CrisisEvent, Signal } from "../src/core/types.js";
 
 const T0 = Date.UTC(2026, 10, 12, 3, 0);
@@ -144,5 +144,53 @@ describe("토큰 새로 받기", () => {
     expect(calls[calls.length - 1].body.get("access_token")).toBe("TOK2");
     expect(JSON.parse((await store.getKv(THREADS_TOKEN_KEY))!).token).toBe("NEW");
     expect(await refreshThreadsToken({ ...env, STAGING: "1" }, store, T0 + 30 * 86400_000, f)).toBe("skipped");
+  });
+});
+
+describe("네이버 검색이 오른 날 (11/16)", () => {
+  const nv = (value: number, dataDate = "2026-11-15", worstGroup = "전쟁 불안") => [{ indicator: "psych.naver_war_search", value, state: value >= 200 ? "elevated" : "normal", meta: { dataDate, worstGroup } }];
+  it("평소의 1.5배 이상이면 그날 한 번 올리고, 미만이면 올리지 않는다", async () => {
+    const store = new MemoryStore();
+    await store.setKv(OFFICIAL_KEY, JSON.stringify(off(2, "긴장", 3.8)));
+    const { f, calls } = fakeApi();
+    expect((await maybePostThreadsSearch(env, store, nv(149), T0, f, noSleep)).skipped).toMatch(/문턱 150%/);
+    expect(calls).toHaveLength(0);
+    const r = await maybePostThreadsSearch(env, store, nv(206), T0, f, noSleep);
+    expect(r.posted).toMatchObject({ ok: true, eventId: "search:2026-11-15" });
+    expect(r.posted!.text).toContain("어제 네이버 '전쟁 불안' 검색이 평소의 2.1배");
+    expect(r.posted!.text).toContain("📈");
+    expect(r.posted!.text).not.toContain("🚨");
+    expect(r.posted!.text).toContain("2단계(긴장)");
+    // 같은 날 자료로 다시 부르면 올리지 않는다
+    expect((await maybePostThreadsSearch(env, store, nv(206), T0 + 5 * 3600_000, f, noSleep)).skipped).toMatch(/이미 올림/);
+  });
+  it("사건 글과 같은 하루 한도·간격을 나눠 쓴다", async () => {
+    const store = new MemoryStore();
+    const { f } = fakeApi();
+    await maybePostThreads(env, store, report(launch()), T0, f, noSleep);
+    expect((await maybePostThreadsSearch(env, store, nv(300), T0 + 3600_000, f, noSleep)).skipped).toMatch(/2시간/);
+    expect((await maybePostThreadsSearch(env, store, nv(300), T0 + THREADS_GAP_MS + 1, f, noSleep)).posted?.ok).toBe(true);
+  });
+  it("문턱은 THREADS_SEARCH_MIN 으로 바꾼다, 시험 서버·토큰 없음·자료 없음은 건너뛴다", async () => {
+    const store = new MemoryStore();
+    const { f, calls } = fakeApi();
+    expect((await maybePostThreadsSearch({ ...env, THREADS_SEARCH_MIN: "300" }, store, nv(250), T0, f)).skipped).toMatch(/문턱 300%/);
+    expect((await maybePostThreadsSearch({ ...env, STAGING: "1" }, store, nv(500), T0, f)).skipped).toMatch(/시험 서버/);
+    expect((await maybePostThreadsSearch({ PUBLIC_URL: "x" } as any, store, nv(500), T0, f)).skipped).toMatch(/토큰 없음/);
+    expect((await maybePostThreadsSearch(env, store, [], T0, f)).skipped).toMatch(/검색량 없음/);
+    expect(calls).toHaveLength(0);
+  });
+  it("배율 표기", () => {
+    expect(searchHeadline(541, "대피")).toBe("어제 네이버 '대피' 검색이 평소의 5.4배");
+    expect(searchHeadline(150)).toBe("어제 네이버 전쟁·대피 관련 검색이 평소의 1.5배");
+    expect(searchHeadline(1234, "생존 준비")).toBe("어제 네이버 '생존 준비' 검색이 평소의 12배");
+  });
+  it("검색 글 네 틀 모두 500자 안, 후기·장담 문구 없음", () => {
+    for (const s of STYLES) {
+      const t = threadsText(s, { headline: searchHeadline(206, "전쟁 불안"), label: "네이버 데이터랩", kind: "search", ...verdictOf(off(2, "긴장", 3.8)), url: "https://koreasiren.com" });
+      expect(t.length).toBeLessThanOrEqual(THREADS_MAX_CHARS);
+      expect(t).toContain("https://koreasiren.com");
+      expect(t).not.toMatch(/undefined|써\s*봤|대박|안전합니다|방금|속보가 뜰/);
+    }
   });
 });

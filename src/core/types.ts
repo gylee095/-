@@ -190,4 +190,6 @@ export interface Env {
   THREADS_ACCESS_TOKEN?: string;
   /** 하루 최대 스레드 글 수 (기본 3) */
   THREADS_DAILY_MAX?: string;
+  /** 네이버 전쟁 불안 검색이 평소의 몇 %를 넘으면 스레드 글을 올리나 (기본 150) */
+  THREADS_SEARCH_MIN?: string;
 }

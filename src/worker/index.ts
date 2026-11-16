@@ -191,7 +191,11 @@ export default {
       if (env.THREADS_ACCESS_TOKEN) {
         const th = await import("../core/threads.js");
         if (report.alerts.some((x) => x.sent)) await th.maybePostThreads(env, store, report, report.at).catch(() => undefined);
-        if (ctrl.cron === "41 2 * * *") await th.refreshThreadsToken(env, store, report.at).catch(() => undefined);
+        if (ctrl.cron === "41 2 * * *") {
+          await th.refreshThreadsToken(env, store, report.at).catch(() => undefined);
+          // 네이버 전쟁 불안 검색이 평소의 1.5배를 넘은 날에도 한 번 올린다 (11/16 사용자: 발사만 기다리면 홍보가 너무 드물다)
+          await th.maybePostThreadsSearch(env, store, report.readings, report.at).catch(() => undefined);
+        }
       }
       const usage = await finishUsage(store, env, ctrl.scheduledTime);
       // 5분마다: 자동 판정을 기록하고(영구 보관), 특이한 날이면 Claude Code 심층 분석을 깨운다 (저장소 한도에 여유가 있을 때만)

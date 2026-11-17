@@ -7,6 +7,7 @@ import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { activeSources } from "./sources.js";
+import { NEWS_ADDED_KEY, NEWS_JUDGED_KEY, addedAsEvents, applyJudgment, loadAdded, loadJudgments } from "./newsjudge.js";
 import { EPISODES_KEY, episodesBy, parseEpisodes, type Episode } from "./episodes.js";
 import { SIGNAL_NOTES_KEY, liveNotes, type SignalNote } from "./signalnotes.js";
 import { briefEvent, isSensorGlitch, mergeFollowUps, currentThreat } from "./brief.js";
@@ -80,11 +81,14 @@ export async function buildState(store: Store, since: number, disabledSources = 
     for (const e of missing) e.evidence = e.signalIds.map((id) => byId.get(id)).filter((x): x is Signal => !!x).slice(-60);
     await store.putEvents(missing).catch(() => {});
   }
-  const enriched = events
+  // 분석관이 직접 올린 사건을 같은 목록에 넣는다 (수집 규칙·그물에 안 걸린 뉴스)
+  const addedNews = addedAsEvents(loadAdded(await store.getKv(NEWS_ADDED_KEY).catch(() => null), now).filter((a) => a.at >= since));
+  const judged = { ...loadJudgments(await store.getKv(NEWS_JUDGED_KEY).catch(() => null), now), ...addedNews.judged };
+  const enriched = [...events, ...addedNews.events]
     .filter((e) => !isSensorGlitch(e))
     .map(({ evidence, ...e }) => {
       const sigs = evidence ?? [];
-      return { ...e, signals: sigs, brief: briefEvent(e, sigs) };
+      return { ...e, signals: sigs, brief: applyJudgment(briefEvent(e, sigs), e.categories, judged[e.id]) };
     })
     .sort((a, b) => b.brief.at - a.brief.at);
   const hourly: HourlyAgg = hourlyRaw ? JSON.parse(hourlyRaw) : {};

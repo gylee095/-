@@ -23,6 +23,7 @@ export const BASE_SEVERITY: Record<Category, number> = {
   gps_interference: 40,
   aviation_emergency: 35,
   air_incursion: 45,
+  security_news: 25,
   civil_alert_other: 30,
   evacuation: 90,
   posture: 88,
@@ -150,6 +151,21 @@ export function isKoreaRelevant(text: string): boolean {
 // 제목에 '발사'가 없어 발사로 세지 않았다. 근거와 사례: docs/INDICATORS.md 0.10
 
 /** 공식 기관 발표를 인용한 제목 (예: "[속보] 합참 …", "日방위성 …", "…: JCS", "… ROK military") */
+/**
+ * 넓은 그물 (2026-11-17 사용자: "종류를 매번 만들 수 없다 — 내가 매번 새 종류를 알려 줄 수 없으니 알아서 파악해라").
+ * 정해 둔 종류(미사일·포격·KADIZ …)에 안 걸려도, 제목에 ① 군·안보의 주체 ② 움직임을 뜻하는 말 ③ 한반도와 그 주변이 함께 있으면 '군사·안보 소식'으로 일단 받아 둔다.
+ * 무엇이 중요한지는 규칙이 아니라 AI 분석관이 읽고 판단한다(record_news_judgments). 그래서 그물은 넓게, 빼는 것은 명백한 잡음(연예·스포츠·행사·인사)만.
+ */
+const SEC_ACTOR_RE = /합참|합동참모|국방부|군\s?당국|공군|해군|육군|해병대?|해경|해양경찰|주한미군|미군|美軍|중국군|中軍|러시아군|자위대|군용기|전투기|폭격기|정찰기|조기경보기|초계기|군함|함정|구축함|잠수함|항모|항공모함|무인기|드론|경비정|어선|상선|유조선|해저\s?케이블|군사위성|정찰위성/;
+const SEC_ACTION_RE = /진입|침범|월선|이탈|출격|긴급\s?발진|격추|요격|나포|억류|피격|피습|충돌|교전|사격|발포|대치|추락|침몰|봉쇄|차단|절단|도발|위협|전개|증파|증원|배치|철수|감축|비상|통과|추적|접근|근접|포착|감시|순찰|항행|비행|경계\s?태세|훈련\s?(중단|연장|돌입)|실종|표류|송환|탈북|귀순|망명/;
+const SEC_AREA_RE = /KADIZ|카디즈|동해|서해|남해|독도|이어도|울릉|제주\s?(해역|남방|인근)|한국|우리\s?(군|영공|영해|해역|측)|한미|한중|한러|한일|주한|대한해협|황해|Sea of Japan|East Sea|Yellow Sea|South Korea|ROK/i;
+const SEC_NOISE_RE = /드라마|영화|예능|게임|웹툰|야구|축구|농구|골프|올림픽|e스포츠|입대|전역|병역|채용|모집|기념식|추모|위문|봉사|시상|수상|전시회|박람회|축제|여행|맛집|인사\]|부고|동정|\d{2,4}년\s?전|회고|다큐/;
+export function securityNews(title: string): { official: boolean } | null {
+  if (!SEC_ACTOR_RE.test(title) || !SEC_ACTION_RE.test(title)) return null;
+  if (!(SEC_AREA_RE.test(title) || isKoreaContext(title)) || SEC_NOISE_RE.test(title)) return null;
+  return { official: OFFICIAL_QUOTE_RE.test(title) };
+}
+
 export const OFFICIAL_QUOTE_RE =
   /합참|합동참모본부|국방부|日\s*방위성|일본\s*방위성|방위성|대통령실|행안부|\bJCS\b|Joint Chiefs|Defense Ministry|Ministry of Defense|ROK military|South Korean military|:\s*(Seoul|Tokyo|JCS)\s*$/i;
 

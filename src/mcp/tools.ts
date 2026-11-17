@@ -30,6 +30,58 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
   const { env, store } = ctx;
 
   server.registerTool(
+    "record_news_judgments",
+    {
+      title: "군사·안보 소식의 중요도 판단 (분석관)",
+      description:
+        "get_situation 의 newsToJudge(정해 둔 종류에 없어 규칙이 중요도를 못 정한 군사·안보 소식)를 하나씩 읽고 판단을 남긴다. 화면의 그 사건이 이 수준과 이유로 보인다. " +
+        "한 줄에 하나: '사건id=수준:이유'. 수준은 0(한반도 안보와 무관·중요하지 않음) · 1(참고) · 2(주의 — 사용자가 알아야 할 군사·안보 사건: 주변국 군용기·함정의 진입, 군 사고, 이례적 전개 등) · 3(경계 — 무력 사용·영공·영해 침범·사상자). " +
+        "이유는 쉬운 말 한 문장으로: 무슨 일이고 왜 그 수준인지(얼마나 흔한 일인지 포함). 예: 'evt_ab12=2:러시아 군용기 여러 대가 동해 KADIZ에 들어왔다 나감 — 한 해 열 번쯤 있는 일이고 영공 침범은 없었음'. " +
+        "제목만으로 판단이 어려우면 기사(urls)나 search_news 로 확인한 뒤 적는다. 4·5(심각·위급)는 줄 수 없다. 단계·% 는 바뀌지 않는다.",
+      inputSchema: { judgments: z.string().min(5).max(6000).describe("줄마다 '사건id=0~3:이유'") },
+    },
+    async ({ judgments }) => {
+      try {
+        const { parseJudgments, mergeJudgments, NEWS_JUDGED_KEY } = await import("../core/newsjudge.js");
+        const now = Date.now();
+        const events = await store.getEvents(now - 14 * 86400_000);
+        const add = parseJudgments(judgments, events.filter((e) => e.categories.length === 1 && e.categories[0] === "security_news").map((e) => e.id), now);
+        if (!Object.keys(add).length) return fail(new Error("저장할 줄이 없다 — '사건id=수준:이유' 형식인지, id 가 newsToJudge 의 id 인지 확인"));
+        const prev = await store.getKv(NEWS_JUDGED_KEY);
+        await store.setKv(NEWS_JUDGED_KEY, JSON.stringify(mergeJudgments(prev ? JSON.parse(prev) : undefined, add, now)));
+        return out({ saved: Object.entries(add).map(([id, j]) => `${id}=${j.level}`) });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
+    "add_news_event",
+    {
+      title: "놓친 뉴스를 사건으로 올리기 (분석관)",
+      description:
+        "수집 규칙에도 넓은 그물(newsToJudge)에도 안 걸렸지만 사용자가 알아야 할 군사·안보 뉴스를 직접 사건으로 올린다. 화면의 사건 목록과 '최근 있었던 일'에 다른 사건과 똑같이 보인다(7일). " +
+        "한 줄에 하나: '수준 | 제목 | 이유 | https://기사주소'. 수준은 1(참고) · 2(주의) · 3(경계 — 무력 사용·영공·영해 침범·사상자). 제목은 기사 제목 그대로, 이유는 쉬운 말 한 문장(무슨 일이고 얼마나 흔한 일인지). " +
+        "예: '2 | 중국 해경선, 이어도 인근서 한국 조사선 접근 차단 | 서해 잠정조치수역의 마찰 — 올해 세 번째 | https://www.yna.co.kr/view/…'. 기사 주소가 있는 실제 보도만 올린다(추측·전망은 올리지 않는다). 4·5는 줄 수 없고 단계·%·손님 알림은 바뀌지 않는다.",
+      inputSchema: { items: z.string().min(10).max(6000).describe("줄마다 '수준 | 제목 | 이유 | https://주소'") },
+    },
+    async ({ items }) => {
+      try {
+        const { parseAdded, mergeAdded, NEWS_ADDED_KEY } = await import("../core/newsjudge.js");
+        const now = Date.now();
+        const add = parseAdded(items, now).filter((a) => !!a.url);
+        if (!add.length) return fail(new Error("저장할 줄이 없다 — '수준 | 제목 | 이유 | https://주소' 형식인지, 기사 주소가 있는지 확인"));
+        const prev = await store.getKv(NEWS_ADDED_KEY);
+        await store.setKv(NEWS_ADDED_KEY, JSON.stringify(mergeAdded(prev ? JSON.parse(prev) : undefined, add, now)));
+        return out({ saved: add.map((a) => `${a.level} ${a.title.slice(0, 40)}`) });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
     "get_situation",
     {
       title: "현재 상황판",
@@ -62,6 +114,8 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
             " if e.get('type')!='assistant' or 'usage' not in m or m.get('id') in s:continue\n s.add(m.get('id'));x=m['usage']\n" +
             " for k,v in (('input_tokens','input_tokens'),('output_tokens','output_tokens'),('cache_read_tokens','cache_read_input_tokens'),('cache_write_tokens','cache_creation_input_tokens')):u[k]=u.get(k,0)+x.get(v,0)\n" +
             "print(json.dumps(u),os.path.basename(f))\" 로 자기 대화 기록을 합산해 record_usage(kind=scheduled, usage, session_id=파일 이름)로 남긴다. 누적값이어도 서버가 증가분만 더한다.",
+          // 넓은 그물로 받은 군사·안보 소식 가운데 아직 판단하지 않은 것 — 분석관이 하나씩 읽고 record_news_judgments 로 중요도를 남긴다
+          newsToJudge: st.events.filter((e) => (e.brief as { pending?: boolean }).pending).slice(0, 20).map((e) => ({ id: e.id, title: e.title, at: fmtKst(e.brief.at), official: e.severity >= 40, urls: e.signals.map((x) => x.url).filter(Boolean).slice(0, 2) })),
           threat: st.threat,
           interpretation: { headline: st.interpretation.headline, narrative: st.interpretation.narrative, hints: st.interpretation.hints.map((h) => ({ kind: h.kind, title: h.title, reasoning: h.reasoning, counter: h.counter, check: h.check })), context: st.interpretation.context },
           posture: st.posture,

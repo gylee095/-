@@ -1,6 +1,6 @@
 // 언론(GDELT, RSS) — 알림 트리거가 아니라 교차검증과 '뉴스 대비 리드타임' 측정용
 import type { CollectResult, Metric, Signal } from "../types.js";
-import { BASE_SEVERITY, OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind, worldEvent } from "../classify.js";
+import { BASE_SEVERITY, OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind, securityNews, worldEvent } from "../classify.js";
 import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 
 const GDELT_QUERY =
@@ -146,9 +146,14 @@ function mediaSignal(source: string, url: string, title: string, published: numb
   if (worldEvent(title))
     return [{ id: `${source}:${hash(url || title)}`, source, sourceKind: "media", category: "world_event", title: title.slice(0, 120), summary: `${domain ?? outletOf(url, source)} · 세계 정세`, url, eventTime: undefined, publishedTime: published, detectedTime: now, severity: BASE_SEVERITY.world_event }];
   const cls = classifyText(title);
-  if (!cls || cls.category === "civil_alert_other") return [];
+  if (!cls || cls.category === "civil_alert_other") {
+    // 정해 둔 종류에 없는 군사·안보 소식: 버리지 않고 받아 둔다 — 중요한지는 AI 분석관이 판단한다 (11/17). 군 당국 발표를 인용한 것은 조금 더 무겁게
+    const sec = securityNews(title);
+    if (!sec) return [];
+    return [{ id: `${source}:${hash(url || title)}`, source, sourceKind: "media", category: "security_news", title: title.slice(0, 120), summary: `${domain ?? outletOf(url, source)}${sec.official ? " · 공식발표 인용" : ""} · 분류 전`, url, eventTime: undefined, publishedTime: published, detectedTime: now, severity: sec.official ? 40 : BASE_SEVERITY.security_news }];
+  }
   // 철수·후송·경보 단어는 분류기가 한국 맥락을 이미 확인했다 (제목에 '북한'이 없어도 된다)
-  if (cls.category !== "evacuation" && cls.category !== "posture" && !isKoreaRelevant(title)) return [];
+  if (cls.category !== "evacuation" && cls.category !== "posture" && cls.category !== "air_incursion" && !isKoreaRelevant(title)) return []; // KADIZ 규칙은 한국 것임을 이미 확인한다
   // 경보 단어 중 군·정부의 태세 변화는 그 자체가 공식 조치다 (돈·사람이 빠지는 행동은 기업 발표라 언론 단독으로 둔다)
   const officialPosture = cls.category === "posture" && !/airlines_suspend|war_insurance|firms_evacuate/.test(cls.tripwire ?? "");
   // 지난 발사를 두고 하는 후속·해설·반응 기사(합참 "北발사체 모두 공지하진 않아…")는 합참을 인용해도 '공식 발사 발표'가 아니다 —

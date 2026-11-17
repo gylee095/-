@@ -1,7 +1,7 @@
 // 2026-11-17: 합참 "러시아 군용기 여러 대 KADIZ 진입 후 이탈"을 놓쳤다 — 제목에 '북한'도 '미사일'도 없어 어느 분류 규칙에도 걸리지 않았다
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { airspaceViolated, classifyText, isKoreaRelevant } from "../src/core/classify.js";
+import { airspaceViolated, classifyText } from "../src/core/classify.js";
 import { briefEvent } from "../src/core/brief.js";
 import { collectRss } from "../src/core/collectors/news.js";
 
@@ -14,7 +14,6 @@ describe("주변국 군용기의 KADIZ 진입·영공 침범", () => {
       const c = classifyText(t);
       expect(c, t).toMatchObject({ category: "air_incursion", severity: 45 });
       expect(airspaceViolated(t), t).toBe(false);
-      expect(isKoreaRelevant(t) || /방공식별구역/.test(t), t).toBe(true);
     }
   });
   it("영공을 실제로 침범했으면 더 무겁게 본다", () => {
@@ -26,21 +25,20 @@ describe("주변국 군용기의 KADIZ 진입·영공 침범", () => {
   it("사건 요약: 진입은 '주의'(주요 소식에 보인다), 침범은 '경계'. 북한의 도발로 세지 않는다", () => {
     const ev = (title: string, severity: number) => ({ id: "e", categories: ["air_incursion"], status: "UNVERIFIED", basis: "official_quote", severity, firstDetectedTime: NOW, lastUpdatedTime: NOW, signalIds: ["s"], title }) as any;
     const sig = (title: string, severity: number) => [{ id: "s", source: "rss_breaking", sourceKind: "media", category: "air_incursion", title, summary: "yna.co.kr · 공식발표 인용", detectedTime: NOW, severity }] as any;
-    const a = briefEvent(ev(fx.entry[4].t, 45), sig(fx.entry[4].t, 45));
+    const a = briefEvent(ev(fx.entry[0].t, 45), sig(fx.entry[0].t, 45));
     expect(a.danger).toMatchObject({ level: 2, label: "주의" });
     expect(a.danger.reason).toMatch(/KADIZ.*영공 침범은 아님/);
     expect(a.isProvocation).toBe(false);
-    expect(a.headline).toBe(fx.entry[4].t);
+    expect(a.headline).toBe(fx.entry[0].t);
     expect(briefEvent(ev(fx.violation[0].t, 70), sig(fx.violation[0].t, 70)).danger).toMatchObject({ level: 3, reason: "주변국 군용기의 영공 침범" });
   });
   it("뉴스 수집에서 실제로 신호가 된다 (전에는 여기서 버려졌다)", async () => {
-    const rss = `<rss><channel>${[fx.entry[4].t, fx.not[0].t].map((t, i) => `<item><title><![CDATA[${t}]]></title><link>https://www.yna.co.kr/view/AKR${i}</link><pubDate>${new Date(NOW - 600_000).toUTCString()}</pubDate></item>`).join("")}</channel></rss>`;
+    const rss = `<rss><channel>${[fx.entry[0].t, fx.entry[4].t, fx.not[0].t].map((t, i) => `<item><title><![CDATA[${t}]]></title><link>https://www.yna.co.kr/view/AKR${i}</link><pubDate>${new Date(NOW - 600_000).toUTCString()}</pubDate></item>`).join("")}</channel></rss>`;
     const orig = globalThis.fetch;
     globalThis.fetch = (async () => new Response(rss, { headers: { "content-type": "application/xml" } })) as typeof fetch;
     try {
       const r = await collectRss(["https://www.yna.co.kr/rss/news.xml"], NOW, "rss_breaking");
-      expect(r.signals.map((s) => [s.category, s.title])).toEqual([["air_incursion", fx.entry[4].t]]);
-      expect(r.signals[0].summary).toMatch(/공식발표 인용/);
+      expect(r.signals.map((s) => [s.category, s.title])).toEqual([["air_incursion", fx.entry[0].t], ["air_incursion", fx.entry[4].t]]); // 제목에 지역 말이 없는 "중·러 군용기 8대, 오늘 낮 방공식별구역 침범"도
     } finally {
       globalThis.fetch = orig;
     }

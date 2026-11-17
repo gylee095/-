@@ -193,12 +193,41 @@ export interface ProximityView extends Proximity {
   /** 분석관만 볼 수 있는데 아직 확인이 없는 가설 수 */
   waiting: number;
   /** 채점표 결과 — 화면의 점수·층·항목은 모두 여기서 나온다 */
+  /** 최근 2주 사이 새로 켜진 징조·조용한 움직임 (11/18) — 전쟁 직전은 '많이 켜진 상태'보다 '꺼져 있던 것이 며칠 사이 연달아 켜지는 것'이다 */
+  fresh?: Fresh;
   rubric: RubricScore;
   /** 과거 기록: 징조 수 구간별 사례 수와 그중 전쟁으로 간 수 */
   record: typeof PRECURSOR_DATA.record;
   score: typeof PRECURSOR_DATA.score;
   cases: typeof PRECURSOR_DATA.table.cases;
   text: string;
+}
+
+export const FRESH_DAYS = 14;
+export interface Fresh { days: number; n: number; items: { id: string; ko: string; since: string }[]; /** 견줄 기록이 며칠 치 있나 (적으면 '새로'를 말하기 이르다) */ known: number }
+/**
+ * 지금 켜져 있는 징조·조용한 움직임 가운데, 2주 전에는 꺼져 있던 것. 하루 한 줄 기록(가설 33개의 그날 상태)에서 센다.
+ * 기록이 없는 항목(어선·발사 준비·북한이 어두워짐)과 2주 치 기록에 '못 봄'뿐인 항목은 세지 않는다 — 새로 켜진 것인지 알 수 없다.
+ */
+export function freshOf(r: RubricScore, days: ProxDay[], now: number): Fresh {
+  const from = dayAgo(now, FRESH_DAYS), today = kstDay(now);
+  const win = days.filter((x) => x.d >= from && x.d < today).sort((a, b) => a.d.localeCompare(b.d));
+  const items: Fresh["items"] = [];
+  for (const l of r.layers) {
+    if (l.id !== "signs" && l.id !== "moves") continue;
+    for (const g of l.groups) for (const it of g.items) {
+      if (it.got <= 0) continue;
+      const k = HYP_IDS.indexOf(it.id);
+      if (k < 0) continue;
+      const seq = win.map((x) => ({ d: x.d, c: x.s[k] ?? "?" })).filter((x) => x.c !== "?");
+      // 창의 처음에 꺼져 있었어야 '새로 켜진 것'이다. 켜진 날은 꺼짐이 마지막으로 보인 다음 날
+      if (!seq.length || seq[0].c !== "0") continue;
+      const lastOff = [...seq].reverse().find((x) => x.c === "0")!.d;
+      const since = seq.find((x) => x.d > lastOff && x.c !== "0")?.d ?? today;
+      items.push({ id: it.id, ko: it.ko.split(" (")[0], since });
+    }
+  }
+  return { days: FRESH_DAYS, n: items.length, items: items.sort((a, b) => b.since.localeCompare(a.since)), known: win.length };
 }
 
 /** 지금 징조 수가 속한 과거 기록 구간 */
@@ -220,9 +249,10 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const today = kstDay(now);
   const series = [...days.filter((x) => x.d !== today).map((x) => ({ d: x.d, i: x.i, c: x.c })), { d: today, i: p.index, c: p.clashPct }].slice(-120);
   const d1 = diff(1);
+  const fresh = freshOf(r, days, now);
   const rec = recordFor(r.signs);
   const text =
-    `긴장 ${r.index}% (지켜보는 ${TOTAL_ITEMS}개 중 ${r.signs + r.moves + r.context}개 켜짐 — %는 고정 기준 ${PCT_BASE}개 대비: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/18 · 배경 ${r.context}/16). ${r.reason}.` +
+    `긴장 ${r.index}% (지켜보는 ${TOTAL_ITEMS}개 중 ${r.signs + r.moves + r.context}개 켜짐 — %는 고정 기준 ${PCT_BASE}개 대비: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/19 · 배경 ${r.context}/16). ${r.reason}.` +
     (rec ? ` 과거 기록: 징조가 ${rec.label} 켜졌던 ${rec.cases}건 중 ${rec.wars}건이 전쟁으로 갔다${rec.surprise ? ` — 그 ${rec.surprise}건은 공개 징조 없이 온 기습` : ""} (조사한 사례 안에서 — 확률이 아니다).` : "") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 징조가 ${d1 > 0 ? "늘었어요" : "줄었어요"}.`);
   return {
@@ -233,6 +263,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
     learnedDays: days.length,
     checkedAt: checks && now - checks.at < CHECK_TTL ? checks.at : undefined,
     waiting: r.waiting,
+    fresh,
     rubric: r,
     record: PRECURSOR_DATA.record,
     score: PRECURSOR_DATA.score,
@@ -350,6 +381,7 @@ export const ANALYST_GUIDE: Record<string, string> = {
   i_pretext: "'도발·학살' 주장, 자작극 의혹, '우리 국민 보호' 서사가 평소보다 격해짐",
   i_state_mobilization: "북한 관영매체의 전시 동원 서사 (입대 탄원 군중대회, 준전시 선포 보도)",
   t_deadline: "공개된 시한·날짜 조건의 만료가 임박",
+  m_cyber: "정부 핵심 전산망과 주요 은행이 동시에 마비되거나 데이터 삭제(와이퍼) 공격을 받았나 — 일상적인 해킹 시도·개별 기관 침해는 아니다 (자동은 국가 사이버위기 경보 격상만 본다)",
   w_infra: "(세계·사건) 미국·동맹국 기반시설의 전국 규모 마비·공격 — 원인보다 '아직 이어지는가'를 본다: 마비·혼란이 지금도 이어지면 유지(국가 배후 공격으로 확인 1 · 원인 불명이거나 사고지만 아직 정상화 안 됨 0.5), 정상화돼 끝났으면 0 (0 이면 내려간다). 매번 다시 확인한다",
   w_new_war: "(세계·사건) 새 전쟁·대규모 공격 — 지금도 교전이 이어지면 1, 충돌 직전 대치·제한 교전이면 0.5, 가라앉았으면 0",
   w_power_clash: "(세계·사건) 강대국끼리 직접 부딪쳤나 — 격추, 함정 충돌, 교전 (7일 유효)",

@@ -373,3 +373,15 @@ describe("③ 큰 사건 알림이 실제로 나가는 길 (11/17)", () => {
     expect((await notifyCustomerEvent(store, {} as any, cur, { events: [{ ...e, id: "e2" }], alerts: [{ eventId: "e2", kind: "new", sent: true }] }, NOW + 24 * H, (async () => new Response("")) as any)).sent).toBeUndefined();
   });
 });
+
+describe("빠르게 연달아 켜지면 알린다 (11/18)", () => {
+  it("지금 켜진 수가 3개에 못 미쳐도, 2주 사이 꺼져 있던 신호 3개가 새로 켜졌으면 '실제 징조가 나타남' 알림", () => {
+    const prox = (fresh: number) => ({ index: 21, vs: { days: 9 }, rubric: { signs: 1.5, moves: 1.5, context: 6, surprise: false }, fresh: { days: 14, n: fresh, known: 9, items: [{ id: "a", ko: "협상 결렬", since: "2026-11-01" }, { id: "b", ko: "혈액 전방 이동", since: "2026-11-02" }, { id: "c", ko: "항공사 운항 중단", since: "2026-11-03" }].slice(0, fresh) } }) as any;
+    expect(realSigns({ ...w(2), proximity: prox(2) })).toBe(false);
+    expect(realSigns({ ...w(2), proximity: prox(3) })).toBe(true);
+    let r = decidePhaseAlert({ phase: 2, at: NOW }, { ...w(2), proximity: prox(3) }, NOW);
+    r = decidePhaseAlert(r.state, { ...w(2), proximity: prox(3) }, NOW + 5 * MIN);
+    expect(r.message?.title).toMatch(/실제 징조가 나타남/);
+    expect(r.message?.body).toMatch(/최근 2주 사이 꺼져 있던 신호 3개가 새로 켜졌어요: 협상 결렬, 혈액 전방 이동, 항공사 운항 중단\./);
+  });
+});

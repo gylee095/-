@@ -164,15 +164,15 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
   it("단계는 켜진 비율(%)의 구간: 10%부터 긴장 · 25%부터 위기 · 50%부터 임박", () => {
     expect(PCT_AT).toEqual({ 2: 10, 3: 25, 4: 50 });
     const some = (n: number) => on(...ALL_IDS.filter((i) => !RUBRIC.find((l) => l.id === "other")!.groups[0].items.some((x) => x.id === i)).slice(0, n));
-    expect(TOTAL_ITEMS).toBe(43);
+    expect(TOTAL_ITEMS).toBe(44); // 11/18 사이버 공격을 참고 신호에서 조용한 움직임으로 올림 — 기준(39)은 그대로라 %는 안 바뀐다
     expect(PCT_BASE).toBe(39); // 고정 — 항목을 늘려도 %가 바뀌지 않게 (11/14 사용자). 이 숫자를 바꾸면 같은 상황의 %가 달라진다
     expect(scoreRubric(some(3))).toMatchObject({ index: 8, phase: 1 });
     expect(scoreRubric(some(4))).toMatchObject({ index: 10, phase: 2 });
     expect(scoreRubric(some(9))).toMatchObject({ index: 23, phase: 2 });
     expect(scoreRubric(some(10))).toMatchObject({ index: 26, phase: 3 });
     expect(scoreRubric(some(20))).toMatchObject({ index: 51, phase: 4 });
-    expect(scoreRubric(some(43))).toMatchObject({ index: 100, phase: 4 }); // 100을 넘지 않는다
-    for (let n = 0; n <= 43; n++) { const r = scoreRubric(some(n)); expect(r.phase).toBe(r.index >= 50 ? 4 : r.index >= 25 ? 3 : r.index >= 10 ? 2 : 1); }
+    expect(scoreRubric(some(44))).toMatchObject({ index: 100, phase: 4 }); // 100을 넘지 않는다
+    for (let n = 0; n <= 44; n++) { const r = scoreRubric(some(n)); expect(r.phase).toBe(r.index >= 50 ? 4 : r.index >= 25 ? 3 : r.index >= 10 ? 2 : 1); }
   });
   it("약함·미확인은 반 개, 못 본 것은 세지 않고 '확인 대기'", () => {
     const r = scoreRubric({ ...all("off"), i_pretext: { s: "on", w: 0.5 }, m_buildup: { s: "on" }, g_ultimatum: undefined });
@@ -289,5 +289,45 @@ describe("세계 사건이 며칠째 그대로 남지 않게 (11/17)", () => {
     const st = koreaStatus([], b(0.1), NOW, parseChecks("w_infra=0:정상화", NOW - 86400_000));
     expect(st.w_infra).toMatchObject({ s: "on", w: 0.5, by: "auto" });
     expect(ANALYST_GUIDE.w_infra).toMatch(/아직 이어지는가/);
+  });
+});
+
+describe("영상 '전쟁 직전 신호 7가지'에서 가져온 것 (11/18)", () => {
+  const all = (v: "on" | "off") => Object.fromEntries(ALL_IDS.map((id) => [id, { s: v }]));
+  const on = (...ids: string[]) => ({ ...all("off"), ...Object.fromEntries(ids.map((k) => [k, { s: "on" as const }])) });
+  it("사이버 동시 마비는 참고 신호가 아니라 조용한 움직임으로 센다 — 항목이 늘어도 %의 기준은 그대로", () => {
+    const moves = RUBRIC.find((l) => l.id === "moves")!, other = RUBRIC.find((l) => l.id === "other")!;
+    expect(moves.max).toBe(19);
+    expect(other.max).toBe(10);
+    expect(moves.groups.flatMap((g) => g.items.map((x) => x.id))).toContain("m_cyber");
+    expect(other.groups[0].items.map((x) => x.id)).not.toContain("m_cyber");
+    expect(PCT_BASE).toBe(39);
+    expect(scoreRubric(on("m_cyber"))).toMatchObject({ moves: 1, index: 3 });
+    expect(ANALYST_GUIDE.m_cyber).toMatch(/일상적인 해킹 시도.*아니다/);
+  });
+  it("우크라이나 때 침공 며칠 전이었는지를 항목에 붙인다 — 보도로 확인한 넷만", async () => {
+    const { UKRAINE_LEAD } = await import("../src/core/rubric.js");
+    expect(UKRAINE_LEAD).toMatchObject({ m_cyber: { days: 41 }, m_logistics: { days: 27 }, m_airspace: { days: 12 }, g_evac_order: { days: 12 } });
+    expect(Object.keys(UKRAINE_LEAD)).toHaveLength(4);
+    const items = scoreRubric(on("m_logistics")).layers.flatMap((l) => l.groups.flatMap((g) => g.items));
+    expect(items.find((x) => x.id === "m_logistics")!.lead).toEqual(UKRAINE_LEAD.m_logistics);
+    expect(items.find((x) => x.id === "f_fx")!.lead).toBeUndefined();
+  });
+  it("최근 2주 사이 새로 켜진 것: 2주 전에 꺼져 있다가 지금 켜진 징조·움직임만 — 원래 켜져 있던 것·기록이 없는 것은 아니다", async () => {
+    const { freshOf, FRESH_DAYS } = await import("../src/core/proximity.js");
+    const { PRECURSOR_DATA } = await import("../src/core/precursor_data.js");
+    const H = PRECURSOR_DATA.table.hyps.map((h) => h.id);
+    const line = (codes: Record<string, string>) => H.map((id) => codes[id] ?? "0").join("");
+    const day = (n: number) => new Date(NOW - n * 86400_000 + 9 * 3600_000).toISOString().slice(0, 10);
+    const d = (n: number, codes: Record<string, string>) => ({ d: day(n), s: line(codes), i: 15, c: 3, w: 0.5, ph: 2 });
+    const days = [d(20, { g_ultimatum: "2" }), d(12, { m_buildup: "2" }), d(8, { m_buildup: "2" }), d(5, { m_buildup: "2", m_logistics: "1" }), d(2, { m_buildup: "2", m_logistics: "2", m_airspace: "2" }), d(1, { m_buildup: "2", m_logistics: "2", m_airspace: "2", g_intel_warning: "?" })];
+    const r = scoreRubric(on("m_buildup", "m_logistics", "m_airspace", "g_ultimatum", "a_fleet", "s_talks"));
+    const f = freshOf(r, days as any, NOW);
+    expect(FRESH_DAYS).toBe(14);
+    expect(f.items.map((x) => x.id).sort()).toEqual(["g_ultimatum", "m_airspace", "m_logistics"]); // m_buildup 은 창의 처음부터 켜져 있었다 · a_fleet 은 기록이 없다 · s_talks 는 배경
+    expect(f.items.find((x) => x.id === "m_logistics")!.since).toBe(day(5));
+    expect(f.items.find((x) => x.id === "m_airspace")!.since).toBe(day(2));
+    expect(f).toMatchObject({ n: 3, known: 5 });
+    expect(freshOf(r, [], NOW)).toMatchObject({ n: 0, known: 0 }); // 기록이 없으면 '새로'를 말하지 않는다
   });
 });

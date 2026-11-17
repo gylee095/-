@@ -3,7 +3,7 @@
 import type { CrisisEvent, Signal } from "./types.js";
 import type { DomainId, Level } from "./warrisk.js";
 import { TRIPWIRE_BY_ID } from "./tripwires.js";
-import { COMMENTARY_RE, PROVOCATION_RE, launchTitleKind, selfReportDay, type LaunchTitleKind } from "./classify.js";
+import { COMMENTARY_RE, airspaceViolated, PROVOCATION_RE, launchTitleKind, selfReportDay, type LaunchTitleKind } from "./classify.js";
 
 export interface Place {
   name: string;
@@ -226,7 +226,7 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   else if (cats.has("nuclear_test") || cats.has("seismic_anomaly")) [level, reason] = [2, "북한 지역 지진 (원인 확인 중)"];
   else if (cats.has("airspace_anomaly") || cats.has("gps_interference")) [level, reason] = [1, cats.has("airspace_anomaly") ? "항공기 급감 (센서 하나의 관측 — 참고)" : "GPS 교란 정보"]; // 11/14: 항공기 급감은 수신망 장애로도 생긴다 — 주요 소식이 아니라 참고로
   // 주변국 군용기 (11/17): KADIZ 진입은 한 해 열 번 남짓 있는 일이지만 '주요 소식'으로 보인다(주의). 영공을 실제로 침범했으면 경계
-  if (cats.has("air_incursion") && !e.drill && !e.retracted && level < 3) [level, reason] = e.severity >= 70 ? [3, "주변국 군용기의 영공 침범"] : [Math.max(level, 2) as 2, "주변국 군용기의 방공식별구역(KADIZ) 진입 — 영공 침범은 아님"];
+  if (cats.has("air_incursion") && !e.drill && !e.retracted && level < 3) [level, reason] = e.severity >= 70 || [e.title, ...signals.map((x) => x.title)].some(airspaceViolated) ? [3, "주변국 군용기의 영공 침범"] : [Math.max(level, 2) as 2, "주변국 군용기의 방공식별구역(KADIZ) 진입 — 영공 침범은 아님"];
   // 넓은 그물로 받은 군사·안보 소식 (11/17): 분석관이 판단하기 전에는 군 당국 발표 인용만 '주의'로 보이고, 나머지는 참고. 판단이 오면 state 가 그 값으로 바꾼다
   if (cats.size === 1 && cats.has("security_news") && !e.drill && !e.retracted) [level, reason] = e.severity >= 40 ? [2, "군 당국 발표 — 클로드가 중요도를 확인하기 전"] : [1, "군사·안보 소식 — 클로드가 중요도를 확인하기 전"];
   if (cats.has("world_event")) reason = "세계 정세 (참고)";

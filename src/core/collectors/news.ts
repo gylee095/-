@@ -38,6 +38,12 @@ export function parseGdelt(arts: any[], now: number): Signal[] {
 // Google News RSS 는 Cloudflare 서버 접속을 차단(503)하므로 사용하지 않는다
 /** 1분마다 확인하는 속보 피드 (연합뉴스: 합참·日방위성 발표를 가장 먼저 [속보]로 전하는 국내 매체) */
 export const BREAKING_FEEDS = ["https://www.yna.co.kr/rss/news.xml", "https://www.yna.co.kr/rss/northkorea.xml"];
+/**
+ * 사건만 받는 목록 (2026-11-17): 군·외교 기사는 연합뉴스 '정치' 목록(외교·국방 포함)에 실리는데 '전체' 목록에서는 몇 시간 만에 밀려난다 —
+ * 11/17 "러 군용기 여러 대 새벽 KADIZ 진입"이 오후에는 정치 목록에만 남아 있었다. 여기서 받은 제목은 사건(신호)으로만 쓰고
+ * 보도량·수사 지표에는 넣지 않는다(평소 값이 '전체+북한' 두 목록으로 쌓여 있어, 목록을 늘리면 지표가 까닭 없이 오른다).
+ */
+export const EVENT_ONLY_FEEDS = ["https://www.yna.co.kr/rss/politics.xml"];
 /** 5분마다 확인하는 교차확인용 피드 */
 export const SLOW_FEEDS = ["https://www.nknews.org/feed/", "https://feeds.bbci.co.uk/news/world/asia/rss.xml", "https://beyondparallel.csis.org/feed/"];
 export const DEFAULT_FEEDS = [...BREAKING_FEEDS, ...SLOW_FEEDS];
@@ -97,7 +103,7 @@ export function newsMetrics(items: { title: string; pubDate?: number }[], now: n
   return metrics;
 }
 
-export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source = "rss_news"): Promise<CollectResult> {
+export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source = "rss_news", eventOnly: string[] = []): Promise<CollectResult> {
   const signals: Signal[] = [];
   const all: { title: string; pubDate?: number }[] = [];
   let rawCount = 0;
@@ -110,6 +116,17 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
       for (const it of items) signals.push(...mediaSignal(source, it.link, it.title, it.pubDate, now));
     } catch (e) {
       errors.push(String(e));
+    }
+  }
+  // 사건만 받는 목록: 같은 기사(주소)는 한 번만. 실패해도 수집 전체를 실패로 보지 않는다
+  const seen = new Set(signals.map((x) => x.id));
+  for (const f of eventOnly) {
+    try {
+      const items = parseRss(await fetchText(f));
+      rawCount += items.length;
+      for (const it of items) for (const sg of mediaSignal(source, it.link, it.title, it.pubDate, now)) if (!seen.has(sg.id)) { seen.add(sg.id); signals.push(sg); }
+    } catch {
+      /* 덤으로 받는 목록 */
     }
   }
   return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals, metrics: newsMetrics(all, now, source) };

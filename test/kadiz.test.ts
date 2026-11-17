@@ -43,4 +43,26 @@ describe("주변국 군용기의 KADIZ 진입·영공 침범", () => {
       globalThis.fetch = orig;
     }
   });
+  it("언론 단독 신호는 심각도가 낮게 눌려도(20) 영공 침범은 제목으로 알아본다", () => {
+    const t = fx.violation[0].t;
+    const b = briefEvent({ id: "e", categories: ["air_incursion"], status: "UNVERIFIED", basis: "media", severity: 20, firstDetectedTime: NOW, lastUpdatedTime: NOW, signalIds: ["s"], title: t } as any, [{ id: "s", source: "rss_breaking", sourceKind: "media", category: "air_incursion", title: t, summary: "yna.co.kr", detectedTime: NOW, severity: 20 }] as any);
+    expect(b.danger).toMatchObject({ level: 3, reason: "주변국 군용기의 영공 침범" });
+  });
+  it("군·외교 기사는 '정치' 목록에 오래 남는다 — 그 목록은 사건으로만 받고 보도량 지표에는 넣지 않는다", async () => {
+    const { BREAKING_FEEDS, EVENT_ONLY_FEEDS } = await import("../src/core/collectors/news.js");
+    expect(EVENT_ONLY_FEEDS).toEqual(["https://www.yna.co.kr/rss/politics.xml"]);
+    const item = (t: string, i: number) => `<item><title><![CDATA[${t}]]></title><link>https://www.yna.co.kr/view/AKR${i}</link><pubDate>${new Date(NOW - 600_000).toUTCString()}</pubDate></item>`;
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async (u: any) => new Response(`<rss><channel>${String(u).includes("politics") ? item(fx.entry[1].t, 1) + item("北, 전쟁 준비 완료 선언", 2) : item("오늘의 날씨", 9)}</channel></rss>`)) as typeof fetch;
+    try {
+      const base = await collectRss(BREAKING_FEEDS, NOW, "rss_breaking");
+      const more = await collectRss(BREAKING_FEEDS, NOW, "rss_breaking", EVENT_ONLY_FEEDS);
+      expect(base.signals).toHaveLength(0);
+      expect(more.signals.map((s) => s.category)).toContain("air_incursion");
+      expect(more.metrics).toEqual(base.metrics); // 정치 목록의 '전쟁' 기사가 보도량 지표를 올리지 않는다
+      expect(more.ok).toBe(true);
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
 });

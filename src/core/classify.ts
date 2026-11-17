@@ -22,6 +22,7 @@ export const BASE_SEVERITY: Record<Category, number> = {
   airspace_anomaly: 45,
   gps_interference: 40,
   aviation_emergency: 35,
+  air_incursion: 45,
   civil_alert_other: 30,
   evacuation: 90,
   posture: 88,
@@ -34,10 +35,18 @@ interface Rule {
   severity?: number;
 }
 
+/** 한국방공식별구역 진입·한국 영공 침범 */
+export const AIR_INCURSION_RE = /KADIZ|카디즈|한국\s?방공식별구역|(?:중국?|러시아?|中|露|중\s?·\s?러|러\s?·\s?중)[^.]{0,14}군용기[^.]{0,24}방공식별구역|(?:우리|한국|독도)\s?영공(?:을|은|도)?[^.]{0,12}침범/i;
+/** 실제로 영공을 침범했나 — '영공침범 없어'·'침범 안 해'는 아니다 */
+export const airspaceViolated = (t: string) => /영공(?:을|은|도)?[^.]{0,12}침범/.test(t) && !/침범(?:은|이|도)?\s?(?:없|안\s|하지\s?않|의사\s?없)/.test(t) && !/영공(?:은|도)\s?침범\s?안/.test(t);
+
 // 순서가 우선순위다. 먼저 맞는 규칙을 채택한다.
 const RULES: Rule[] = [
   { category: "air_raid_alert", re: /공습\s*경보|air[- ]raid (alert|warning)/i, severity: 95 },
   { category: "air_raid_alert", re: /경계\s*경보|민방위\s*경보|대피\s*(하|준비)/, severity: 85 },
+  // 주변국 군용기의 KADIZ 진입·영공 침범 (2026-11-17: 합참 "러 군용기 여러 대 KADIZ 진입 후 이탈" 을 놓쳤다 — 제목에 '북한'도 '미사일'도 없어 어느 규칙에도 안 걸렸다).
+  // '방공식별구역'만으로는 대만·일본 것일 수 있어 한국 것임이 드러나야 한다. 미사일 규칙보다 앞에 둔다.
+  { category: "air_incursion", re: AIR_INCURSION_RE },
   { category: "nuclear_test", re: /핵\s*실험|nuclear (test|explosion|detonation)/i },
   { category: "artillery", re: /포격|포탄|해안포|방사포|artillery|shelling/i },
   { category: "missile", re: /탄도\s*미사일|미사일|발사체|ballistic missile|\bmissile\b|\bICBM\b|\bSLBM\b/i },
@@ -74,7 +83,7 @@ export function worldEvent(title: string): "infra" | "war" | null {
 
 /** 한반도 관련성: 영문 항행경보·외신은 지역명이 있어야만 통과 */
 const REGION_RE =
-  /KOREA|DPRK|PYONGYANG|YELLOW SEA|SEA OF JAPAN|EAST SEA|EAST CHINA SEA|JAPAN|PUNGGYE|SOHAE|TONGCHANG|북한|北|한반도|서해|동해|연평|백령|휴전선|군사분계선|NLL|경기|서울|인천|강원|합참|합동참모본부|국방부/i;
+  /KOREA|DPRK|PYONGYANG|YELLOW SEA|SEA OF JAPAN|EAST SEA|EAST CHINA SEA|JAPAN|PUNGGYE|SOHAE|TONGCHANG|북한|北|한반도|서해|동해|연평|백령|휴전선|군사분계선|NLL|경기|서울|인천|강원|합참|합동참모본부|국방부|KADIZ|카디즈|독도/i;
 
 const DRILL_RE = /훈련\s*(상황|입니다|임|중)|민방위\s*훈련|을지|모의|시험\s*발송|\bEXERCISE\b(?!.*LIVE FIRING)|\bDRILL\b|\bTEST MESSAGE\b/i;
 const RETRACTION_RE = /오발령|잘못\s*발송|해제|정정|취소|CANCEL|CORRECTION|DISREGARD/i;
@@ -116,10 +125,13 @@ export function classifyText(text: string, opts: { requireRegion?: boolean } = {
   for (const r of RULES) {
     const m = r.re.exec(text);
     if (!m) continue;
+    // 대만·일본의 방공식별구역 기사(중국 군용기의 대만 ADIZ 진입은 거의 날마다 있다)는 한국 것이 아니다
+    if (r.category === "air_incursion" && !/KADIZ|카디즈|한국|우리|독도|합참/i.test(text) && /대만|타이완|臺|台|일본|日|Taiwan|Japan/i.test(text)) continue;
     // '북한' 언급만 있는 기타 안내는 지역 키워드가 곧 매칭이므로 별도 필터 불필요
     const drill = DRILL_RE.test(text);
     const retraction = RETRACTION_RE.test(text);
     let severity = r.severity ?? BASE_SEVERITY[r.category];
+    if (r.category === "air_incursion" && airspaceViolated(text)) severity = 70; // 영공을 실제로 침범했으면 진입보다 훨씬 무겁다 (2019년 7월 독도 영공 침범 때는 경고사격)
     if (drill) severity = Math.round(severity * 0.2);
     if (retraction) severity = Math.min(severity, 50);
     return { category: r.category, severity, drill, retraction, matched: m[0] };

@@ -44,7 +44,7 @@ export interface EventBrief {
 const DANGER_LABEL = ["", "관심", "주의", "경계", "심각", "위급"] as const;
 const H = 3600_000;
 /** 북한의 '행동'이 아닌 사건 종류 — 발사 예고 항행경보·GPS 교란·항공기 급감·항공 비상·일반 지진은 도발(발사·포격) 목록에 넣지 않는다 */
-const NOT_AN_ACT = new Set(["launch_notice", "gps_interference", "airspace_anomaly", "aviation_emergency", "seismic_anomaly", "world_event"]);
+const NOT_AN_ACT = new Set(["launch_notice", "gps_interference", "airspace_anomaly", "aviation_emergency", "seismic_anomaly", "world_event", "air_incursion"]); // air_incursion: 러시아·중국 군용기의 KADIZ 진입은 북한의 행동이 아니다 — 북한 도발 통계·손님 사건 알림에 넣지 않는다
 const kstText = (ms: number, time = true) => {
   const d = new Date(ms + 9 * H);
   return `${d.getUTCMonth() + 1}/${d.getUTCDate()}${time ? ` ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}` : ""}`;
@@ -225,6 +225,8 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   else if (cats.has("launch_notice") && e.status !== "UNVERIFIED" && e.severity >= 55) [level, reason] = [2, "발사 예고 항행경보"];
   else if (cats.has("nuclear_test") || cats.has("seismic_anomaly")) [level, reason] = [2, "북한 지역 지진 (원인 확인 중)"];
   else if (cats.has("airspace_anomaly") || cats.has("gps_interference")) [level, reason] = [1, cats.has("airspace_anomaly") ? "항공기 급감 (센서 하나의 관측 — 참고)" : "GPS 교란 정보"]; // 11/14: 항공기 급감은 수신망 장애로도 생긴다 — 주요 소식이 아니라 참고로
+  // 주변국 군용기 (11/17): KADIZ 진입은 한 해 열 번 남짓 있는 일이지만 '주요 소식'으로 보인다(주의). 영공을 실제로 침범했으면 경계
+  if (cats.has("air_incursion") && !e.drill && !e.retracted && level < 3) [level, reason] = e.severity >= 70 ? [3, "주변국 군용기의 영공 침범"] : [Math.max(level, 2) as 2, "주변국 군용기의 방공식별구역(KADIZ) 진입 — 영공 침범은 아님"];
   if (cats.has("world_event")) reason = "세계 정세 (참고)";
   if (selfReport) reason += " · 북한 매체 발표";
 

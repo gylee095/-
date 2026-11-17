@@ -13,6 +13,7 @@ export type Category =
   | "gps_interference" // GPS/GNSS 전파 교란
   | "airspace_anomaly" // 항공 교통량 급감 등 공역 이상
   | "aviation_emergency" // 비상 스쿼크(7500/7600/7700)
+  | "air_incursion" // 주변국(러시아·중국) 군용기의 한국방공식별구역(KADIZ) 진입·영공 침범
   | "civil_alert_other" // 기타 군사 관련 정부 안내
   | "evacuation" // 자국민·미군 가족이 한국을 떠나는 움직임 (철수 명령·출국 권고·후송) — 훈련·가짜는 따로 표시
   | "posture"

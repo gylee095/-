@@ -85,3 +85,36 @@ describe("그물에도 안 걸린 뉴스는 분석관이 직접 올린다", () =
     expect(scan).toMatch(/add_news_event/);
   });
 });
+
+describe("세계의 속보도 받아 둔다 (11/18 — 미 안보국 통신망 마비·이란의 미군기지 공격을 놓쳤다)", () => {
+  const w = JSON.parse(readFileSync(new URL("./fixtures/world_titles_20261118.json", import.meta.url), "utf8")) as Record<string, string[]>;
+  it("미국·동맹국의 안보기관·기반망이 멈춘 것은 '전역'이라는 말이 없어도 세계 정세 사건으로 잡는다", async () => {
+    const { worldEvent } = await import("../src/core/classify.js");
+    for (const t of w.infra) expect(worldEvent(t), t).toBe("infra");
+  });
+  it("미국·강대국이 얽힌 무력 사건은 '분류 전' 소식으로 받아 분석관에게 넘긴다 — 훈련·전망·경제·가십은 받지 않는다", async () => {
+    const { worldNews, worldEvent } = await import("../src/core/classify.js");
+    for (const t of w.force) expect(worldNews(t), t).toBe(true);
+    for (const t of w.skip) expect(worldNews(t) || !!worldEvent(t), t).toBe(false);
+    expect(worldNews("北, 미군기지 공격 위협")).toBe(false); // 한반도 기사는 원래 길로
+  });
+  it("수집: 국제 목록을 사건으로만 받고, 서로 다른 이야기는 따로따로 사건이 된다", async () => {
+    const { correlate, storyOf } = await import("../src/core/correlate.js");
+    const item = (t: string, i: number) => `<item><title><![CDATA[${t}]]></title><link>https://www.yna.co.kr/view/AKR${i}</link><pubDate>${new Date(NOW - (i + 1) * 600_000).toUTCString()}</pubDate></item>`;
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async (u: any) => new Response(`<rss><channel>${String(u).includes("international") ? [...w.infra, ...w.force, ...w.skip].map(item).join("") : ""}</channel></rss>`)) as typeof fetch;
+    try {
+      const { BREAKING_FEEDS, EVENT_ONLY_FEEDS } = await import("../src/core/collectors/news.js");
+      const r = await collectRss(BREAKING_FEEDS, NOW, "rss_breaking", EVENT_ONLY_FEEDS);
+      expect(r.signals.filter((s) => s.category === "world_event")).toHaveLength(2);
+      const sec = r.signals.filter((s) => s.category === "security_news");
+      expect(sec.map((s) => s.title)).toEqual(w.force);
+      expect(sec[0].summary).toMatch(/세계 · 분류 전/);
+      const evs = correlate(sec);
+      expect(evs).toHaveLength(4); // 네 이야기가 한 덩어리가 되지 않는다
+      expect(storyOf("[속보] 러 군용기 여러대 새벽 KADIZ 진입…軍, 전투기 투입 대응")).toBe(storyOf("러 군용기 여러 대 새벽 KADIZ 진입…공군 전투기 출격대응(종합)"));
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+});

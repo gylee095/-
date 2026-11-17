@@ -75,11 +75,26 @@ export const isKoreaContext = (text: string) => KOREA_TERMS_RE.test(text);
  */
 const WORLD_WHO = "美|미국|日|일본|유럽|나토|NATO|영국|독일|프랑스|대만|호주|캐나다";
 const WORLD_INFRA_RE = new RegExp(`(${WORLD_WHO})[^.]{0,24}(전역|전국|전체|전면)[^.]{0,24}(운항\\s*중단|이륙\\s*중단|마비|정전|올스톱|먹통|셧다운)|사이버\\s*공격[^.]{0,20}(마비|중단|정전|먹통)|해저\\s*케이블[^.]{0,12}(절단|파손)`);
+// 안보기관·국가 기반망이 멈춘 것은 '전역'이라는 말이 없어도 잡는다 (2026-11-18: "美안보국 기밀통신망 마비…항공중단 겪더니 또 '인프라 다운'"을 놓쳤다)
+const WORLD_INFRA2_RE = new RegExp(`(${WORLD_WHO})[^.]{0,28}(통신망|전산망|전력망|결제망|금융망|관제망|기밀망|내부망|인터넷망|위성망|인프라)[^.]{0,20}(마비|다운|먹통|셧다운|정전|두절|중단)`);
 const WORLD_WAR_RE = /침공\s*(개시|시작|단행)|선전\s*포고|전면전\s*(돌입|개시)|핵\s*실험\s*(재개|단행)|핵무기\s*사용/;
 const WORLD_NOT_RE = /훈련|모의|가능성|우려|전망|경고|년 전|주년|영화|게임|드라마/;
 export function worldEvent(title: string): "infra" | "war" | null {
   if (isKoreaContext(title) || WORLD_NOT_RE.test(title)) return null;
-  return WORLD_WAR_RE.test(title) ? "war" : WORLD_INFRA_RE.test(title) ? "infra" : null;
+  return WORLD_WAR_RE.test(title) ? "war" : WORLD_INFRA_RE.test(title) || WORLD_INFRA2_RE.test(title) ? "infra" : null;
+}
+
+/**
+ * 세계의 무력 사건 — 넓은 그물의 세계판 (2026-11-18 사용자: "미국에서 속보가 있는데 왜 못 잡았나"). 연합뉴스 '국제' 목록을 받지 않았고, 받았더라도 걸릴 규칙이 없었다.
+ * 미국·동맹국·강대국이 주체이거나 대상인 무력 행위(공습·피격·격추·교전·테러·핵)를 '분류 전' 소식으로 받아 두고, 한반도 위험과 관계가 있는지는 AI 분석관이 판단한다.
+ * 전망·우려·분석 기사는 받지 않는다. 화면에는 판단 전까지 '참고'로만 보인다.
+ */
+const WORLD_ACTOR_RE = /美|미국|미군|백악관|펜타곤|트럼프|日|일본|자위대|나토|NATO|中|중국|러시아|러軍|대만|이란|이스라엘|호주|영국/;
+const WORLD_FORCE_RE = /공습|폭격|피격|피습|격추|요격|침공|교전|포격|미사일\s?(공격|발사)|드론\s?공격|기지\s?공격|폭발|테러|더티밤|핵\s?(공격|사용|실험)|나포|봉쇄|계엄|쿠데타|암살/;
+const WORLD_NEWS_NOT_RE = /훈련|연습|전망|우려|가능성|분석|해설|인터뷰|칼럼|\[영상\]|\[르포\]|\[특파원|주년|년 전|영화|드라마|게임|틱톡|맹수|주가|증시|환율|반도체|관세/;
+export function worldNews(title: string): boolean {
+  if (isKoreaContext(title) || WORLD_NEWS_NOT_RE.test(title)) return false;
+  return WORLD_ACTOR_RE.test(title) && WORLD_FORCE_RE.test(title);
 }
 
 /** 한반도 관련성: 영문 항행경보·외신은 지역명이 있어야만 통과 */

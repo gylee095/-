@@ -6,6 +6,8 @@ interface GroupRule {
   categories: Category[];
   windowMs: number;
   radiusKm?: number;
+  /** 같은 이야기(제목 앞부분이 같은 기사)끼리만 묶는다 — 넓은 그물로 받은 소식은 서로 다른 사건이 한 덩어리가 되면 안 된다 */
+  sameStory?: boolean;
 }
 
 export const GROUPS: Record<string, GroupRule> = {
@@ -16,7 +18,7 @@ export const GROUPS: Record<string, GroupRule> = {
   aviation: { categories: ["aviation_emergency"], windowMs: 3600_000, radiusKm: 100 },
   airspace: { categories: ["airspace_anomaly"], windowMs: 2 * 3600_000 },
   incursion: { categories: ["air_incursion"], windowMs: 12 * 3600_000 },
-  security: { categories: ["security_news"], windowMs: 6 * 3600_000 },
+  security: { categories: ["security_news"], windowMs: 12 * 3600_000, sameStory: true },
   evacuation: { categories: ["evacuation"], windowMs: 24 * 3600_000 },
   posture: { categories: ["posture"], windowMs: 24 * 3600_000 },
   world: { categories: ["world_event"], windowMs: 24 * 3600_000 },
@@ -46,6 +48,9 @@ export function dedupeSignals(signals: Signal[]): Signal[] {
   return [...byId.values()];
 }
 
+/** 제목의 이야기 열쇠: [속보]·(종합)·따옴표·띄어쓰기를 떼고 앞 10자 */
+export const storyOf = (t: string) => t.replace(/\[[^\]]*\]|\((?:종합|\d보)[^)]*\)|["'“”‘’<>]/g, "").replace(/\s+/g, "").slice(0, 10);
+
 const STATUS_RANK: Record<EventStatus, number> = { UNVERIFIED: 0, CORROBORATED: 1, CONFIRMED: 2 };
 export const statusRank = (s: EventStatus) => STATUS_RANK[s];
 
@@ -59,6 +64,7 @@ export function correlate(signals: Signal[]): CrisisEvent[] {
     const t = signalTime(s);
     const inWindow = c.signals.some((x) => Math.abs(signalTime(x) - t) <= rule.windowMs);
     if (!inWindow) return false;
+    if (rule.sameStory && !c.signals.some((x) => storyOf(x.title) === storyOf(s.title))) return false;
     if (rule.radiusKm && s.lat !== undefined && s.lon !== undefined) {
       const located = c.signals.filter((x) => x.lat !== undefined && x.lon !== undefined);
       if (located.length && !located.some((x) => haversineKm(x.lat!, x.lon!, s.lat!, s.lon!) <= rule.radiusKm!)) return false;

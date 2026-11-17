@@ -1,6 +1,6 @@
 // 언론(GDELT, RSS) — 알림 트리거가 아니라 교차검증과 '뉴스 대비 리드타임' 측정용
 import type { CollectResult, Metric, Signal } from "../types.js";
-import { BASE_SEVERITY, OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind, securityNews, worldEvent } from "../classify.js";
+import { BASE_SEVERITY, OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind, securityNews, worldEvent, worldNews } from "../classify.js";
 import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 
 const GDELT_QUERY =
@@ -43,7 +43,7 @@ export const BREAKING_FEEDS = ["https://www.yna.co.kr/rss/news.xml", "https://ww
  * 11/17 "러 군용기 여러 대 새벽 KADIZ 진입"이 오후에는 정치 목록에만 남아 있었다. 여기서 받은 제목은 사건(신호)으로만 쓰고
  * 보도량·수사 지표에는 넣지 않는다(평소 값이 '전체+북한' 두 목록으로 쌓여 있어, 목록을 늘리면 지표가 까닭 없이 오른다).
  */
-export const EVENT_ONLY_FEEDS = ["https://www.yna.co.kr/rss/politics.xml"];
+export const EVENT_ONLY_FEEDS = ["https://www.yna.co.kr/rss/politics.xml", "https://www.yna.co.kr/rss/international.xml"]; // 국제 목록: 11/18 미 안보국 통신망 마비·이란의 미군기지 공격을 놓쳤다 — 전체 목록에서는 금세 밀려난다
 /** 5분마다 확인하는 교차확인용 피드 */
 export const SLOW_FEEDS = ["https://www.nknews.org/feed/", "https://feeds.bbci.co.uk/news/world/asia/rss.xml", "https://beyondparallel.csis.org/feed/"];
 export const DEFAULT_FEEDS = [...BREAKING_FEEDS, ...SLOW_FEEDS];
@@ -175,6 +175,9 @@ function mediaSignal(source: string, url: string, title: string, published: numb
   if (!cls || cls.category === "civil_alert_other") {
     // 정해 둔 종류에 없는 군사·안보 소식: 버리지 않고 받아 둔다 — 중요한지는 AI 분석관이 판단한다 (11/17). 군 당국 발표를 인용한 것은 조금 더 무겁게
     const sec = securityNews(title);
+    // 세계의 무력 사건: 분류 전 소식으로 받아 두고 분석관이 한반도와의 관계를 판단한다 (11/18)
+    if (!sec && worldNews(title))
+      return [{ id: `${source}:${hash(url || title)}`, source, sourceKind: "media", category: "security_news", title: title.slice(0, 120), summary: `${domain ?? outletOf(url, source)} · 세계 · 분류 전`, url, eventTime: undefined, publishedTime: published, detectedTime: now, severity: 20 }];
     if (!sec) return [];
     return [{ id: `${source}:${hash(url || title)}`, source, sourceKind: "media", category: "security_news", title: title.slice(0, 120), summary: `${domain ?? outletOf(url, source)}${sec.official ? " · 공식발표 인용" : ""} · 분류 전`, url, eventTime: undefined, publishedTime: published, detectedTime: now, severity: sec.official ? 40 : BASE_SEVERITY.security_news }];
   }

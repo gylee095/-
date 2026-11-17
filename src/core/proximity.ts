@@ -55,7 +55,7 @@ export const HOTSPOT = { km: 5, frp: 5 };
 /** 자동으로 볼 수 있는 가설 — 나머지는 분석관만 확인할 수 있다 */
 export const AUTO_IDS = new Set([
   "g_evac_order", "g_leave_now", "g_staff_restrict", "g_intel_warning", "m_buildup", "m_mobilization", "m_strategic_assets", "m_civil_defense", "m_airspace",
-  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_infra", "w_new_war",
+  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_infra", "w_new_war", "w_markets", "m_leadership",
 ]);
 
 /** 징후판·보도에서 자동으로 읽은 한반도 상태 */
@@ -93,7 +93,9 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   const wired = (id: string, ...ids: string[]) => { const b = wire(...ids); set(id, b ? "on" : "off", 1, b?.headline); };
   wired("m_buildup", "nk_forward_deploy");
   wired("m_mobilization", "kr_mobilization");
-  wired("m_cyber", "cyber_alert");
+  // 사이버: 공식 경보 단계가 '경계'면 약하게, '심각'이면 온전히. 경보 격상 기사(경보 단어)가 있으면 그것으로도 켠다 (11/18)
+  fromIndicators("m_cyber", ["official.cyber_alert_level"], wire("cyber_alert"));
+  if (out.m_cyber.s === "unk") set("m_cyber", "off");
   wired("m_alert_level", "defcon_up", "watchcon_up", "defense_situation_a", "defense_situation", "nk_war_posture");
   // 전략자산 집결 (11/12 사용자: 군용기 4대 떴다고 켜지는 게 맞나 — 아니다): 이 징조는 과거 전쟁에서 항모·폭격기·급유기 편대의 '집결'을 센 것이다.
   // ADS-B 에 보이는 군용기 수(수송기·연락기 포함)가 평소보다 많은 것은 근거가 못 된다 — 징후판에는 그대로 보이고 판정에는 넣지 않는다.
@@ -101,8 +103,9 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   if (lvl("air.isr_airborne") === 2) set("m_strategic_assets", "on", 0.5, `정찰·급유기 ${by["air.isr_airborne"]!.reading!.value}대 동시 비행`);
   else set("m_strategic_assets", ok("air.isr_airborne") ? "off" : "unk");
   fromIndicators("m_civil_defense", ["official.civil_defense_alerts_6h"], wire("nk_border_evacuation"));
-  fromIndicators("m_airspace", ["air.civil_airborne"], wire("airlines_suspend", "war_insurance"));
-  if (out.m_airspace.s === "on" && !wire("airlines_suspend", "war_insurance")) out.m_airspace.w = 0.5;
+  fromIndicators("m_airspace", ["air.civil_airborne", "air.easa_czib_korea"], wire("airlines_suspend", "war_insurance"));
+  // 온전히 켜는 것은 항공사 운항 중단·전쟁 보험 중단 보도나 항공당국의 고시에 한국이 들어갔을 때뿐 — 민항기 수 감소나 북한 고시만으로는 약하게
+  if (out.m_airspace.s === "on" && !wire("airlines_suspend", "war_insurance") && lvl("air.easa_czib_korea") < 2) out.m_airspace.w = 0.5;
   fromIndicators("m_gps_ew", ["gnss.bad_ratio_korea", "gnss.bad_ratio_westsea", "gnss.bad_ratio_north"]);
   fromIndicators("m_border_fire", ["border.incidents_72h", "official.mnd_provocation_24h"]);
   // ── 돈 ──
@@ -138,6 +141,9 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   if (ok("thermal.launch_site_hotspots") && hot.length && out.a_launch_prep.s !== "on") set("a_launch_prep", "on", 0.5, `${hot[0].site} ${hot[0].km}km 안 열점 ${hot[0].frp}MW`);
   else if (out.a_launch_prep.s === "unk" && ok("thermal.launch_site_hotspots")) set("a_launch_prep", "off");
   fromIndicators("a_nk_dark", ["internet.kp_outage_alerts_24h", "nk.pyongyang_lights_pct"]);
+  // 세계 금융의 전쟁 공포·지도부 공백을 숫자로 (11/18) — 전에는 분석관이 뉴스로만 확인해 며칠씩 '미확인'이었다
+  fromIndicators("w_markets", ["market.world_fear"]);
+  fromIndicators("m_leadership", ["nk.kim_absence_days"]);
   // 세계 정세 사건 (11/14): 제목으로 잡은 것은 약한 신호(절반) — 원인·규모는 분석관이 확인해 올리거나 내린다
   const worldOf = (kind: "infra" | "war", days: number) => briefs.find((b) => now - b.at < days * DAY && now - b.at >= -3600_000 && worldEvent(b.headline) === kind);
   // 세계 사건은 '아직 이어지는가'로 유지한다 (11/17 사용자: "기계적으로 다음 날 내리는 게 아니다 — 문제가 지속 중이면 유지하고, 그때 하루뿐이었으면 내린다").

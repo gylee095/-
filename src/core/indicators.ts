@@ -169,6 +169,26 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "Yahoo Finance KRW=X 현재가의 전일 종가 대비 변동률(절대값)", latency: "수 분", caveats: "금리·달러 강세 등 경제 요인이 대부분. 다른 징후와 겹칠 때만 의미 있다.",
   },
   {
+    id: "market.world_fear", label: "세계 금융의 전쟁 공포 (금·유가·변동성)", group: "market", unit: "개", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "큰 전쟁이 다가오면 금과 유가가 뛰고 변동성 지수가 치솟는다. 한반도 밖의 전쟁 공포도 한반도 위험의 배경이다 — 채점표의 '세계 금융의 전쟁 공포' 칸을 숫자로 채운다.",
+    measure: "Yahoo Finance 금(GC=F)·서부텍사스유(CL=F)·변동성 지수(^VIX). 금이 직전 20거래일 평균보다 5% 이상, 유가가 15% 이상 높거나 변동성 지수가 30 이상인 것의 수(0~3)", latency: "수 분~하루", caveats: "문턱은 판단값이다. 금리·경기·산유국 결정 같은 전쟁과 무관한 이유로도 움직인다 — 둘 이상이 함께 넘을 때만 의미를 둔다.",
+  },
+  {
+    id: "official.cyber_alert_level", label: "사이버 위기 경보 단계 (KISA)", group: "official", unit: "단계", direction: "high", slots: 1, absolute: { elevated: 3, anomalous: 4 },
+    why: "2022년 우크라이나에서는 침공 41일 전·9일 전·전날 정부와 은행 전산망이 공격받았다. 정부가 경보를 '경계'·'심각'으로 올리면 대규모 공격이 진행 중이거나 임박했다는 뜻이다.",
+    measure: "한국인터넷진흥원(boho.or.kr) 첫 화면의 인터넷침해사고 경보단계 — 0 정상 · 1 관심 · 2 주의 · 3 경계 · 4 심각", latency: "발령 뒤 1시간 안", caveats: "민간 분야 경보다(공공 분야는 국가사이버안보센터가 따로 낸다). '주의'는 몇 달씩 이어지기도 해 '경계'부터 본다. 대형 장애·랜섬웨어 유행으로도 오른다.",
+  },
+  {
+    id: "air.easa_czib_korea", label: "항공 분쟁지역 고시에 한반도 (EASA)", group: "air", unit: "", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "항공사가 노선을 끊기 전에 항공당국의 분쟁지역 고시가 먼저 나온다. 2022년 2월 우크라이나에서는 침공 12일 전 KLM 이 운항을 멈췄다. 2017년에는 북한의 예고 없는 미사일 발사로 평양 비행정보구역 고시가 나왔다(2018년 철회).",
+    measure: "유럽 항공안전청 분쟁지역 정보 고시(CZIB) 목록에서 유효한 고시의 제목 — 0 한반도 없음 · 1 북한(평양 비행정보구역)만 · 2 한국(인천 비행정보구역 등) 포함", latency: "발령 뒤 1시간 안", caveats: "유럽 항공사에 대한 권고다. 미국 연방항공청·한국 국토교통부의 고시는 따로 나온다. 북한 고시만으로는(1) 미사일 발사 위험을 뜻할 뿐 전쟁 임박이 아니다.",
+  },
+  {
+    id: "nk.kim_absence_days", label: "김정은 공개활동 공백", group: "nkinside", unit: "일", direction: "high", slots: 1, absolute: { elevated: 21, anomalous: 35 },
+    why: "전쟁을 결심한 지도부는 개전 전에 지하 지휘소로 들어간다 — 그것은 공개 정보로 볼 수 없지만, 최고지도자가 며칠째 공개 석상에 나오지 않았는지는 보도로 셀 수 있다.",
+    measure: "연합뉴스 목록에서 김정은이 직접 나타난 활동(시찰·참석·참관·연설·접견·회담) 보도의 마지막 시각으로부터 지난 날 수. 축전·서한·담화는 세지 않는다", latency: "북한 매체는 보통 다음 날 보도", caveats: "참고 신호다. 건강·휴양·내부 일정으로 2~3주 비는 일이 한 해에 여러 번 있다(2020년 4월 20일, 2014년 가을 40일). 다른 신호와 겹칠 때만 의미를 둔다. 제목 규칙이라 놓치는 보도가 있을 수 있다.",
+  },
+  {
     id: "nk.fuel_price_change_pct", label: "북한 장마당 휘발유값 (직전 8주 대비 %)", group: "nkinside", unit: "%", direction: "high", slots: 1, absolute: { elevated: 50, anomalous: 70 },
     why: "전쟁을 준비하면 군이 연료를 비축해 장마당 연료값이 뛸 것이라는 논리다. 북한 안쪽을 공개적으로 볼 수 있는 거의 유일한 창이다. 직접적인 전쟁 전례는 없다.",
     measure: "아시아프레스 매주 조사 휘발유 kg당 값 ÷ 직전 8주 중앙값 (2017~2026 분포: 상위 2.5% 약 +59%, 1% 약 +73% → +50% 상승, +70% 이상)", latency: "약 1주",

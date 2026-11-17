@@ -103,7 +103,16 @@ export function newsMetrics(items: { title: string; pubDate?: number }[], now: n
   return metrics;
 }
 
-export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source = "rss_news", eventOnly: string[] = []): Promise<CollectResult> {
+/**
+ * 김정은의 공개활동 보도인가 (2026-11-18): 지도부가 지하로 들어가는 것은 공개 정보로 알 수 없지만, 며칠째 공개 석상에 안 나왔는지는 보도로 셀 수 있다.
+ * 직접 나타난 활동(시찰·참석·참관·연설·접견·회담·주재)만 — 축전·서한·담화처럼 글로만 나온 것과 남이 김정은을 언급한 기사는 아니다.
+ */
+export const KIM_ACTIVITY_RE = /^(?:\[[^\]]*\]\s*)?(?:北\s?)?김정은,\s?[^"“]{0,60}?(시찰|참석|참관|연설|접견|회담|주재|관람|현지\s?지도|방문|시험\s?지도|기념사진)/;
+export const isKimActivity = (title: string) => KIM_ACTIVITY_RE.test(title) && !/축전|서한|친서|조전|위문전문/.test(title);
+/** 목록에서 가장 최근의 김정은 공개활동 보도 시각 */
+export const kimSeenAt = (items: { title: string; pubDate?: number }[]): number | undefined => items.filter((i) => i.pubDate !== undefined && isKimActivity(i.title)).reduce<number | undefined>((m, i) => (m === undefined || i.pubDate! > m ? i.pubDate : m), undefined);
+
+export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source = "rss_news", eventOnly: string[] = []): Promise<CollectResult & { kimSeenAt?: number }> {
   const signals: Signal[] = [];
   const all: { title: string; pubDate?: number }[] = [];
   let rawCount = 0;
@@ -129,7 +138,7 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
       /* 덤으로 받는 목록 */
     }
   }
-  return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals, metrics: newsMetrics(all, now, source) };
+  return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals, metrics: newsMetrics(all, now, source), kimSeenAt: kimSeenAt(all) };
 }
 
 export function parseRss(xml: string): { title: string; link: string; pubDate?: number }[] {

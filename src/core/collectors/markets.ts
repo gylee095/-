@@ -118,6 +118,34 @@ export async function fetchEquities(): Promise<DailyMove[]> {
   return parseSpark(data);
 }
 
+// ── 세계 금융의 전쟁 공포 (2026-11-18): 금·유가·변동성 지수가 함께 뛰는가 ──
+// 채점표의 '세계 금융의 전쟁 공포' 칸은 분석관이 뉴스로만 확인해 며칠씩 '미확인'으로 비어 있었다. 숫자로 직접 받는다.
+// 문턱은 판단값이다: 금 +5%·유가 +15%(직전 20거래일 평균 대비), 변동성 지수 30 이상. 셋 중 몇 개가 넘었는지를 값으로 한다.
+export const FEAR_SYMBOLS = { gold: "GC=F", oil: "CL=F", vix: "^VIX" };
+export const FEAR_AT = { goldPct: 5, oilPct: 15, vix: 30 };
+export interface FearQuote { last: number; avg20: number; pct: number }
+/** Yahoo chart 응답 → 마지막 값과 그 앞 20거래일 평균 */
+export function parseChart20(json: any): FearQuote | undefined {
+  const r = json?.chart?.result?.[0];
+  const closes = ((r?.indicators?.quote?.[0]?.close ?? []) as (number | null)[]).filter((x): x is number => typeof x === "number");
+  if (closes.length < 12) return undefined;
+  const last = typeof r?.meta?.regularMarketPrice === "number" ? r.meta.regularMarketPrice : closes[closes.length - 1];
+  const prev = closes.slice(-21, -1);
+  const avg20 = prev.reduce((a, b) => a + b, 0) / prev.length;
+  return { last: +last.toFixed(2), avg20: +avg20.toFixed(2), pct: +((last / avg20 - 1) * 100).toFixed(1) };
+}
+export function worldFearMetric(q: { gold?: FearQuote; oil?: FearQuote; vix?: FearQuote }): Metric | undefined {
+  if (!q.gold && !q.oil && !q.vix) return undefined;
+  const hit = [q.gold && q.gold.pct >= FEAR_AT.goldPct ? "금" : "", q.oil && q.oil.pct >= FEAR_AT.oilPct ? "유가" : "", q.vix && q.vix.last >= FEAR_AT.vix ? "변동성" : ""].filter(Boolean);
+  const part = (name: string, x?: FearQuote, unit = "") => (x ? `${name} ${x.last}${unit} (20일 평균 대비 ${x.pct > 0 ? "+" : ""}${x.pct}%)` : `${name} 못 받음`);
+  return { indicator: "market.world_fear", value: hit.length, meta: { hit, gold: q.gold, oil: q.oil, vix: q.vix, note: [part("금", q.gold), part("유가", q.oil), part("변동성 지수", q.vix)].join(" · ") } };
+}
+export async function fetchWorldFear(): Promise<Metric | undefined> {
+  const get = (sym: string) => fetchJson<any>(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=3mo&interval=1d`, { headers: { "User-Agent": UA } }).then(parseChart20).catch(() => undefined);
+  const [gold, oil, vix] = await Promise.all([get(FEAR_SYMBOLS.gold), get(FEAR_SYMBOLS.oil), get(FEAR_SYMBOLS.vix)]);
+  return worldFearMetric({ gold, oil, vix });
+}
+
 export async function collectMarkets(now = Date.now()): Promise<CollectResult> {
   const [fxR, eqR] = await Promise.allSettled([fetchUsdKrw(), fetchEquities()]);
   const metrics: Metric[] = [];
@@ -126,6 +154,8 @@ export async function collectMarkets(now = Date.now()): Promise<CollectResult> {
     metrics.push({ indicator: "market.usdkrw_change_pct", value: Math.abs(fx.changePct), meta: { price: fx.price, previousClose: fx.previousClose, signedPct: +fx.changePct.toFixed(2), dayHigh: fx.dayHigh, dayLow: fx.dayLow, quoteTime: fx.at } });
   }
   if (eqR.status === "fulfilled") metrics.push(...equityMetrics(eqR.value));
+  const fear = await fetchWorldFear().catch(() => undefined);
+  if (fear) metrics.push(fear);
   const errors = [fxR, eqR].map((r, i) => (r.status === "rejected" ? `${i ? "증시" : "환율"}: ${String((r.reason as Error)?.message ?? r.reason).slice(0, 120)}` : "")).filter(Boolean);
   return { source: "markets", ok: metrics.length > 0, error: errors.length ? errors.join(" / ") : undefined, fetchedAt: now, rawCount: metrics.length, signals: [], metrics };
 }

@@ -292,7 +292,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     latency: "정부 발령 후 수 분~수 시간",
     realtime: "minutes",
     terms: "각국 정부 공공데이터 (출처 표시)",
-    hosts: ["data.international.gc.ca", "www.auswaertiges-amt.de", "www.ezairyu.mofa.go.jp"],
+    hosts: ["data.international.gc.ca", "www.auswaertiges-amt.de", "www.ezairyu.mofa.go.jp", "www.easa.europa.eu", "www.boho.or.kr"],
     notes: "비공개 정보를 가진 정부가 자국민에게 내는 경보. 여러 나라가 함께 올리면 전쟁 위험의 가장 강한 공개 신호. 일본은 주한 공관 영사 메일(미사일 발사 1보가 속보 3분 뒤)도 본다.",
   },
   polymarket: {

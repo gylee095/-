@@ -142,7 +142,7 @@ export const LANDING_STORY = String.raw`<section id="hero" data-ch="00 / 전체"
   <div class="band"></div>
   <div class="card">
     <p class="k hero-fade" style="animation-delay:.2s">KOREA EARLY WARNING</p>
-    <h1 id="h1" aria-label="39가지 신호로 보는 한반도 전쟁 위험"></h1>
+    <h1 id="h1" aria-label="43가지 신호로 보는 한반도 전쟁 위험"></h1>
     <p class="lead hero-fade" style="animation-delay:1.6s">5분마다 자동으로 판정하고 AI 분석관이 하루 두 번 다시 읽어, 위기 단계가 바뀌거나 실제 전쟁 징조가 나타나면 바로 폰으로 알려 드립니다.</p>
     <a class="cta hero-fade" style="animation-delay:1.9s" href="#buy">평생 알림 받기 <small>4,900원 · 1회</small></a>
     <div class="scrollhint hero-fade" style="animation-delay:2.4s"><i></i>어떤 신호를 보는지 — 아래로</div>

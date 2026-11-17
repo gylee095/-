@@ -51,6 +51,8 @@ export interface Order {
   startReportId?: string;
   /** 운영자가 화면 확인용으로 붙인 예시 리포트 (이 주문에서만 보인다) */
   extraReportIds?: string[];
+  /** 운영자 본인의 결제 (11/18 사용자: "이용 중 3명 중 1명은 나다 — 빼 줘야 한다") — 손님 수·매출 합계에서 뺀다. 알림·알림함은 그대로 쓴다 */
+  own?: boolean;
 }
 
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 헷갈리는 0/O, 1/I 뺌
@@ -240,6 +242,17 @@ export async function attachStartReport(store: Pick<Store, "getKv" | "setKv">, o
 }
 
 /** 운영자: 예시 리포트를 이 주문에 붙이거나 뗀다 */
+/** 운영자 본인의 결제로 표시하거나 푼다 (주문번호 또는 결제 시각 'MM-DD HH:MM' 로 찾는다 — 코드를 주고받지 않게) */
+export async function markOwn(store: Pick<Store, "getKv" | "setKv">, q: { orderId?: string; paidAt?: string }, own: boolean, now: number): Promise<Order | undefined> {
+  const orders = await loadOrders(store);
+  const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 16).replace("T", " ") : "");
+  const hit = orders.filter((x) => x.status === "paid" && ((q.orderId && x.orderId === q.orderId) || (q.paidAt && kst(x.paidAt) === q.paidAt)));
+  if (hit.length !== 1) return undefined; // 없거나 여럿이면 표시하지 않는다
+  if (own) hit[0].own = true; else delete hit[0].own;
+  await saveOrders(store, orders, now);
+  return hit[0];
+}
+
 export async function setExtraReports(store: Pick<Store, "getKv" | "setKv">, orderId: string, ids: string[], now: number): Promise<boolean> {
   const orders = await loadOrders(store);
   const o = orders.find((x) => x.orderId === orderId);
@@ -297,7 +310,8 @@ export async function refundOrder(store: Pick<Store, "getKv" | "setKv">, cfg: Pa
 /** 운영자 화면용 요약 (코드·결제번호 같은 민감한 값은 뺀다) */
 export async function billingSummary(store: Pick<Store, "getKv">, now: number) {
   const orders = await loadOrders(store);
-  const paid = orders.filter((o) => o.status === "paid");
+  // 손님 수·매출은 운영자 본인의 결제를 뺀 것이다 (own 은 따로 센다)
+  const paid = orders.filter((o) => o.status === "paid" && !o.own);
   const day = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
   const today = day(now);
   return {
@@ -307,6 +321,7 @@ export async function billingSummary(store: Pick<Store, "getKv">, now: number) {
     devices: paid.reduce((a, o) => a + o.devices.length, 0),
     pendingOrders: orders.filter((o) => o.status === "created").length,
     refunded: orders.filter((o) => o.status === "refunded").length,
+    own: orders.filter((o) => o.status === "paid" && o.own).length,
   };
 }
 
@@ -318,7 +333,8 @@ export function paymentPush(action: "paid" | "revoked", order: Order, orders: Or
   const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
   const d = new Date(now + 9 * 3600_000);
   const when = `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
-  const paid = orders.filter((o) => o.status === "paid"), refunded = orders.filter((o) => o.status === "refunded").length;
+  // 운영자 본인의 결제는 손님 수·합계에서 뺀다
+  const paid = orders.filter((o) => o.status === "paid" && !o.own), refunded = orders.filter((o) => o.status === "refunded").length;
   const total = `지금 이용 중 ${paid.length}명 (합계 ${won(paid.reduce((a, o) => a + o.amount, 0))})${refunded ? ` · 취소 ${refunded}건` : ""}`;
   const tail = `주문 …${order.orderId.slice(-4)} · ${when}`;
   return action === "paid"

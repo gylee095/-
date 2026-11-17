@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, OPS_MANIFEST, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
-import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, markOwn, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
 import { SHELL_HEAD, buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
@@ -507,12 +507,18 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   }
   if (url.pathname === "/api/billing/orders" && req.method === "GET") {
     const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 19).replace("T", " ") : null);
-    return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, startReport: !!o.startReportId })));
+    return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, startReport: !!o.startReportId, own: !!o.own })));
   }
   if (url.pathname === "/api/billing/find" && req.method === "GET") {
     const q = url.searchParams.get("q") ?? "";
     const o = (await loadOrders(store)).find((x) => x.status === "paid" && (x.orderId === q || x.mulNo === q));
     return o ? json({ order: o.orderId, inbox: `${url.origin}/me?code=${o.code}`, devices: o.devices.length }) : json({ error: "결제된 주문 없음" }, 404);
+  }
+  if (url.pathname === "/api/billing/own" && req.method === "POST") {
+    // 운영자 본인의 결제를 손님 수·매출 합계에서 뺀다 (11/18). {orderId} 또는 {paidAt:"MM-DD HH:MM"}, 풀려면 {own:false}
+    const body = (await req.json().catch(() => null)) as { orderId?: string; paidAt?: string; own?: boolean } | null;
+    const o = await markOwn(store, { orderId: body?.orderId, paidAt: body?.paidAt }, body?.own !== false, Date.now());
+    return o ? json({ ok: true, order: o.orderId, own: !!o.own }) : json({ error: "결제된 주문을 하나로 찾지 못했어요" }, 404);
   }
   if (url.pathname === "/api/billing/demo" && req.method === "POST") {
     // 화면 확인용 예시 알림을 한 주문(코드)에만 붙인다 — 다른 손님에게는 보이지 않는다. {code, count} 붙이기 / {code, remove:true} 떼기

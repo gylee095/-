@@ -272,3 +272,24 @@ describe("결제 알림 — 운영자에게만 (11/17)", () => {
     expect(idx).toMatch(/\/ops\/app` : undefined \}, fetch, store\)/); // 운영자 앱(웹 푸시)에도 가게 store 를 넘긴다
   });
 });
+
+describe("운영자 본인의 결제는 손님 수·매출에서 뺀다 (11/18)", () => {
+  it("결제 알림의 '이용 중 N명 (합계)'와 요약에서 빠지고 own 으로 따로 센다", async () => {
+    const { paymentPush, billingSummary, markOwn, ORDERS_KEY } = await import("../src/core/billing.js");
+    const { MemoryStore } = await import("../src/core/store.js");
+    const now = Date.parse("2026-11-17T20:12:00+09:00");
+    const o = (id: string, paidAt: number, own?: boolean) => ({ orderId: id, claim: "c", code: "X", amount: 4900, status: "paid", createdAt: paidAt - 40_000, paidAt, devices: ["d"], ...(own ? { own: true } : {}) }) as any;
+    const orders = [o("mine", Date.parse("2026-11-06T00:30:08+09:00")), o("c1", now - 600_000), o("c2", now)];
+    const store = new MemoryStore();
+    await store.setKv(ORDERS_KEY, JSON.stringify(orders));
+    expect((await billingSummary(store, now)).paid).toBe(3);
+    expect(await markOwn(store, { paidAt: "11-17 99:99" }, true, now)).toBeUndefined(); // 못 찾으면 아무것도 바꾸지 않는다
+    expect((await markOwn(store, { paidAt: "11-06 00:30" }, true, now))!.orderId).toBe("mine");
+    const sum = await billingSummary(store, now);
+    expect(sum).toMatchObject({ paid: 2, revenueKrw: 9800, own: 1, paidToday: 2 });
+    const saved = JSON.parse((await store.getKv(ORDERS_KEY))!);
+    expect(paymentPush("paid", saved[2], saved, now).body).toMatch(/^지금 이용 중 2명 \(합계 9,800원\)/);
+    expect((await markOwn(store, { orderId: "mine" }, false, now))!.own).toBeUndefined();
+    expect((await billingSummary(store, now)).paid).toBe(3);
+  });
+});

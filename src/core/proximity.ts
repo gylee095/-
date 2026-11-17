@@ -204,6 +204,8 @@ export interface ProximityView extends Proximity {
 }
 
 export const FRESH_DAYS = 14;
+/** 2주 사이 새로 켜진 징조·움직임이 이만큼이면 최소 위기(3단계) — 판단값 (알림은 3개부터: phasealert.ts FRESH_AT) */
+export const FRESH_CRISIS = 5;
 export interface Fresh { days: number; n: number; items: { id: string; ko: string; since: string }[]; /** 견줄 기록이 며칠 치 있나 (적으면 '새로'를 말하기 이르다) */ known: number }
 /**
  * 지금 켜져 있는 징조·조용한 움직임 가운데, 2주 전에는 꺼져 있던 것. 하루 한 줄 기록(가설 33개의 그날 상태)에서 센다.
@@ -239,7 +241,12 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const status = koreaStatus(board, briefs, now, checks);
   // 사례집 통계(가설별 '전쟁 몇 건 중 몇 건')는 항목 설명용으로만 쓴다. 점수·단계·확률은 채점표(rubric.ts)가 정한다
   const p0 = evaluate(PRECURSOR_DATA.table, status, hist?.base, PRECURSOR_DATA.anchorLogOdds);
-  const r = scoreRubric(status);
+  const r0 = scoreRubric(status);
+  // 빠르게 연달아 켜지면 숫자가 25%에 못 미쳐도 최소 위기로 본다 (11/18 사용자: "2주 사이 동시에 켜지면 그만큼 드라마틱하게 올라가야 한다").
+  // 배수를 곱하지 않고 단계의 바닥만 올린다 — %는 '켜진 개수의 비율' 그대로 두고, 왜 위기인지는 이유에 적는다.
+  const fresh = freshOf(r0, hist?.days ?? [], now);
+  const fast = fresh.n >= FRESH_CRISIS && r0.phase < 3;
+  const r: RubricScore = fast ? { ...r0, phase: 3, reason: `2주 사이 꺼져 있던 신호 ${fresh.n}개가 연달아 켜졌어요 (${fresh.items.slice(0, 3).map((x) => x.ko).join(", ")}${fresh.n > 3 ? " 등" : ""}) — 켜진 수는 ${r0.index}%지만 위기로 봐요` } : r0;
   const clashPct = clashOf(r.signs, r.phase, p0.quiet.clashPct);
   const warPct = +Math.min(clashPct, p0.quiet.warPct + Math.max(0, clashPct - p0.quiet.clashPct) * (MODEL.Q_WAR / MODEL.Q_CLASH)).toFixed(clashPct < 5 ? 2 : 1);
   const p = { ...p0, index: r.index, phase: r.phase, clashPct, warPct, on: Math.ceil(r.signs + r.moves), watched: r.watched, parts: r.layers.map((l) => ({ cluster: "G" as const, label: l.label, pts: l.pts })) };
@@ -249,7 +256,6 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const today = kstDay(now);
   const series = [...days.filter((x) => x.d !== today).map((x) => ({ d: x.d, i: x.i, c: x.c })), { d: today, i: p.index, c: p.clashPct }].slice(-120);
   const d1 = diff(1);
-  const fresh = freshOf(r, days, now);
   const rec = recordFor(r.signs);
   const text =
     `긴장 ${r.index}% (지켜보는 ${TOTAL_ITEMS}개 중 ${r.signs + r.moves + r.context}개 켜짐 — %는 고정 기준 ${PCT_BASE}개 대비: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/19 · 배경 ${r.context}/16). ${r.reason}.` +

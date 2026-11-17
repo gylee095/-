@@ -330,4 +330,24 @@ describe("영상 '전쟁 직전 신호 7가지'에서 가져온 것 (11/18)", ()
     expect(f).toMatchObject({ n: 3, known: 5 });
     expect(freshOf(r, [], NOW)).toMatchObject({ n: 0, known: 0 }); // 기록이 없으면 '새로'를 말하지 않는다
   });
+  it("2주 사이 5개가 연달아 켜지면 숫자가 25%에 못 미쳐도 최소 위기 — %는 켜진 개수 그대로 두고 이유를 적는다", async () => {
+    const { FRESH_CRISIS } = await import("../src/core/proximity.js");
+    const { PRECURSOR_DATA } = await import("../src/core/precursor_data.js");
+    expect(FRESH_CRISIS).toBe(5);
+    const H = PRECURSOR_DATA.table.hyps.map((h) => h.id);
+    const day = (n: number) => new Date(NOW - n * 86400_000 + 9 * 3600_000).toISOString().slice(0, 10);
+    const quiet = { v: 1 as const, days: [10, 7, 4, 1].map((n) => ({ d: day(n), s: H.map(() => "0").join(""), i: 15, c: 3, w: 0.5, ph: 2 })), base: {}, baseUpTo: undefined } as any;
+    // 반 개짜리 다섯 — 개수로는 22%(긴장)지만 2주 전에는 모두 꺼져 있었다
+    const five = parseChecks("g_ultimatum=0.5:a i_leader_threat=0.5:b i_pretext=0.5:c m_logistics=0.5:d g_attacker_evac=0.5:e", NOW);
+    const p = assessProximity([], [], NOW, quiet, five);
+    expect(p.fresh).toMatchObject({ n: 5 });
+    expect(p.index).toBeLessThan(25);
+    expect(p.phase).toBe(3);
+    expect(p.rubric.reason).toMatch(/2주 사이 꺼져 있던 신호 5개가 연달아 켜졌어요.*위기로 봐요/);
+    // 넷이면 알림만(phasealert FRESH_AT), 단계는 개수대로
+    const four = parseChecks("g_ultimatum=0.5:a i_leader_threat=0.5:b i_pretext=0.5:c m_logistics=0.5:d", NOW);
+    expect(assessProximity([], [], NOW, quiet, four)).toMatchObject({ phase: 2 });
+    // 기록이 없으면(새로 켜진 것인지 모르면) 바닥을 올리지 않는다
+    expect(assessProximity([], [], NOW, undefined, five).phase).toBe(2);
+  });
 });

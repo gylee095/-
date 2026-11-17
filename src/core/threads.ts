@@ -35,14 +35,14 @@ export const INTRO_TEXTS: ((url: string) => string)[] = [
   (u) => `직접 만든 앱 소개할게요.\n\n전쟁 얘기 나올 때마다 계속 찾아보게 돼서,\n공개된 신호 ${SIGNAL_COUNT}개를 매일 지켜보다가 위험 단계가 바뀌면 알림을 주는 앱을 만들었어요.\n평소엔 조용하고, 뭔가 달라질 때만 와요.\n\n${u}`,
   (u) => `한반도 전쟁 위험 알림 앱을 만들었어요.\n\n뉴스, 항공기, 환율, 검색량 같은 공개 신호 ${SIGNAL_COUNT}개를 매일 보고,\n위험 단계가 바뀌거나 징조가 보이면 휴대폰으로 알려 줘요.\n\n${u}`,
   (u) => `전쟁 뉴스를 일일이 찾아보지 않으려고 만든 앱이에요.\n\n공개 신호 ${SIGNAL_COUNT}개를 매일 확인하고, 단계가 바뀔 때만 알림이 와요.\n사진은 단계가 올라갔을 때 오는 알림의 예시 화면이에요.\n\n${u}`,
-  (u) => `혼자 만든 앱이라 완벽하진 않아요.\n그래도 공개 신호 ${SIGNAL_COUNT}개를 매일 보고, 위험 단계가 바뀌면 바로 알려 줘요.\n평소엔 알림이 거의 없어요.\n\n${u}`,
+  (u) => `혼자 만든 앱이라 완벽하진 않아요.\n그래도 공개 신호 ${SIGNAL_COUNT}개를 매일 보고, 전쟁 위험 단계가 바뀌면 바로 알려 줘요.\n평소엔 알림이 거의 없어요.\n\n${u}`,
 ];
 
 /** ② 큰 뉴스 글 — 무슨 일인지 한 줄(누구나 아는 뉴스) + 짧은 소개. 우리 판정은 넣지 않는다 */
 export const NEWS_TEXTS: ((what: string, u: string) => string)[] = [
-  (w, u) => `${w}\n\n이번 일로 한반도 위험 단계가 바뀌는지는 앱에서 알림으로 알려 드려요.\n${u}`,
-  (w, u) => `${w}\n\n공개 신호 ${SIGNAL_COUNT}개를 매일 보고, 위험 단계가 바뀌면 알림을 보내는 앱을 만들어 운영하고 있어요.\n${u}`,
-  (w, u) => `${w}\n\n뉴스를 계속 찾아보지 않아도, 단계가 바뀌면 알림이 와요.\n${u}`,
+  (w, u) => `${w}\n\n이번 일로 한반도 전쟁 위험 단계가 바뀌는지는 앱에서 알림으로 알려 드려요.\n${u}`,
+  (w, u) => `${w}\n\n공개 신호 ${SIGNAL_COUNT}개를 매일 보고, 전쟁 위험 단계가 바뀌면 알림을 보내는 앱을 만들어 운영하고 있어요.\n${u}`,
+  (w, u) => `${w}\n\n전쟁 뉴스를 계속 찾아보지 않아도, 단계가 바뀌면 알림이 와요.\n${u}`,
 ];
 
 type Kv = { getKv(k: string): Promise<string | undefined>; setKv(k: string, v: string): Promise<void> };
@@ -145,6 +145,15 @@ async function call(fetchImpl: typeof fetch, path: string, params: Record<string
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+/** 모든 글에 다는 주제 태그 (11/16 사용자: 스레드에 올릴 때 태그도 같이) — '전쟁' 주제 페이지에 글이 모인다. 스레드는 글 하나에 태그 하나 */
+export const THREADS_TOPIC = "전쟁";
+
+/** 태그를 달아 담아 보고, 스레드가 태그 때문에 거절하면(예: 사진 묶음에는 안 받음) 태그 없이 한 번 더 — 태그 때문에 글이 안 올라가면 안 된다 */
+async function withTopic(make: (t: Record<string, string>) => Promise<{ id?: string; error?: string }>): Promise<{ id?: string; error?: string }> {
+  const first = await make({ topic_tag: THREADS_TOPIC });
+  return first.id ? first : make({});
+}
+
 /** 담아 둔 것을 공개한다. 준비(사진 내려받기 등)가 덜 됐다고 거절될 수 있어 쉬어 가며 몇 번 더 해 본다 */
 async function publishContainer(token: string, id: string, fetchImpl: typeof fetch, sleep: (ms: number) => Promise<void>, pauses: number[]): Promise<{ id?: string; error?: string }> {
   let out: { id?: string; error?: string } = {};
@@ -158,7 +167,7 @@ async function publishContainer(token: string, id: string, fetchImpl: typeof fet
 
 /** 글만 올린다 */
 export async function publishThreads(token: string, text: string, fetchImpl: typeof fetch = fetch, sleep: (ms: number) => Promise<void> = wait): Promise<{ id?: string; error?: string }> {
-  const made = await call(fetchImpl, "threads", { media_type: "TEXT", text, access_token: token });
+  const made = await withTopic((t) => call(fetchImpl, "threads", { media_type: "TEXT", text, ...t, access_token: token }));
   if (!made.id) return made;
   return publishContainer(token, made.id, fetchImpl, sleep, [0, 3000, 8000]);
 }
@@ -174,7 +183,7 @@ export async function publishThreadsWithImages(token: string, text: string, imag
     }
     if (items.length === imageUrls.length) {
       await sleep(5000); // 스레드가 사진을 내려받을 시간
-      const box = await call(fetchImpl, "threads", { media_type: "CAROUSEL", children: items.join(","), text, access_token: token });
+      const box = await withTopic((t) => call(fetchImpl, "threads", { media_type: "CAROUSEL", children: items.join(","), text, ...t, access_token: token }));
       if (box.id) {
         const out = await publishContainer(token, box.id, fetchImpl, sleep, [0, 5000, 15000, 30000]);
         if (out.id) return { ...out, images: imageUrls.length };

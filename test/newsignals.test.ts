@@ -29,7 +29,9 @@ describe("항공 분쟁지역 고시 (EASA)", () => {
 
 describe("사이버 위기 경보 단계 (KISA)", () => {
   it("실제 첫 화면에서 단계를 읽는다 — 2026-11-18 '주의'(2)", () => {
-    expect(parseKisaLevel(fx("kisa_alert_20261118.html"))).toBe(2);
+    const page = fx("kisa_main_20261118.html");
+    expect(page.indexOf("경보단계")).toBeLessThan(page.indexOf("인터넷침해사고 경보단계")); // 메뉴에 먼저 나온다 — 그래서 첫 번째 것을 읽으면 안 된다
+    expect(parseKisaLevel(page)).toBe(2);
     expect(cyberMetric(2)).toMatchObject({ indicator: "official.cyber_alert_level", value: 2 });
     expect(parseKisaLevel('<span>인터넷침해사고 경보단계</span><dl class="step s04">')).toBe(4);
     expect(parseKisaLevel('<span>인터넷침해사고 경보단계</span><dl class="step">')).toBe(0);

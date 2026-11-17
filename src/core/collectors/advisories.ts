@@ -139,9 +139,9 @@ export function easaMetric(rows: CzibRow[]): Metric | undefined {
 export const KISA_URL = "https://www.boho.or.kr/kr/main.do";
 export const CYBER_LEVELS = ["정상", "관심", "주의", "경계", "심각"];
 export function parseKisaLevel(html: string): number | undefined {
-  const i = html.indexOf("경보단계");
-  if (i < 0) return undefined;
-  const m = /<dl class="step(?:\s+s0([1-4]))?"/.exec(html.slice(i, i + 600));
+  // '경보단계'라는 말은 메뉴·검색어 목록에도 나온다 — 첫 화면의 '인터넷침해사고 경보단계' 상자 바로 뒤의 단계 표시만 읽는다
+  // (11/17: 맨 처음 나오는 '경보단계' 뒤를 읽다가 서버에서 값을 못 읽었다)
+  const m = /인터넷침해사고\s*경보단계[\s\S]{0,500}?<dl class="step(?:\s+s0([1-4]))?"/.exec(html);
   return m ? (m[1] ? Number(m[1]) : 0) : undefined;
 }
 export const cyberMetric = (level: number | undefined): Metric | undefined => (level === undefined ? undefined : { indicator: "official.cyber_alert_level", value: level, meta: { note: `민간 분야 경보 '${CYBER_LEVELS[level]}' 단계` } });

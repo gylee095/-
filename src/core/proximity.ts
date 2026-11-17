@@ -203,6 +203,17 @@ export interface ProximityView extends Proximity {
   text: string;
 }
 
+/** 하나만으로 단계의 바닥을 올리는 무거운 신호 — 확인된 것(온전히 켜진 것)만. 3 = 최소 위기, 4 = 최소 임박.
+ *  군 경계태세 격상(워치콘·데프콘·북한의 전시 태세 보도)은 넣지 않았다 — 워치콘 격상 기사 한 건으로 위기가 되면 과하다(징조 9개에도 못 든 참고 신호다) */
+export const HEAVY: { id: string; phase: 3 | 4; what: string }[] = [
+  { id: "m_mobilization", phase: 4, what: "한국의 동원령·전시 선포가 확인됐어요" },
+  { id: "g_evac_order", phase: 3, what: "동맹국 대사관의 철수·출국 명령이 확인됐어요" },
+  { id: "g_leave_now", phase: 3, what: "주요국이 자국민에게 한국을 즉시 떠나라고 권고했어요" },
+  { id: "m_airspace", phase: 3, what: "외국 항공사의 한국 노선 운항 중단·전쟁 보험 중단이 확인됐어요" },
+];
+export function heavyOf(status: Record<string, SignalNow>): { phase: 3 | 4; what: string } | undefined {
+  return HEAVY.filter((h) => status[h.id]?.s === "on" && (status[h.id].w ?? 1) >= 1).sort((a, b) => b.phase - a.phase)[0];
+}
 export const FRESH_DAYS = 14;
 /** 2주 사이 새로 켜진 징조·움직임이 이만큼이면 최소 위기(3단계) — 판단값 (알림은 3개부터: phasealert.ts FRESH_AT) */
 export const FRESH_CRISIS = 5;
@@ -246,7 +257,12 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   // 배수를 곱하지 않고 단계의 바닥만 올린다 — %는 '켜진 개수의 비율' 그대로 두고, 왜 위기인지는 이유에 적는다.
   const fresh = freshOf(r0, hist?.days ?? [], now);
   const fast = fresh.n >= FRESH_CRISIS && r0.phase < 3;
-  const r: RubricScore = fast ? { ...r0, phase: 3, reason: `2주 사이 꺼져 있던 신호 ${fresh.n}개가 연달아 켜졌어요 (${fresh.items.slice(0, 3).map((x) => x.ko).join(", ")}${fresh.n > 3 ? " 등" : ""}) — 켜진 수는 ${r0.index}%지만 위기로 봐요` } : r0;
+  const r1: RubricScore = fast ? { ...r0, phase: 3, reason: `2주 사이 꺼져 있던 신호 ${fresh.n}개가 연달아 켜졌어요 (${fresh.items.slice(0, 3).map((x) => x.ko).join(", ")}${fresh.n > 3 ? " 등" : ""}) — 켜진 수는 ${r0.index}%지만 위기로 봐요` } : r0;
+  // 무거운 신호는 하나만으로도 단계의 바닥을 올린다 (11/18 사용자가 가져온 설계 문서와 견주다 찾은 빈틈): '신호 하나로 울리지 않는다'는 대화 단절처럼
+  // 흔한 신호에 맞는 원칙이다. 동맹국의 대사관 철수·즉시 출국 권고, 외국 항공사의 운항 중단, 동원령은 수십 년에 한 번 있을까 말까 한 일이라
+  // 켜진 수가 적어도 긴장으로 두면 안 된다. 확인된 것(약함·미확인이 아닌 것)만 센다. %는 그대로 두고 이유에 적는다.
+  const heavy = heavyOf(status);
+  const r: RubricScore = heavy && heavy.phase > r1.phase ? { ...r1, phase: heavy.phase, reason: `${heavy.what} — 이 신호 하나만으로 ${heavy.phase === 4 ? "임박" : "위기"}으로 봐요 (켜진 수는 ${r0.index}%)` } : r1;
   const clashPct = clashOf(r.signs, r.phase, p0.quiet.clashPct);
   const warPct = +Math.min(clashPct, p0.quiet.warPct + Math.max(0, clashPct - p0.quiet.clashPct) * (MODEL.Q_WAR / MODEL.Q_CLASH)).toFixed(clashPct < 5 ? 2 : 1);
   const p = { ...p0, index: r.index, phase: r.phase, clashPct, warPct, on: Math.ceil(r.signs + r.moves), watched: r.watched, parts: r.layers.map((l) => ({ cluster: "G" as const, label: l.label, pts: l.pts })) };

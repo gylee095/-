@@ -350,4 +350,20 @@ describe("영상 '전쟁 직전 신호 7가지'에서 가져온 것 (11/18)", ()
     // 기록이 없으면(새로 켜진 것인지 모르면) 바닥을 올리지 않는다
     expect(assessProximity([], [], NOW, undefined, five).phase).toBe(2);
   });
+  it("무거운 신호는 하나만으로 단계의 바닥을 올린다 — 확인된 것만, %는 그대로", async () => {
+    const { heavyOf, HEAVY } = await import("../src/core/proximity.js");
+    expect(HEAVY.map((h) => h.id)).toEqual(["m_mobilization", "g_evac_order", "g_leave_now", "m_airspace"]);
+    expect(heavyOf(on("m_alert_level") as any)).toBeUndefined(); // 워치콘 격상 기사 한 건으로 위기가 되지는 않는다
+    expect(heavyOf(on("g_evac_order") as any)).toMatchObject({ phase: 3 });
+    expect(heavyOf({ ...all("off"), g_evac_order: { s: "on", w: 0.5 } } as any)).toBeUndefined(); // 보도만·미확인은 아니다
+    expect(heavyOf(on("g_evac_order", "m_mobilization") as any)).toMatchObject({ phase: 4 });
+    expect(heavyOf(on("s_talks", "f_fx", "i_leader_threat") as any)).toBeUndefined(); // 흔한 신호는 묶여야 한다
+    // 대사관 철수가 확인되면: 켜진 수는 18%(긴장)지만 위기
+    const p = assessProximity([], [], NOW, undefined, parseChecks("g_evac_order=1:미 국무부, 주한 대사관 직원 가족 철수 명령 https://kr.usembassy.gov/x", NOW));
+    expect(p.index).toBeLessThan(25);
+    expect(p.phase).toBe(3);
+    expect(p.rubric.reason).toMatch(/대사관의 철수·출국 명령이 확인됐어요 — 이 신호 하나만으로 위기으로 봐요|위기로 봐요/);
+    expect(assessProximity([], [], NOW, undefined, parseChecks("g_evac_order=0.5:보도만", NOW)).phase).toBe(2);
+    expect(assessProximity([], [], NOW, undefined, parseChecks("m_mobilization=1:예비군 동원령 선포", NOW)).phase).toBe(4);
+  });
 });

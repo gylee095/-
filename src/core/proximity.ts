@@ -140,10 +140,14 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   fromIndicators("a_nk_dark", ["internet.kp_outage_alerts_24h", "nk.pyongyang_lights_pct"]);
   // 세계 정세 사건 (11/14): 제목으로 잡은 것은 약한 신호(절반) — 원인·규모는 분석관이 확인해 올리거나 내린다
   const worldOf = (kind: "infra" | "war", days: number) => briefs.find((b) => now - b.at < days * DAY && now - b.at >= -3600_000 && worldEvent(b.headline) === kind);
-  // 제목만으로 켠 것은 사흘만 둔다 (11/17 사용자: 공항 셧다운이 며칠째 그대로라 작동하는지 의심된다) — 그 뒤에도 남기려면 분석관이 확인해 켠다(7일)
+  // 세계 사건은 '아직 이어지는가'로 유지한다 (11/17 사용자: "기계적으로 다음 날 내리는 게 아니다 — 문제가 지속 중이면 유지하고, 그때 하루뿐이었으면 내린다").
+  // ① 관련 보도가 계속 나오면 그때마다 창이 뒤로 밀려 유지된다 ② 분석관이 하루 두 번 '이어지는 중'(1·0.5)이라고 적으면 유지된다 ③ 끝났다(0)고 적으면 내린다 —
+  // 그 뒤 새 보도가 오면 다시 켠다 ④ 보도도 분석관 확인도 사흘 동안 없으면 끝난 것으로 본다
   const wi = worldOf("infra", WORLD_AUTO_DAYS), ww = worldOf("war", WORLD_AUTO_DAYS);
   set("w_infra", wi ? "on" : "off", 0.5, wi?.headline);
   set("w_new_war", ww ? "on" : "off", 0.5, ww?.headline);
+  if (wi) out.w_infra.evAt = wi.at;
+  if (ww) out.w_new_war.evAt = ww.at;
   return out;
 }
 
@@ -165,7 +169,8 @@ export function koreaStatus(board: BoardRow[], briefs: EventBrief[], now: number
     if (c.v > 0) {
       if (a?.s === "on" && (a.w ?? 1) >= c.v) continue;
       st[id] = { s: "on", ...(c.v < 1 ? { w: c.v } : {}), ev: ev ?? a?.ev, by: "analyst", ...(c.src ? { src: c.src } : {}) };
-    } else if (a?.s === "on" && WORLD_EVENT_IDS.includes(id)) st[id] = { s: "off", by: "analyst", ev: `${a.ev ?? ""} — 분석관: ${ev ?? "사고·일시 장애로 확인"}`.slice(0, 120) }; // 세계 사건은 제목만으로 켜지므로 분석관이 아니라고 하면 내린다
+    } else if (a?.s === "on" && WORLD_EVENT_IDS.includes(id) && (a.evAt ?? 0) > checks!.at) continue; // 분석관이 '끝났다'고 적은 뒤에 새 보도가 왔다 — 다시 켜 두고 다음 분석 때 확인한다
+    else if (a?.s === "on" && WORLD_EVENT_IDS.includes(id)) st[id] = { s: "off", by: "analyst", ev: `${a.ev ?? ""} — 분석관: ${ev ?? "사고·일시 장애로 확인"}`.slice(0, 120) }; // 세계 사건은 제목만으로 켜지므로 분석관이 아니라고 하면 내린다
     else if (a?.s === "on") st[id] = { ...a, w: 0.5, ev: `${a.ev ?? ""}${ev ? ` — 분석관: ${ev}` : ""}`.slice(0, 120) };
     else st[id] = { s: "off", by: "analyst", ...(ev ? { ev } : {}) };
   }
@@ -345,8 +350,8 @@ export const ANALYST_GUIDE: Record<string, string> = {
   i_pretext: "'도발·학살' 주장, 자작극 의혹, '우리 국민 보호' 서사가 평소보다 격해짐",
   i_state_mobilization: "북한 관영매체의 전시 동원 서사 (입대 탄원 군중대회, 준전시 선포 보도)",
   t_deadline: "공개된 시한·날짜 조건의 만료가 임박",
-  w_infra: "(세계·사건) 미국·동맹국 기반시설이 전국 규모로 멈췄거나 공격받았나 — 자동으로 '약함'이면 원인을 반드시 확인한다: 국가 배후 공격이면 1, 사고·일시 장애로 끝났으면 0 (0 이면 내려간다)",
-  w_new_war: "(세계·사건) 새 전쟁·대규모 공격이 시작됐나 — 자동으로 '약함'이면 실제 개전인지 확인해 1 또는 0",
+  w_infra: "(세계·사건) 미국·동맹국 기반시설의 전국 규모 마비·공격 — 원인보다 '아직 이어지는가'를 본다: 마비·혼란이 지금도 이어지면 유지(국가 배후 공격으로 확인 1 · 원인 불명이거나 사고지만 아직 정상화 안 됨 0.5), 정상화돼 끝났으면 0 (0 이면 내려간다). 매번 다시 확인한다",
+  w_new_war: "(세계·사건) 새 전쟁·대규모 공격 — 지금도 교전이 이어지면 1, 충돌 직전 대치·제한 교전이면 0.5, 가라앉았으면 0",
   w_power_clash: "(세계·사건) 강대국끼리 직접 부딪쳤나 — 격추, 함정 충돌, 교전 (7일 유효)",
   w_us_commit: "(세계) 미국이 동맹 방위에서 발을 빼는 신호가 있나 — 주한미군 감축 발표, 방위비 갈등으로 철수 거론",
   w_us_war: "(세계·한 달에 한 번) 미국이 한반도 밖에서 전쟁·대규모 군사작전을 하고 있나",

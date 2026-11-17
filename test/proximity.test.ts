@@ -279,4 +279,15 @@ describe("세계 사건이 며칠째 그대로 남지 않게 (11/17)", () => {
     expect(st.w_infra.ev).toMatch(/분석관: 관제통신 장애/);
     expect(ANALYST_GUIDE.w_infra).toMatch(/0 이면 내려간다/);
   });
+  it("문제가 이어지면 유지한다 — 새 보도가 계속 나오면 사흘이 지나도, 분석관이 '이어지는 중'이라고 적으면 보도가 없어도", () => {
+    const many = [...b(5), ...b(4), ...b(0.5)] as any; // 닷새 전 시작, 반나절 전에도 보도
+    expect(koreaStatus([], many, NOW).w_infra).toMatchObject({ s: "on", w: 0.5 });
+    expect(koreaStatus([], b(5), NOW, parseChecks("w_infra=0.5:닷새째 지연·결항 이어지는 중", NOW - 3600_000)).w_infra).toMatchObject({ s: "on", w: 0.5, by: "analyst" });
+    expect(koreaStatus([], b(5), NOW, parseChecks("w_infra=1:국가 배후 공격으로 확인, 복구 안 됨", NOW - 3600_000)).w_infra).toMatchObject({ s: "on", by: "analyst" });
+  });
+  it("분석관이 끝났다고 적은 뒤에 새 보도가 오면 다시 켠다 (다음 분석 때 다시 확인)", () => {
+    const st = koreaStatus([], b(0.1), NOW, parseChecks("w_infra=0:정상화", NOW - 86400_000));
+    expect(st.w_infra).toMatchObject({ s: "on", w: 0.5, by: "auto" });
+    expect(ANALYST_GUIDE.w_infra).toMatch(/아직 이어지는가/);
+  });
 });

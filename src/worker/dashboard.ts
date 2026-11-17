@@ -478,6 +478,9 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   if(d1!==undefined&&d1!==null){var yv=PCT-d1;
     h+='<div style="font-size:15px;font-weight:700;margin-top:4px;color:'+(d1>0?'var(--l4)':d1<0?'var(--ok,#34c759)':'var(--fg)')+'">어제 '+yv+'% → 오늘 '+PCT+'% <span style="font-weight:400;color:var(--mute)">'+(d1===0?'같아요':d1>0?'▲ '+d1+'%p 올랐어요':'▼ '+(-d1)+'%p 내렸어요')+'</span></div>'}
   else h+='<div style="font-size:13px;color:var(--mute);margin-top:4px">어제와의 비교는 기록이 하루 쌓인 뒤(내일)부터 보여요.</div>';
+  // 같을 때는 '멈춘 게 아니라 달라진 것이 없어서'임을 보인다 (11/17 사용자: 며칠째 17%라 작동하는지 의심된다) — 마지막 확인 시각과 오늘 분석 시각
+  if(d1===0||d1===undefined||d1===null){var lc=st.lastCycle?st.lastCycle.at:0,aa=st.assessment?st.assessment.at:0;
+    if(lc)h+='<div style="font-size:12.5px;color:var(--mute);margin-top:2px">'+(d1===0?'달라진 것이 없어서 같아요 · ':'')+'마지막 확인 '+esc(ago(lc))+(aa?' · 클로드 분석 '+esc(kst(aa)):'')+'</div>'}
   // 왜 올랐나·내렸나 한 줄 (11/14 사용자: "15%에서 17%가 됐는데 이유를 안 알려 주면 사용자는 왜 올랐는지 알 수 없다 — 맨 위에 간략하게"). 어제 판정 뒤로 새로 켜진 것·꺼진 것의 이름만
   if(YD&&d1){var UP=YD.up||[],DN=YD.down||[],nm=function(a){return a.slice(0,2).map(function(x){return "'"+x.ko+"'"}).join(", ")+(a.length>2?" 등 "+a.length+"개":"")};
     var why=d1>0?(UP.length?nm(UP)+(UP.length>1?" 항목들이":" 항목이")+" 새로 켜졌기 때문이에요.":""):(DN.length?nm(DN)+(DN.length>1?" 항목들이":" 항목이")+" 꺼졌기 때문이에요.":"");

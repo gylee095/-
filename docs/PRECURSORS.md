@@ -1,6 +1,6 @@
 # 전쟁 전조 사례집 — 가중치와 성적표 (규칙 3.0)
 
-> 자동 생성: `npx tsx scripts/build-precursors.ts`. 손으로 고치지 않는다. 만든 날 2026-11-14.
+> 자동 생성: `npx tsx scripts/build-precursors.ts`. 손으로 고치지 않는다. 만든 날 2026-11-17.
 > 자료: `data/precursors/raw/<사례>.json` (가설 33개 × 사례, 출처 포함) · 정의: `data/precursors/codebook.json` · 계산: `src/core/precursors.ts`
 
 ## 한눈에

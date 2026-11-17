@@ -266,3 +266,17 @@ describe("출처 링크 (11/14)", () => {
     for (const x of lit) expect(x.src?.length, x.id).toBeGreaterThan(0);
   });
 });
+
+describe("세계 사건이 며칠째 그대로 남지 않게 (11/17)", () => {
+  const b = (daysAgo: number) => [{ at: NOW - daysAgo * 86400_000, headline: "美전역 항공기 운항중단 '올스톱' 사태", danger: { level: 1, label: "", reason: "" }, isProvocation: false }] as any;
+  it("제목만으로 켠 것은 사흘 뒤 꺼진다", () => {
+    expect(koreaStatus([], b(2), NOW).w_infra).toMatchObject({ s: "on", w: 0.5 });
+    expect(koreaStatus([], b(3.1), NOW).w_infra.s).toBe("off");
+  });
+  it("분석관이 사고라고 적으면(0) 바로 내려간다 — 다른 자동 항목처럼 '약함'으로 남지 않는다", () => {
+    const st = koreaStatus([], b(1), NOW, parseChecks("w_infra=0:관제통신 장애, 당국 사이버 공격 징후 없음", NOW));
+    expect(st.w_infra).toMatchObject({ s: "off", by: "analyst" });
+    expect(st.w_infra.ev).toMatch(/분석관: 관제통신 장애/);
+    expect(ANALYST_GUIDE.w_infra).toMatch(/0 이면 내려간다/);
+  });
+});

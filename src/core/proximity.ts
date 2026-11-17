@@ -144,8 +144,9 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   // 세계 금융의 전쟁 공포·지도부 공백을 숫자로 (11/18) — 전에는 분석관이 뉴스로만 확인해 며칠씩 '미확인'이었다
   fromIndicators("w_markets", ["market.world_fear"]);
   fromIndicators("m_leadership", ["nk.kim_absence_days"]);
-  // 세계 매체의 무력·마비 속보가 평소보다 몰림 (11/18 사용자: "미국 뉴스를 받되 너무 크게 올리지 않게 — 불안한 배경 정도로"): 아무리 많아도 절반(0.5)까지만
-  { const wl = lvl("media.world_alarm_24h"); set("w_alarm", wl >= 1 ? "on" : wl === 0 ? "off" : "unk", 0.5, wl >= 1 ? "세계 매체의 무력·마비 속보가 평소보다 많음" : undefined); }
+  // 세계 매체의 무력·마비 속보가 평소보다 몰림 (11/18 사용자: "미국 뉴스를 받되 너무 크게 올리지 않게 — 불안한 배경 정도로" → 같은 날: "미국이 난리가 나서 속보가 마구 터지면 그때는 신호가 가야 한다")
+  // 평소보다 많으면 절반(0.5), 평소를 크게 벗어나면 온전히(1). 그래도 배경 한 항목이다
+  fromIndicators("w_alarm", ["media.world_alarm_24h"]);
   // 세계 정세 사건 (11/14): 제목으로 잡은 것은 약한 신호(절반) — 원인·규모는 분석관이 확인해 올리거나 내린다
   const worldOf = (kind: "infra" | "war", days: number) => briefs.find((b) => now - b.at < days * DAY && now - b.at >= -3600_000 && worldEvent(b.headline) === kind);
   // 세계 사건은 '아직 이어지는가'로 유지한다 (11/17 사용자: "기계적으로 다음 날 내리는 게 아니다 — 문제가 지속 중이면 유지하고, 그때 하루뿐이었으면 내린다").
@@ -422,7 +423,7 @@ export const ANALYST_GUIDE: Record<string, string> = {
   w_taiwan: "(세계) 대만해협·동중국해에 봉쇄·대규모 포위 훈련 같은 군사 위기가 있나",
   w_nuclear: "(세계) 강대국의 핵 위협, 핵실험 재개, 군비통제 조약 붕괴가 있나",
   w_markets: "(세계) 금·유가·변동성 지수가 전쟁 공포로 급등했나",
-  w_alarm: "(세계·자동) 미국·세계 매체의 공격·교전·마비 속보가 평소보다 몰렸나 — 숫자로 잰다. 아무리 많아도 절반(0.5)",
+  w_alarm: "(세계·자동) 미국·세계 매체의 공격·교전·마비 속보가 평소보다 몰렸나 — 숫자로 잰다. 많으면 절반(0.5), 크게 벗어나면 온전히(1)",
   s_talks: "(바탕·한 달에 한 번) 남북·북미 사이에 열려 있는 대화 채널이 하나도 없나",
   s_agreement: "(바탕) 9·19 군사합의 등 충돌 방지 합의가 파기·효력 정지 상태인가",
   s_doctrine: "(바탕) 북한이 한국을 적대국으로 규정했거나 핵 선제사용을 법에 명시했나",

@@ -118,8 +118,8 @@ describe("미국·세계 매체의 무력·마비 속보 (11/18)", async () => {
   it("구글 뉴스 제목에서 매체 이름을 뗀다", () => {
     expect(splitOutlet("Classified N.S.A. Network Goes Down, Causing Work Disruptions - The New York Times")).toEqual({ title: "Classified N.S.A. Network Goes Down, Causing Work Disruptions", outlet: "The New York Times" });
   });
-  it("평소보다 많아도 배경 절반(0.5)까지만 — 못 받으면 '못 봄', 평소면 꺼짐", () => {
-    expect(autoStatus([row("media.world_alarm_24h", 30, "anomalous")], [], NOW).w_alarm).toMatchObject({ s: "on", w: 0.5 });
+  it("평소보다 많으면 절반(0.5), 크게 벗어나면 온전히(1) — 못 받으면 '못 봄', 평소면 꺼짐", () => {
+    expect(autoStatus([row("media.world_alarm_24h", 80, "anomalous")], [], NOW).w_alarm).toMatchObject({ s: "on", w: 1 });
     expect(autoStatus([row("media.world_alarm_24h", 20, "elevated")], [], NOW).w_alarm).toMatchObject({ s: "on", w: 0.5 });
     expect(autoStatus([row("media.world_alarm_24h", 9, "normal")], [], NOW).w_alarm.s).toBe("off");
     expect(autoStatus([], [], NOW).w_alarm.s).toBe("unk");

@@ -185,7 +185,7 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
 export function parseRss(xml: string): { title: string; link: string; pubDate?: number }[] {
   const items: { title: string; link: string; pubDate?: number }[] = [];
   const decode = (s: string) =>
-    s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&apos;|&#x27;/g, "'").trim();
+    s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#0?39;|&apos;|&#x27;/g, "'").trim();
   for (const m of xml.matchAll(/<item\b[\s\S]*?<\/item>/g)) {
     const block = m[0];
     const title = decode(/<title>([\s\S]*?)<\/title>/.exec(block)?.[1] ?? "");

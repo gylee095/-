@@ -159,6 +159,12 @@ export async function collectAdvisories(now = Date.now()): Promise<CollectResult
   // 덤으로 받는 공식 고시 둘 — 실패해도 여행경보 수집을 실패로 보지 않는다
   const [easa, kisa] = await Promise.allSettled([fetchText(EASA_URL, {}, 20000).then(parseEasa).then(easaMetric), fetchText(KISA_URL, {}, 20000).then(parseKisaLevel).then(cyberMetric)]);
   for (const r of [easa, kisa]) if (r.status === "fulfilled" && r.value) metrics.push(r.value);
+  // 못 받은 까닭은 남긴다 (값이 없으면 화면에 '측정 불가'로만 보여 원인을 알 수 없다 — 11/17 사이버 경보가 서버에서만 안 들어왔다)
+  [easa, kisa].forEach((r, i) => {
+    const name = ["항공 고시(EASA)", "사이버 경보(KISA)"][i];
+    if (r.status === "rejected") errors.push(`${name}: ${String((r.reason as Error)?.message ?? r.reason).slice(0, 120)}`);
+    else if (!r.value) errors.push(`${name}: 받았지만 값을 읽지 못함`);
+  });
   return {
     source: "advisories",
     ok: metrics.length > 0,

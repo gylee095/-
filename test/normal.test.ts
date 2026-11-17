@@ -78,29 +78,16 @@ describe("사건 목록의 품질 (11/14)", () => {
   });
 });
 
-describe("항공 수집원 한 곳이 멈춰도 (11/17)", () => {
-  it("adsb.lol 이 답하지 않으면 adsb.fi 에서 받는다 — 어디서 받았는지 남긴다. 둘 다 멈추면 그때 실패", async () => {
-    const { collectAdsb, fetchAircraft, POINT_FEEDS } = await import("../src/core/collectors/adsb.js");
-    const ac = (n: number) => Array.from({ length: n }, (_, i) => ({ hex: "71" + i.toString(16).padStart(4, "0"), flight: "KAL" + i, t: "B738", lat: 37.5, lon: 127, alt_baro: 30000 }));
+describe("항공 수집원 (11/17)", () => {
+  it("대신 받으려던 adsb.fi 는 우리 서버에서 403 으로 막혀 있어 뺐다 — 실패하면 어느 곳이 왜 실패했는지 남긴다", async () => {
+    const { fetchAircraft, POINT_FEEDS } = await import("../src/core/collectors/adsb.js");
+    expect(POINT_FEEDS.map((f) => f.via)).toEqual(["adsb.lol"]);
     const orig = globalThis.fetch;
-    let down = ["api.adsb.lol"];
-    globalThis.fetch = (async (u: any) => {
-      const url = String(u);
-      if (down.some((h) => url.includes(h))) throw new Error("The operation was aborted");
-      return new Response(JSON.stringify(url.includes("adsb.fi") ? { now: 1, aircraft: ac(80) } : { now: 1, ac: ac(90) }), { headers: { "content-type": "application/json" } });
-    }) as typeof fetch;
+    globalThis.fetch = (async () => { throw new Error("The operation was aborted"); }) as typeof fetch;
     try {
-      const r = await fetchAircraft({ lat: 37.5, lon: 127, radiusNm: 250 } as any);
-      expect(r.via).toBe("adsb.fi");
-      expect(r.aircraft).toHaveLength(80);
-      const c = await collectAdsb(NOW);
-      const civil = c.metrics!.find((m) => m.indicator === "air.civil_airborne")!;
-      expect(civil.value).toBe(80);
-      expect(civil.meta).toMatchObject({ via: "adsb.fi" });
-      down = [];
-      expect((await fetchAircraft({ lat: 37.5, lon: 127, radiusNm: 250 } as any)).via).toBe(POINT_FEEDS[0].via);
-      down = ["adsb.lol", "adsb.fi"];
-      await expect(fetchAircraft({ lat: 37.5, lon: 127, radiusNm: 250 } as any)).rejects.toThrow();
+      await expect(fetchAircraft({ lat: 37.5, lon: 127, radiusNm: 250 } as any)).rejects.toThrow(/adsb\.lol: .*aborted/);
+      globalThis.fetch = (async () => new Response(JSON.stringify({ now: 1, ac: [{ hex: "71abcd", flight: "KAL1", t: "B738", lat: 37.5, lon: 127, alt_baro: 30000 }] }), { headers: { "content-type": "application/json" } })) as typeof fetch;
+      expect(await fetchAircraft({ lat: 37.5, lon: 127, radiusNm: 250 } as any)).toMatchObject({ via: "adsb.lol" });
     } finally {
       globalThis.fetch = orig;
     }

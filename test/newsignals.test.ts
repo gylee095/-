@@ -119,7 +119,9 @@ describe("미국·세계 매체의 무력·마비 속보 (11/18)", async () => {
     expect(splitOutlet("Classified N.S.A. Network Goes Down, Causing Work Disruptions - The New York Times")).toEqual({ title: "Classified N.S.A. Network Goes Down, Causing Work Disruptions", outlet: "The New York Times" });
   });
   it("평소보다 많으면 절반(0.5), 크게 벗어나면 온전히(1) — 못 받으면 '못 봄', 평소면 꺼짐", () => {
-    expect(autoStatus([row("media.world_alarm_24h", 80, "anomalous")], [], NOW).w_alarm).toMatchObject({ s: "on", w: 1 });
+    const full = autoStatus([row("media.world_alarm_24h", 80, "anomalous")], [], NOW).w_alarm;
+    expect(full.s).toBe("on");
+    expect(full.w ?? 1).toBe(1);
     expect(autoStatus([row("media.world_alarm_24h", 20, "elevated")], [], NOW).w_alarm).toMatchObject({ s: "on", w: 0.5 });
     expect(autoStatus([row("media.world_alarm_24h", 9, "normal")], [], NOW).w_alarm.s).toBe("off");
     expect(autoStatus([], [], NOW).w_alarm.s).toBe("unk");

@@ -174,6 +174,8 @@ async function render(){
     h+='<div class="state" style="border:2px solid var(--brand)"><b style="font-size:17px">📲 홈 화면에 앱으로 추가하세요</b><p class="mute" style="margin:6px 0 10px">앱처럼 아이콘을 눌러 알림 목록과 리포트를 바로 볼 수 있어요. 알림은 지금도 와요.</p>'+
       '<button class="btn" id="install" style="display:none;margin:0 0 8px" onclick="install()">앱으로 추가</button>'+
       '<p class="big" id="installhow" style="margin:0">'+(sam?'아래 <b>메뉴 ≡</b> → <b>현재 페이지 추가</b> → <b>홈 화면</b>':'오른쪽 위 <b>⋮</b> → <b>홈 화면에 추가</b> (또는 <b>앱 설치</b>)')+'</p></div>'}
+  // 초록 불 (11/18): 숫자나 화면은 보여 주지 않고 '켜져 있다'만 — 알림이 없는 날 열어 봐도 죽은 앱처럼 보이지 않게
+  if(me.alive)h+='<div style="margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--card,#f2f2f7);font-size:14px">'+(me.alive.ok?'🟢 <b>정상 작동 중</b> · 마지막 확인 '+ago(me.alive.at):'🟡 <b>확인이 늦어지고 있어요</b> · 마지막 확인 '+ago(me.alive.at))+'<div class="mute" style="font-size:12.5px;margin-top:2px">5분마다 43가지 신호를 확인해요. 달라진 것이 있을 때만 알림이 와요.</div></div>';
   var sn=seen(),fresh=me.reports.filter(function(x){return sn.indexOf(x.id)<0}).length;
   h+='<h2 style="margin-top:22px">알림 '+me.reports.length+'개'+(fresh?' · <span style="color:var(--brand)">새 알림 '+fresh+'개</span>':'')+'</h2>';
   if(!me.reports.length)h+='<div class="state mute">첫 리포트를 준비하고 있어요. 잠시 뒤 새로고침해 주세요.</div>';

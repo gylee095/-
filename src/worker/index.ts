@@ -316,7 +316,12 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
     if (!o) return json({ error: "맞지 않는 코드예요. 결제 뒤 받은 코드를 확인해 주세요." }, 404);
     const list = visibleReports(await loadReports(store), o.paidAt ?? 0, o.startReportId, o.extraReportIds).map(summarize);
-    return new Response(JSON.stringify({ code: o.code, paidAt: o.paidAt, devicesUsed: o.devices.length, devicesMax: DEVICES_PER_CODE, reports: list }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+    // 초록 불(마지막 확인 시각)과 열람 횟수 (11/18): 숫자·단계는 내보내지 않는다. 누가 열었는지는 남기지 않고 날짜별 횟수만 센다
+    const { INBOX_OPENS_KEY, aliveOf, bumpOpens } = await import("../core/inboxstats.js");
+    const now = Date.now();
+    const alive = aliveOf(await store.getKv("last_cycle").catch(() => null), now);
+    await store.setKv(INBOX_OPENS_KEY, JSON.stringify(bumpOpens(await store.getKv(INBOX_OPENS_KEY).catch(() => null), now))).catch(() => undefined);
+    return new Response(JSON.stringify({ code: o.code, paidAt: o.paidAt, devicesUsed: o.devices.length, devicesMax: DEVICES_PER_CODE, reports: list, ...(alive ? { alive } : {}) }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
   }
   if (url.pathname === "/api/report" && req.method === "GET") {
     const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
@@ -496,7 +501,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     if (!id || !(await loadFull(store, id))) return json({ error: "없는 리포트" }, 404);
     return json({ url: `${url.origin}/ops/r/${encodeURIComponent(id)}?s=${await snapSig(env.KEW_SECRET!, id)}` });
   }
-  if (url.pathname === "/api/billing/summary" && req.method === "GET") return json(await billingSummary(store, Date.now()));
+  if (url.pathname === "/api/billing/summary" && req.method === "GET") {
+    const { INBOX_OPENS_KEY, opensSummary } = await import("../core/inboxstats.js");
+    return json({ ...(await billingSummary(store, Date.now())), inboxOpens: opensSummary(await store.getKv(INBOX_OPENS_KEY).catch(() => null), Date.now()) });
+  }
   if (url.pathname === "/api/billing/orders" && req.method === "GET") {
     const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 19).replace("T", " ") : null);
     return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, startReport: !!o.startReportId })));

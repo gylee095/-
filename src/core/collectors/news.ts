@@ -54,6 +54,11 @@ export const WORLD_FEEDS = [
   "https://news.google.com/rss/headlines/section/topic/WORLD?hl=en-US&gl=US&ceid=US:en",
   "https://feeds.npr.org/1001/rss.xml",
   "https://www.aljazeera.com/xml/rss/all.xml",
+  "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+  "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+  "https://feeds.bbci.co.uk/news/world/rss.xml",
+  "https://www.cbsnews.com/latest/rss/main",
+  "https://abcnews.go.com/abcnews/topstories",
 ];
 export const worldFeedsDue = (now: number) => Math.floor(now / 60_000) % 15 < 5;
 export const EVENT_ONLY_FEEDS = ["https://www.yna.co.kr/rss/politics.xml", "https://www.yna.co.kr/rss/international.xml"]; // 국제 목록: 11/18 미 안보국 통신망 마비·이란의 미군기지 공격을 놓쳤다 — 전체 목록에서는 금세 밀려난다
@@ -156,6 +161,7 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
   if (world.length) {
     const seenStory = new Set<string>(), titles: string[] = [];
     let got = 0;
+    const failed: string[] = [];
     for (const f of world) {
       try {
         const items = parseRss(await fetchText(f));
@@ -169,11 +175,11 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
             if (!seenStory.has(k)) { seenStory.add(k); titles.push(sigs[0].title.slice(0, 90)); }
           }
         }
-      } catch {
-        /* 덤으로 받는 목록 */
+      } catch (e) {
+        failed.push(`${new URL(f).hostname} ${String((e as Error)?.message ?? e).slice(0, 40)}`); // 어느 매체가 왜 안 받아졌는지 남긴다 (서버 망에서만 막히는 곳이 있다)
       }
     }
-    if (got) metrics.push({ indicator: "media.world_alarm_24h", value: titles.length, meta: { titles: titles.slice(0, 8), feeds: got } });
+    if (got) metrics.push({ indicator: "media.world_alarm_24h", value: titles.length, meta: { titles: titles.slice(0, 8), feeds: got, ...(failed.length ? { failed } : {}) } });
   }
   return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals, metrics, kimSeenAt: kimSeenAt(all) };
 }

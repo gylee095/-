@@ -154,7 +154,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
   },
   rss_news: {
     id: "rss_news",
-    name: "언론 RSS (NK News, BBC 아시아, CSIS Beyond Parallel · 구글 뉴스 미국판·세계 면, NPR, 알자지라)",
+    name: "언론 RSS (NK News, BBC 아시아, CSIS Beyond Parallel · 뉴욕타임스, CBS, ABC, NPR, BBC 세계, 알자지라)",
     kind: "media",
     access: "키 불필요",
     cost: "무료",
@@ -162,7 +162,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     latency: "보도 직후~수 분",
     realtime: "minutes",
     terms: "각 언론사 저작권. 제목·링크만 저장, 본문 미저장",
-    hosts: ["www.nknews.org", "feeds.bbci.co.uk", "news.google.com", "feeds.npr.org", "www.aljazeera.com"],
+    hosts: ["www.nknews.org", "feeds.bbci.co.uk", "feeds.npr.org", "www.aljazeera.com", "rss.nytimes.com", "www.cbsnews.com", "abcnews.go.com"],
     notes: "연합뉴스 속보와 독립된 두 번째 언론사로 교차확인. 리드타임 측정에도 사용.",
   },
   travel: {

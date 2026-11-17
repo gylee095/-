@@ -156,7 +156,7 @@ export const INDICATORS: IndicatorDef[] = [
   {
     id: "media.world_alarm_24h", label: "세계 매체의 무력·마비 속보 (24h)", group: "media", unit: "건", direction: "high", slots: 1,
     why: "전쟁은 서로 이어져 있다 — 미국·중동·유럽에서 공격·교전·기반시설 마비 속보가 평소보다 몰리면 한반도의 바탕도 불안해진다. 연합뉴스가 옮기기 전에 먼저 보인다.",
-    measure: "구글 뉴스 미국판 주요 뉴스·세계 면(여러 매체 종합), NPR, 알자지라의 제목 중 나라·군 + 공격·교전·추락·마비를 뜻하는 말이 함께 있는 것. 같은 이야기는 한 번만 센다", latency: "15분", caveats: "세계 어딘가에서는 늘 싸우고 있어 평소에도 0 이 아니다 — 지난 4주보다 뚜렷이 많을 때만 본다. 켜져도 '불안한 배경' 절반(0.5)까지만 — 단독으로 단계·손님 알림을 바꾸지 못한다.",
+    measure: "뉴욕타임스(첫 화면·세계), CBS, ABC, NPR, BBC 세계, 알자지라의 제목 중 나라·군 + 공격·교전·추락·마비를 뜻하는 말이 함께 있는 것. 같은 이야기는 한 번만 센다", latency: "15분", caveats: "세계 어딘가에서는 늘 싸우고 있어 평소에도 0 이 아니다 — 지난 4주보다 뚜렷이 많을 때만 본다. 켜져도 '불안한 배경' 절반(0.5)까지만 — 단독으로 단계·손님 알림을 바꾸지 못한다.",
   },
   {
     id: "psych.wiki_korea_attention", label: "세계의 한반도 관심 (위키백과 조회수, 평소 대비)", group: "psych", unit: "%", direction: "high", slots: 1, absolute: { elevated: 160, anomalous: 250 },

@@ -50,8 +50,6 @@ export const BREAKING_FEEDS = ["https://www.yna.co.kr/rss/news.xml", "https://ww
  * 15분에 한 번만 받는다 — 5분마다 부를 까닭이 없고 상대 서버에 부담을 주지 않으려고.
  */
 export const WORLD_FEEDS = [
-  "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
-  "https://news.google.com/rss/headlines/section/topic/WORLD?hl=en-US&gl=US&ceid=US:en",
   "https://feeds.npr.org/1001/rss.xml",
   "https://www.aljazeera.com/xml/rss/all.xml",
   "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
@@ -187,7 +185,7 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
 export function parseRss(xml: string): { title: string; link: string; pubDate?: number }[] {
   const items: { title: string; link: string; pubDate?: number }[] = [];
   const decode = (s: string) =>
-    s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+    s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&apos;|&#x27;/g, "'").trim();
   for (const m of xml.matchAll(/<item\b[\s\S]*?<\/item>/g)) {
     const block = m[0];
     const title = decode(/<title>([\s\S]*?)<\/title>/.exec(block)?.[1] ?? "");

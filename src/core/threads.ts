@@ -357,6 +357,32 @@ export async function postThreadsManual(env: PushEnv, store: Kv, text: string, n
   return { posted: entry };
 }
 
+export const INSIGHT_METRICS = ["views", "likes", "replies", "reposts", "quotes", "shares"] as const;
+export interface PostInsight { postId: string; at: number; kind?: PostKind; style: string; text: string; metrics?: Record<string, number>; error?: string }
+
+/** 올린 글마다 반응(조회·좋아요·답글·리포스트·인용·공유)을 받아 온다 — 어느 문장이 반응이 좋은지 견주려고 (11/17 사용자).
+ *  토큰에 threads_manage_insights 권한이 있어야 한다. 없으면 글마다 error 에 스레드의 답을 그대로 담는다 */
+export async function threadsInsights(env: PushEnv, store: Kv, fetchImpl: typeof fetch = fetch): Promise<{ posts: PostInsight[]; skipped?: string }> {
+  if (env.STAGING) return { posts: [], skipped: "시험 서버" };
+  const token = await currentToken(env, store);
+  if (!token) return { posts: [], skipped: "스레드 토큰 없음" };
+  const st = await loadState(store);
+  const posts: PostInsight[] = [];
+  for (const l of st.log.filter((x) => x.ok && x.postId).slice(-20).reverse()) {
+    const row: PostInsight = { postId: l.postId!, at: l.at, kind: l.kind, style: l.style, text: l.text };
+    try {
+      const res = await fetchImpl(`${THREADS_API}/v1.0/${l.postId}/insights?metric=${INSIGHT_METRICS.join(",")}&access_token=${encodeURIComponent(token)}`);
+      const j = (await res.json().catch(() => ({}))) as { data?: { name: string; values?: { value: number }[]; total_value?: { value: number } }[]; error?: { message?: string; code?: number } };
+      if (res.ok && j.data) row.metrics = Object.fromEntries(j.data.map((d) => [d.name, d.values?.[0]?.value ?? d.total_value?.value ?? 0]));
+      else row.error = `${res.status}${j.error?.code ? ` (${j.error.code})` : ""} ${j.error?.message ?? ""}`.trim().slice(0, 200);
+    } catch (e) {
+      row.error = String((e as Error)?.message ?? e).slice(0, 200);
+    }
+    posts.push(row);
+  }
+  return { posts };
+}
+
 /** 운영자가 보는 상태 — 토큰은 내보내지 않는다 */
 export async function threadsStatus(env: PushEnv, store: Kv): Promise<{ configured: boolean; dailyMax: number; log: ThreadsLog[] }> {
   const st = await loadState(store);

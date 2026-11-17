@@ -644,6 +644,11 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     ];
     return json({ ...(await th.threadsStatus(env, store)), samples });
   }
+  if (url.pathname === "/api/threads/insights" && req.method === "GET") {
+    // 올린 글마다 조회·좋아요·답글 수 (운영자 비밀값) — 토큰에 통계 권한이 없으면 글마다 이유가 온다
+    const th = await import("../core/threads.js");
+    return json(await th.threadsInsights(env, store));
+  }
   if (url.pathname === "/api/threads/post" && req.method === "POST") {
     // 스레드 ③ 개발 소식: 사용자가 "오늘 수정한 것들 올리자"고 할 때 에이전트가 쓴 글을 올린다 (운영자 비밀값)
     // {"intro": true} 이면 앱 소개 글(정해 둔 문장) + 예시 화면 2장을 지금 올린다

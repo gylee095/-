@@ -3,7 +3,7 @@ import { correlate } from "../src/core/correlate.js";
 import { MemoryStore } from "../src/core/store.js";
 import {
   INTRO_TEXTS, NEWS_TEXTS, PROMO_IMAGES, THREADS_TOPIC, SIGNAL_COUNT, THREADS_GAP_MS, THREADS_MAX_CHARS, THREADS_STATE_KEY, THREADS_TOKEN_KEY,
-  maybePostThreads, maybePostThreadsRise, postThreadsManual, riseOf, RISE_HOLD_MS, newsLine, postable, refreshThreadsToken, threadsText, type ThreadsState,
+  maybePostThreads, maybePostThreadsRise, threadsInsights, postThreadsManual, riseOf, RISE_HOLD_MS, newsLine, postable, refreshThreadsToken, threadsText, type ThreadsState,
 } from "../src/core/threads.js";
 import type { CrisisEvent, Signal } from "../src/core/types.js";
 import { OFFICIAL_KEY } from "../src/core/official.js";
@@ -263,6 +263,26 @@ describe("주제 태그 (11/16 사용자)", () => {
     const r = await maybePostThreads(env, store, report(launch()), T0, f, noSleep);
     expect(r.posted).toMatchObject({ ok: true });
     expect(calls.map((b) => b.get("topic_tag"))).toEqual(["전쟁", null, null]);
+  });
+});
+
+describe("반응 통계 (11/17)", () => {
+  it("올린 글마다 반응을 받아 오고, 권한이 없으면 이유를 담는다 (토큰은 답에 넣지 않는다)", async () => {
+    const store = new MemoryStore();
+    const { f } = fakeApi();
+    await maybePostThreads(env, store, report(launch()), T0, f, noSleep);
+    const ok = (async (url: string) => {
+      expect(url).toContain("/post1/insights?metric=views,likes,replies,reposts,quotes,shares");
+      return new Response(JSON.stringify({ data: [{ name: "views", values: [{ value: 120 }] }, { name: "likes", values: [{ value: 3 }] }] }));
+    }) as unknown as typeof fetch;
+    const r = await threadsInsights(env, store, ok);
+    expect(r.posts).toHaveLength(1);
+    expect(r.posts[0]).toMatchObject({ postId: "post1", style: "N1", metrics: { views: 120, likes: 3 } });
+    const denied = (async () => new Response(JSON.stringify({ error: { message: "Application does not have permission for this action", code: 10 } }), { status: 400 })) as unknown as typeof fetch;
+    const d = await threadsInsights(env, store, denied);
+    expect(d.posts[0].error).toMatch(/\(10\).*permission/);
+    expect(JSON.stringify(d)).not.toContain("TOK");
+    expect((await threadsInsights({ ...env, STAGING: "1" }, store, ok)).skipped).toMatch(/시험 서버/);
   });
 });
 

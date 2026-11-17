@@ -91,3 +91,41 @@ describe("항공당국 고시에 한국이 들어가면 '항공편 중단·영�
     expect(full.w ?? 1).toBe(1);
   });
 });
+
+// 11/18 사용자: "미국에 속보가 있는데 왜 못 잡았나 — 미국 뉴스를 받되 너무 크게 올리지는 않게"
+describe("미국·세계 매체의 무력·마비 속보 (11/18)", async () => {
+  const { worldNewsEn, splitOutlet } = await import("../src/core/classify.js");
+  const { RUBRIC, PCT_BASE } = await import("../src/core/rubric.js");
+  const titles: string[] = JSON.parse(fx("world_en_titles_20261118.json"));
+  const hit = (re: RegExp) => { const t = titles.find((x) => re.test(x)); return t ? worldNewsEn(splitOutlet(t).title) : undefined; };
+  it("그날 실제 머리기사 129개에서 놓쳤던 속보를 건진다", () => {
+    expect(hit(/Classified N\.S\.A\. Network Goes Down/)).toBe("infra");
+    expect(hit(/Iran’s third strike on US targets in Bahrain/)).toBe("force");
+    expect(hit(/Russian military plane crashes in Siberia/)).toBe("force");
+    expect(hit(/Apple services.*outage/)).toBe("infra");
+    expect(hit(/accessed US military plane/)).toBe("force");
+  });
+  it("연예·스포츠·실적·시험 방송은 건지지 않고, 전체의 4분의 1을 넘지 않는다", () => {
+    for (const re of [/FEMA will test/, /Nvidia earnings/, /Hunger Games/, /Kirk Cousins/, /Leonid meteor/, /slash tariffs/]) expect(hit(re)).toBeNull();
+    const n = titles.filter((t) => worldNewsEn(splitOutlet(t).title)).length;
+    expect(n).toBeGreaterThan(10);
+    expect(n).toBeLessThan(titles.length / 4);
+  });
+  it("한국어 제목·한반도 이야기는 이 그물이 아니라 원래 길로 간다", () => {
+    expect(worldNewsEn("North Korea fires missile, U.S. military says")).toBeNull();
+    expect(worldNewsEn("이란, 미군 기지 공격")).toBeNull();
+  });
+  it("구글 뉴스 제목에서 매체 이름을 뗀다", () => {
+    expect(splitOutlet("Classified N.S.A. Network Goes Down, Causing Work Disruptions - The New York Times")).toEqual({ title: "Classified N.S.A. Network Goes Down, Causing Work Disruptions", outlet: "The New York Times" });
+  });
+  it("평소보다 많아도 배경 절반(0.5)까지만 — 못 받으면 '못 봄', 평소면 꺼짐", () => {
+    expect(autoStatus([row("media.world_alarm_24h", 30, "anomalous")], [], NOW).w_alarm).toMatchObject({ s: "on", w: 0.5 });
+    expect(autoStatus([row("media.world_alarm_24h", 20, "elevated")], [], NOW).w_alarm).toMatchObject({ s: "on", w: 0.5 });
+    expect(autoStatus([row("media.world_alarm_24h", 9, "normal")], [], NOW).w_alarm.s).toBe("off");
+    expect(autoStatus([], [], NOW).w_alarm.s).toBe("unk");
+  });
+  it("항목이 늘어도 % 의 분모는 그대로다", () => {
+    expect(RUBRIC.find((l) => l.id === "context")!.groups.flatMap((g) => g.items).some((i) => i.id === "w_alarm")).toBe(true);
+    expect(PCT_BASE).toBe(39);
+  });
+});

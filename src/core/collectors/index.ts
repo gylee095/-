@@ -5,7 +5,7 @@ import { collectSafetyData } from "./safetydata.js";
 import { collectNga } from "./nga.js";
 import { collectOpenSky } from "./opensky.js";
 import { collectAdsb } from "./adsb.js";
-import { BREAKING_FEEDS, EVENT_ONLY_FEEDS, SLOW_FEEDS, collectGdelt, collectRss } from "./news.js";
+import { BREAKING_FEEDS, EVENT_ONLY_FEEDS, SLOW_FEEDS, WORLD_FEEDS, worldFeedsDue, collectGdelt, collectRss } from "./news.js";
 import { collectTravel } from "./travel.js";
 import { collectKoreaKrMnd } from "./koreakr.js";
 import { collectMarkets } from "./markets.js";
@@ -50,7 +50,7 @@ export const COLLECTORS: Record<SourceId, Collector> = {
     }
     return r;
   },
-  rss_news: (_e, now) => collectRss(SLOW_FEEDS, now),
+  rss_news: async (_e, now) => { const { kimSeenAt: _k, ...r } = await collectRss(SLOW_FEEDS, now, "rss_news", [], worldFeedsDue(now) ? WORLD_FEEDS : []); return r; },
   travel: async (_e, now, kv) => {
     const prev = kv ? await kv.getKv("travel:us_level") : undefined;
     const r = await collectTravel(prev !== undefined ? Number(prev) : undefined, now);

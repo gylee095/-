@@ -92,6 +92,20 @@ export function worldEvent(title: string): "infra" | "war" | null {
 const WORLD_ACTOR_RE = /美|미국|미군|백악관|펜타곤|트럼프|日|일본|자위대|나토|NATO|中|중국|러시아|러軍|대만|이란|이스라엘|호주|영국/;
 const WORLD_FORCE_RE = /공습|폭격|피격|피습|격추|요격|침공|교전|포격|미사일\s?(공격|발사)|드론\s?공격|기지\s?공격|폭발|테러|더티밤|핵\s?(공격|사용|실험)|나포|봉쇄|계엄|쿠데타|암살/;
 const WORLD_NEWS_NOT_RE = /훈련|연습|전망|우려|가능성|분석|해설|인터뷰|칼럼|\[영상\]|\[르포\]|\[특파원|주년|년 전|영화|드라마|게임|틱톡|맹수|주가|증시|환율|반도체|관세/;
+// 영어 제목 (미국·세계 매체 — 11/18 사용자: "미국 뉴스를 받는 신호가 있어야 한다. 다만 신호를 크게 올리지 않게")
+const WORLD_ACTOR_EN_RE = /\b(U\.?S\.?|US|American|America|Pentagon|White House|Trump|N\.?S\.?A\.?|FAA|NATO|China|Chinese|Russia|Russian|Iran|Iranian|Israel|Israeli|Taiwan|Japan|Japanese|Ukraine|Ukrainian|Putin|Xi|Kremlin|Navy|Air Force|troops|military|Houthis?|Hezbollah|Hamas|Yemen|Syria|Pakistan|India|Estonia|Poland|Philippines)\b/;
+const WORLD_FORCE_EN_RE = /\b(strikes?|struck|airstrikes?|attack(?:s|ed)?|bomb(?:s|ed|ing)?|missiles?|shot down|shoot down|downed|invad(?:e|es|ed)|invasion|clash(?:es)?|explosions?|blast|shelling|drone strike|retaliat\w+|war|nuclear|assassinat\w+|coup|martial law|blockade|seiz(?:e|es|ed)|sabotage|hijack\w*|terror\w*|plot|collapse[sd]|crash(?:es|ed)?|kills?|killed|destroy(?:s|ed)|spying|espionage)\b/i;
+const WORLD_INFRA_EN_RE = /\b(nationwide|across the (?:U\.?S\.?|country)|classified|Pentagon|N\.?S\.?A\.?|FAA|power grid|air traffic|network|banking system|internet|satellites?|GPS|Apple|iCloud|Microsoft|Outlook|Gmail|Google|AWS|Azure|Cloudflare|Visa|Mastercard|tech)\b[^.]{0,60}\b(outages?|goes down|went down|is down|grounded|ground stop|blackout|cyberattack|hacked|crippled|knocked out|disruptions?)\b/i;
+const WORLD_NOT_EN_RE = /\b(opinion|analysis|explainer|review|podcast|what to know|how to|photos?|video|quiz|recipe|movie|film|game|sports?|NFL|NBA|football|stocks?|shares|earnings|tariffs?|trade war|price war|culture war|star wars|anniversary|years ago|drill|exercise|test|resurface\w*|sales|justification)\b/i;
+/** 영어 제목이 세계의 무력 사건·기반시설 마비인가. 한반도 기사(North Korea 등)는 원래 길로 */
+export function worldNewsEn(title: string): "infra" | "force" | null {
+  if (!/[A-Za-z]{4}/.test(title) || /[가-힣]/.test(title) || isKoreaContext(title) || WORLD_NOT_EN_RE.test(title)) return null;
+  if (WORLD_INFRA_EN_RE.test(title)) return "infra";
+  return WORLD_ACTOR_EN_RE.test(title) && WORLD_FORCE_EN_RE.test(title) ? "force" : null;
+}
+/** 구글 뉴스 제목 끝의 ' - 매체명'을 뗀다 */
+export const splitOutlet = (title: string): { title: string; outlet?: string } => { const m = /^(.*\S)\s+-\s+([^-]{2,40})$/.exec(title); return m ? { title: m[1], outlet: m[2].trim() } : { title }; };
+
 export function worldNews(title: string): boolean {
   if (isKoreaContext(title) || WORLD_NEWS_NOT_RE.test(title)) return false;
   return WORLD_ACTOR_RE.test(title) && WORLD_FORCE_RE.test(title);

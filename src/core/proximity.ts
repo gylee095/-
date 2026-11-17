@@ -55,7 +55,7 @@ export const HOTSPOT = { km: 5, frp: 5 };
 /** 자동으로 볼 수 있는 가설 — 나머지는 분석관만 확인할 수 있다 */
 export const AUTO_IDS = new Set([
   "g_evac_order", "g_leave_now", "g_staff_restrict", "g_intel_warning", "m_buildup", "m_mobilization", "m_strategic_assets", "m_civil_defense", "m_airspace",
-  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_infra", "w_new_war", "w_markets", "m_leadership",
+  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_alarm", "w_infra", "w_new_war", "w_markets", "m_leadership",
 ]);
 
 /** 징후판·보도에서 자동으로 읽은 한반도 상태 */
@@ -144,6 +144,8 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   // 세계 금융의 전쟁 공포·지도부 공백을 숫자로 (11/18) — 전에는 분석관이 뉴스로만 확인해 며칠씩 '미확인'이었다
   fromIndicators("w_markets", ["market.world_fear"]);
   fromIndicators("m_leadership", ["nk.kim_absence_days"]);
+  // 세계 매체의 무력·마비 속보가 평소보다 몰림 (11/18 사용자: "미국 뉴스를 받되 너무 크게 올리지 않게 — 불안한 배경 정도로"): 아무리 많아도 절반(0.5)까지만
+  { const wl = lvl("media.world_alarm_24h"); set("w_alarm", wl >= 1 ? "on" : wl === 0 ? "off" : "unk", 0.5, wl >= 1 ? "세계 매체의 무력·마비 속보가 평소보다 많음" : undefined); }
   // 세계 정세 사건 (11/14): 제목으로 잡은 것은 약한 신호(절반) — 원인·규모는 분석관이 확인해 올리거나 내린다
   const worldOf = (kind: "infra" | "war", days: number) => briefs.find((b) => now - b.at < days * DAY && now - b.at >= -3600_000 && worldEvent(b.headline) === kind);
   // 세계 사건은 '아직 이어지는가'로 유지한다 (11/17 사용자: "기계적으로 다음 날 내리는 게 아니다 — 문제가 지속 중이면 유지하고, 그때 하루뿐이었으면 내린다").
@@ -420,6 +422,7 @@ export const ANALYST_GUIDE: Record<string, string> = {
   w_taiwan: "(세계) 대만해협·동중국해에 봉쇄·대규모 포위 훈련 같은 군사 위기가 있나",
   w_nuclear: "(세계) 강대국의 핵 위협, 핵실험 재개, 군비통제 조약 붕괴가 있나",
   w_markets: "(세계) 금·유가·변동성 지수가 전쟁 공포로 급등했나",
+  w_alarm: "(세계·자동) 미국·세계 매체의 공격·교전·마비 속보가 평소보다 몰렸나 — 숫자로 잰다. 아무리 많아도 절반(0.5)",
   s_talks: "(바탕·한 달에 한 번) 남북·북미 사이에 열려 있는 대화 채널이 하나도 없나",
   s_agreement: "(바탕) 9·19 군사합의 등 충돌 방지 합의가 파기·효력 정지 상태인가",
   s_doctrine: "(바탕) 북한이 한국을 적대국으로 규정했거나 핵 선제사용을 법에 명시했나",

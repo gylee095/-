@@ -75,9 +75,9 @@ ul{padding-left:20px;margin:6px 0}li{margin:4px 0}.mute{color:var(--mute);font-s
 export function buyPage(payappUserid: string | undefined, origin: string): string {
   const ready = !!payappUserid;
   return String.raw`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>43가지 신호로 보는 한반도 전쟁 위험 — 한반도 조기경보</title>
-<meta name="description" content="공개 신호 43가지를 5분마다 판정하고, 실제 전쟁 전에 나타났던 징조가 켜지거나 위기 단계가 바뀌면 바로 폰으로 알려 드립니다. 4,900원 한 번 결제로 평생.">
-<meta property="og:type" content="website"><meta property="og:title" content="43가지 신호로 보는 한반도 전쟁 위험">
+<title>44가지 신호로 보는 한반도 전쟁 위험 — 한반도 조기경보</title>
+<meta name="description" content="공개 신호 44가지를 5분마다 판정하고, 실제 전쟁 전에 나타났던 징조가 켜지거나 위기 단계가 바뀌면 바로 폰으로 알려 드립니다. 4,900원 한 번 결제로 평생.">
+<meta property="og:type" content="website"><meta property="og:title" content="44가지 신호로 보는 한반도 전쟁 위험">
 <meta property="og:description" content="위기 단계가 바뀌는 순간 폰으로 알림. 4,900원 한 번 결제로 평생.">
 <meta property="og:url" content="${esc(origin)}/"><meta property="og:image" content="${esc(origin)}/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -127,7 +127,7 @@ ${ready
 <p class="fine">공개 정보만 사용합니다. 공식 안보 정보가 아니니 대피 등 행동은 정부 재난문자와 국민재난안전포털을 따르세요. · <a href="/terms">이용약관·환불</a> · <a href="/me">알림함</a></p>
 <div style="height:calc(32px + env(safe-area-inset-bottom))"></div>
 </div></div>
-<script>${landingSceneJs(["43가지", "신호로", "보는", "/", "한반도", "*전쟁", "*위험"])}</script>
+<script>${landingSceneJs(["44가지", "신호로", "보는", "/", "한반도", "*전쟁", "*위험"])}</script>
 <script>
 var ORIGIN=${JSON.stringify(origin)};
 // 주문은 서버가 만든다(금액도 서버가 정함). 결제창을 띄운 뒤에는 서버에 상태를 물어 결제완료 통보가 왔는지 본다

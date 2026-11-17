@@ -1,6 +1,6 @@
 // 언론(GDELT, RSS) — 알림 트리거가 아니라 교차검증과 '뉴스 대비 리드타임' 측정용
 import type { CollectResult, Metric, Signal } from "../types.js";
-import { BASE_SEVERITY, OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind, securityNews, worldEvent, worldNews } from "../classify.js";
+import { BASE_SEVERITY, OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind, securityNews, splitOutlet, worldEvent, worldNews, worldNewsEn } from "../classify.js";
 import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 
 const GDELT_QUERY =
@@ -43,6 +43,19 @@ export const BREAKING_FEEDS = ["https://www.yna.co.kr/rss/news.xml", "https://ww
  * 11/17 "러 군용기 여러 대 새벽 KADIZ 진입"이 오후에는 정치 목록에만 남아 있었다. 여기서 받은 제목은 사건(신호)으로만 쓰고
  * 보도량·수사 지표에는 넣지 않는다(평소 값이 '전체+북한' 두 목록으로 쌓여 있어, 목록을 늘리면 지표가 까닭 없이 오른다).
  */
+/**
+ * 미국·세계 매체 (2026-11-18 사용자: "CNN·CNBC 같은 미국 매체, 아니면 여러 매체를 모아 주는 곳에서 받아라").
+ * 구글 뉴스는 뉴욕타임스·워싱턴포스트·AP·로이터·CNN·BBC 등의 머리기사를 한 목록으로 모아 준다(미국판 종합·세계). NPR·알자지라는 직접.
+ * 사건으로만 받고(한반도 보도량 지표에는 넣지 않는다), 여기서 센 '세계의 무력·마비 속보 수'는 배경의 약한 신호 하나로만 쓴다.
+ * 15분에 한 번만 받는다 — 5분마다 부를 까닭이 없고 상대 서버에 부담을 주지 않으려고.
+ */
+export const WORLD_FEEDS = [
+  "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/headlines/section/topic/WORLD?hl=en-US&gl=US&ceid=US:en",
+  "https://feeds.npr.org/1001/rss.xml",
+  "https://www.aljazeera.com/xml/rss/all.xml",
+];
+export const worldFeedsDue = (now: number) => Math.floor(now / 60_000) % 15 < 5;
 export const EVENT_ONLY_FEEDS = ["https://www.yna.co.kr/rss/politics.xml", "https://www.yna.co.kr/rss/international.xml"]; // 국제 목록: 11/18 미 안보국 통신망 마비·이란의 미군기지 공격을 놓쳤다 — 전체 목록에서는 금세 밀려난다
 /** 5분마다 확인하는 교차확인용 피드 */
 export const SLOW_FEEDS = ["https://www.nknews.org/feed/", "https://feeds.bbci.co.uk/news/world/asia/rss.xml", "https://beyondparallel.csis.org/feed/"];
@@ -112,7 +125,7 @@ export const isKimActivity = (title: string) => KIM_ACTIVITY_RE.test(title) && !
 /** 목록에서 가장 최근의 김정은 공개활동 보도 시각 */
 export const kimSeenAt = (items: { title: string; pubDate?: number }[]): number | undefined => items.filter((i) => i.pubDate !== undefined && isKimActivity(i.title)).reduce<number | undefined>((m, i) => (m === undefined || i.pubDate! > m ? i.pubDate : m), undefined);
 
-export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source = "rss_news", eventOnly: string[] = []): Promise<CollectResult & { kimSeenAt?: number }> {
+export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source = "rss_news", eventOnly: string[] = [], world: string[] = []): Promise<CollectResult & { kimSeenAt?: number }> {
   const signals: Signal[] = [];
   const all: { title: string; pubDate?: number }[] = [];
   let rawCount = 0;
@@ -138,7 +151,31 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
       /* 덤으로 받는 목록 */
     }
   }
-  return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals, metrics: newsMetrics(all, now, source), kimSeenAt: kimSeenAt(all) };
+  const metrics = newsMetrics(all, now, source);
+  // 세계의 무력·마비 속보 수 (24시간, 같은 이야기는 한 번): 세계 매체 목록을 받은 바퀴에만 낸다
+  if (world.length) {
+    const seenStory = new Set<string>(), titles: string[] = [];
+    let got = 0;
+    for (const f of world) {
+      try {
+        const items = parseRss(await fetchText(f));
+        got++;
+        rawCount += items.length;
+        for (const it of items) {
+          const sigs = mediaSignal(source, it.link, it.title, it.pubDate, now);
+          for (const sg of sigs) if (!seen.has(sg.id)) { seen.add(sg.id); signals.push(sg); }
+          if (sigs.length && it.pubDate !== undefined && now - it.pubDate < 24 * 3600_000 && (sigs[0].category === "security_news" || sigs[0].category === "world_event")) {
+            const k = sigs[0].title.toLowerCase().replace(/[^a-z0-9가-힣]/g, "").slice(0, 24);
+            if (!seenStory.has(k)) { seenStory.add(k); titles.push(sigs[0].title.slice(0, 90)); }
+          }
+        }
+      } catch {
+        /* 덤으로 받는 목록 */
+      }
+    }
+    if (got) metrics.push({ indicator: "media.world_alarm_24h", value: titles.length, meta: { titles: titles.slice(0, 8), feeds: got } });
+  }
+  return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals, metrics, kimSeenAt: kimSeenAt(all) };
 }
 
 export function parseRss(xml: string): { title: string; link: string; pubDate?: number }[] {
@@ -168,6 +205,12 @@ const EVAC_OFFICIAL_RE = /국무부|대사관|주한미군|외무성|외교부|�
 
 function mediaSignal(source: string, url: string, title: string, published: number | undefined, now: number, domain?: string): Signal[] {
   if (!title) return [];
+  // 영어권 세계 속보 (11/18): 기반시설 마비는 세계 정세 사건으로, 무력 사건은 '분류 전' 소식으로 — 한반도와의 관계는 분석관이 판단한다
+  const en = worldNewsEn(title);
+  if (en) {
+    const sp = splitOutlet(title), out = sp.outlet ?? domain ?? outletOf(url, source);
+    return [{ id: `${source}:${hash(url || title)}`, source, sourceKind: "media", category: en === "infra" ? "world_event" : "security_news", title: sp.title.slice(0, 140), summary: `${out} · 세계${en === "infra" ? " 정세" : " · 분류 전"}`, url, eventTime: undefined, publishedTime: published, detectedTime: now, severity: en === "infra" ? BASE_SEVERITY.world_event : 20 }];
+  }
   // 세계 정세 사건은 한반도 거름망과 따로 잡는다 — 참고로만 (알림 없음, 심각도 낮게)
   if (worldEvent(title))
     return [{ id: `${source}:${hash(url || title)}`, source, sourceKind: "media", category: "world_event", title: title.slice(0, 120), summary: `${domain ?? outletOf(url, source)} · 세계 정세`, url, eventTime: undefined, publishedTime: published, detectedTime: now, severity: BASE_SEVERITY.world_event }];

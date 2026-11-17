@@ -164,7 +164,7 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
   it("단계는 켜진 비율(%)의 구간: 10%부터 긴장 · 25%부터 위기 · 50%부터 임박", () => {
     expect(PCT_AT).toEqual({ 2: 10, 3: 25, 4: 50 });
     const some = (n: number) => on(...ALL_IDS.filter((i) => !RUBRIC.find((l) => l.id === "other")!.groups[0].items.some((x) => x.id === i)).slice(0, n));
-    expect(TOTAL_ITEMS).toBe(44); // 11/18 사이버 공격을 참고 신호에서 조용한 움직임으로 올림 — 기준(39)은 그대로라 %는 안 바뀐다
+    expect(TOTAL_ITEMS).toBe(45); // 11/18 세계 매체 속보(배경) 추가 · 11/18 사이버 공격을 참고 신호에서 조용한 움직임으로 올림 — 기준(39)은 그대로라 %는 안 바뀐다
     expect(PCT_BASE).toBe(39); // 고정 — 항목을 늘려도 %가 바뀌지 않게 (11/14 사용자). 이 숫자를 바꾸면 같은 상황의 %가 달라진다
     expect(scoreRubric(some(3))).toMatchObject({ index: 8, phase: 1 });
     expect(scoreRubric(some(4))).toMatchObject({ index: 10, phase: 2 });
@@ -246,7 +246,7 @@ describe("세계 정세를 넓게 (11/14)", () => {
     expect(koreaStatus([], b, NOW, parseChecks("w_infra=1:국가 배후 공격으로 확인", NOW)).w_infra).toMatchObject({ s: "on", by: "analyst" });
     expect(koreaStatus([], [], NOW + 8 * 86400_000, parseChecks("w_power_clash=1:격추", NOW)).w_power_clash.s).toBe("unk"); // 7일이 지나면 다시 확인
     expect(WORLD_EVENT_IDS.every((i) => ALL_IDS.includes(i))).toBe(true);
-    expect(RUBRIC.find((l) => l.id === "context")!.max).toBe(16);
+    expect(RUBRIC.find((l) => l.id === "context")!.max).toBe(17);
   });
 });
 

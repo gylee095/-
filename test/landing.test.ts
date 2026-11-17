@@ -6,7 +6,7 @@ import { KOREA_DEM } from "../src/worker/landing_dem.js";
 describe("상품 소개 화면", () => {
   const html = buyPage("shop", "https://example.test");
   it("제목·결제 흐름(동의 → 페이앱 → 결제 확인)이 그대로 있다", () => {
-    expect(html).toContain("43가지 신호로 보는 한반도 전쟁 위험");
+    expect(html).toContain("44가지 신호로 보는 한반도 전쟁 위험");
     expect(html).toMatch(/id="agree"/);
     expect(html).toMatch(/id="pay"[^>]*onclick="pay\(\)"[^>]*disabled/);
     expect(html).toMatch(/PayApp\.setTarget\("_self"\)/);

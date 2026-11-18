@@ -26,7 +26,7 @@ function kewEnv(){var ua=navigator.userAgent;
   var iosBrowser=!ios?"":inapp?"inapp":/CriOS/.test(ua)?"chrome":/EdgiOS/.test(ua)?"edge":/FxiOS/.test(ua)?"firefox":/Whale\//.test(ua)?"inapp":/Safari\//.test(ua)?"safari":"inapp";
   return {ios:ios,android:android,desktop:!ios&&!android,standalone:standalone,kakao:kakao,inapp:inapp,soft:soft,iosBrowser:iosBrowser}}
 var KEW_SHARE='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
-function kewCopy(u){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){alert("주소를 복사했어요. 사파리를 열고 주소창에 붙여 넣으세요.")},function(){prompt("이 주소를 복사하세요",u)});else prompt("이 주소를 복사하세요",u)}
+function kewCopy(u){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){alert("주소를 복사했어요. 사파리나 크롬을 열고 주소창에 붙여 넣으세요.")},function(){prompt("이 주소를 복사하세요",u)});else prompt("이 주소를 복사하세요",u)}
 // path: 열린 주소 그대로 넘길 경로 (예: "/", "/me?code=...")
 function kewGuide(E,path){var url=location.origin+path;
   var card=function(t,inner){return '<div class="card kew-guide" style="border:2px solid var(--brand)"><b style="font-size:18px">'+t+'</b>'+inner+'</div>'};
@@ -38,15 +38,15 @@ function kewGuide(E,path){var url=location.origin+path;
   var title=paid?"📲 마지막: 홈 화면에 앱 추가":"📲 먼저 앱을 설치하세요 (무료, 30초)";
   if(E.standalone)return "";
   if(E.desktop)return card("📱 휴대폰으로 여세요",'<p class="mute" style="margin:6px 0 4px">알림은 휴대폰으로 와요. 휴대폰 <b>카메라로 아래 QR을 찍으면</b> 이 페이지가 열려요. 결제와 알림 켜기는 휴대폰에서 해요.</p><div id="kewqr" style="width:200px;height:200px;margin:12px auto;background:#fff;padding:8px;border-radius:12px"></div><p class="mute" style="text-align:center;margin:0;word-break:break-all">'+url.replace(/[<>"]/g,"")+'</p>');
+  // 스레드 등 앱 속 화면 (11/18 사용자: "꼭 사파리만 되는 게 아니다 — 외부 브라우저에서 열기 하면 된다. 스레드에서 들어온 고객을 위한 것이라고 말해 주면 된다. 일을 복잡하게 만들지 마라"):
+  // 안내는 하나만 — 오른쪽 위 ⋯ → 외부 브라우저에서 열기. 반응 없는 버튼은 두지 않는다
+  if(E.soft)return KF+card("스레드에서 들어오셨나요?",'<p style="margin:8px 0 4px;font-size:16px;line-height:1.6">스레드 앱 안에서는 알림을 켤 수 없어요. 화면 <b>오른쪽 위 ⋯</b> 를 누르고 <b>외부 브라우저에서 열기</b>를 누르면 바로 켤 수 있어요.'+(paid?' 결제 코드는 자동으로 함께 가요.':'')+'</p><button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">안 되면 주소 복사하기</button>')+arrow("top").replace("⬆ 위 공유 버튼","⬆ 여기 ⋯ 누르기");
   if(E.inapp&&E.android)return card("크롬에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 알림을 켤 수 없어요.</p><a class="btn" href="intent://'+location.host+path+'#Intent;scheme=https;package=com.android.chrome;end">크롬으로 열기</a>');
   if(!E.ios)return "";
   if(E.iosBrowser==="safari")return KF+card(title,steps('화면 아래 가운데 '+KEW_SHARE+' <b>공유</b> 버튼'))+arrow("bottom");
   if(E.iosBrowser==="chrome")return KF+card(title,steps('주소창 오른쪽 '+KEW_SHARE+' <b>공유</b> 버튼 (안 보이면 아래 <b>⋯</b> → 공유)'))+arrow("top");
   if(E.iosBrowser==="edge"||E.iosBrowser==="firefox")return card(title,steps('메뉴(<b>⋯</b> 또는 <b>≡</b>) → '+KEW_SHARE+' <b>공유</b>')+'<p class="mute" style="margin:6px 0 0">홈 화면에 추가가 안 보이면 <a href="x-safari-'+url+'">사파리로 열어</a> 주세요.</p>');
-  // 아이폰의 앱 속 화면: 사파리를 여는 버튼(x-safari-)은 스레드·인스타그램 안에서 눌러도 반응이 없을 때가 있다 (11/18 사용자 확인).
-  // 그래서 언제나 되는 길 — 오른쪽 위 ⋯ 메뉴 → '외부 브라우저에서 열기' — 을 먼저 보여 주고, 주소 복사를 그다음에, 바로 열기 버튼은 마지막에 둔다
-  if(E.kakao)return card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 카카오톡 안의 화면이라 홈 화면에 앱을 추가할 수 없어요.</p><a class="btn" href="kakaotalk://web/openExternal?url='+encodeURIComponent(url)+'">사파리로 열기</a><button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button>');
-  return KF+card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 4px">지금은 앱 안의 화면이라 알림을 켤 수 없어요.'+(paid?' 결제 코드는 자동으로 함께 가요.':'')+'</p><ol style="margin:10px 0 10px;padding-left:24px;font-size:17px;line-height:1.7"><li>화면 <b>오른쪽 위 ⋯</b> 누르기</li><li><b>외부 브라우저에서 열기</b> (또는 <b>Safari로 열기</b>)</li></ol><button class="btn" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button><a class="btn ghost" style="margin-top:8px;display:block;text-align:center" href="x-safari-'+url+'">사파리로 바로 열기 (반응이 없으면 위 방법으로)</a>')+arrow("top").replace("⬆ 위 공유 버튼","⬆ 여기 ⋯ 누르기")}
+  return card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 홈 화면에 앱을 추가할 수 없어요.</p><a class="btn" href="'+(E.kakao?"kakaotalk://web/openExternal?url="+encodeURIComponent(url):"x-safari-"+url)+'">사파리로 열기</a><button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button>')}
 function kewDrawQr(path){var el=document.getElementById("kewqr");if(!el||!window.QRCode)return;new QRCode(el,{text:location.origin+path,width:184,height:184,correctLevel:QRCode.CorrectLevel.M})}`;
 
 /** 이 브라우저(또는 홈 화면 앱)가 시작한 주문 목록 — 상품 페이지·결제 완료 화면·알림함이 같이 쓰는 정본 (11/5: 두 곳에 복사돼 있었다) */

@@ -185,7 +185,7 @@ export function successPage(origin: string): string {
 <h1 style="margin-top:0;font-size:24px">결제 완료 ✓</h1>
 <p>알림함에 <b>지금 상황 리포트</b>가 들어 있어요. 이제 <b>휴대폰에서 알림만 켜면</b> 끝이에요.</p>
 <div id="mobile" style="display:none">
-<a class="btn" id="go" href="#" onclick="try{navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('code').textContent)}catch(e){}">이 폰으로 알림 켜기 →</a>
+<a class="btn" id="go" href="#" onclick="try{navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('code').textContent)}catch(e){}">알림 켜기 →</a>
 <p class="mute" style="text-align:center;margin-top:8px">아이폰은 다음 화면에서 '홈 화면에 추가'를 한 번 안내해 드려요.</p>
 </div>
 <div id="desk" style="display:none">
@@ -211,7 +211,7 @@ function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
     try{localStorage.setItem("kew_code",j.code)}catch(e){}
     history.replaceState(null,"",location.pathname);
     document.getElementById("code").textContent=j.code;document.getElementById("dev").textContent=j.devices;document.getElementById("go").href=link;
-    var ua=navigator.userAgent,android=/Android/.test(ua),inapp=/KAKAOTALK|Instagram|Barcelona|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua)||(android&&!("PushManager" in window));
+    var ua=navigator.userAgent,android=/Android/.test(ua),inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua); // 스레드는 여기서 버튼을 바꾸지 않는다 — '알림 켜기'를 누르면 다음 화면이 ⋯ → 외부 브라우저 두 줄로 안내한다 (11/18 사용자: "'사파리로 열어 알림 켜기'는 혼란스럽다. 그냥 알림 켜기")
     if(mobile&&inapp){var g=document.getElementById("go");
       g.href=android?"intent://"+location.host+"/me?code="+encodeURIComponent(j.code)+"#Intent;scheme=https;package=com.android.chrome;end":(/KAKAOTALK/i.test(ua)?"kakaotalk://web/openExternal?url="+encodeURIComponent(link):link);
       g.textContent=android?"크롬으로 열어 알림 켜기 →":"사파리로 열어 알림 켜기 →";g.onclick=function(){try{navigator.clipboard&&navigator.clipboard.writeText(j.code)}catch(e){}};

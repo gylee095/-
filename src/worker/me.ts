@@ -48,7 +48,7 @@ function kst(ms){var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.g
 function ago(ms){var m=Math.round((Date.now()-ms)/60000);if(m<1)return "방금";if(m<60)return m+"분 전";var h=Math.round(m/60);if(h<24)return h+"시간 전";var d=Math.round(h/24);return d+"일 전"}
 function env(){var ua=navigator.userAgent;var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
   var android=/Android/.test(ua);var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
-  var inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|everytimeApp|BAND\//i.test(ua);
+  var inapp=/KAKAOTALK|Instagram|Barcelona|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|everytimeApp|BAND\//i.test(ua);
   var ok="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
   return {ios:ios,android:android,standalone:standalone,inapp:inapp,ok:ok,kakao:/KAKAOTALK/i.test(ua)}}
 var ENV=env();
@@ -66,7 +66,8 @@ function stepCard(c,me,on){
   var h='<div class="state main"><h2>마지막 한 단계: 이 폰에서 알림 켜기</h2>';
   var g=kewGuide(kewEnv(),"/me?code="+encodeURIComponent(c));
   if(g){setTimeout(function(){kewDrawQr("/me?code="+encodeURIComponent(c))},0);return '<div>'+g+'<p class="mute">활성화 코드 <b>'+esc(c)+'</b> — 주소에 들어 있어 따로 넣을 필요는 없어요.</p></div>'}
-  if(!ENV.ok)return h+'<p class="big">이 브라우저는 알림을 지원하지 않아요. 안드로이드는 <b>크롬</b>, 아이폰은 <b>사파리</b>에서 열어 주세요.</p></div>';
+  if(!ENV.ok){var path=location.host+"/me?code="+encodeURIComponent(c);
+    return h+'<p class="big">지금 이 화면에서는 알림을 켤 수 없어요. 아래 버튼으로 바깥 브라우저에서 열면 바로 켤 수 있어요. 코드는 자동으로 함께 가요.</p><a class="btn" href="'+(ENV.android?"intent://"+path+"#Intent;scheme=https;package=com.android.chrome;end":ENV.ios?"x-safari-https://"+path:"https://"+path)+'">'+(ENV.android?"크롬으로 열어 알림 켜기 →":ENV.ios?"사파리로 열어 알림 켜기 →":"새 창에서 열기 →")+'</a><button class="btn ghost" style="margin-top:8px" onclick="navigator.clipboard&&navigator.clipboard.writeText(\'https://'+path+'\');this.textContent=\'복사했어요 — 크롬·사파리·삼성 인터넷 주소창에 붙여 넣으세요\'">주소 복사하기</button></div>'}
   if(Notification.permission==="denied")return h+'<p class="big">이 사이트의 알림이 <b>꺼져</b> 있어요. 휴대폰 <b>설정 → 알림</b>'+(ENV.ios?' → 조기경보':' (크롬: 주소창 왼쪽 자물쇠 → 권한 → 알림)')+'에서 켠 뒤 이 화면을 새로고침해 주세요.</p></div>';
   return h+'<p class="big">버튼을 누르고 휴대폰이 묻는 창에서 <b>허용</b>을 눌러 주세요.</p><button class="btn" id="enable" onclick="enable()">알림 켜기</button></div>'}
 

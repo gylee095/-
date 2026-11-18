@@ -18,7 +18,9 @@ function kewEnv(){var ua=navigator.userAgent;
   var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
   var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
   var kakao=/KAKAOTALK/i.test(ua);
-  var inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER|Line\/|DaumApps|BAND\/|everytimeApp|DaumDevice|SamsungBrowser.*CrossApp/i.test(ua);
+  var inapp=/KAKAOTALK|Instagram|Barcelona|FBAN|FBAV|NAVER|Line\/|DaumApps|BAND\/|everytimeApp|DaumDevice|SamsungBrowser.*CrossApp/i.test(ua);
+  // 이름을 모르는 앱 속 화면도 잡는다 (11/18 스레드 앱 안에서 결제한 손님이 '지원하지 않아요'만 봤다): 안드로이드인데 알림 기능이 없으면 앱 속 화면이다
+  if(android&&!standalone&&!("PushManager" in window))inapp=true;
   var iosBrowser=!ios?"":inapp?"inapp":/CriOS/.test(ua)?"chrome":/EdgiOS/.test(ua)?"edge":/FxiOS/.test(ua)?"firefox":/Whale\//.test(ua)?"inapp":/Safari\//.test(ua)?"safari":"inapp";
   return {ios:ios,android:android,desktop:!ios&&!android,standalone:standalone,kakao:kakao,inapp:inapp,iosBrowser:iosBrowser}}
 var KEW_SHARE='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
@@ -204,11 +206,11 @@ function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
     try{localStorage.setItem("kew_code",j.code)}catch(e){}
     history.replaceState(null,"",location.pathname);
     document.getElementById("code").textContent=j.code;document.getElementById("dev").textContent=j.devices;document.getElementById("go").href=link;
-    var ua=navigator.userAgent,inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua),android=/Android/.test(ua);
+    var ua=navigator.userAgent,android=/Android/.test(ua),inapp=/KAKAOTALK|Instagram|Barcelona|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua)||(android&&!("PushManager" in window));
     if(mobile&&inapp){var g=document.getElementById("go");
       g.href=android?"intent://"+location.host+"/me?code="+encodeURIComponent(j.code)+"#Intent;scheme=https;package=com.android.chrome;end":(/KAKAOTALK/i.test(ua)?"kakaotalk://web/openExternal?url="+encodeURIComponent(link):link);
       g.textContent=android?"크롬으로 열어 알림 켜기 →":"사파리로 열어 알림 켜기 →";g.onclick=function(){try{navigator.clipboard&&navigator.clipboard.writeText(j.code)}catch(e){}};
-      var n=g.nextElementSibling;if(n)n.textContent=/KAKAOTALK/i.test(ua)||android?"카카오톡 안에서는 알림을 켤 수 없어서 바깥 브라우저로 열어요. 코드는 자동으로 함께 가요.":"이 앱 안에서는 알림을 켤 수 없어요. 오른쪽 위 메뉴에서 '다른 브라우저로 열기'를 눌러 주세요.";}
+      var n=g.nextElementSibling;if(n)n.textContent=/KAKAOTALK/i.test(ua)||android?(/KAKAOTALK/i.test(ua)?"카카오톡":"이 앱")+" 안에서는 알림을 켤 수 없어서 바깥 브라우저로 열어요. 코드는 자동으로 함께 가요.":"이 앱 안에서는 알림을 켤 수 없어요. 오른쪽 위 메뉴에서 '다른 브라우저로 열기'를 눌러 주세요.";}
     if(j.receiptUrl&&/^https:\/\//.test(j.receiptUrl))document.getElementById("rc").innerHTML='<a href="'+j.receiptUrl.replace(/"/g,"")+'" target="_blank" rel="noopener">영수증 보기</a>';
     new QRCode(document.getElementById("qr"),{text:link,width:184,height:184,correctLevel:QRCode.CorrectLevel.M});
     document.getElementById("wait").style.display="none";document.getElementById("done").style.display="";}

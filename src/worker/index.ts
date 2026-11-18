@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, OPS_MANIFEST, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
-import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, markOwn, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { browserKind, viaLabel, DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, markOwn, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
 import { SHELL_HEAD, buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
@@ -377,7 +377,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     // 주문은 서버가 만들고 금액도 서버가 정한다. 브라우저에는 결제창에 필요한 값(판매자 아이디·상품·금액·통보 주소)만 준다
     const cfg = payAppConfig(env);
     if (!cfg) return json({ error: "결제 준비 중이에요" }, 503);
-    const o = await createOrder(store, Date.now());
+    const o = await createOrder(store, Date.now(), browserKind(req.headers.get("user-agent")));
     // 홈 화면 앱 안에서 시작한 결제 (11/5): 결제창은 앱 위에 잠깐 뜨는 창으로 열고, 결제가 끝나면 앱이 스스로 알아챈다.
     // 카톡 링크로 결제를 마친 화면(returnurl)은 "앱으로 돌아가세요"를 보여 준다
     const fromApp = ((await req.json().catch(() => ({}))) as { app?: boolean }).app === true;
@@ -437,7 +437,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     // 코드 + 이 기기의 푸시 구독 → paid 구독. 코드가 문지기라 인증은 필요 없다
     const body = (await req.json().catch(() => null)) as { code?: string; subscription?: PushSubscriptionJson } | null;
     if (!body?.code || !body.subscription?.endpoint) return json({ error: "code·subscription 필요" }, 400);
-    const r = await redeemCode(store, body.code, body.subscription.endpoint);
+    const r = await redeemCode(store, body.code, body.subscription.endpoint, Date.now(), browserKind(req.headers.get("user-agent")));
     if (!r.ok) return json({ error: r.reason }, 403);
     const s = await addSub(store, body.subscription, "paid", Date.now());
     // 켜자마자 이 기기 하나에만 '켜졌어요' 알림 — 고객이 바로 확인하고(체감), 서비스 제공이 시작됐다는 기록도 된다. 다른 구독자에게는 가지 않는다
@@ -510,7 +510,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   }
   if (url.pathname === "/api/billing/orders" && req.method === "GET") {
     const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 19).replace("T", " ") : null);
-    return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, startReport: !!o.startReportId, own: !!o.own })));
+    return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, via: o.via ? viaLabel(o.via) : null, on: (o.viaOn ?? []).map(viaLabel), startReport: !!o.startReportId, own: !!o.own })));
   }
   if (url.pathname === "/api/billing/find" && req.method === "GET") {
     const q = url.searchParams.get("q") ?? "";

@@ -293,3 +293,35 @@ describe("운영자 본인의 결제는 손님 수·매출에서 뺀다 (11/18)"
     expect((await billingSummary(store, now)).paid).toBe(3);
   });
 });
+
+// 11/18 사용자: 가입 흐름을 더 고치기 전에 숫자부터 — 어디서 들어와 어디까지 갔나
+describe("가입 흐름 기록: 기기·브라우저 종류만 남긴다", async () => {
+  const { browserKind, viaLabel, funnelOf } = await import("../src/core/billing.js");
+  it("User-Agent 를 한 낱말로 줄인다", () => {
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22B83 Barcelona 355.0.0.0")).toBe("ios:threads");
+    expect(browserKind("Mozilla/5.0 (Linux; Android 14; SM-S918N; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/130.0.0.0 Mobile Safari/537.36 Barcelona 355.0.0.0 Android")).toBe("android:threads");
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1")).toBe("ios:safari");
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0.6778.73 Mobile/15E148 Safari/604.1")).toBe("ios:chrome");
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")).toBe("ios:app");
+    expect(browserKind("Mozilla/5.0 (Linux; Android 14; SM-S918N) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/26.0 Chrome/122.0.0.0 Mobile Safari/537.36")).toBe("android:samsung");
+    expect(browserKind("Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36")).toBe("android:chrome");
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 11.0.0")).toBe("ios:kakao");
+    expect(browserKind(null)).toBe("desktop:other");
+    expect(viaLabel("ios:threads")).toBe("아이폰 · 스레드 앱 안");
+  });
+  it("시작 → 결제 → 알림 켬을 들어온 곳별로 센다. 본인 주문과 기록 없는 옛 주문은 뺀다. 환불돼도 알림을 켰던 기록은 남는다", () => {
+    const o = (x: object) => ({ orderId: "k", claim: "c", amount: 4900, status: "created", createdAt: 1, devices: [], ...x }) as never;
+    const f = funnelOf([
+      o({ via: "ios:threads" }),
+      o({ via: "ios:threads", status: "paid" }),
+      o({ via: "ios:threads", status: "paid", devices: ["e1"], viaOn: ["ios:app"] }),
+      o({ via: "ios:threads", status: "refunded", viaOn: ["ios:app"] }),
+      o({ via: "android:chrome", status: "paid", devices: ["e2"] }),
+      o({ via: "ios:safari", status: "paid", own: true }),
+      o({ status: "paid", devices: ["old"] }),
+    ]);
+    expect(f[0]).toEqual({ via: "ios:threads", label: "아이폰 · 스레드 앱 안", started: 4, paid: 3, enabled: 2, refunded: 1 });
+    expect(f[1]).toMatchObject({ via: "android:chrome", started: 1, paid: 1, enabled: 1 });
+    expect(f).toHaveLength(2);
+  });
+});

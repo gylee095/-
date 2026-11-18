@@ -260,7 +260,11 @@ describe("결제 알림 — 운영자에게만 (11/17)", () => {
     const now = Date.parse("2026-11-17T14:03:00+09:00");
     const m = paymentPush("paid", o("kew-abc-1234", "paid"), [o("kew-abc-1234", "paid"), o("x2", "paid"), o("x3", "refunded"), o("x4", "created")], now);
     expect(m.title).toBe("💰 결제 들어옴 — 4,900원");
-    expect(m.body).toBe("지금 이용 중 2명 (합계 9,800원) · 취소 1건\n주문 …1234 · 11/17 14:03");
+    expect(m.body).toBe("실제 손님 2명 · 매출 9,800원 (환불·본인 결제 제외)\n오늘: 결제 0건\n주문 …1234 · 11/17 14:03"); // 이 시험의 주문에는 결제 시각이 없어 '오늘 0건'
+    // 오늘 결제 2건 중 1건을 환불하면 첫 줄은 남은 손님만, 둘째 줄은 오늘의 결제·환불 건수 (11/18 테스트 결제 때문에 헷갈렸다)
+    const t = (id: string, status: string, x: object) => ({ ...o(id, status), ...x });
+    const m2 = paymentPush("revoked", t("r1", "refunded", { paidAt: now - 3600_000, refundedAt: now }), [t("a", "paid", { paidAt: now - 7200_000 }), t("r1", "refunded", { paidAt: now - 3600_000, refundedAt: now }), t("me", "paid", { paidAt: now - 100, own: true })], now);
+    expect(m2.body.split("\n").slice(0, 2)).toEqual(["실제 손님 1명 · 매출 4,900원 (환불·본인 결제 제외)", "오늘: 결제 2건 · 환불 1건"]);
     expect(paymentPush("revoked", o("kew-abc-1234", "refunded"), [o("kew-abc-1234", "refunded")], now).title).toBe("↩️ 결제 취소됨 — 4,900원");
     expect(JSON.stringify(m)).not.toMatch(/audience|01\d-|claim/);
   });
@@ -288,7 +292,7 @@ describe("운영자 본인의 결제는 손님 수·매출에서 뺀다 (11/18)"
     const sum = await billingSummary(store, now);
     expect(sum).toMatchObject({ paid: 2, revenueKrw: 9800, own: 1, paidToday: 2 });
     const saved = JSON.parse((await store.getKv(ORDERS_KEY))!);
-    expect(paymentPush("paid", saved[2], saved, now).body).toMatch(/^지금 이용 중 2명 \(합계 9,800원\)/);
+    expect(paymentPush("paid", saved[2], saved, now).body).toMatch(/^실제 손님 2명 · 매출 9,800원/);
     expect((await markOwn(store, { orderId: "mine" }, false, now))!.own).toBeUndefined();
     expect((await billingSummary(store, now)).paid).toBe(3);
   });

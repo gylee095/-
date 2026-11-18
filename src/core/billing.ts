@@ -370,9 +370,12 @@ export function paymentPush(action: "paid" | "revoked", order: Order, orders: Or
   const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
   const d = new Date(now + 9 * 3600_000);
   const when = `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
-  // 운영자 본인의 결제는 손님 수·합계에서 뺀다
-  const paid = orders.filter((o) => o.status === "paid" && !o.own), refunded = orders.filter((o) => o.status === "refunded").length;
-  const total = `지금 이용 중 ${paid.length}명 (합계 ${won(paid.reduce((a, o) => a + o.amount, 0))})${refunded ? ` · 취소 ${refunded}건` : ""}`;
+  // 한눈에 맞는 숫자만 (11/18 사용자: "테스트로 결제한 것 때문에 헷갈린다 — 금액을 잘 따라갈 수 있게"): 첫 줄은 언제나 '지금 실제 손님 수와 매출'이고
+  // 환불된 것·운영자 본인 결제는 거기서 빠져 있다고 적는다. 둘째 줄은 오늘 하루의 결제·환불 건수.
+  const day = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(0, 10) : "");
+  const paid = orders.filter((o) => o.status === "paid" && !o.own);
+  const today = day(now), paidToday = orders.filter((o) => !o.own && (o.status === "paid" || o.status === "refunded") && day(o.paidAt) === today).length, refundedToday = orders.filter((o) => o.status === "refunded" && day(o.refundedAt) === today).length;
+  const total = `실제 손님 ${paid.length}명 · 매출 ${won(paid.reduce((a, o) => a + o.amount, 0))} (환불·본인 결제 제외)\n오늘: 결제 ${paidToday}건${refundedToday ? ` · 환불 ${refundedToday}건` : ""}`;
   const tail = `주문 …${order.orderId.slice(-4)} · ${when}`;
   return action === "paid"
     ? { title: `💰 결제 들어옴 — ${won(order.amount)}`, body: `${total}\n${tail}`, priority: 3, tag: `kew-pay-${order.orderId}` }

@@ -401,8 +401,17 @@ function isWide(e){return !!(e.categories&&e.categories.length===1&&(e.categorie
 function relOf(e){var b=e.brief;if(b.rel!=null)return b.rel;if(!isWide(e))return 3;return e.categories[0]==="world_event"?2:(b.danger&&b.danger.level>=2?2:1)}
 var REL_KO=["한반도와 무관","먼 배경","한 다리 건너","한반도 직접"];
 function relText(e){var r=relOf(e);return REL_KO[r]+(isWide(e)?(e.brief.relBy==="analyst"?" · 클로드 판단":" · 임시 판단"):"")}
-function tentative(e){return isWide(e)&&e.brief.relBy!=="analyst"&&e.brief.rel!=null}
-function important(e){var b=e.brief;return isWide(e)?relOf(e)>=2:(b.isProvocation||b.danger.level>=2)}
+function tentative(e){return false} // 낱말로 매긴 임시 점수는 화면에 올리지 않는다 — 분석관이 읽을 순서에만 쓴다
+// 세계 속보는 하나로 묶는다 (11/18 사용자: "우리 앱은 한반도 전쟁 가능성이다 — 미국 속보는 뭉쳐서 하나의 신호로 봐야 한다").
+// 한반도 밖의 소식(연관도 3 미만)은 사건 목록에 넣지 않고 '불안한 배경'의 세계 속보 한 줄에 모은다. 분석관이 읽고 2 이상으로 판단한 것만 사건으로 올라온다.
+function isWorldPool(e){var b=e.brief;if(!isWide(e)||b.rel==null)return false;return b.rel<3&&!(b.relBy==="analyst"&&b.rel>=2)}
+function important(e){var b=e.brief;if(isWorldPool(e))return false;return isWide(e)?relOf(e)>=2&&(b.rel==null||b.relBy==="analyst"):(b.isProvocation||b.danger.level>=2)}
+function worldPool(st){return (st.events||[]).filter(function(e){return e.brief&&isWorldPool(e)&&st.now-e.brief.at<86400000})}
+function worldLine(st){var W=worldPool(st);var row=null;(st.board||[]).forEach(function(r){if(r.id==="media.world_alarm_24h")row=r});
+  if(!W.length&&!(row&&row.reading))return "";
+  var stt=row&&row.reading?row.reading.state:"";var lv=stt==="anomalous"?"평소보다 훨씬 많아요":stt==="elevated"?"평소보다 많아요":stt==="normal"?"평소 수준이에요":"평소 건수를 배우는 중이에요 (7일)";
+  var seen={},L=[];W.forEach(function(e){var k=e.brief.headline;if(seen[k])return;seen[k]=1;var u="";(e.signals||[]).forEach(function(g){if(!u&&g.url&&/^https?:\/\//.test(g.url))u=g.url});L.push({t:k,u:u,at:e.brief.at})});
+  return '<details style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(128,128,128,.3)"><summary style="cursor:pointer;font-size:14px;font-weight:600">🌍 세계 속보 · 지난 24시간 '+L.length+'건 · '+lv+'</summary><div style="font-size:12.5px;color:var(--mute);margin-top:6px;word-break:keep-all">한반도 밖의 공격·교전·마비 속보는 사건으로 하나씩 세지 않고 여기에 한 줄로 묶어요. 평소보다 많아지면 배경 한 칸이 켜져요. 분석관이 하루 두 번 읽고, 한반도와 이어지는 것만 사건으로 올려요.</div>'+L.slice(0,15).map(function(x){return '<div style="font-size:13px;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">· '+(x.u?'<a href="'+esc(x.u)+'" target="_blank" rel="noopener" style="color:inherit">'+esc(x.t)+'</a>':esc(x.t))+' <span style="color:var(--mute);font-size:12px">'+ago(x.at)+'</span></div>'}).join("")+(L.length>15?'<div style="font-size:12px;color:var(--mute);margin-top:6px">외 '+(L.length-15)+'건</div>':'')+'</details>'}
 // 맨 위 소식: 최근 24시간의 주요 소식 가운데 한반도와 가장 가까운 것(같으면 최신), 없으면 가장 최근 주요 소식
 function pickTop(evs){var p=evs.filter(important);if(!p.length)return null;var day=p.filter(function(e){return p[0].brief.at-e.brief.at<86400000});
   var sure=day.filter(function(e){return !tentative(e)});if(sure.length)day=sure; // 낱말로 매긴 임시 점수보다 분석관이 읽은 것·규칙 사건을 먼저 (11/18 사용자: 낱말은 임시일 뿐이다)
@@ -500,14 +509,14 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   // 숫자 바로 아래에 최근 사흘의 한반도 사건(위험도 2 이상·도발)과 세계의 심상치 않은 일을 둔다. 점수를 더 주지는 않는다. 항목 수 설명은 '자세히' 안에만.
   // 11/18: 넓은 그물·세계 매체 소식은 한반도 연관도 2 이상만 올리고, 가까운 것부터 놓는다. 나머지는 건수만 알려 준다
   var EV=[],TMP=[],seen={},FAR=0;(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
-    if(!important(e)){if(isWide(e))FAR++;return}if(seen[b.headline])return;seen[b.headline]=1;(tentative(e)?TMP:EV).push({t:b.headline,at:b.at,w:wd,rel:relOf(e),wide:isWide(e),sub:relText(e),why:b.relWhy})});
+    if(!important(e)){if(isWorldPool(e)&&st.now-b.at<86400000)FAR++;return}if(seen[b.headline])return;seen[b.headline]=1;(tentative(e)?TMP:EV).push({t:b.headline,at:b.at,w:wd,rel:relOf(e),wide:isWide(e),sub:relText(e),why:b.relWhy})});
   var WOK={};R.layers[2].groups.forEach(function(g){g.items.forEach(function(x){if(["w_infra","w_new_war","w_power_clash"].indexOf(x.id)>=0&&x.s==="on"){if(x.ev&&!seen[x.ev]){seen[x.ev]=1;EV.push({t:x.ev,at:0,w:true,rel:2})}if(x.ev)WOK[x.ev]=x.by==="analyst"?(x.weak?2:3):1}})});
   EV.sort(function(a,b){return b.rel-a.rel||b.at-a.at});EV=EV.slice(0,4);TMP.sort(function(a,b){return b.rel-a.rel||b.at-a.at});
   // 분석관이 아직 읽지 않은 속보는 따로, 작게 (11/18 사용자: "분석관이 읽어 봐야 한반도와 관련 있는지 안다 — 낱말은 임시"). 다음 분석(아침·저녁 8시)에 판단이 붙는다
   var hk=new Date(st.now+9*3600000).getUTCHours(),NEXT=hk>=8&&hk<20?"저녁 8시":"아침 8시";
   var TMPH=TMP.length?'<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line,rgba(128,128,128,.3))"><div style="font-size:12px;font-weight:700;color:var(--mute)">아직 분석 전인 속보 '+TMP.length+'건 · '+NEXT+' 분석 때 판단해요</div>'+TMP.slice(0,2).map(function(x){return '<div style="font-size:13px;color:var(--mute);margin-top:4px;word-break:keep-all;overflow-wrap:anywhere">· '+esc(x.t)+'</div>'}).join("")+(TMP.length>2?'<div style="font-size:12px;color:var(--mute);margin-top:3px">외 '+(TMP.length-2)+'건</div>':'')+'<div style="font-size:12px;color:var(--mute);margin-top:4px">제목의 낱말로 고른 것이라 틀릴 수 있어요.</div></div>':'';
-  if(EV.length||TMP.length)h+='<div style="margin:10px 0 10px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">최근 있었던 일</div>'+EV.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.t)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.wide&&!WOK[x.t]?esc(x.sub)+(x.at?' · '+when(x.at):'')+(x.why?'<br>'+esc(x.why):''):x.w?'세계 정세 · '+(WOK[x.t]===3?'분석관 확인: 지금도 이어지고 있어요.':WOK[x.t]===2?'분석관 확인: 아직 정상화되지 않았어요 (원인 불명 또는 사고).':'아직 이어지는지 확인 중이에요 — 끝났으면 내리고, 이어지면 유지해요.'):'한반도'+(x.at?' · '+when(x.at):''))+'</div>'}).join("")+(EV.length?'':'<div style="font-size:13.5px;margin-top:6px">분석관이 확인한, 한반도와 가까운 사건은 최근 사흘 동안 없어요.</div>')+TMPH+(FAR?'<div style="font-size:12px;color:var(--mute);margin-top:8px">그 밖의 세계 소식 '+FAR+'건은 한반도와 거리가 멀어 여기에는 올리지 않았어요 (아래 사건 목록에 있어요).</div>':'')+'</div>';
-  else h+='<div style="font-size:13px;color:var(--mute);margin:8px 0 10px">최근 사흘 동안 한반도와 가까운 사건은 없어요.'+(FAR?' 거리가 먼 세계 소식 '+FAR+'건은 아래 사건 목록에 있어요.':'')+'</div>';
+  if(EV.length||TMP.length)h+='<div style="margin:10px 0 10px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">최근 있었던 일</div>'+EV.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.t)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.wide&&!WOK[x.t]?esc(x.sub)+(x.at?' · '+when(x.at):'')+(x.why?'<br>'+esc(x.why):''):x.w?'세계 정세 · '+(WOK[x.t]===3?'분석관 확인: 지금도 이어지고 있어요.':WOK[x.t]===2?'분석관 확인: 아직 정상화되지 않았어요 (원인 불명 또는 사고).':'아직 이어지는지 확인 중이에요 — 끝났으면 내리고, 이어지면 유지해요.'):'한반도'+(x.at?' · '+when(x.at):''))+'</div>'}).join("")+(EV.length?'':'<div style="font-size:13.5px;margin-top:6px">분석관이 확인한, 한반도와 가까운 사건은 최근 사흘 동안 없어요.</div>')+TMPH+(FAR?'<div style="font-size:12px;color:var(--mute);margin-top:8px">세계 속보 '+FAR+'건은 한 줄로 묶어 \'불안한 배경\'에 두었어요.</div>':'')+'</div>';
+  else h+='<div style="font-size:13px;color:var(--mute);margin:8px 0 10px">최근 사흘 동안 한반도와 가까운 사건은 없어요.'+(FAR?' 세계 속보 '+FAR+'건은 한 줄로 묶어 \'불안한 배경\'에 두었어요.':'')+'</div>';
   // 단계마다 몇 %부터 몇 %인지 (11/12 사용자): 다섯 칸 눈금 + 지금 위치. 교전은 %가 아니라 실제 교전 보도로 정해진다
   var BND=[0,10,25,50,100],RNG=["0~9%","10~24%","25~49%","50%~","실제 교전"],NM=["평온","긴장","위기","임박","교전"];
   var seg=Math.min(4,w.phase-1),within=seg>=4?0.5:Math.min(0.97,Math.max(0.03,(PCT-BND[seg])/(BND[seg+1]-BND[seg]))),mark=(seg+within)/5*100;
@@ -538,6 +547,7 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
     if(!ons.length)b+='<div style="font-size:14px;margin-top:10px">'+NONE[L.id]+'</div>';
     else b+=ons.map(function(x){var on=!!SRCOPEN[x.id];
       return '<button type="button" class="srctab" data-i="'+x.id+'" aria-expanded="'+(on?'true':'false')+'" onclick="srcTap(this.dataset.i)" style="display:flex;gap:8px;margin-top:10px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer"><b style="flex:none;color:'+(x.weak?'var(--l2)':'var(--l4)')+'">●</b><span style="flex:1;min-width:0;display:block"><span style="display:block;font-size:14px;font-weight:600;word-break:keep-all;overflow-wrap:anywhere">'+esc(short(x))+(x.weak?' <span style="font-weight:400;color:var(--mute);font-size:12.5px">반 개 · 약하거나 확인 중</span>':'')+'</span>'+(x.ev?'<span style="display:block;font-size:12.5px;color:var(--mute);word-break:keep-all;overflow-wrap:anywhere">'+esc(x.ev)+'</span>':'')+leadLine(x)+'<span class="srchint" style="display:block;font-size:12px;color:var(--mute);text-decoration:underline">'+(on?'출처 닫기':'어디서 얻은 정보인가 ›')+'</span></span></button><div class="srcbox" data-i="'+x.id+'" style="display:'+(on?'block':'none')+';margin:6px 0 0 20px;padding:8px 10px;border-radius:10px;background:var(--card)">'+srcOf(x)+'</div>'}).join("");
+    if(L.id==="context")b+=worldLine(st);
     if(unk.length)b+='<div style="font-size:12.5px;color:var(--mute);margin-top:10px">아직 확인 못 한 것 '+unk.length+'개: '+unk.map(function(x){return esc(short(x))}).join(" · ")+' — 분석관이 하루 두 번 확인해요.</div>';
     b+='<details style="margin-top:10px"><summary style="cursor:pointer;font-size:13px;color:var(--mute)">지켜보는 '+all.length+'개 전부 보기</summary>'+L.groups.map(function(g){return (L.groups.length>1?'<div style="font-size:13px;font-weight:700;margin:10px 0 2px">'+esc(g.label)+'</div>':'')+'<ul style="margin:6px 0 0;padding-left:18px">'+g.items.map(it).join("")+'</ul>'}).join("")+'</details>';
     return b+'</div>'};
@@ -684,11 +694,11 @@ function render(){
     ev+=sources(top)+'</div>';
   }
   // 6) 이전 소식
-  var rest=evs.filter(function(e){return e!==top&&Date.now()-e.brief.at<30*86400000});
+  var rest=evs.filter(function(e){return e!==top&&!isWorldPool(e)&&Date.now()-e.brief.at<30*86400000});
   var main=rest.filter(important);
   var ref=rest.filter(function(e){return !important(e)});
   if(main.length){ev+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,8).map(row).join("")+'</div>'}
-  if(ref.length)ev+='<details class="card"><summary>그 밖의 소식 '+ref.length+'건 (한반도와 거리가 먼 세계 소식·논평 — 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
+  if(ref.length)ev+='<details class="card"><summary>참고 기사 '+ref.length+'건 (논평·분석, 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
   var bd=st.board||[];var abn=bd.filter(function(r){return r.reading&&(r.reading.state==="anomalous"||r.reading.state==="elevated")&&r.stateLabel!=="측정 불가"}).length;var fl=bd.filter(function(r){return r.failing}).length;
   var NM=st.normal;
   inner+=group("board","신호 "+bd.length+"개","평소 범위를 벗어난 것 "+(NM?NM.k:abn)+"개"+(fl?" · 못 받는 것 "+fl+"개":"")+" · 직접 재는 숫자 전부",(NM?safe(normalCard,NM,"평소 범위"):"")+'<div class="card">'+board(bd)+'</div>');

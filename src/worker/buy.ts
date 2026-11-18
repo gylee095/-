@@ -212,6 +212,12 @@ function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
     history.replaceState(null,"",location.pathname);
     document.getElementById("code").textContent=j.code;document.getElementById("dev").textContent=j.devices;document.getElementById("go").href=link;
     var ua=navigator.userAgent,android=/Android/.test(ua),inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua); // 스레드는 여기서 버튼을 바꾸지 않는다 — '알림 켜기'를 누르면 다음 화면이 ⋯ → 외부 브라우저 두 줄로 안내한다 (11/18 사용자: "'사파리로 열어 알림 켜기'는 혼란스럽다. 그냥 알림 켜기")
+    // 스레드 등 앱 속 화면 (11/18 사용자: "버튼을 누르면 바로 외부 브라우저가 열리게 — 한 단계 줄이자"): 버튼 글자는 그대로 두고, 누르면 바깥 브라우저를 열어 본다.
+    // 안드로이드는 크롬을 부르고, 아이폰은 사파리를 부른다(스레드가 막아 반응이 없을 수 있다). 1.5초 안에 화면이 넘어가지 않으면 ⋯ → 외부 브라우저 안내 화면으로 간다
+    var soft=!inapp&&(/Barcelona/i.test(ua)||(android&&!("PushManager" in window)));
+    if(mobile&&soft){var g2=document.getElementById("go");var ext=android?"intent://"+location.host+"/me?code="+encodeURIComponent(j.code)+"#Intent;scheme=https;package=com.android.chrome;end":"x-safari-"+link;
+      g2.onclick=function(ev){ev.preventDefault();try{navigator.clipboard&&navigator.clipboard.writeText(j.code).catch(function(){})}catch(e){}
+        setTimeout(function(){if(!document.hidden)location.href=link},1500);try{location.href=ext}catch(e){location.href=link}}}
     if(mobile&&inapp){var g=document.getElementById("go");
       g.href=android?"intent://"+location.host+"/me?code="+encodeURIComponent(j.code)+"#Intent;scheme=https;package=com.android.chrome;end":(/KAKAOTALK/i.test(ua)?"kakaotalk://web/openExternal?url="+encodeURIComponent(link):link);
       g.textContent=android?"크롬으로 열어 알림 켜기 →":"사파리로 열어 알림 켜기 →";g.onclick=function(){try{navigator.clipboard&&navigator.clipboard.writeText(j.code)}catch(e){}};

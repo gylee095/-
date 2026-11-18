@@ -170,6 +170,8 @@ async function render(){
   if(!r.ok){try{localStorage.removeItem("kew_code")}catch(e){}CODE=null;return noCode(me.error)}
   var on=await pushOn();
   var h=stepCard(CODE,me,on);
+  // 앱 속 화면(스레드 등)에서는 할 일이 '바깥 브라우저로 나가기' 하나뿐이다 — 알림 목록·초록 불은 바깥에서 다시 보이니 여기서는 겹치지 않게 뺀다 (11/18 사용자)
+  if(!on&&kewEnv().soft){$("#app").innerHTML=h;return}
   if(on&&ENV.android&&!ENV.standalone){var sam=/SamsungBrowser/.test(navigator.userAgent);
     h+='<div class="state" style="border:2px solid var(--brand)"><b style="font-size:17px">📲 홈 화면에 앱으로 추가하세요</b><p class="mute" style="margin:6px 0 10px">앱처럼 아이콘을 눌러 알림 목록과 리포트를 바로 볼 수 있어요. 알림은 지금도 와요.</p>'+
       '<button class="btn" id="install" style="display:none;margin:0 0 8px" onclick="install()">앱으로 추가</button>'+

@@ -44,7 +44,8 @@ function kewGuide(E,path){var url=location.origin+path;
   if(E.inapp&&E.android)return card("크롬에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 알림을 켤 수 없어요.</p><a class="btn" href="intent://'+location.host+path+'#Intent;scheme=https;package=com.android.chrome;end">크롬으로 열기</a>');
   if(!E.ios)return "";
   if(E.iosBrowser==="safari")return KF+card(title,steps('화면 아래 가운데 '+KEW_SHARE+' <b>공유</b> 버튼'))+arrow("bottom");
-  if(E.iosBrowser==="chrome")return KF+card(title,steps('주소창 오른쪽 '+KEW_SHARE+' <b>공유</b> 버튼 (안 보이면 아래 <b>⋯</b> → 공유)'))+arrow("top");
+  // 아이폰 크롬의 공유 버튼은 주소창 왼쪽 위에 있다 (11/18 사용자 화면으로 확인 — 예전 안내는 오른쪽 위를 가리켰다)
+  if(E.iosBrowser==="chrome")return KF+card(title,steps('화면 <b>왼쪽 위</b> '+KEW_SHARE+' <b>공유</b> 버튼 (안 보이면 오른쪽 위 <b>⋯</b> → 공유)'))+arrow("top").replace("right:10px","left:10px").replace("⬆ 위 공유 버튼","⬆ 여기 공유 버튼");
   if(E.iosBrowser==="edge"||E.iosBrowser==="firefox")return card(title,steps('메뉴(<b>⋯</b> 또는 <b>≡</b>) → '+KEW_SHARE+' <b>공유</b>')+'<p class="mute" style="margin:6px 0 0">홈 화면에 추가가 안 보이면 <a href="x-safari-'+url+'">사파리로 열어</a> 주세요.</p>');
   return card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 홈 화면에 앱을 추가할 수 없어요.</p><a class="btn" href="'+(E.kakao?"kakaotalk://web/openExternal?url="+encodeURIComponent(url):"x-safari-"+url)+'">사파리로 열기</a><button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button>')}
 function kewDrawQr(path){var el=document.getElementById("kewqr");if(!el||!window.QRCode)return;new QRCode(el,{text:location.origin+path,width:184,height:184,correctLevel:QRCode.CorrectLevel.M})}`;
@@ -212,12 +213,6 @@ function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
     history.replaceState(null,"",location.pathname);
     document.getElementById("code").textContent=j.code;document.getElementById("dev").textContent=j.devices;document.getElementById("go").href=link;
     var ua=navigator.userAgent,android=/Android/.test(ua),inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua); // 스레드는 여기서 버튼을 바꾸지 않는다 — '알림 켜기'를 누르면 다음 화면이 ⋯ → 외부 브라우저 두 줄로 안내한다 (11/18 사용자: "'사파리로 열어 알림 켜기'는 혼란스럽다. 그냥 알림 켜기")
-    // 스레드 등 앱 속 화면 (11/18 사용자: "버튼을 누르면 바로 외부 브라우저가 열리게 — 한 단계 줄이자"): 버튼 글자는 그대로 두고, 누르면 바깥 브라우저를 열어 본다.
-    // 안드로이드는 크롬을 부르고, 아이폰은 사파리를 부른다(스레드가 막아 반응이 없을 수 있다). 1.5초 안에 화면이 넘어가지 않으면 ⋯ → 외부 브라우저 안내 화면으로 간다
-    var soft=!inapp&&(/Barcelona/i.test(ua)||(android&&!("PushManager" in window)));
-    if(mobile&&soft){var g2=document.getElementById("go");var ext=android?"intent://"+location.host+"/me?code="+encodeURIComponent(j.code)+"#Intent;scheme=https;package=com.android.chrome;end":"x-safari-"+link;
-      g2.onclick=function(ev){ev.preventDefault();try{navigator.clipboard&&navigator.clipboard.writeText(j.code).catch(function(){})}catch(e){}
-        setTimeout(function(){if(!document.hidden)location.href=link},1500);try{location.href=ext}catch(e){location.href=link}}}
     if(mobile&&inapp){var g=document.getElementById("go");
       g.href=android?"intent://"+location.host+"/me?code="+encodeURIComponent(j.code)+"#Intent;scheme=https;package=com.android.chrome;end":(/KAKAOTALK/i.test(ua)?"kakaotalk://web/openExternal?url="+encodeURIComponent(link):link);
       g.textContent=android?"크롬으로 열어 알림 켜기 →":"사파리로 열어 알림 켜기 →";g.onclick=function(){try{navigator.clipboard&&navigator.clipboard.writeText(j.code)}catch(e){}};

@@ -18,11 +18,13 @@ function kewEnv(){var ua=navigator.userAgent;
   var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
   var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
   var kakao=/KAKAOTALK/i.test(ua);
-  var inapp=/KAKAOTALK|Instagram|Barcelona|FBAN|FBAV|NAVER|Line\/|DaumApps|BAND\/|everytimeApp|DaumDevice|SamsungBrowser.*CrossApp/i.test(ua);
-  // 이름을 모르는 앱 속 화면도 잡는다 (11/18 스레드 앱 안에서 결제한 손님이 '지원하지 않아요'만 봤다): 안드로이드인데 알림 기능이 없으면 앱 속 화면이다
-  if(android&&!standalone&&!("PushManager" in window))inapp=true;
+  var strict=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER|Line\/|DaumApps|BAND\/|everytimeApp|DaumDevice|SamsungBrowser.*CrossApp/i.test(ua);
+  // 스레드와 이름을 모르는 앱 속 화면 (11/18 스레드 앱 안에서 결제한 손님이 '지원하지 않아요'만 봤다): 안드로이드인데 알림 기능이 없으면 앱 속 화면이다.
+  // 이런 곳은 결제는 그대로 하게 두고(soft), 결제 뒤 알림을 켤 때만 바깥 브라우저로 보낸다 — 11/18 사용자: "결제하기 버튼 대신 '사파리로 열기'를 넣지 마라. 예전처럼 결제는 그냥 되고 나중에 열게"
+  var soft=!strict&&(/Barcelona/i.test(ua)||(android&&!standalone&&!("PushManager" in window)));
+  var inapp=strict||soft;
   var iosBrowser=!ios?"":inapp?"inapp":/CriOS/.test(ua)?"chrome":/EdgiOS/.test(ua)?"edge":/FxiOS/.test(ua)?"firefox":/Whale\//.test(ua)?"inapp":/Safari\//.test(ua)?"safari":"inapp";
-  return {ios:ios,android:android,desktop:!ios&&!android,standalone:standalone,kakao:kakao,inapp:inapp,iosBrowser:iosBrowser}}
+  return {ios:ios,android:android,desktop:!ios&&!android,standalone:standalone,kakao:kakao,inapp:inapp,soft:soft,iosBrowser:iosBrowser}}
 var KEW_SHARE='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
 function kewCopy(u){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){alert("주소를 복사했어요. 사파리를 열고 주소창에 붙여 넣으세요.")},function(){prompt("이 주소를 복사하세요",u)});else prompt("이 주소를 복사하세요",u)}
 // path: 열린 주소 그대로 넘길 경로 (예: "/", "/me?code=...")
@@ -147,7 +149,7 @@ async function resume(){
 window.addEventListener("pageshow",function(){resume()});
 ${INSTALL_JS}
 // 컴퓨터·앱 안 화면: 결제 대신 폰으로 넘기는 안내(QR·바깥 브라우저). 첫 화면 버튼도 그 안내로 데려간다
-(function(){var pay=document.getElementById("pay");if(!pay)return;var E=kewEnv();if(!E.desktop&&!E.inapp)return;var box=kewGuide(E,"/?go=buy");if(!box)return;
+(function(){var pay=document.getElementById("pay");if(!pay)return;var E=kewEnv();if(!E.desktop&&!(E.inapp&&!E.soft))return;var box=kewGuide(E,"/?go=buy");if(!box)return;
   var lab=document.getElementById("agree");if(lab&&lab.closest("label"))lab.closest("label").style.display="none";
   pay.style.display="none";var w=document.getElementById("paywait");if(w)w.style.display="none";
   pay.insertAdjacentHTML("afterend",box);kewDrawQr("/?go=buy");

@@ -99,7 +99,7 @@ ${ORDERS_JS}
 ${INSTALL_JS}
 var PENDING=null,WATCH=null;
 function noCode(msg){
-  var KE=kewEnv();var g=(KE.desktop||KE.inapp)?kewGuide(KE,"/"):"";if(g){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+g+'<div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';kewDrawQr("/");return}
+  var KE=kewEnv();var g=(KE.desktop||(KE.inapp&&!KE.soft))?kewGuide(KE,"/"):"";if(g){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+g+'<div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';kewDrawQr("/");return}
   var h=ENV.standalone?'<div class="state" style="border:2px solid var(--ok)"><b style="font-size:17px">이미 결제하셨나요?</b><p class="mute" style="margin:6px 0 10px">결제 뒤 버튼을 누를 때 코드가 복사돼 있어요. 아래 버튼을 누르고 휴대폰이 물으면 <b>붙여넣기</b>를 누르세요.</p><button class="btn" onclick="pasteCode()">📋 결제 코드 붙여넣기</button></div>':'';
   h+='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
   '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀌거나, 실제 징조가 나타나거나, 북한 발사 같은 큰 사건이 확인될 때 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+

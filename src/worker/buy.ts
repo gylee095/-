@@ -43,7 +43,10 @@ function kewGuide(E,path){var url=location.origin+path;
   if(E.iosBrowser==="safari")return KF+card(title,steps('화면 아래 가운데 '+KEW_SHARE+' <b>공유</b> 버튼'))+arrow("bottom");
   if(E.iosBrowser==="chrome")return KF+card(title,steps('주소창 오른쪽 '+KEW_SHARE+' <b>공유</b> 버튼 (안 보이면 아래 <b>⋯</b> → 공유)'))+arrow("top");
   if(E.iosBrowser==="edge"||E.iosBrowser==="firefox")return card(title,steps('메뉴(<b>⋯</b> 또는 <b>≡</b>) → '+KEW_SHARE+' <b>공유</b>')+'<p class="mute" style="margin:6px 0 0">홈 화면에 추가가 안 보이면 <a href="x-safari-'+url+'">사파리로 열어</a> 주세요.</p>');
-  return card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 홈 화면에 앱을 추가할 수 없어요.</p><a class="btn" href="'+(E.kakao?"kakaotalk://web/openExternal?url="+encodeURIComponent(url):"x-safari-"+url)+'">사파리로 열기</a><button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button>')}
+  // 아이폰의 앱 속 화면: 사파리를 여는 버튼(x-safari-)은 스레드·인스타그램 안에서 눌러도 반응이 없을 때가 있다 (11/18 사용자 확인).
+  // 그래서 언제나 되는 길 — 오른쪽 위 ⋯ 메뉴 → '외부 브라우저에서 열기' — 을 먼저 보여 주고, 주소 복사를 그다음에, 바로 열기 버튼은 마지막에 둔다
+  if(E.kakao)return card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 카카오톡 안의 화면이라 홈 화면에 앱을 추가할 수 없어요.</p><a class="btn" href="kakaotalk://web/openExternal?url='+encodeURIComponent(url)+'">사파리로 열기</a><button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button>');
+  return KF+card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 4px">지금은 앱 안의 화면이라 알림을 켤 수 없어요.'+(paid?' 결제 코드는 자동으로 함께 가요.':'')+'</p><ol style="margin:10px 0 10px;padding-left:24px;font-size:17px;line-height:1.7"><li>화면 <b>오른쪽 위 ⋯</b> 누르기</li><li><b>외부 브라우저에서 열기</b> (또는 <b>Safari로 열기</b>)</li></ol><button class="btn" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button><a class="btn ghost" style="margin-top:8px;display:block;text-align:center" href="x-safari-'+url+'">사파리로 바로 열기 (반응이 없으면 위 방법으로)</a>')+arrow("top").replace("⬆ 위 공유 버튼","⬆ 여기 ⋯ 누르기")}
 function kewDrawQr(path){var el=document.getElementById("kewqr");if(!el||!window.QRCode)return;new QRCode(el,{text:location.origin+path,width:184,height:184,correctLevel:QRCode.CorrectLevel.M})}`;
 
 /** 이 브라우저(또는 홈 화면 앱)가 시작한 주문 목록 — 상품 페이지·결제 완료 화면·알림함이 같이 쓰는 정본 (11/5: 두 곳에 복사돼 있었다) */

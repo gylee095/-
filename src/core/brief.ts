@@ -1,5 +1,6 @@
 // 사건 요약: 여러 출처의 제목에서 '무엇을, 몇 발, 어디서, 어디로'를 뽑아 한눈에 읽히는 형태로 만든다.
 // 규칙 기반 추출이므로 기사 표현이 다르면 비어 있을 수 있다 (비어 있으면 화면에 '미상'으로 표시).
+import { OBSERVER_SOURCES } from "./correlate.js";
 import type { CrisisEvent, Signal } from "./types.js";
 import type { DomainId, Level } from "./warrisk.js";
 import { TRIPWIRE_BY_ID } from "./tripwires.js";
@@ -152,7 +153,7 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   const texts = sorted.map((s) => `${s.title} ${s.summary ?? ""}`);
   const all = texts.join(" \n ");
   // 언론 제목 한 줄씩의 성격: 발사 보도 / 북한 매체 발표 / 해설·반응 / 지난 발사 이야기 (classify.ts launchTitleKind)
-  const kinds: LaunchTitleKind[] = sorted.map((s) => (s.sourceKind === "media" ? launchTitleKind(s.title) : "report"));
+  const kinds: LaunchTitleKind[] = sorted.map((s) => (s.sourceKind === "media" ? launchTitleKind(s.title) : OBSERVER_SOURCES.has(s.source) ? "none" : "report")); // 배경 관측(인터넷 장애·여행경보)은 '쐈다'는 보고가 아니다
   let at = e.eventTime ?? e.firstPublishedTime ?? e.firstDetectedTime;
   const latestSig = sorted[sorted.length - 1];
   const latest = latestSig ? { title: latestSig.title, at: latestSig.publishedTime ?? latestSig.detectedTime, url: latestSig.url, source: latestSig.source } : undefined;
@@ -172,9 +173,12 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   // 공식 인용 속보는 '…제원 분석 중' 같은 꼬리가 붙어도 인정한다. 지난 발사를 두고 하는 기사(meta)만으로는 새 발사가 아니다
   // 북한 인터넷 장애 경보(IODA)는 센서 관측이지 북한의 행동이 아니다 — '마지막 도발'로 적히던 문제 (11/14)
   const act = [...cats].some((c) => !NOT_AN_ACT.has(c)) && !(signals.length > 0 && signals.every((s) => s.source === "ioda"));
+  // '1차 원천'은 그 발사·포격을 직접 알린 것이어야 한다 (11/18): 인터넷 장애 경보·여행경보 같은 배경 관측이 미사일 기사와 한 사건으로 묶여 있어도
+  // 그것이 발사의 근거는 아니다 — 그런 사건은 언론 기사만 있는 것으로 보고, 기사가 '쐈다'고 할 때만 발사로 적는다
+  const primaryAct = e.basis === "primary" && (signals.length === 0 || signals.some((s) => s.sourceKind !== "media" && !OBSERVER_SOURCES.has(s.source) && !NOT_AN_ACT.has(s.category)));
   const isProvocation =
     !evacOnly && !postureOnly && !e.drill && !e.retracted && act &&
-    (e.basis === "primary" || kinds.some((k) => k === "report" || k === "self") || (e.basis === "official_quote" && kinds.includes("commentary")));
+    (primaryAct || kinds.some((k) => k === "report" || k === "self") || (e.basis === "official_quote" && kinds.includes("commentary")));
 
   // 북한 매체 발표로만 알려진 발사(합참·일본 발표 없음): 기사 시각이 아니라 그 매체가 말하는 날(보통 전날)의 일로 둔다. 시각은 모른다
   const selfIdx = kinds.indexOf("self");

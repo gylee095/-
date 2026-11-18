@@ -22,7 +22,18 @@ export const GROUPS: Record<string, GroupRule> = {
   evacuation: { categories: ["evacuation"], windowMs: 24 * 3600_000 },
   posture: { categories: ["posture"], windowMs: 24 * 3600_000 },
   world: { categories: ["world_event"], windowMs: 24 * 3600_000 },
+  // 배경 관측(북한 인터넷 장애 경보·여행경보 갱신): 같은 '기타 안내' 종류를 쓰지만 발사·포격 사건이 아니다. 따로 묶는다 (아래 groupOfSignal)
+  notice: { categories: [], windowMs: 6 * 3600_000 },
 };
+/** 사건이 아니라 배경을 재는 수집원 — 이들의 신호는 발사·포격 기사와 한 사건으로 묶이면 안 된다 */
+export const OBSERVER_SOURCES = new Set(["ioda", "travel"]);
+/**
+ * 신호가 들어갈 묶음. 2026-11-18: 북한 인터넷 장애 경보(IODA, 센서)가 3시간 안에 나온 '미사일' 분석 기사 한 건과 한 사건으로 묶여
+ * '1차 원천 + 언론 = 교차확인된 발사'가 됐고, 화면에 "북한, 미사일(종류 미상) 발사"가 떴다 — 발사는 없었다.
+ */
+export function groupOfSignal(s: Pick<Signal, "category" | "source">): string {
+  return OBSERVER_SOURCES.has(s.source) && s.category === "civil_alert_other" ? "notice" : groupOf(s.category);
+}
 
 export function groupOf(c: Category): string {
   for (const [g, r] of Object.entries(GROUPS)) if (r.categories.includes(c)) return g;
@@ -60,7 +71,8 @@ export function correlate(signals: Signal[]): CrisisEvent[] {
   const clusters: { group: string; signals: Signal[] }[] = [];
   const fits = (c: { group: string; signals: Signal[] }, s: Signal) => {
     const rule = GROUPS[c.group];
-    if (!rule || groupOf(s.category) !== c.group) return false;
+    if (!rule || groupOfSignal(s) !== c.group) return false;
+    if (c.group === "notice" && !c.signals.some((x) => x.source === s.source)) return false; // 인터넷 장애와 여행경보도 서로 다른 일이다
     const t = signalTime(s);
     const inWindow = c.signals.some((x) => Math.abs(signalTime(x) - t) <= rule.windowMs);
     if (!inWindow) return false;
@@ -76,7 +88,7 @@ export function correlate(signals: Signal[]): CrisisEvent[] {
       if ((s.sourceKind === "media") !== (pass === "media")) continue;
       const c = clusters.find((c) => fits(c, s));
       if (c) c.signals.push(s);
-      else clusters.push({ group: groupOf(s.category), signals: [s] });
+      else clusters.push({ group: groupOfSignal(s), signals: [s] });
     }
   }
   return clusters.map((c) => buildEvent(c.group, c.signals));

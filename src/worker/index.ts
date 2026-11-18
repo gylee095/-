@@ -222,13 +222,16 @@ export default {
           }
           // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
           // 단계 알림은 5분마다 하는 계산(live)으로 판단한다 — 공식 판정(하루 한 번)으로 하면 바뀐 단계를 늦게 알게 된다
-          await notifyPhaseChange(store, env, st.warRisk.live, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
+          let customerAlert: string | undefined; // 이번 바퀴에 손님 알림이 나갔으면 분석관을 깨운다 (deep.ts)
+          const phaseRes = await notifyPhaseChange(store, env, st.warRisk.live, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
             await store.setKv("phase_notify:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
+          if (phaseRes && phaseRes.sent && phaseRes.sent.direction === "up") customerAlert = phaseRes.sent.title; // 가라앉았다는 마무리 알림으로는 깨우지 않는다
           // 손님 알림 ③ 큰 사건 (11/17): 이번 바퀴에 운영자 사건 알림이 나간 북한 발사·포격이 있으면 '단계는 그대로인지'와 함께 손님에게도 (phasealert.ts, 하루 한 번)
           if (report.alerts.some((x) => x.sent)) {
             const { notifyCustomerEvent } = await import("../core/phasealert.js");
-            await notifyCustomerEvent(store, env, st.warRisk.live, report, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(() => undefined);
+            const evRes = await notifyCustomerEvent(store, env, st.warRisk.live, report, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(() => undefined);
+            if (evRes?.sent) customerAlert = evRes.sent.title;
           }
           // 오늘의 판정 (11/6): 오전 8시에 한 번, 또는 확인된 단계가 바뀌면 바로 새로 정한다
           await updateOfficial(store, st.warRisk.live, report.at).catch(() => undefined);
@@ -238,7 +241,7 @@ export default {
             await th.maybePostThreadsRise(env, store, st.warRisk.live, report.at).catch(() => undefined);
           }
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
-            await maybeFireDeep(store, env, { warRisk: st.warRisk.live, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined) });
+            await maybeFireDeep(store, env, { warRisk: st.warRisk.live, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined), customerAlert });
         } catch (e) {
           await store.setKv("deep:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
         }

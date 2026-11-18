@@ -26,6 +26,10 @@ export interface EventBrief {
   danger: { level: 1 | 2 | 3 | 4 | 5; label: string; reason: string };
   /** 사건 기준 시각 (발생 > 공개 > 감지) */
   at: number;
+  /** 한반도 연관도 0~3 (relevance.ts) — 상태를 만들 때 붙는다. relBy: 낱말로 매긴 임시(auto)인지 분석관 판단(analyst)인지 */
+  rel?: 0 | 1 | 2 | 3;
+  relBy?: "auto" | "analyst";
+  relWhy?: string;
   latest?: { title: string; at: number; url?: string; source: string };
   /** 자국민·대사관 가족·미군 가족이 한국을 떠나는 움직임 (훈련·가짜·계획 제외).
    *  confirmed = 정부 발표 원문 또는 두 곳 이상 교차확인, official = 공식 인용 보도 한 곳, media = 공식 인용 없는 보도 */

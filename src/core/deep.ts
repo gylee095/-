@@ -64,8 +64,11 @@ const kstMonth = (ms: number) => new Date(ms + 9 * H).toISOString().slice(0, 7);
 const emptyTotals = (): UsageTotals => ({ runs: 0, input_tokens: 0, output_tokens: 0, cache_read_tokens: 0, cache_write_tokens: 0, cost_usd: 0 });
 
 /** 지금 상태에서 '깊게 볼 이유'를 뽑는다 */
-export function deepReasons(w: WarRisk, briefs: EventBrief[], patterns: Pattern[], now: number): DeepReason[] {
+export function deepReasons(w: WarRisk, briefs: EventBrief[], patterns: Pattern[], now: number, customerAlert?: string): DeepReason[] {
   const out: DeepReason[] = [];
+  // 손님 알림이 나간 바퀴 (11/18 사용자: "분석관을 깨우려면 진짜 사용자한테 알림이 갈 정도여야 한다 — 괜히 여러 번 깨우면 안 된다"):
+  // 알림을 받고 앱을 연 손님이 보는 화면에 속보의 판단·이유가 붙어 있도록 그때 한 번 깨운다. 속보만으로는 깨우지 않는다. 하루·달 한도는 그대로.
+  if (customerAlert) out.push({ key: `alert:${kstDay(now)}:${customerAlert.slice(0, 40)}`, text: `손님 알림이 나감: ${customerAlert} — newsToJudge 의 속보를 판단하고 지금 상황을 점검` });
   if (w.phase >= 3) out.push({ key: `phase:${w.phase}`, text: `전쟁 위험 ${w.phase}단계(${w.phaseLabel})` });
   for (const d of w.domains) if (d.level >= 2) out.push({ key: `domain:${d.id}:${d.level}`, text: `${d.label} '${d.levelLabel}' — ${d.drivers.slice(0, 2).join(" · ") || "근거 확인 필요"}` });
   for (const b of briefs) {
@@ -220,11 +223,11 @@ export interface DeepRequestNote {
 export async function maybeFireDeep(
   store: Store,
   env: DeepEnv,
-  input: { warRisk: WarRisk; briefs: EventBrief[]; patterns: Pattern[]; now: number; dashboardUrl?: string },
+  input: { warRisk: WarRisk; briefs: EventBrief[]; patterns: Pattern[]; now: number; dashboardUrl?: string; customerAlert?: string },
   opts: { force?: boolean; dryRun?: boolean; manual?: boolean; external?: boolean; fetchImpl?: typeof fetch } = {},
 ): Promise<{ decision: DeepDecision; request?: DeepRequestNote }> {
   const { warRisk, briefs, patterns, now } = input;
-  const reasons = deepReasons(warRisk, briefs, patterns, now);
+  const reasons = deepReasons(warRisk, briefs, patterns, now, input.customerAlert);
   const st = await loadDeepState(store);
   const usage = await loadMonthUsage(store, now);
   const decision = decideDeep(reasons, st, usage.deep.runs, env, now, opts);

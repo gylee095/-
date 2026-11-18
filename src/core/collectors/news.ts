@@ -1,5 +1,6 @@
 // 언론(GDELT, RSS) — 알림 트리거가 아니라 교차검증과 '뉴스 대비 리드타임' 측정용
 import type { CollectResult, Metric, Signal } from "../types.js";
+import { REL_WEIGHT, koreaRelevance } from "../relevance.js";
 import { BASE_SEVERITY, OFFICIAL_QUOTE_RE, classifyText, isKoreaContext, isKoreaRelevant, launchTitleKind, securityNews, splitOutlet, worldEvent, worldNews, worldNewsEn } from "../classify.js";
 import { fetchJson, fetchText, hash, parseCompactUtc } from "../util.js";
 
@@ -157,7 +158,7 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
   const metrics = newsMetrics(all, now, source);
   // 세계의 무력·마비 속보 수 (24시간, 같은 이야기는 한 번): 세계 매체 목록을 받은 바퀴에만 낸다
   if (world.length) {
-    const seenStory = new Set<string>(), titles: string[] = [];
+    const seenStory = new Set<string>(), stories: { t: string; rel: number }[] = [];
     let got = 0;
     const failed: string[] = [];
     for (const f of world) {
@@ -170,14 +171,16 @@ export async function collectRss(feeds = DEFAULT_FEEDS, now = Date.now(), source
           for (const sg of sigs) if (!seen.has(sg.id)) { seen.add(sg.id); signals.push(sg); }
           if (sigs.length && it.pubDate !== undefined && now - it.pubDate < 24 * 3600_000 && (sigs[0].category === "security_news" || sigs[0].category === "world_event")) {
             const k = sigs[0].title.toLowerCase().replace(/[^a-z0-9가-힣]/g, "").slice(0, 24);
-            if (!seenStory.has(k)) { seenStory.add(k); titles.push(sigs[0].title.slice(0, 90)); }
+            // 한반도 연관도로 무게를 단다 (11/18 사용자: "한반도에 영향을 많이 주는 속보가 많을수록 신호에 더 영향") — 무관(0)은 세지 않는다
+            const rel = koreaRelevance(sigs[0].title, [sigs[0].category]);
+            if (rel > 0 && !seenStory.has(k)) { seenStory.add(k); stories.push({ t: sigs[0].title.slice(0, 90), rel }); }
           }
         }
       } catch (e) {
         failed.push(`${new URL(f).hostname} ${String((e as Error)?.message ?? e).slice(0, 40)}`); // 어느 매체가 왜 안 받아졌는지 남긴다 (서버 망에서만 막히는 곳이 있다)
       }
     }
-    if (got) metrics.push({ indicator: "media.world_alarm_24h", value: titles.length, meta: { titles: titles.slice(0, 8), feeds: got, ...(failed.length ? { failed } : {}) } });
+    if (got) metrics.push({ indicator: "media.world_alarm_24h", value: stories.reduce((a, x) => a + REL_WEIGHT[x.rel as 1 | 2 | 3], 0), meta: { n: stories.length, near: stories.filter((x) => x.rel >= 2).length, titles: [...stories].sort((a, b) => b.rel - a.rel).slice(0, 8).map((x) => x.t), feeds: got, ...(failed.length ? { failed } : {}) } });
   }
   return { source, ok: errors.length < feeds.length, error: errors.join("; ") || undefined, fetchedAt: now, rawCount, signals, metrics, kimSeenAt: kimSeenAt(all) };
 }

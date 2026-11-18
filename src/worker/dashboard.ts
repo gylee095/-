@@ -396,7 +396,15 @@ function histLine(hs){if(!hs||!hs.today)return "";var t=hs.today,d=t.d.slice(5).
   var s='<div class="mk">판정 기록 · 오늘('+esc(d)+') 최고 '+t.phase+'단계, 국지 충돌 '+pct(t.clash);
   s+=hs.days<7?' — '+esc(hs.since||"")+'부터 쌓는 중 ('+hs.days+'일째). 1주일이 지나면 지난 기록 중 순위를 보여 줍니다.':' — 지난 '+hs.rank.of+'일 중 '+hs.rank.clash+'번째로 높음';
   return s+'</div>'}
-function pickTop(evs){var p=evs.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});return p[0]||null}
+// 한반도 연관도 (11/18 사용자: "아무 속보나 뜨면 안 된다 — 한반도 전쟁과 가장 가까운 속보가 떠야 한다"). 예전에 얼린 화면에는 점수가 없어 종류로 짐작한다
+function isWide(e){return !!(e.categories&&e.categories.length===1&&(e.categories[0]==="security_news"||e.categories[0]==="world_event"))}
+function relOf(e){var b=e.brief;if(b.rel!=null)return b.rel;if(!isWide(e))return 3;return e.categories[0]==="world_event"?2:(b.danger&&b.danger.level>=2?2:1)}
+var REL_KO=["한반도와 무관","먼 배경","한 다리 건너","한반도 직접"];
+function relText(e){var r=relOf(e);return REL_KO[r]+(isWide(e)?(e.brief.relBy==="analyst"?" · 클로드 판단":" · 임시 판단"):"")}
+function important(e){var b=e.brief;return isWide(e)?relOf(e)>=2:(b.isProvocation||b.danger.level>=2)}
+// 맨 위 소식: 최근 24시간의 주요 소식 가운데 한반도와 가장 가까운 것(같으면 최신), 없으면 가장 최근 주요 소식
+function pickTop(evs){var p=evs.filter(important);if(!p.length)return null;var day=p.filter(function(e){return p[0].brief.at-e.brief.at<86400000});
+  return day.reduce(function(m,e){return relOf(e)>relOf(m)?e:m},day[0])}
 function pct(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<1?x.toFixed(1)+"%":Math.round(x)+"%"}
 // 이전↔지금을 견줄 때는 소수 한 자리 — '약 4%'로 둘 다 반올림하면 3.6→3.8 이 '전에도 4%' 로 읽힌다 (2026-11-04)
 function pctD(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<10?x.toFixed(1)+"%":Math.round(x)+"%"}
@@ -488,12 +496,13 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   h+='<!--AN-->'; // 클로드 분석 줄이 들어갈 자리 (render 가 채운다)
   // 무슨 일이 있었나 (11/14 사용자: "사용자에게 중요한 건 북한이 미사일을 쐈는지, 미국에서 무슨 일이 났는지다 — 43개 중 몇 개인지는 운영자만 알면 된다")
   // 숫자 바로 아래에 최근 사흘의 한반도 사건(위험도 2 이상·도발)과 세계의 심상치 않은 일을 둔다. 점수를 더 주지는 않는다. 항목 수 설명은 '자세히' 안에만.
-  var EV=[],seen={};(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
-    if(!wd&&!(b.isProvocation||(b.danger&&b.danger.level>=2)))return;if(seen[b.headline])return;seen[b.headline]=1;EV.push({t:b.headline,at:b.at,w:wd})});
-  var WOK={};R.layers[2].groups.forEach(function(g){g.items.forEach(function(x){if(["w_infra","w_new_war","w_power_clash"].indexOf(x.id)>=0&&x.s==="on"){if(x.ev&&!seen[x.ev]){seen[x.ev]=1;EV.push({t:x.ev,at:0,w:true})}if(x.ev)WOK[x.ev]=x.by==="analyst"?(x.weak?2:3):1}})});
-  EV.sort(function(a,b){return (a.w?1:0)-(b.w?1:0)||b.at-a.at});EV=EV.slice(0,4);
-  if(EV.length)h+='<div style="margin:10px 0 10px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">최근 있었던 일</div>'+EV.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.t)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.w?'세계 정세 · '+(WOK[x.t]===3?'분석관 확인: 지금도 이어지고 있어요.':WOK[x.t]===2?'분석관 확인: 아직 정상화되지 않았어요 (원인 불명 또는 사고).':'아직 이어지는지 확인 중이에요 — 끝났으면 내리고, 이어지면 유지해요.'):'한반도'+(x.at?' · '+when(x.at):''))+'</div>'}).join("")+'</div>';
-  else h+='<div style="font-size:13px;color:var(--mute);margin:8px 0 10px">최근 사흘 동안 눈에 띄는 사건은 없어요.</div>';
+  // 11/18: 넓은 그물·세계 매체 소식은 한반도 연관도 2 이상만 올리고, 가까운 것부터 놓는다. 나머지는 건수만 알려 준다
+  var EV=[],seen={},FAR=0;(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
+    if(!important(e)){if(isWide(e))FAR++;return}if(seen[b.headline])return;seen[b.headline]=1;EV.push({t:b.headline,at:b.at,w:wd,rel:relOf(e),wide:isWide(e),sub:relText(e),why:b.relWhy})});
+  var WOK={};R.layers[2].groups.forEach(function(g){g.items.forEach(function(x){if(["w_infra","w_new_war","w_power_clash"].indexOf(x.id)>=0&&x.s==="on"){if(x.ev&&!seen[x.ev]){seen[x.ev]=1;EV.push({t:x.ev,at:0,w:true,rel:2})}if(x.ev)WOK[x.ev]=x.by==="analyst"?(x.weak?2:3):1}})});
+  EV.sort(function(a,b){return b.rel-a.rel||b.at-a.at});EV=EV.slice(0,4);
+  if(EV.length)h+='<div style="margin:10px 0 10px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">최근 있었던 일</div>'+EV.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.t)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.wide&&!WOK[x.t]?esc(x.sub)+(x.at?' · '+when(x.at):'')+(x.why?'<br>'+esc(x.why):''):x.w?'세계 정세 · '+(WOK[x.t]===3?'분석관 확인: 지금도 이어지고 있어요.':WOK[x.t]===2?'분석관 확인: 아직 정상화되지 않았어요 (원인 불명 또는 사고).':'아직 이어지는지 확인 중이에요 — 끝났으면 내리고, 이어지면 유지해요.'):'한반도'+(x.at?' · '+when(x.at):''))+'</div>'}).join("")+(FAR?'<div style="font-size:12px;color:var(--mute);margin-top:8px">그 밖의 세계 소식 '+FAR+'건은 한반도와 거리가 멀어 여기에는 올리지 않았어요 (아래 사건 목록에 있어요).</div>':'')+'</div>';
+  else h+='<div style="font-size:13px;color:var(--mute);margin:8px 0 10px">최근 사흘 동안 한반도와 가까운 사건은 없어요.'+(FAR?' 거리가 먼 세계 소식 '+FAR+'건은 아래 사건 목록에 있어요.':'')+'</div>';
   // 단계마다 몇 %부터 몇 %인지 (11/12 사용자): 다섯 칸 눈금 + 지금 위치. 교전은 %가 아니라 실제 교전 보도로 정해진다
   var BND=[0,10,25,50,100],RNG=["0~9%","10~24%","25~49%","50%~","실제 교전"],NM=["평온","긴장","위기","임박","교전"];
   var seg=Math.min(4,w.phase-1),within=seg>=4?0.5:Math.min(0.97,Math.max(0.03,(PCT-BND[seg])/(BND[seg+1]-BND[seg]))),mark=(seg+within)/5*100;
@@ -662,7 +671,7 @@ function render(){
   if(top){var b=top.brief;
     ev+='<div class="sec">가장 최근 주요 소식</div><div class="card" id="'+esc(top.id)+'">';
     ev+='<div><span class="ago '+fresh(b.at)+'"><span class="dot"></span>'+bago(b)+'</span><span class="abs">'+bwhen(b)+'</span></div>';
-    ev+='<div class="chips"><span class="chip d'+b.danger.level+'">위험도 '+esc(b.danger.label)+'</span><span class="chip">'+esc(b.danger.reason)+'</span><span class="chip">'+esc(basisText(top))+'</span></div>';
+    ev+='<div class="chips"><span class="chip d'+b.danger.level+'">위험도 '+esc(b.danger.label)+'</span><span class="chip">'+esc(b.danger.reason)+'</span><span class="chip">'+esc(basisText(top))+'</span><span class="chip">'+esc(relText(top))+'</span></div>'+(isWide(top)&&b.relWhy?'<div style="font-size:13px;color:var(--mute);margin-top:4px">'+esc(b.relWhy)+'</div>':'');
     ev+='<div class="hl">'+esc(b.headline)+'</div>'+(b.note?'<div class="bnote">'+esc(b.note)+'</div>':'');
     ev+='<div class="facts">'+fact("🚀 종류",b.weapon)+fact("🔢 발수",b.count)+fact("📍 발사 지점",b.launchArea&&b.launchArea.name)+fact("🎯 낙하·방향",b.impactArea&&(b.impactArea.name+(b.impactArea.note?" ("+b.impactArea.note+")":"")))+(b.distanceKm?fact("↔ 비행거리","약 "+b.distanceKm+" km"):"")+(b.apogeeKm?fact("⤴ 최고고도","약 "+b.apogeeKm+" km"):"")+'</div>';
     if(b.launchArea||b.impactArea)ev+='<div id="map"></div><div class="legend">● 발사 지점 → ◎ 낙하·방향 (보도된 지명 기준 대략 위치)</div>';
@@ -671,10 +680,10 @@ function render(){
   }
   // 6) 이전 소식
   var rest=evs.filter(function(e){return e!==top&&Date.now()-e.brief.at<30*86400000});
-  var main=rest.filter(function(e){return e.brief.isProvocation||e.brief.danger.level>=2});
-  var ref=rest.filter(function(e){return !(e.brief.isProvocation||e.brief.danger.level>=2)});
+  var main=rest.filter(important);
+  var ref=rest.filter(function(e){return !important(e)});
   if(main.length){ev+='<div class="sec">이전 주요 소식 (최근 30일)</div><div class="card">'+main.slice(0,8).map(row).join("")+'</div>'}
-  if(ref.length)ev+='<details class="card"><summary>참고 기사 '+ref.length+'건 (논평·분석, 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
+  if(ref.length)ev+='<details class="card"><summary>그 밖의 소식 '+ref.length+'건 (한반도와 거리가 먼 세계 소식·논평 — 알림 대상 아님)</summary>'+ref.slice(0,30).map(row).join("")+'</details>';
   var bd=st.board||[];var abn=bd.filter(function(r){return r.reading&&(r.reading.state==="anomalous"||r.reading.state==="elevated")&&r.stateLabel!=="측정 불가"}).length;var fl=bd.filter(function(r){return r.failing}).length;
   var NM=st.normal;
   inner+=group("board","신호 "+bd.length+"개","평소 범위를 벗어난 것 "+(NM?NM.k:abn)+"개"+(fl?" · 못 받는 것 "+fl+"개":"")+" · 직접 재는 숫자 전부",(NM?safe(normalCard,NM,"평소 범위"):"")+'<div class="card">'+board(bd)+'</div>');

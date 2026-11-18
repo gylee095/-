@@ -7,6 +7,7 @@ import { loadSeries } from "./history.js";
 import { hourlySeries, latencyMetrics, type HourlyAgg } from "./pipeline.js";
 import { posture } from "./policy.js";
 import { activeSources } from "./sources.js";
+import { isWideNet, koreaRelevance } from "./relevance.js";
 import { NEWS_ADDED_KEY, NEWS_JUDGED_KEY, addedAsEvents, applyJudgment, loadAdded, loadJudgments } from "./newsjudge.js";
 import { EPISODES_KEY, episodesBy, parseEpisodes, type Episode } from "./episodes.js";
 import { SIGNAL_NOTES_KEY, liveNotes, type SignalNote } from "./signalnotes.js";
@@ -88,7 +89,10 @@ export async function buildState(store: Store, since: number, disabledSources = 
     .filter((e) => !isSensorGlitch(e))
     .map(({ evidence, ...e }) => {
       const sigs = evidence ?? [];
-      return { ...e, signals: sigs, brief: applyJudgment(briefEvent(e, sigs), e.categories, judged[e.id]) };
+      // 한반도 연관도 (11/18): 들어온 순간 낱말로 임시 점수, 분석관이 읽으면 그 판단으로 바꾼다 — 화면의 '최근 있었던 일'은 이 점수가 높은 것만 올린다
+      const j = isWideNet(e.categories) ? judged[e.id] : undefined;
+      const rel = j ? j.level : koreaRelevance(e.title, e.categories);
+      return { ...e, signals: sigs, brief: { ...applyJudgment(briefEvent(e, sigs), e.categories, judged[e.id]), rel, relBy: j ? ("analyst" as const) : ("auto" as const), ...(j ? { relWhy: j.why } : {}) } };
     })
     .sort((a, b) => b.brief.at - a.brief.at);
   const hourly: HourlyAgg = hourlyRaw ? JSON.parse(hourlyRaw) : {};

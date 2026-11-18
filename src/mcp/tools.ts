@@ -34,9 +34,9 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
     {
       title: "군사·안보 소식의 중요도 판단 (분석관)",
       description:
-        "get_situation 의 newsToJudge(정해 둔 종류에 없어 규칙이 중요도를 못 정한 군사·안보 소식)를 하나씩 읽고 판단을 남긴다. 화면의 그 사건이 이 수준과 이유로 보인다. " +
-        "한 줄에 하나: '사건id=수준:이유'. 수준은 0(한반도 안보와 무관·중요하지 않음) · 1(참고) · 2(주의 — 사용자가 알아야 할 군사·안보 사건: 주변국 군용기·함정의 진입, 군 사고, 이례적 전개 등) · 3(경계 — 무력 사용·영공·영해 침범·사상자). " +
-        "이유는 쉬운 말 한 문장으로: 무슨 일이고 왜 그 수준인지(얼마나 흔한 일인지 포함). 예: 'evt_ab12=2:러시아 군용기 여러 대가 동해 KADIZ에 들어왔다 나감 — 한 해 열 번쯤 있는 일이고 영공 침범은 없었음'. " +
+        "get_situation 의 newsToJudge(넓은 그물·세계 매체로 받은 군사·안보 소식, 영어 제목 포함)를 하나씩 읽고 **한반도 전쟁과 얼마나 가까운 소식인지**를 남긴다. tentative 는 낱말로 매긴 임시 점수다 — 틀렸으면 고친다. 화면 맨 위 '최근 있었던 일'에는 2 이상만 오르고, 점수의 합이 배경 신호로 들어간다. " +
+        "한 줄에 하나: '사건id=수준:이유'. 수준은 0(한반도와 무관 — 재판·사건 사고·해설·이미 끝난 일) · 1(먼 배경 — 이미 진행 중인 다른 지역 전쟁의 일상 전황) · 2(한 다리 건너 — 한반도의 억지력·주변을 바꾸는 일: 대만해협 위기, 주한·주일·인도태평양 미군 전력의 이동·피해, 강대국끼리의 직접 충돌, 핵 위협, 미국 본토 공격·전국 규모 마비, 진행 중인 전쟁의 뚜렷한 확전) · 3(한반도 직접 — 한반도와 그 주변에서의 무력 사용·영공·영해 침범·사상자, 주변국 군용기·함정의 진입). " +
+        "이유는 쉬운 **한국어** 한 문장으로: 무슨 일이고 한반도와 어떻게 이어지는지(얼마나 흔한 일인지 포함). 예: 'evt_ab12=1:이란이 바레인의 미군 기지를 또 공격 — 2월부터 이어진 전쟁의 연장이고 주한미군 전력의 추가 이동은 없음'. " +
         "제목만으로 판단이 어려우면 기사(urls)나 search_news 로 확인한 뒤 적는다. 4·5(심각·위급)는 줄 수 없다. 단계·% 는 바뀌지 않는다.",
       inputSchema: { judgments: z.string().min(5).max(6000).describe("줄마다 '사건id=0~3:이유'") },
     },
@@ -45,7 +45,7 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
         const { parseJudgments, mergeJudgments, NEWS_JUDGED_KEY } = await import("../core/newsjudge.js");
         const now = Date.now();
         const events = await store.getEvents(now - 14 * 86400_000);
-        const add = parseJudgments(judgments, events.filter((e) => e.categories.length === 1 && e.categories[0] === "security_news").map((e) => e.id), now);
+        const add = parseJudgments(judgments, events.filter((e) => e.categories.length === 1 && (e.categories[0] === "security_news" || e.categories[0] === "world_event")).map((e) => e.id), now);
         if (!Object.keys(add).length) return fail(new Error("저장할 줄이 없다 — '사건id=수준:이유' 형식인지, id 가 newsToJudge 의 id 인지 확인"));
         const prev = await store.getKv(NEWS_JUDGED_KEY);
         await store.setKv(NEWS_JUDGED_KEY, JSON.stringify(mergeJudgments(prev ? JSON.parse(prev) : undefined, add, now)));
@@ -115,7 +115,7 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
             " for k,v in (('input_tokens','input_tokens'),('output_tokens','output_tokens'),('cache_read_tokens','cache_read_input_tokens'),('cache_write_tokens','cache_creation_input_tokens')):u[k]=u.get(k,0)+x.get(v,0)\n" +
             "print(json.dumps(u),os.path.basename(f))\" 로 자기 대화 기록을 합산해 record_usage(kind=scheduled, usage, session_id=파일 이름)로 남긴다. 누적값이어도 서버가 증가분만 더한다.",
           // 넓은 그물로 받은 군사·안보 소식 가운데 아직 판단하지 않은 것 — 분석관이 하나씩 읽고 record_news_judgments 로 중요도를 남긴다
-          newsToJudge: st.events.filter((e) => (e.brief as { pending?: boolean }).pending).slice(0, 20).map((e) => ({ id: e.id, title: e.title, at: fmtKst(e.brief.at), official: e.severity >= 40, urls: e.signals.map((x) => x.url).filter(Boolean).slice(0, 2) })),
+          newsToJudge: st.events.filter((e) => e.brief.relBy === "auto" && e.categories.length === 1 && (e.categories[0] === "security_news" || e.categories[0] === "world_event")).sort((a, b) => b.brief.rel - a.brief.rel || b.brief.at - a.brief.at).slice(0, 30).map((e) => ({ id: e.id, title: e.title, at: fmtKst(e.brief.at), tentative: e.brief.rel, official: e.severity >= 40, urls: e.signals.map((x) => x.url).filter(Boolean).slice(0, 2) })),
           threat: st.threat,
           interpretation: { headline: st.interpretation.headline, narrative: st.interpretation.narrative, hints: st.interpretation.hints.map((h) => ({ kind: h.kind, title: h.title, reasoning: h.reasoning, counter: h.counter, check: h.check })), context: st.interpretation.context },
           posture: st.posture,

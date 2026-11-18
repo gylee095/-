@@ -185,7 +185,7 @@ export function successPage(origin: string): string {
 <h1 style="margin-top:0;font-size:24px">결제 완료 ✓</h1>
 <p>알림함에 <b>지금 상황 리포트</b>가 들어 있어요. 이제 <b>휴대폰에서 알림만 켜면</b> 끝이에요.</p>
 <div id="mobile" style="display:none">
-<a class="btn" id="go" href="#" onclick="try{navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('code').textContent)}catch(e){}">알림 켜기 →</a>
+<a class="btn" id="go" href="#" onclick="try{navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('code').textContent)}catch(e){}">이 폰으로 알림 켜기 →</a>
 <p class="mute" style="text-align:center;margin-top:8px">아이폰은 다음 화면에서 '홈 화면에 추가'를 한 번 안내해 드려요.</p>
 </div>
 <div id="desk" style="display:none">

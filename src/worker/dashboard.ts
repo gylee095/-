@@ -401,9 +401,11 @@ function isWide(e){return !!(e.categories&&e.categories.length===1&&(e.categorie
 function relOf(e){var b=e.brief;if(b.rel!=null)return b.rel;if(!isWide(e))return 3;return e.categories[0]==="world_event"?2:(b.danger&&b.danger.level>=2?2:1)}
 var REL_KO=["한반도와 무관","먼 배경","한 다리 건너","한반도 직접"];
 function relText(e){var r=relOf(e);return REL_KO[r]+(isWide(e)?(e.brief.relBy==="analyst"?" · 클로드 판단":" · 임시 판단"):"")}
+function tentative(e){return isWide(e)&&e.brief.relBy!=="analyst"&&e.brief.rel!=null}
 function important(e){var b=e.brief;return isWide(e)?relOf(e)>=2:(b.isProvocation||b.danger.level>=2)}
 // 맨 위 소식: 최근 24시간의 주요 소식 가운데 한반도와 가장 가까운 것(같으면 최신), 없으면 가장 최근 주요 소식
 function pickTop(evs){var p=evs.filter(important);if(!p.length)return null;var day=p.filter(function(e){return p[0].brief.at-e.brief.at<86400000});
+  var sure=day.filter(function(e){return !tentative(e)});if(sure.length)day=sure; // 낱말로 매긴 임시 점수보다 분석관이 읽은 것·규칙 사건을 먼저 (11/18 사용자: 낱말은 임시일 뿐이다)
   return day.reduce(function(m,e){return relOf(e)>relOf(m)?e:m},day[0])}
 function pct(x){return x>=99.5?"진행 중":x<0.1?"0.1% 미만":x<1?x.toFixed(1)+"%":Math.round(x)+"%"}
 // 이전↔지금을 견줄 때는 소수 한 자리 — '약 4%'로 둘 다 반올림하면 3.6→3.8 이 '전에도 4%' 로 읽힌다 (2026-11-04)
@@ -497,11 +499,14 @@ function summary(st){var w=st.warRisk,O=w.official,p=w.proximity,R=p&&p.rubric;
   // 무슨 일이 있었나 (11/14 사용자: "사용자에게 중요한 건 북한이 미사일을 쐈는지, 미국에서 무슨 일이 났는지다 — 43개 중 몇 개인지는 운영자만 알면 된다")
   // 숫자 바로 아래에 최근 사흘의 한반도 사건(위험도 2 이상·도발)과 세계의 심상치 않은 일을 둔다. 점수를 더 주지는 않는다. 항목 수 설명은 '자세히' 안에만.
   // 11/18: 넓은 그물·세계 매체 소식은 한반도 연관도 2 이상만 올리고, 가까운 것부터 놓는다. 나머지는 건수만 알려 준다
-  var EV=[],seen={},FAR=0;(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
-    if(!important(e)){if(isWide(e))FAR++;return}if(seen[b.headline])return;seen[b.headline]=1;EV.push({t:b.headline,at:b.at,w:wd,rel:relOf(e),wide:isWide(e),sub:relText(e),why:b.relWhy})});
+  var EV=[],TMP=[],seen={},FAR=0;(st.events||[]).forEach(function(e){var b=e.brief;if(!b||st.now-b.at>3*86400000)return;var wd=e.categories&&e.categories.indexOf("world_event")>=0;
+    if(!important(e)){if(isWide(e))FAR++;return}if(seen[b.headline])return;seen[b.headline]=1;(tentative(e)?TMP:EV).push({t:b.headline,at:b.at,w:wd,rel:relOf(e),wide:isWide(e),sub:relText(e),why:b.relWhy})});
   var WOK={};R.layers[2].groups.forEach(function(g){g.items.forEach(function(x){if(["w_infra","w_new_war","w_power_clash"].indexOf(x.id)>=0&&x.s==="on"){if(x.ev&&!seen[x.ev]){seen[x.ev]=1;EV.push({t:x.ev,at:0,w:true,rel:2})}if(x.ev)WOK[x.ev]=x.by==="analyst"?(x.weak?2:3):1}})});
-  EV.sort(function(a,b){return b.rel-a.rel||b.at-a.at});EV=EV.slice(0,4);
-  if(EV.length)h+='<div style="margin:10px 0 10px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">최근 있었던 일</div>'+EV.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.t)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.wide&&!WOK[x.t]?esc(x.sub)+(x.at?' · '+when(x.at):'')+(x.why?'<br>'+esc(x.why):''):x.w?'세계 정세 · '+(WOK[x.t]===3?'분석관 확인: 지금도 이어지고 있어요.':WOK[x.t]===2?'분석관 확인: 아직 정상화되지 않았어요 (원인 불명 또는 사고).':'아직 이어지는지 확인 중이에요 — 끝났으면 내리고, 이어지면 유지해요.'):'한반도'+(x.at?' · '+when(x.at):''))+'</div>'}).join("")+(FAR?'<div style="font-size:12px;color:var(--mute);margin-top:8px">그 밖의 세계 소식 '+FAR+'건은 한반도와 거리가 멀어 여기에는 올리지 않았어요 (아래 사건 목록에 있어요).</div>':'')+'</div>';
+  EV.sort(function(a,b){return b.rel-a.rel||b.at-a.at});EV=EV.slice(0,4);TMP.sort(function(a,b){return b.rel-a.rel||b.at-a.at});
+  // 분석관이 아직 읽지 않은 속보는 따로, 작게 (11/18 사용자: "분석관이 읽어 봐야 한반도와 관련 있는지 안다 — 낱말은 임시"). 다음 분석(아침·저녁 8시)에 판단이 붙는다
+  var hk=new Date(st.now+9*3600000).getUTCHours(),NEXT=hk>=8&&hk<20?"저녁 8시":"아침 8시";
+  var TMPH=TMP.length?'<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line,rgba(128,128,128,.3))"><div style="font-size:12px;font-weight:700;color:var(--mute)">아직 분석 전인 속보 '+TMP.length+'건 · '+NEXT+' 분석 때 판단해요</div>'+TMP.slice(0,2).map(function(x){return '<div style="font-size:13px;color:var(--mute);margin-top:4px;word-break:keep-all;overflow-wrap:anywhere">· '+esc(x.t)+'</div>'}).join("")+(TMP.length>2?'<div style="font-size:12px;color:var(--mute);margin-top:3px">외 '+(TMP.length-2)+'건</div>':'')+'<div style="font-size:12px;color:var(--mute);margin-top:4px">제목의 낱말로 고른 것이라 틀릴 수 있어요.</div></div>':'';
+  if(EV.length||TMP.length)h+='<div style="margin:10px 0 10px;padding:10px 12px;border-radius:12px;background:var(--chip);border-left:4px solid #ff9500"><div style="font-size:12.5px;font-weight:700;color:#ff9500">최근 있었던 일</div>'+EV.map(function(x){return '<div style="font-size:14px;font-weight:600;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.t)+'</div><div style="font-size:12.5px;color:var(--mute)">'+(x.wide&&!WOK[x.t]?esc(x.sub)+(x.at?' · '+when(x.at):'')+(x.why?'<br>'+esc(x.why):''):x.w?'세계 정세 · '+(WOK[x.t]===3?'분석관 확인: 지금도 이어지고 있어요.':WOK[x.t]===2?'분석관 확인: 아직 정상화되지 않았어요 (원인 불명 또는 사고).':'아직 이어지는지 확인 중이에요 — 끝났으면 내리고, 이어지면 유지해요.'):'한반도'+(x.at?' · '+when(x.at):''))+'</div>'}).join("")+(EV.length?'':'<div style="font-size:13.5px;margin-top:6px">분석관이 확인한, 한반도와 가까운 사건은 최근 사흘 동안 없어요.</div>')+TMPH+(FAR?'<div style="font-size:12px;color:var(--mute);margin-top:8px">그 밖의 세계 소식 '+FAR+'건은 한반도와 거리가 멀어 여기에는 올리지 않았어요 (아래 사건 목록에 있어요).</div>':'')+'</div>';
   else h+='<div style="font-size:13px;color:var(--mute);margin:8px 0 10px">최근 사흘 동안 한반도와 가까운 사건은 없어요.'+(FAR?' 거리가 먼 세계 소식 '+FAR+'건은 아래 사건 목록에 있어요.':'')+'</div>';
   // 단계마다 몇 %부터 몇 %인지 (11/12 사용자): 다섯 칸 눈금 + 지금 위치. 교전은 %가 아니라 실제 교전 보도로 정해진다
   var BND=[0,10,25,50,100],RNG=["0~9%","10~24%","25~49%","50%~","실제 교전"],NM=["평온","긴장","위기","임박","교전"];

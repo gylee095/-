@@ -22,6 +22,8 @@ export const BASE_SEVERITY: Record<Category, number> = {
   airspace_anomaly: 45,
   gps_interference: 40,
   aviation_emergency: 35,
+  air_incursion: 45,
+  security_news: 25,
   civil_alert_other: 30,
   evacuation: 90,
   posture: 88,
@@ -34,10 +36,18 @@ interface Rule {
   severity?: number;
 }
 
+/** 한국방공식별구역 진입·한국 영공 침범 */
+export const AIR_INCURSION_RE = /KADIZ|카디즈|한국\s?방공식별구역|(?:중국?|러시아?|中|露|중\s?·\s?러|러\s?·\s?중)[^.]{0,14}군용기[^.]{0,24}방공식별구역|(?:우리|한국|독도)\s?영공(?:을|은|도)?[^.]{0,12}침범/i;
+/** 실제로 영공을 침범했나 — '영공침범 없어'·'침범 안 해'는 아니다 */
+export const airspaceViolated = (t: string) => /영공(?:을|은|도)?[^.]{0,12}침범/.test(t) && !/침범(?:은|이|도)?\s?(?:없|안\s|하지\s?않|의사\s?없)/.test(t) && !/영공(?:은|도)\s?침범\s?안/.test(t);
+
 // 순서가 우선순위다. 먼저 맞는 규칙을 채택한다.
 const RULES: Rule[] = [
   { category: "air_raid_alert", re: /공습\s*경보|air[- ]raid (alert|warning)/i, severity: 95 },
   { category: "air_raid_alert", re: /경계\s*경보|민방위\s*경보|대피\s*(하|준비)/, severity: 85 },
+  // 주변국 군용기의 KADIZ 진입·영공 침범 (2026-11-17: 합참 "러 군용기 여러 대 KADIZ 진입 후 이탈" 을 놓쳤다 — 제목에 '북한'도 '미사일'도 없어 어느 규칙에도 안 걸렸다).
+  // '방공식별구역'만으로는 대만·일본 것일 수 있어 한국 것임이 드러나야 한다. 미사일 규칙보다 앞에 둔다.
+  { category: "air_incursion", re: AIR_INCURSION_RE },
   { category: "nuclear_test", re: /핵\s*실험|nuclear (test|explosion|detonation)/i },
   { category: "artillery", re: /포격|포탄|해안포|방사포|artillery|shelling/i },
   { category: "missile", re: /탄도\s*미사일|미사일|발사체|ballistic missile|\bmissile\b|\bICBM\b|\bSLBM\b/i },
@@ -65,16 +75,45 @@ export const isKoreaContext = (text: string) => KOREA_TERMS_RE.test(text);
  */
 const WORLD_WHO = "美|미국|日|일본|유럽|나토|NATO|영국|독일|프랑스|대만|호주|캐나다";
 const WORLD_INFRA_RE = new RegExp(`(${WORLD_WHO})[^.]{0,24}(전역|전국|전체|전면)[^.]{0,24}(운항\\s*중단|이륙\\s*중단|마비|정전|올스톱|먹통|셧다운)|사이버\\s*공격[^.]{0,20}(마비|중단|정전|먹통)|해저\\s*케이블[^.]{0,12}(절단|파손)`);
+// 안보기관·국가 기반망이 멈춘 것은 '전역'이라는 말이 없어도 잡는다 (2026-11-18: "美안보국 기밀통신망 마비…항공중단 겪더니 또 '인프라 다운'"을 놓쳤다)
+const WORLD_INFRA2_RE = new RegExp(`(${WORLD_WHO})[^.]{0,28}(통신망|전산망|전력망|결제망|금융망|관제망|기밀망|내부망|인터넷망|위성망|인프라)[^.]{0,20}(마비|다운|먹통|셧다운|정전|두절|중단)`);
 const WORLD_WAR_RE = /침공\s*(개시|시작|단행)|선전\s*포고|전면전\s*(돌입|개시)|핵\s*실험\s*(재개|단행)|핵무기\s*사용/;
 const WORLD_NOT_RE = /훈련|모의|가능성|우려|전망|경고|년 전|주년|영화|게임|드라마/;
 export function worldEvent(title: string): "infra" | "war" | null {
   if (isKoreaContext(title) || WORLD_NOT_RE.test(title)) return null;
-  return WORLD_WAR_RE.test(title) ? "war" : WORLD_INFRA_RE.test(title) ? "infra" : null;
+  return WORLD_WAR_RE.test(title) ? "war" : WORLD_INFRA_RE.test(title) || WORLD_INFRA2_RE.test(title) ? "infra" : null;
+}
+
+/**
+ * 세계의 무력 사건 — 넓은 그물의 세계판 (2026-11-18 사용자: "미국에서 속보가 있는데 왜 못 잡았나"). 연합뉴스 '국제' 목록을 받지 않았고, 받았더라도 걸릴 규칙이 없었다.
+ * 미국·동맹국·강대국이 주체이거나 대상인 무력 행위(공습·피격·격추·교전·테러·핵)를 '분류 전' 소식으로 받아 두고, 한반도 위험과 관계가 있는지는 AI 분석관이 판단한다.
+ * 전망·우려·분석 기사는 받지 않는다. 화면에는 판단 전까지 '참고'로만 보인다.
+ */
+const WORLD_ACTOR_RE = /美|미국|미군|백악관|펜타곤|트럼프|日|일본|자위대|나토|NATO|中|중국|러시아|러軍|대만|이란|이스라엘|호주|영국/;
+const WORLD_FORCE_RE = /공습|폭격|피격|피습|격추|요격|침공|교전|포격|미사일\s?(공격|발사)|드론\s?공격|기지\s?공격|폭발|테러|더티밤|핵\s?(공격|사용|실험)|나포|봉쇄|계엄|쿠데타|암살/;
+const WORLD_NEWS_NOT_RE = /훈련|연습|전망|우려|가능성|분석|해설|인터뷰|칼럼|\[영상\]|\[르포\]|\[특파원|주년|년 전|영화|드라마|게임|틱톡|맹수|주가|증시|환율|반도체|관세/;
+// 영어 제목 (미국·세계 매체 — 11/18 사용자: "미국 뉴스를 받는 신호가 있어야 한다. 다만 신호를 크게 올리지 않게")
+const WORLD_ACTOR_EN_RE = /\b(U\.?S\.?|US|American|America|Pentagon|White House|Trump|N\.?S\.?A\.?|FAA|NATO|China|Chinese|Russia|Russian|Iran|Iranian|Israel|Israeli|Taiwan|Japan|Japanese|Ukraine|Ukrainian|Putin|Xi|Kremlin|Navy|Air Force|troops|military|Houthis?|Hezbollah|Hamas|Yemen|Syria|Pakistan|India|Estonia|Poland|Philippines)\b/;
+const WORLD_FORCE_EN_RE = /\b(strikes?|struck|airstrikes?|attack(?:s|ed)?|bomb(?:s|ed|ing)?|missiles?|shot down|shoot down|downed|invad(?:e|es|ed)|invasion|clash(?:es)?|explosions?|blast|shelling|drone strike|retaliat\w+|war|nuclear|assassinat\w+|coup|martial law|blockade|seiz(?:e|es|ed)|sabotage|hijack\w*|terror\w*|plot|collapse[sd]|crash(?:es|ed)?|kills?|killed|destroy(?:s|ed)|spying|espionage)\b/i;
+const WORLD_INFRA_EN_RE = /\b(nationwide|across the (?:U\.?S\.?|country)|classified|Pentagon|N\.?S\.?A\.?|FAA|power grid|air traffic|network|banking system|internet|satellites?|GPS|Apple|iCloud|Microsoft|Outlook|Gmail|Google|AWS|Azure|Cloudflare|Visa|Mastercard|tech)\b[^.]{0,60}\b(outages?|goes down|went down|is down|grounded|ground stop|blackout|cyberattack|hacked|crippled|knocked out|disruptions?)\b/i;
+const WORLD_NOT_EN_RE = /\b(opinion|analysis|explainer|review|podcast|what to know|how to|photos?|video|quiz|recipe|movie|film|game|sports?|NFL|NBA|football|stocks?|shares|earnings|tariffs?|trade war|price war|culture war|star wars|anniversary|years ago|drill|exercise|test|resurface\w*|sales|justification)\b/i;
+/** 영어 제목이 세계의 무력 사건·기반시설 마비인가. 한반도 기사(North Korea 등)는 원래 길로 */
+export function worldNewsEn(title: string): "infra" | "force" | null {
+  if (!/[A-Za-z]{4}/.test(title) || /[가-힣]/.test(title) || isKoreaContext(title) || WORLD_NOT_EN_RE.test(title)) return null;
+  if (WORLD_INFRA_EN_RE.test(title)) return "infra";
+  return WORLD_ACTOR_EN_RE.test(title) && WORLD_FORCE_EN_RE.test(title) ? "force" : null;
+}
+/** 구글 뉴스 제목 끝의 ' - 매체명'을 뗀다 */
+export const splitOutlet = (title: string): { title: string; outlet?: string } => { const m = /^(.*\S)\s+-\s+([^-]{2,40})$/.exec(title); return m ? { title: m[1], outlet: m[2].trim() } : { title }; };
+
+export function worldNews(title: string): boolean {
+  if (isKoreaContext(title) || WORLD_NEWS_NOT_RE.test(title)) return false;
+  return WORLD_ACTOR_RE.test(title) && WORLD_FORCE_RE.test(title);
 }
 
 /** 한반도 관련성: 영문 항행경보·외신은 지역명이 있어야만 통과 */
 const REGION_RE =
-  /KOREA|DPRK|PYONGYANG|YELLOW SEA|SEA OF JAPAN|EAST SEA|EAST CHINA SEA|JAPAN|PUNGGYE|SOHAE|TONGCHANG|북한|北|한반도|서해|동해|연평|백령|휴전선|군사분계선|NLL|경기|서울|인천|강원|합참|합동참모본부|국방부/i;
+  /KOREA|DPRK|PYONGYANG|YELLOW SEA|SEA OF JAPAN|EAST SEA|EAST CHINA SEA|JAPAN|PUNGGYE|SOHAE|TONGCHANG|북한|北|한반도|서해|동해|연평|백령|휴전선|군사분계선|NLL|경기|서울|인천|강원|합참|합동참모본부|국방부|KADIZ|카디즈|독도/i;
 
 const DRILL_RE = /훈련\s*(상황|입니다|임|중)|민방위\s*훈련|을지|모의|시험\s*발송|\bEXERCISE\b(?!.*LIVE FIRING)|\bDRILL\b|\bTEST MESSAGE\b/i;
 const RETRACTION_RE = /오발령|잘못\s*발송|해제|정정|취소|CANCEL|CORRECTION|DISREGARD/i;
@@ -116,10 +155,13 @@ export function classifyText(text: string, opts: { requireRegion?: boolean } = {
   for (const r of RULES) {
     const m = r.re.exec(text);
     if (!m) continue;
+    // 대만·일본의 방공식별구역 기사(중국 군용기의 대만 ADIZ 진입은 거의 날마다 있다)는 한국 것이 아니다
+    if (r.category === "air_incursion" && !/KADIZ|카디즈|한국|우리|독도|합참/i.test(text) && /대만|타이완|臺|台|일본|日|Taiwan|Japan/i.test(text)) continue;
     // '북한' 언급만 있는 기타 안내는 지역 키워드가 곧 매칭이므로 별도 필터 불필요
     const drill = DRILL_RE.test(text);
     const retraction = RETRACTION_RE.test(text);
     let severity = r.severity ?? BASE_SEVERITY[r.category];
+    if (r.category === "air_incursion" && airspaceViolated(text)) severity = 70; // 영공을 실제로 침범했으면 진입보다 훨씬 무겁다 (2019년 7월 독도 영공 침범 때는 경고사격)
     if (drill) severity = Math.round(severity * 0.2);
     if (retraction) severity = Math.min(severity, 50);
     return { category: r.category, severity, drill, retraction, matched: m[0] };
@@ -138,6 +180,21 @@ export function isKoreaRelevant(text: string): boolean {
 // 제목에 '발사'가 없어 발사로 세지 않았다. 근거와 사례: docs/INDICATORS.md 0.10
 
 /** 공식 기관 발표를 인용한 제목 (예: "[속보] 합참 …", "日방위성 …", "…: JCS", "… ROK military") */
+/**
+ * 넓은 그물 (2026-11-17 사용자: "종류를 매번 만들 수 없다 — 내가 매번 새 종류를 알려 줄 수 없으니 알아서 파악해라").
+ * 정해 둔 종류(미사일·포격·KADIZ …)에 안 걸려도, 제목에 ① 군·안보의 주체 ② 움직임을 뜻하는 말 ③ 한반도와 그 주변이 함께 있으면 '군사·안보 소식'으로 일단 받아 둔다.
+ * 무엇이 중요한지는 규칙이 아니라 AI 분석관이 읽고 판단한다(record_news_judgments). 그래서 그물은 넓게, 빼는 것은 명백한 잡음(연예·스포츠·행사·인사)만.
+ */
+const SEC_ACTOR_RE = /합참|합동참모|국방부|군\s?당국|공군|해군|육군|해병대?|해경|해양경찰|주한미군|미군|美軍|중국군|中軍|러시아군|자위대|군용기|전투기|폭격기|정찰기|조기경보기|초계기|군함|함정|구축함|잠수함|항모|항공모함|무인기|드론|경비정|어선|상선|유조선|해저\s?케이블|군사위성|정찰위성/;
+const SEC_ACTION_RE = /진입|침범|월선|이탈|출격|긴급\s?발진|격추|요격|나포|억류|피격|피습|충돌|교전|사격|발포|대치|추락|침몰|봉쇄|차단|절단|도발|위협|전개|증파|증원|배치|철수|감축|비상|통과|추적|접근|근접|포착|감시|순찰|항행|비행|경계\s?태세|훈련\s?(중단|연장|돌입)|실종|표류|송환|탈북|귀순|망명/;
+const SEC_AREA_RE = /KADIZ|카디즈|동해|서해|남해|독도|이어도|울릉|제주\s?(해역|남방|인근)|한국|우리\s?(군|영공|영해|해역|측)|한미|한중|한러|한일|주한|대한해협|황해|Sea of Japan|East Sea|Yellow Sea|South Korea|ROK/i;
+const SEC_NOISE_RE = /드라마|영화|예능|게임|웹툰|야구|축구|농구|골프|올림픽|e스포츠|입대|전역|병역|채용|모집|기념식|추모|위문|봉사|시상|수상|전시회|박람회|축제|여행|맛집|인사\]|부고|동정|\d{2,4}년\s?전|회고|다큐/;
+export function securityNews(title: string): { official: boolean } | null {
+  if (!SEC_ACTOR_RE.test(title) || !SEC_ACTION_RE.test(title)) return null;
+  if (!(SEC_AREA_RE.test(title) || isKoreaContext(title)) || SEC_NOISE_RE.test(title)) return null;
+  return { official: OFFICIAL_QUOTE_RE.test(title) };
+}
+
 export const OFFICIAL_QUOTE_RE =
   /합참|합동참모본부|국방부|日\s*방위성|일본\s*방위성|방위성|대통령실|행안부|\bJCS\b|Joint Chiefs|Defense Ministry|Ministry of Defense|ROK military|South Korean military|:\s*(Seoul|Tokyo|JCS)\s*$/i;
 

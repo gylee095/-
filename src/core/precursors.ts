@@ -191,6 +191,8 @@ export interface SignalNow {
   ev?: string;
   /** 누가 확인했나: auto = 자동 지표·보도, analyst = AI 분석관 */
   by?: "auto" | "analyst";
+  /** 근거가 된 보도의 시각 (세계 사건 — 분석관이 '끝났다'고 적은 뒤에 새 보도가 오면 다시 켜야 하므로) */
+  evAt?: number;
   /** 근거가 된 기사 링크 (제목·주소) — 화면에서 항목을 누르면 목록으로 보인다 (11/14 사용자) */
   src?: SourceLink[];
 }

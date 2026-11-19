@@ -58,9 +58,28 @@ const ISR_LABEL: Record<string, string> = {
   MQ9: "MQ-9 리퍼", MQ4: "MQ-4 트라이튼", GLF5: "걸프스트림 특수임무기", F2TH: "팰컨 2000 (한국 백두 정찰기 계열)", A400: "A400M 수송기", E2: "E-2 호크아이", E767: "E-767 조기경보기(일본)", KC30: "KC-30 급유기", A332: "A330 MRTT 급유기", A50: "A-50 조기경보기(러시아)",
 };
 
-export async function fetchAircraft(c: Circle): Promise<{ now: number; aircraft: Aircraft[] }> {
-  const d = await fetchJson<any>(`https://api.adsb.lol/v2/point/${c.lat}/${c.lon}/${c.radiusNm}`, {}, 20000);
-  return { now: d.now ?? Date.now(), aircraft: (d.ac ?? []).map(normalize) };
+/**
+ * 한 지점 둘레의 항공기. 받을 곳을 차례로 시도한다(지금은 adsb.lol 하나 — 아래 참고). 처음에는 adsb.lol 이 답하지 않으면 adsb.fi 로 넘어가게 했다 (2026-11-17: adsb.lol 이 30분 넘게 멈춰 항공 징후 4개가 한꺼번에 '수집 실패'가 됐다 —
+ * 군용기 쪽은 두 곳을 함께 쓰는데 이 길만 한 곳에 기대고 있었다). 두 곳은 같은 형식(readsb)이고 수신자 망만 달라 대수가 조금 다를 수 있다 — 어느 곳에서 받았는지 via 로 남긴다.
+ */
+export const POINT_FEEDS: { via: string; url: (c: Circle) => string }[] = [
+  { via: "adsb.lol", url: (c) => `https://api.adsb.lol/v2/point/${c.lat}/${c.lon}/${c.radiusNm}` },
+  // adsb.fi 의 지점 조회는 우리 서버(Cloudflare)에서 부르면 403(차단 화면)이 온다 (11/17 21:10 본 서버에서 확인) — 막은 곳을 계속 두드리지 않는다.
+  // 그래서 지금은 대신 받을 곳이 없다. 받을 수 있는 다른 곳을 찾으면 여기에 더한다.
+];
+export async function fetchAircraft(c: Circle): Promise<{ now: number; aircraft: Aircraft[]; via: string }> {
+  let last: unknown;
+  for (const f of POINT_FEEDS) {
+    try {
+      const d = await fetchJson<any>(f.url(c), {}, 12000);
+      const list = d.ac ?? d.aircraft;
+      if (!Array.isArray(list)) throw new Error(`${f.via}: 항공기 목록이 없음`);
+      return { now: d.now ?? Date.now(), aircraft: list.map(normalize), via: f.via };
+    } catch (e) {
+      last = new Error(`${f.via}: ${String((e as Error)?.message ?? e).slice(0, 140)}`);
+    }
+  }
+  throw last;
 }
 
 /** 전 세계 군용 표시 항공기 중 동북아 범위 — adsb.lol 과 adsb.fi 는 수신자 망이 달라 합치면 더 많이 보인다(같은 기체는 한 번만) */
@@ -254,6 +273,8 @@ export async function collectAdsb(now = Date.now(), kv?: { getKv(k: string): Pro
   const k = korea.value;
   const m = mil.status === "fulfilled" ? mil.value.aircraft : [];
   const metrics = airMetrics(k.aircraft, m);
+  // 평소 쓰는 곳이 아닌 데서 받았으면 그렇다고 남긴다 (수신자 망이 달라 대수가 조금 다를 수 있다)
+  if (k.via !== POINT_FEEDS[0].via) for (const x of metrics) if (x.indicator === "air.civil_airborne") x.meta = { ...(x.meta ?? {}), via: k.via, note: `${POINT_FEEDS[0].via} 가 답하지 않아 ${k.via} 에서 받음` };
   if (kv) {
     const jet = await trackBizjets(kv, k.aircraft, now).catch(() => undefined);
     if (jet) metrics.push(jet);

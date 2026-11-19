@@ -30,6 +30,83 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
   const { env, store } = ctx;
 
   server.registerTool(
+    "record_news_judgments",
+    {
+      title: "군사·안보 소식의 중요도 판단 (분석관)",
+      description:
+        "get_situation 의 newsToJudge(넓은 그물·세계 매체로 받은 군사·안보 소식, 영어 제목 포함)를 하나씩 읽고 **한반도 전쟁과 얼마나 가까운 소식인지**를 남긴다. tentative 는 낱말로 매긴 임시 점수다 — 틀렸으면 고친다. 화면 맨 위 '최근 있었던 일'에는 2 이상만 오르고, 점수의 합이 배경 신호로 들어간다. " +
+        "한 줄에 하나: '사건id=수준:이유'. 수준은 0(한반도와 무관 — 재판·사건 사고·해설·이미 끝난 일) · 1(먼 배경 — 이미 진행 중인 다른 지역 전쟁의 일상 전황) · 2(한 다리 건너 — 한반도의 억지력·주변을 바꾸는 일: 대만해협 위기, 주한·주일·인도태평양 미군 전력의 이동·피해, 강대국끼리의 직접 충돌, 핵 위협, 미국 본토 공격·전국 규모 마비, 진행 중인 전쟁의 뚜렷한 확전) · 3(한반도 직접 — 한반도와 그 주변에서의 무력 사용·영공·영해 침범·사상자, 주변국 군용기·함정의 진입). " +
+        "이유는 쉬운 **한국어** 한 문장으로: 무슨 일이고 한반도와 어떻게 이어지는지(얼마나 흔한 일인지 포함). 예: 'evt_ab12=1:이란이 바레인의 미군 기지를 또 공격 — 2월부터 이어진 전쟁의 연장이고 주한미군 전력의 추가 이동은 없음'. " +
+        "제목만으로 판단이 어려우면 기사(urls)나 search_news 로 확인한 뒤 적는다. 4·5(심각·위급)는 줄 수 없다. 단계·% 는 바뀌지 않는다.",
+      inputSchema: { judgments: z.string().min(5).max(6000).describe("줄마다 '사건id=0~3:이유'") },
+    },
+    async ({ judgments }) => {
+      try {
+        const { parseJudgments, mergeJudgments, NEWS_JUDGED_KEY } = await import("../core/newsjudge.js");
+        const now = Date.now();
+        const events = await store.getEvents(now - 14 * 86400_000);
+        const add = parseJudgments(judgments, events.filter((e) => e.categories.length === 1 && (e.categories[0] === "security_news" || e.categories[0] === "world_event")).map((e) => e.id), now);
+        if (!Object.keys(add).length) return fail(new Error("저장할 줄이 없다 — '사건id=수준:이유' 형식인지, id 가 newsToJudge 의 id 인지 확인"));
+        const prev = await store.getKv(NEWS_JUDGED_KEY);
+        await store.setKv(NEWS_JUDGED_KEY, JSON.stringify(mergeJudgments(prev ? JSON.parse(prev) : undefined, add, now)));
+        return out({ saved: Object.entries(add).map(([id, j]) => `${id}=${j.level}`) });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
+    "update_analyst_notebook",
+    {
+      title: "분석관 노트 고쳐 쓰기 (분석관)",
+      description:
+        "다음 분석관에게 남기는 짧은 노트를 통째로 고쳐 쓴다(get_situation 의 notebook 이 지금 노트다). 매 분석이 끝날 때 한 번. 정기 분석관은 매번 새 대화라 지난 판단을 모른다 — 이 노트가 기억이다. " +
+        "세 칸으로 쓴다: '[평소]' 신호·사건의 평소 모습(예: '- 북한 인터넷 장애 경보: 한 달 2~3번, 대개 정전·점검 — 단독으로는 의미 없음') · " +
+        "'[교훈]' 틀렸거나 헷갈렸던 판단과 다음에 할 일(예: '- 11/18 해설 기사 제목의 \'missile\' 이 발사로 읽혔다 — 제목 낱말만으로 발사를 판단하지 않는다') · " +
+        "'[흐름]' 지금 이어지는 큰 흐름과 언제부터인지(예: '- 미-이란 전쟁 2/28부터 진행, 주한미군 사드 일부 중동 이동(복귀 미확인)'). " +
+        "줄마다 '- '로 시작, 날짜를 붙인다. 30줄·한 줄 160자까지 — 넘치면 저장되지 않으니 끝난 흐름·이미 몸에 밴 교훈부터 지운다. 확인한 사실만, 추측은 '추정'이라고 쓴다. 비밀값·개인정보 금지.",
+      inputSchema: { text: z.string().min(5).max(8000).describe("노트 전체 (지금 노트를 고친 결과를 통째로)") },
+    },
+    async ({ text }) => {
+      try {
+        const { NOTEBOOK_KEY, checkNotebook } = await import("../core/notebook.js");
+        const c = checkNotebook(text);
+        if (!c.ok) return fail(new Error(c.error));
+        await store.setKv(NOTEBOOK_KEY, JSON.stringify({ text: c.text, at: Date.now(), lines: c.lines }));
+        return out({ ok: true, lines: c.lines });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
+    "add_news_event",
+    {
+      title: "놓친 뉴스를 사건으로 올리기 (분석관)",
+      description:
+        "수집 규칙에도 넓은 그물(newsToJudge)에도 안 걸렸지만 사용자가 알아야 할 군사·안보 뉴스를 직접 사건으로 올린다. 화면의 사건 목록과 '최근 있었던 일'에 다른 사건과 똑같이 보인다(7일). " +
+        "한 줄에 하나: '수준 | 제목 | 이유 | https://기사주소'. 수준은 1(참고) · 2(주의) · 3(경계 — 무력 사용·영공·영해 침범·사상자). 제목은 기사 제목 그대로, 이유는 쉬운 말 한 문장(무슨 일이고 얼마나 흔한 일인지). " +
+        "예: '2 | 중국 해경선, 이어도 인근서 한국 조사선 접근 차단 | 서해 잠정조치수역의 마찰 — 올해 세 번째 | https://www.yna.co.kr/view/…'. 기사 주소가 있는 실제 보도만 올린다(추측·전망은 올리지 않는다). 4·5는 줄 수 없고 단계·%·손님 알림은 바뀌지 않는다.",
+      inputSchema: { items: z.string().min(10).max(6000).describe("줄마다 '수준 | 제목 | 이유 | https://주소'") },
+    },
+    async ({ items }) => {
+      try {
+        const { parseAdded, mergeAdded, NEWS_ADDED_KEY } = await import("../core/newsjudge.js");
+        const now = Date.now();
+        const add = parseAdded(items, now).filter((a) => !!a.url);
+        if (!add.length) return fail(new Error("저장할 줄이 없다 — '수준 | 제목 | 이유 | https://주소' 형식인지, 기사 주소가 있는지 확인"));
+        const prev = await store.getKv(NEWS_ADDED_KEY);
+        await store.setKv(NEWS_ADDED_KEY, JSON.stringify(mergeAdded(prev ? JSON.parse(prev) : undefined, add, now)));
+        return out({ saved: add.map((a) => `${a.level} ${a.title.slice(0, 40)}`) });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
     "get_situation",
     {
       title: "현재 상황판",
@@ -62,6 +139,10 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
             " if e.get('type')!='assistant' or 'usage' not in m or m.get('id') in s:continue\n s.add(m.get('id'));x=m['usage']\n" +
             " for k,v in (('input_tokens','input_tokens'),('output_tokens','output_tokens'),('cache_read_tokens','cache_read_input_tokens'),('cache_write_tokens','cache_creation_input_tokens')):u[k]=u.get(k,0)+x.get(v,0)\n" +
             "print(json.dumps(u),os.path.basename(f))\" 로 자기 대화 기록을 합산해 record_usage(kind=scheduled, usage, session_id=파일 이름)로 남긴다. 누적값이어도 서버가 증가분만 더한다.",
+          // 분석관 노트 (11/19): 지난 분석관들이 남긴 평소 모습·교훈·흐름. 먼저 읽고, 끝날 때 update_analyst_notebook 으로 고쳐 쓴다 (30줄 고정)
+          notebook: await (async () => { const { NOTEBOOK_KEY, loadNotebook } = await import("../core/notebook.js"); const nb = loadNotebook(await store.getKv(NOTEBOOK_KEY).catch(() => null)); return nb ? { updated: fmtKst(nb.at), lines: nb.lines, text: nb.text } : { text: "(아직 없음 — 이번 분석 끝에 update_analyst_notebook 으로 처음 쓴다)" }; })(),
+          // 넓은 그물로 받은 군사·안보 소식 가운데 아직 판단하지 않은 것 — 분석관이 하나씩 읽고 record_news_judgments 로 중요도를 남긴다
+          newsToJudge: st.events.filter((e) => e.brief.relBy === "auto" && e.categories.length === 1 && (e.categories[0] === "security_news" || e.categories[0] === "world_event")).sort((a, b) => b.brief.rel - a.brief.rel || b.brief.at - a.brief.at).slice(0, 30).map((e) => ({ id: e.id, title: e.title, at: fmtKst(e.brief.at), tentative: e.brief.rel, official: e.severity >= 40, urls: e.signals.map((x) => x.url).filter(Boolean).slice(0, 2) })),
           threat: st.threat,
           interpretation: { headline: st.interpretation.headline, narrative: st.interpretation.narrative, hints: st.interpretation.hints.map((h) => ({ kind: h.kind, title: h.title, reasoning: h.reasoning, counter: h.counter, check: h.check })), context: st.interpretation.context },
           posture: st.posture,

@@ -18,26 +18,34 @@ function kewEnv(){var ua=navigator.userAgent;
   var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
   var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
   var kakao=/KAKAOTALK/i.test(ua);
-  var inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER|Line\/|DaumApps|BAND\/|everytimeApp|DaumDevice|SamsungBrowser.*CrossApp/i.test(ua);
+  var strict=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER|Line\/|DaumApps|BAND\/|everytimeApp|DaumDevice|SamsungBrowser.*CrossApp/i.test(ua);
+  // 스레드와 이름을 모르는 앱 속 화면 (11/18 스레드 앱 안에서 결제한 손님이 '지원하지 않아요'만 봤다): 안드로이드인데 알림 기능이 없으면 앱 속 화면이다.
+  // 이런 곳은 결제는 그대로 하게 두고(soft), 결제 뒤 알림을 켤 때만 바깥 브라우저로 보낸다 — 11/18 사용자: "결제하기 버튼 대신 '사파리로 열기'를 넣지 마라. 예전처럼 결제는 그냥 되고 나중에 열게"
+  var soft=!strict&&(/Barcelona/i.test(ua)||(android&&!standalone&&!("PushManager" in window)));
+  var inapp=strict||soft;
   var iosBrowser=!ios?"":inapp?"inapp":/CriOS/.test(ua)?"chrome":/EdgiOS/.test(ua)?"edge":/FxiOS/.test(ua)?"firefox":/Whale\//.test(ua)?"inapp":/Safari\//.test(ua)?"safari":"inapp";
-  return {ios:ios,android:android,desktop:!ios&&!android,standalone:standalone,kakao:kakao,inapp:inapp,iosBrowser:iosBrowser}}
+  return {ios:ios,android:android,desktop:!ios&&!android,standalone:standalone,kakao:kakao,inapp:inapp,soft:soft,iosBrowser:iosBrowser}}
 var KEW_SHARE='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
-function kewCopy(u){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){alert("주소를 복사했어요. 사파리를 열고 주소창에 붙여 넣으세요.")},function(){prompt("이 주소를 복사하세요",u)});else prompt("이 주소를 복사하세요",u)}
+function kewCopy(u){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){alert("주소를 복사했어요. 사파리나 크롬을 열고 주소창에 붙여 넣으세요.")},function(){prompt("이 주소를 복사하세요",u)});else prompt("이 주소를 복사하세요",u)}
 // path: 열린 주소 그대로 넘길 경로 (예: "/", "/me?code=...")
 function kewGuide(E,path){var url=location.origin+path;
   var card=function(t,inner){return '<div class="card kew-guide" style="border:2px solid var(--brand)"><b style="font-size:18px">'+t+'</b>'+inner+'</div>'};
   var paid=/[?&]code=/.test(path);
   var steps=function(first){return '<ol style="margin:12px 0 8px;padding-left:24px;font-size:17px;line-height:1.7"><li>'+first+'</li><li>아래쪽 <b>더 보기</b> 누르기</li><li>조금 내려서 <b>홈 화면에 추가</b></li><li>오른쪽 위 <b>추가</b></li><li>홈 화면에 생긴 <b>조기경보</b> 앱 열기 → '+(paid?'<b>알림 켜기</b>':'<b>결제</b> → <b>알림 켜기</b>')+'</li></ol><p class="mute" style="margin:0">아이폰은 홈 화면에 추가한 앱만 알림을 받을 수 있어요(애플 규칙).'+(paid?' 결제 코드는 자동으로 함께 가요. 앱이 코드를 물으면 <b>붙여넣기</b>만 누르세요.':'')+'</p>'};
   // 공유 버튼이 있는 곳을 가리키는 화살표 (사파리: 화면 아래 가운데 · 크롬: 주소창 오른쪽 위)
-  var arrow=function(where){return where==="bottom"?'<div class="kew-arrow" style="position:fixed;left:50%;bottom:6px;transform:translateX(-50%);z-index:50;background:var(--brand);color:#fff;font-weight:800;padding:8px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);animation:kewb 1s ease-in-out infinite">아래 공유 버튼 ⬇</div>':'<div class="kew-arrow" style="position:fixed;right:10px;top:6px;z-index:50;background:var(--brand);color:#fff;font-weight:800;padding:8px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);animation:kewt 1s ease-in-out infinite">⬆ 위 공유 버튼</div>'};
+  var arrow=function(where){return where==="bottom"?'<div class="kew-arrow" style="position:fixed;left:50%;bottom:6px;transform:translateX(-50%);z-index:50;background:var(--brand);color:#fff;font-weight:800;padding:8px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);animation:kewb 1s ease-in-out infinite">아래 공유 버튼 ⬇</div>':'<style>body{padding-top:58px!important}</style><div class="kew-arrow" style="position:fixed;right:10px;top:6px;z-index:50;background:var(--brand);color:#fff;font-weight:800;padding:8px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);animation:kewt 1s ease-in-out infinite">⬆ 위 공유 버튼</div>'};
   var KF='<style>@keyframes kewb{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}@keyframes kewt{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}</style>';
   var title=paid?"📲 마지막: 홈 화면에 앱 추가":"📲 먼저 앱을 설치하세요 (무료, 30초)";
   if(E.standalone)return "";
   if(E.desktop)return card("📱 휴대폰으로 여세요",'<p class="mute" style="margin:6px 0 4px">알림은 휴대폰으로 와요. 휴대폰 <b>카메라로 아래 QR을 찍으면</b> 이 페이지가 열려요. 결제와 알림 켜기는 휴대폰에서 해요.</p><div id="kewqr" style="width:200px;height:200px;margin:12px auto;background:#fff;padding:8px;border-radius:12px"></div><p class="mute" style="text-align:center;margin:0;word-break:break-all">'+url.replace(/[<>"]/g,"")+'</p>');
+  // 스레드 등 앱 속 화면 (11/18 사용자: "꼭 사파리만 되는 게 아니다 — 외부 브라우저에서 열기 하면 된다. 스레드에서 들어온 고객을 위한 것이라고 말해 주면 된다. 일을 복잡하게 만들지 마라"):
+  // 안내는 하나만 — 오른쪽 위 ⋯ → 외부 브라우저에서 열기. 반응 없는 버튼은 두지 않는다
+  if(E.soft)return KF+card("스레드에서 들어오셨나요?",'<p class="mute" style="margin:6px 0 4px">스레드 앱 안에서는 알림을 켤 수 없어요.</p><ol style="margin:10px 0 8px;padding-left:24px;font-size:17px;line-height:1.8"><li>화면 <b>오른쪽 위 ⋯</b> 누르기</li><li><b>외부 브라우저에서 열기</b> 누르기</li></ol>'+(paid?'<p class="mute" style="margin:0 0 4px">결제 코드는 자동으로 함께 가요.</p>':'')+'<button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">안 되면 주소 복사하기</button>')+arrow("top").replace("⬆ 위 공유 버튼","⬆ 여기 ⋯ 누르기");
   if(E.inapp&&E.android)return card("크롬에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 알림을 켤 수 없어요.</p><a class="btn" href="intent://'+location.host+path+'#Intent;scheme=https;package=com.android.chrome;end">크롬으로 열기</a>');
   if(!E.ios)return "";
   if(E.iosBrowser==="safari")return KF+card(title,steps('화면 아래 가운데 '+KEW_SHARE+' <b>공유</b> 버튼'))+arrow("bottom");
-  if(E.iosBrowser==="chrome")return KF+card(title,steps('주소창 오른쪽 '+KEW_SHARE+' <b>공유</b> 버튼 (안 보이면 아래 <b>⋯</b> → 공유)'))+arrow("top");
+  // 아이폰 크롬의 공유 버튼은 주소창 왼쪽 위에 있다 (11/18 사용자 화면으로 확인 — 예전 안내는 오른쪽 위를 가리켰다)
+  if(E.iosBrowser==="chrome")return KF+card(title,steps('화면 <b>왼쪽 위</b> '+KEW_SHARE+' <b>공유</b> 버튼 (안 보이면 오른쪽 위 <b>⋯</b> → 공유)'))+arrow("top").replace("right:10px","left:10px").replace("⬆ 위 공유 버튼","⬆ 여기 공유 버튼");
   if(E.iosBrowser==="edge"||E.iosBrowser==="firefox")return card(title,steps('메뉴(<b>⋯</b> 또는 <b>≡</b>) → '+KEW_SHARE+' <b>공유</b>')+'<p class="mute" style="margin:6px 0 0">홈 화면에 추가가 안 보이면 <a href="x-safari-'+url+'">사파리로 열어</a> 주세요.</p>');
   return card("사파리에서 열어 주세요",'<p class="mute" style="margin:6px 0 10px">지금은 '+(E.kakao?"카카오톡":"앱")+' 안의 화면이라 홈 화면에 앱을 추가할 수 없어요.</p><a class="btn" href="'+(E.kakao?"kakaotalk://web/openExternal?url="+encodeURIComponent(url):"x-safari-"+url)+'">사파리로 열기</a><button class="btn ghost" style="margin-top:8px" onclick="kewCopy(\''+url.replace(/['"<>\\]/g,"")+'\')">주소 복사 (사파리에 붙여 넣기)</button>')}
 function kewDrawQr(path){var el=document.getElementById("kewqr");if(!el||!window.QRCode)return;new QRCode(el,{text:location.origin+path,width:184,height:184,correctLevel:QRCode.CorrectLevel.M})}`;
@@ -75,9 +83,9 @@ ul{padding-left:20px;margin:6px 0}li{margin:4px 0}.mute{color:var(--mute);font-s
 export function buyPage(payappUserid: string | undefined, origin: string): string {
   const ready = !!payappUserid;
   return String.raw`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>39가지 신호로 보는 한반도 전쟁 위험 — 한반도 조기경보</title>
-<meta name="description" content="공개 신호 39가지를 5분마다 판정하고, 실제 전쟁 전에 나타났던 징조가 켜지거나 위기 단계가 바뀌면 바로 폰으로 알려 드립니다. 4,900원 한 번 결제로 평생.">
-<meta property="og:type" content="website"><meta property="og:title" content="39가지 신호로 보는 한반도 전쟁 위험">
+<title>44가지 신호로 보는 한반도 전쟁 위험 — 한반도 조기경보</title>
+<meta name="description" content="공개 신호 44가지를 5분마다 판정하고, 실제 전쟁 전에 나타났던 징조가 켜지거나 위기 단계가 바뀌면 바로 폰으로 알려 드립니다. 4,900원 한 번 결제로 평생.">
+<meta property="og:type" content="website"><meta property="og:title" content="44가지 신호로 보는 한반도 전쟁 위험">
 <meta property="og:description" content="위기 단계가 바뀌는 순간 폰으로 알림. 4,900원 한 번 결제로 평생.">
 <meta property="og:url" content="${esc(origin)}/"><meta property="og:image" content="${esc(origin)}/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -119,7 +127,7 @@ ${ready
 </ol>
 <h3>알아 두세요</h3>
 <ul>
-<li>단계는 지켜보는 43개 항목(전쟁 전 징조 9 · 조용한 움직임 18 · 세계 정세와 한반도의 불안한 배경 16) 중 켜진 수를 고정 기준(39개)에 견준 %로 정합니다(지켜보는 항목을 늘려도 %는 바뀌지 않고, 실제로 켜질 때만 오릅니다): 평온 0~9% · 긴장 10~24% · 위기 25~49% · 임박 50% 이상 · 교전은 실제 교전 보도.</li>
+<li>단계는 지켜보는 44개 항목(전쟁 전 징조 9 · 조용한 움직임 19 · 세계 정세와 한반도의 불안한 배경 16) 중 켜진 수를 고정 기준(39개)에 견준 %로 정합니다(지켜보는 항목을 늘려도 %는 바뀌지 않고, 실제로 켜질 때만 오릅니다): 평온 0~9% · 긴장 10~24% · 위기 25~49% · 임박 50% 이상 · 교전은 실제 교전 보도.</li>
 <li>공개 징조 없이 오는 기습은 미리 알 수 없습니다. 그래서 사람·돈·군의 움직임을 따로 재지만, 이 방법으로 기습을 잡을 수 있는지는 아직 검증되지 않았습니다.</li>
 <li>%는 켜진 항목의 비율이며 전쟁이 날 확률이 아닙니다. 함께 적히는 30일 충돌 가능성은 판단값이고 통계 예측이 아닙니다.</li>
 <li>위 화면의 발사·어선·레이더 장면은 무엇을 보는지 설명하는 연출이며, 지금 상황이 아닙니다.</li>
@@ -127,7 +135,7 @@ ${ready
 <p class="fine">공개 정보만 사용합니다. 공식 안보 정보가 아니니 대피 등 행동은 정부 재난문자와 국민재난안전포털을 따르세요. · <a href="/terms">이용약관·환불</a> · <a href="/me">알림함</a></p>
 <div style="height:calc(32px + env(safe-area-inset-bottom))"></div>
 </div></div>
-<script>${landingSceneJs(["39가지", "신호로", "보는", "/", "한반도", "*전쟁", "*위험"])}</script>
+<script>${landingSceneJs(["44가지", "신호로", "보는", "/", "한반도", "*전쟁", "*위험"])}</script>
 <script>
 var ORIGIN=${JSON.stringify(origin)};
 // 주문은 서버가 만든다(금액도 서버가 정함). 결제창을 띄운 뒤에는 서버에 상태를 물어 결제완료 통보가 왔는지 본다
@@ -145,7 +153,7 @@ async function resume(){
 window.addEventListener("pageshow",function(){resume()});
 ${INSTALL_JS}
 // 컴퓨터·앱 안 화면: 결제 대신 폰으로 넘기는 안내(QR·바깥 브라우저). 첫 화면 버튼도 그 안내로 데려간다
-(function(){var pay=document.getElementById("pay");if(!pay)return;var E=kewEnv();if(!E.desktop&&!E.inapp)return;var box=kewGuide(E,"/?go=buy");if(!box)return;
+(function(){var pay=document.getElementById("pay");if(!pay)return;var E=kewEnv();if(!E.desktop&&!(E.inapp&&!E.soft))return;var box=kewGuide(E,"/?go=buy");if(!box)return;
   var lab=document.getElementById("agree");if(lab&&lab.closest("label"))lab.closest("label").style.display="none";
   pay.style.display="none";var w=document.getElementById("paywait");if(w)w.style.display="none";
   pay.insertAdjacentHTML("afterend",box);kewDrawQr("/?go=buy");
@@ -204,11 +212,11 @@ function show(j){var link=ORIGIN+"/me?code="+encodeURIComponent(j.code);
     try{localStorage.setItem("kew_code",j.code)}catch(e){}
     history.replaceState(null,"",location.pathname);
     document.getElementById("code").textContent=j.code;document.getElementById("dev").textContent=j.devices;document.getElementById("go").href=link;
-    var ua=navigator.userAgent,inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua),android=/Android/.test(ua);
+    var ua=navigator.userAgent,android=/Android/.test(ua),inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\//i.test(ua); // 스레드는 여기서 버튼을 바꾸지 않는다 — '알림 켜기'를 누르면 다음 화면이 ⋯ → 외부 브라우저 두 줄로 안내한다 (11/18 사용자: "'사파리로 열어 알림 켜기'는 혼란스럽다. 그냥 알림 켜기")
     if(mobile&&inapp){var g=document.getElementById("go");
       g.href=android?"intent://"+location.host+"/me?code="+encodeURIComponent(j.code)+"#Intent;scheme=https;package=com.android.chrome;end":(/KAKAOTALK/i.test(ua)?"kakaotalk://web/openExternal?url="+encodeURIComponent(link):link);
       g.textContent=android?"크롬으로 열어 알림 켜기 →":"사파리로 열어 알림 켜기 →";g.onclick=function(){try{navigator.clipboard&&navigator.clipboard.writeText(j.code)}catch(e){}};
-      var n=g.nextElementSibling;if(n)n.textContent=/KAKAOTALK/i.test(ua)||android?"카카오톡 안에서는 알림을 켤 수 없어서 바깥 브라우저로 열어요. 코드는 자동으로 함께 가요.":"이 앱 안에서는 알림을 켤 수 없어요. 오른쪽 위 메뉴에서 '다른 브라우저로 열기'를 눌러 주세요.";}
+      var n=g.nextElementSibling;if(n)n.textContent=/KAKAOTALK/i.test(ua)||android?(/KAKAOTALK/i.test(ua)?"카카오톡":"이 앱")+" 안에서는 알림을 켤 수 없어서 바깥 브라우저로 열어요. 코드는 자동으로 함께 가요.":"이 앱 안에서는 알림을 켤 수 없어요. 오른쪽 위 메뉴에서 '다른 브라우저로 열기'를 눌러 주세요.";}
     if(j.receiptUrl&&/^https:\/\//.test(j.receiptUrl))document.getElementById("rc").innerHTML='<a href="'+j.receiptUrl.replace(/"/g,"")+'" target="_blank" rel="noopener">영수증 보기</a>';
     new QRCode(document.getElementById("qr"),{text:link,width:184,height:184,correctLevel:QRCode.CorrectLevel.M});
     document.getElementById("wait").style.display="none";document.getElementById("done").style.display="";}

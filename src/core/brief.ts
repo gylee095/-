@@ -1,9 +1,10 @@
 // 사건 요약: 여러 출처의 제목에서 '무엇을, 몇 발, 어디서, 어디로'를 뽑아 한눈에 읽히는 형태로 만든다.
 // 규칙 기반 추출이므로 기사 표현이 다르면 비어 있을 수 있다 (비어 있으면 화면에 '미상'으로 표시).
+import { OBSERVER_SOURCES } from "./correlate.js";
 import type { CrisisEvent, Signal } from "./types.js";
 import type { DomainId, Level } from "./warrisk.js";
 import { TRIPWIRE_BY_ID } from "./tripwires.js";
-import { COMMENTARY_RE, PROVOCATION_RE, launchTitleKind, selfReportDay, type LaunchTitleKind } from "./classify.js";
+import { COMMENTARY_RE, airspaceViolated, PROVOCATION_RE, launchTitleKind, selfReportDay, type LaunchTitleKind } from "./classify.js";
 
 export interface Place {
   name: string;
@@ -26,6 +27,10 @@ export interface EventBrief {
   danger: { level: 1 | 2 | 3 | 4 | 5; label: string; reason: string };
   /** 사건 기준 시각 (발생 > 공개 > 감지) */
   at: number;
+  /** 한반도 연관도 0~3 (relevance.ts) — 상태를 만들 때 붙는다. relBy: 낱말로 매긴 임시(auto)인지 분석관 판단(analyst)인지 */
+  rel?: 0 | 1 | 2 | 3;
+  relBy?: "auto" | "analyst";
+  relWhy?: string;
   latest?: { title: string; at: number; url?: string; source: string };
   /** 자국민·대사관 가족·미군 가족이 한국을 떠나는 움직임 (훈련·가짜·계획 제외).
    *  confirmed = 정부 발표 원문 또는 두 곳 이상 교차확인, official = 공식 인용 보도 한 곳, media = 공식 인용 없는 보도 */
@@ -44,7 +49,7 @@ export interface EventBrief {
 const DANGER_LABEL = ["", "관심", "주의", "경계", "심각", "위급"] as const;
 const H = 3600_000;
 /** 북한의 '행동'이 아닌 사건 종류 — 발사 예고 항행경보·GPS 교란·항공기 급감·항공 비상·일반 지진은 도발(발사·포격) 목록에 넣지 않는다 */
-const NOT_AN_ACT = new Set(["launch_notice", "gps_interference", "airspace_anomaly", "aviation_emergency", "seismic_anomaly", "world_event"]);
+const NOT_AN_ACT = new Set(["launch_notice", "gps_interference", "airspace_anomaly", "aviation_emergency", "seismic_anomaly", "world_event", "air_incursion", "security_news"]); // air_incursion: 러시아·중국 군용기의 KADIZ 진입은 북한의 행동이 아니다 — 북한 도발 통계·손님 사건 알림에 넣지 않는다
 const kstText = (ms: number, time = true) => {
   const d = new Date(ms + 9 * H);
   return `${d.getUTCMonth() + 1}/${d.getUTCDate()}${time ? ` ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}` : ""}`;
@@ -148,7 +153,7 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   const texts = sorted.map((s) => `${s.title} ${s.summary ?? ""}`);
   const all = texts.join(" \n ");
   // 언론 제목 한 줄씩의 성격: 발사 보도 / 북한 매체 발표 / 해설·반응 / 지난 발사 이야기 (classify.ts launchTitleKind)
-  const kinds: LaunchTitleKind[] = sorted.map((s) => (s.sourceKind === "media" ? launchTitleKind(s.title) : "report"));
+  const kinds: LaunchTitleKind[] = sorted.map((s) => (s.sourceKind === "media" ? launchTitleKind(s.title) : OBSERVER_SOURCES.has(s.source) ? "none" : "report")); // 배경 관측(인터넷 장애·여행경보)은 '쐈다'는 보고가 아니다
   let at = e.eventTime ?? e.firstPublishedTime ?? e.firstDetectedTime;
   const latestSig = sorted[sorted.length - 1];
   const latest = latestSig ? { title: latestSig.title, at: latestSig.publishedTime ?? latestSig.detectedTime, url: latestSig.url, source: latestSig.source } : undefined;
@@ -168,9 +173,12 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   // 공식 인용 속보는 '…제원 분석 중' 같은 꼬리가 붙어도 인정한다. 지난 발사를 두고 하는 기사(meta)만으로는 새 발사가 아니다
   // 북한 인터넷 장애 경보(IODA)는 센서 관측이지 북한의 행동이 아니다 — '마지막 도발'로 적히던 문제 (11/14)
   const act = [...cats].some((c) => !NOT_AN_ACT.has(c)) && !(signals.length > 0 && signals.every((s) => s.source === "ioda"));
+  // '1차 원천'은 그 발사·포격을 직접 알린 것이어야 한다 (11/18): 인터넷 장애 경보·여행경보 같은 배경 관측이 미사일 기사와 한 사건으로 묶여 있어도
+  // 그것이 발사의 근거는 아니다 — 그런 사건은 언론 기사만 있는 것으로 보고, 기사가 '쐈다'고 할 때만 발사로 적는다
+  const primaryAct = e.basis === "primary" && (signals.length === 0 || signals.some((s) => s.sourceKind !== "media" && !OBSERVER_SOURCES.has(s.source) && !NOT_AN_ACT.has(s.category)));
   const isProvocation =
     !evacOnly && !postureOnly && !e.drill && !e.retracted && act &&
-    (e.basis === "primary" || kinds.some((k) => k === "report" || k === "self") || (e.basis === "official_quote" && kinds.includes("commentary")));
+    (primaryAct || kinds.some((k) => k === "report" || k === "self") || (e.basis === "official_quote" && kinds.includes("commentary")));
 
   // 북한 매체 발표로만 알려진 발사(합참·일본 발표 없음): 기사 시각이 아니라 그 매체가 말하는 날(보통 전날)의 일로 둔다. 시각은 모른다
   const selfIdx = kinds.indexOf("self");
@@ -225,6 +233,10 @@ export function briefEvent(e: CrisisEvent, signals: Signal[]): EventBrief {
   else if (cats.has("launch_notice") && e.status !== "UNVERIFIED" && e.severity >= 55) [level, reason] = [2, "발사 예고 항행경보"];
   else if (cats.has("nuclear_test") || cats.has("seismic_anomaly")) [level, reason] = [2, "북한 지역 지진 (원인 확인 중)"];
   else if (cats.has("airspace_anomaly") || cats.has("gps_interference")) [level, reason] = [1, cats.has("airspace_anomaly") ? "항공기 급감 (센서 하나의 관측 — 참고)" : "GPS 교란 정보"]; // 11/14: 항공기 급감은 수신망 장애로도 생긴다 — 주요 소식이 아니라 참고로
+  // 주변국 군용기 (11/17): KADIZ 진입은 한 해 열 번 남짓 있는 일이지만 '주요 소식'으로 보인다(주의). 영공을 실제로 침범했으면 경계
+  if (cats.has("air_incursion") && !e.drill && !e.retracted && level < 3) [level, reason] = e.severity >= 70 || [e.title, ...signals.map((x) => x.title)].some(airspaceViolated) ? [3, "주변국 군용기의 영공 침범"] : [Math.max(level, 2) as 2, "주변국 군용기의 방공식별구역(KADIZ) 진입 — 영공 침범은 아님"];
+  // 넓은 그물로 받은 군사·안보 소식 (11/17): 분석관이 판단하기 전에는 군 당국 발표 인용만 '주의'로 보이고, 나머지는 참고. 판단이 오면 state 가 그 값으로 바꾼다
+  if (cats.size === 1 && cats.has("security_news") && !e.drill && !e.retracted) [level, reason] = e.severity >= 40 ? [2, "군 당국 발표 — 클로드가 중요도를 확인하기 전"] : [1, "군사·안보 소식 — 클로드가 중요도를 확인하기 전"];
   if (cats.has("world_event")) reason = "세계 정세 (참고)";
   if (selfReport) reason += " · 북한 매체 발표";
 

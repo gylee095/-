@@ -77,3 +77,19 @@ describe("사건 목록의 품질 (11/14)", () => {
     expect(isSensorGlitch({ categories: ["airspace_anomaly", "missile_launch"], title: "한반도 상공 항공기 급감: 0대 (이 시간대 평소 56대)" })).toBe(false);
   });
 });
+
+describe("항공 수집원 (11/17)", () => {
+  it("대신 받으려던 adsb.fi 는 우리 서버에서 403 으로 막혀 있어 뺐다 — 실패하면 어느 곳이 왜 실패했는지 남긴다", async () => {
+    const { fetchAircraft, POINT_FEEDS } = await import("../src/core/collectors/adsb.js");
+    expect(POINT_FEEDS.map((f) => f.via)).toEqual(["adsb.lol"]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = (async () => { throw new Error("The operation was aborted"); }) as typeof fetch;
+    try {
+      await expect(fetchAircraft({ lat: 37.5, lon: 127, radiusNm: 250 } as any)).rejects.toThrow(/adsb\.lol: .*aborted/);
+      globalThis.fetch = (async () => new Response(JSON.stringify({ now: 1, ac: [{ hex: "71abcd", flight: "KAL1", t: "B738", lat: 37.5, lon: 127, alt_baro: 30000 }] }), { headers: { "content-type": "application/json" } })) as typeof fetch;
+      expect(await fetchAircraft({ lat: 37.5, lon: 127, radiusNm: 250 } as any)).toMatchObject({ via: "adsb.lol" });
+    } finally {
+      globalThis.fetch = orig;
+    }
+  });
+});

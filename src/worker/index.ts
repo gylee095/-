@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
 import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, OPS_MANIFEST, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
-import { DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { browserKind, viaLabel, DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, markOwn, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
 import { SHELL_HEAD, buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
@@ -222,13 +222,16 @@ export default {
           }
           // 알림은 단계가 실제로 바뀌었을 때만 (2026-11-03) — 사건 알림은 파이프라인이 따로 바로 보낸다
           // 단계 알림은 5분마다 하는 계산(live)으로 판단한다 — 공식 판정(하루 한 번)으로 하면 바뀐 단계를 늦게 알게 된다
-          await notifyPhaseChange(store, env, st.warRisk.live, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
+          let customerAlert: string | undefined; // 이번 바퀴에 손님 알림이 나갔으면 분석관을 깨운다 (deep.ts)
+          const phaseRes = await notifyPhaseChange(store, env, st.warRisk.live, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(async (e) => {
             await store.setKv("phase_notify:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
           });
+          if (phaseRes && phaseRes.sent && phaseRes.sent.direction === "up") customerAlert = phaseRes.sent.title; // 가라앉았다는 마무리 알림으로는 깨우지 않는다
           // 손님 알림 ③ 큰 사건 (11/17): 이번 바퀴에 운영자 사건 알림이 나간 북한 발사·포격이 있으면 '단계는 그대로인지'와 함께 손님에게도 (phasealert.ts, 하루 한 번)
           if (report.alerts.some((x) => x.sent)) {
             const { notifyCustomerEvent } = await import("../core/phasealert.js");
-            await notifyCustomerEvent(store, env, st.warRisk.live, report, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(() => undefined);
+            const evRes = await notifyCustomerEvent(store, env, st.warRisk.live, report, report.at, fetch, freezeState(st as unknown as Record<string, unknown>)).catch(() => undefined);
+            if (evRes?.sent) customerAlert = evRes.sent.title;
           }
           // 오늘의 판정 (11/6): 오전 8시에 한 번, 또는 확인된 단계가 바뀌면 바로 새로 정한다
           await updateOfficial(store, st.warRisk.live, report.at).catch(() => undefined);
@@ -238,7 +241,7 @@ export default {
             await th.maybePostThreadsRise(env, store, st.warRisk.live, report.at).catch(() => undefined);
           }
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
-            await maybeFireDeep(store, env, { warRisk: st.warRisk.live, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined) });
+            await maybeFireDeep(store, env, { warRisk: st.warRisk.live, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined), customerAlert });
         } catch (e) {
           await store.setKv("deep:last_error", JSON.stringify({ at: report.at, error: String((e as Error)?.message ?? e).slice(0, 300) })).catch(() => {});
         }
@@ -316,7 +319,12 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
     if (!o) return json({ error: "맞지 않는 코드예요. 결제 뒤 받은 코드를 확인해 주세요." }, 404);
     const list = visibleReports(await loadReports(store), o.paidAt ?? 0, o.startReportId, o.extraReportIds).map(summarize);
-    return new Response(JSON.stringify({ code: o.code, paidAt: o.paidAt, devicesUsed: o.devices.length, devicesMax: DEVICES_PER_CODE, reports: list }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+    // 초록 불(마지막 확인 시각)과 열람 횟수 (11/18): 숫자·단계는 내보내지 않는다. 누가 열었는지는 남기지 않고 날짜별 횟수만 센다
+    const { INBOX_OPENS_KEY, aliveOf, bumpOpens } = await import("../core/inboxstats.js");
+    const now = Date.now();
+    const alive = aliveOf(await store.getKv("last_cycle").catch(() => null), now);
+    await store.setKv(INBOX_OPENS_KEY, JSON.stringify(bumpOpens(await store.getKv(INBOX_OPENS_KEY).catch(() => null), now))).catch(() => undefined);
+    return new Response(JSON.stringify({ code: o.code, paidAt: o.paidAt, devicesUsed: o.devices.length, devicesMax: DEVICES_PER_CODE, reports: list, ...(alive ? { alive } : {}) }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
   }
   if (url.pathname === "/api/report" && req.method === "GET") {
     const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
@@ -369,7 +377,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     // 주문은 서버가 만들고 금액도 서버가 정한다. 브라우저에는 결제창에 필요한 값(판매자 아이디·상품·금액·통보 주소)만 준다
     const cfg = payAppConfig(env);
     if (!cfg) return json({ error: "결제 준비 중이에요" }, 503);
-    const o = await createOrder(store, Date.now());
+    const o = await createOrder(store, Date.now(), browserKind(req.headers.get("user-agent")));
     // 홈 화면 앱 안에서 시작한 결제 (11/5): 결제창은 앱 위에 잠깐 뜨는 창으로 열고, 결제가 끝나면 앱이 스스로 알아챈다.
     // 카톡 링크로 결제를 마친 화면(returnurl)은 "앱으로 돌아가세요"를 보여 준다
     const fromApp = ((await req.json().catch(() => ({}))) as { app?: boolean }).app === true;
@@ -429,7 +437,7 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     // 코드 + 이 기기의 푸시 구독 → paid 구독. 코드가 문지기라 인증은 필요 없다
     const body = (await req.json().catch(() => null)) as { code?: string; subscription?: PushSubscriptionJson } | null;
     if (!body?.code || !body.subscription?.endpoint) return json({ error: "code·subscription 필요" }, 400);
-    const r = await redeemCode(store, body.code, body.subscription.endpoint);
+    const r = await redeemCode(store, body.code, body.subscription.endpoint, Date.now(), browserKind(req.headers.get("user-agent")));
     if (!r.ok) return json({ error: r.reason }, 403);
     const s = await addSub(store, body.subscription, "paid", Date.now());
     // 켜자마자 이 기기 하나에만 '켜졌어요' 알림 — 고객이 바로 확인하고(체감), 서비스 제공이 시작됐다는 기록도 된다. 다른 구독자에게는 가지 않는다
@@ -496,15 +504,24 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     if (!id || !(await loadFull(store, id))) return json({ error: "없는 리포트" }, 404);
     return json({ url: `${url.origin}/ops/r/${encodeURIComponent(id)}?s=${await snapSig(env.KEW_SECRET!, id)}` });
   }
-  if (url.pathname === "/api/billing/summary" && req.method === "GET") return json(await billingSummary(store, Date.now()));
+  if (url.pathname === "/api/billing/summary" && req.method === "GET") {
+    const { INBOX_OPENS_KEY, opensSummary } = await import("../core/inboxstats.js");
+    return json({ ...(await billingSummary(store, Date.now())), inboxOpens: opensSummary(await store.getKv(INBOX_OPENS_KEY).catch(() => null), Date.now()) });
+  }
   if (url.pathname === "/api/billing/orders" && req.method === "GET") {
     const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 19).replace("T", " ") : null);
-    return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, startReport: !!o.startReportId })));
+    return json((await loadOrders(store)).slice(-10).reverse().map((o) => ({ order: o.orderId, status: o.status, created: kst(o.createdAt), paid: kst(o.paidAt), mulNo: o.mulNo ?? null, devices: o.devices.length, via: o.via ? viaLabel(o.via) : null, on: (o.viaOn ?? []).map(viaLabel), startReport: !!o.startReportId, own: !!o.own })));
   }
   if (url.pathname === "/api/billing/find" && req.method === "GET") {
     const q = url.searchParams.get("q") ?? "";
     const o = (await loadOrders(store)).find((x) => x.status === "paid" && (x.orderId === q || x.mulNo === q));
     return o ? json({ order: o.orderId, inbox: `${url.origin}/me?code=${o.code}`, devices: o.devices.length }) : json({ error: "결제된 주문 없음" }, 404);
+  }
+  if (url.pathname === "/api/billing/own" && req.method === "POST") {
+    // 운영자 본인의 결제를 손님 수·매출 합계에서 뺀다 (11/18). {orderId} 또는 {paidAt:"MM-DD HH:MM"}, 풀려면 {own:false}
+    const body = (await req.json().catch(() => null)) as { orderId?: string; paidAt?: string; own?: boolean } | null;
+    const o = await markOwn(store, { orderId: body?.orderId, paidAt: body?.paidAt }, body?.own !== false, Date.now());
+    return o ? json({ ok: true, order: o.orderId, own: !!o.own }) : json({ error: "결제된 주문을 하나로 찾지 못했어요" }, 404);
   }
   if (url.pathname === "/api/billing/demo" && req.method === "POST") {
     // 화면 확인용 예시 알림을 한 주문(코드)에만 붙인다 — 다른 손님에게는 보이지 않는다. {code, count} 붙이기 / {code, remove:true} 떼기

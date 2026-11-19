@@ -51,6 +51,12 @@ export interface Order {
   startReportId?: string;
   /** 운영자가 화면 확인용으로 붙인 예시 리포트 (이 주문에서만 보인다) */
   extraReportIds?: string[];
+  /** 운영자 본인의 결제 (11/18 사용자: "이용 중 3명 중 1명은 나다 — 빼 줘야 한다") — 손님 수·매출 합계에서 뺀다. 알림·알림함은 그대로 쓴다 */
+  own?: boolean;
+  /** 결제를 시작한 곳 — 기기·브라우저 종류만 (예: "ios:threads"). 손님이 어디서 들어와 어디까지 갔는지 세려는 것 (11/18) */
+  via?: string;
+  /** 알림을 켠 곳 — 켤 때마다 하나씩. 환불로 기기 목록이 비워져도 남는다 */
+  viaOn?: string[];
 }
 
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 헷갈리는 0/O, 1/I 뺌
@@ -80,10 +86,41 @@ async function saveOrders(store: Pick<Store, "setKv">, orders: Order[], now: num
   await store.setKv(ORDERS_KEY, JSON.stringify(keep.slice(-5000)));
 }
 
+// ── 어디서 들어와 어디까지 갔나 (11/18 사용자: 가입 흐름을 더 고치기 전에 숫자부터 보자) ──
+// 주문마다 결제를 시작한 곳과 알림을 켠 곳을 '기기·브라우저 종류'로만 남긴다. 누구인지 알 수 있는 정보(주소·기기 이름·전체 UA)는 남기지 않는다.
+const VIA_KO: Record<string, string> = {
+  threads: "스레드 앱 안", kakao: "카카오톡 안", instagram: "인스타그램 안", inapp: "다른 앱 안", chrome: "크롬", samsung: "삼성 인터넷", safari: "사파리", app: "홈 화면 앱·기타", other: "기타",
+};
+const OS_KO: Record<string, string> = { ios: "아이폰", android: "안드로이드", desktop: "컴퓨터" };
+/** User-Agent 를 '기기:브라우저' 한 낱말로 줄인다. 아이폰의 홈 화면 앱은 UA 에 Safari 표시가 없어 'ios:app' 이 된다 */
+export function browserKind(ua: string | null | undefined): string {
+  const u = ua ?? "";
+  const os = /iPhone|iPad|iPod/.test(u) ? "ios" : /Android/.test(u) ? "android" : "desktop";
+  const br = /Barcelona/i.test(u) ? "threads" : /KAKAOTALK/i.test(u) ? "kakao" : /Instagram/i.test(u) ? "instagram" : /FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|BAND\/|everytimeApp/i.test(u) ? "inapp"
+    : /SamsungBrowser/.test(u) ? "samsung" : /CriOS|Chrome\//.test(u) && !/; wv\)/.test(u) ? "chrome" : os === "android" && /; wv\)/.test(u) ? "inapp"
+    : /Safari\//.test(u) && os !== "android" ? "safari" : os === "ios" ? "app" : "other";
+  return `${os}:${br}`;
+}
+export const viaLabel = (via: string): string => { const [os, br] = via.split(":"); return `${OS_KO[os] ?? os} · ${VIA_KO[br] ?? br}`; };
+/** 결제를 시작한 곳별로: 시작 → 결제 → 알림 켬. 운영자 본인 주문은 뺀다. 기록이 생긴 뒤(11/18)의 주문만 센다 */
+export function funnelOf(orders: Order[]): { via: string; label: string; started: number; paid: number; enabled: number; refunded: number }[] {
+  const m = new Map<string, { started: number; paid: number; enabled: number; refunded: number }>();
+  for (const o of orders) {
+    if (!o.via || o.own) continue;
+    const r = m.get(o.via) ?? { started: 0, paid: 0, enabled: 0, refunded: 0 };
+    r.started++;
+    if (o.status === "paid" || o.status === "refunded") r.paid++;
+    if (o.devices.length || o.viaOn?.length) r.enabled++;
+    if (o.status === "refunded") r.refunded++;
+    m.set(o.via, r);
+  }
+  return [...m.entries()].map(([via, r]) => ({ via, label: viaLabel(via), ...r })).sort((a, b) => b.started - a.started);
+}
+
 /** 결제창을 열기 전에 주문을 만든다 — 금액은 서버가 정한다 */
-export async function createOrder(store: Pick<Store, "getKv" | "setKv">, now: number): Promise<Order> {
+export async function createOrder(store: Pick<Store, "getKv" | "setKv">, now: number, via?: string): Promise<Order> {
   const orders = await loadOrders(store);
-  const o: Order = { orderId: newOrderId(), claim: randomToken(), amount: PRICE_KRW, status: "created", createdAt: now, devices: [] };
+  const o: Order = { orderId: newOrderId(), claim: randomToken(), amount: PRICE_KRW, status: "created", createdAt: now, devices: [], ...(via ? { via } : {}) };
   orders.push(o);
   await saveOrders(store, orders, now);
   return o;
@@ -240,6 +277,17 @@ export async function attachStartReport(store: Pick<Store, "getKv" | "setKv">, o
 }
 
 /** 운영자: 예시 리포트를 이 주문에 붙이거나 뗀다 */
+/** 운영자 본인의 결제로 표시하거나 푼다 (주문번호 또는 결제 시각 'MM-DD HH:MM' 로 찾는다 — 코드를 주고받지 않게) */
+export async function markOwn(store: Pick<Store, "getKv" | "setKv">, q: { orderId?: string; paidAt?: string }, own: boolean, now: number): Promise<Order | undefined> {
+  const orders = await loadOrders(store);
+  const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 16).replace("T", " ") : "");
+  const hit = orders.filter((x) => x.status === "paid" && ((q.orderId && x.orderId === q.orderId) || (q.paidAt && kst(x.paidAt) === q.paidAt)));
+  if (hit.length !== 1) return undefined; // 없거나 여럿이면 표시하지 않는다
+  if (own) hit[0].own = true; else delete hit[0].own;
+  await saveOrders(store, orders, now);
+  return hit[0];
+}
+
 export async function setExtraReports(store: Pick<Store, "getKv" | "setKv">, orderId: string, ids: string[], now: number): Promise<boolean> {
   const orders = await loadOrders(store);
   const o = orders.find((x) => x.orderId === orderId);
@@ -259,7 +307,7 @@ export async function paidOrderByCode(store: Pick<Store, "getKv">, code: string)
 export const normalizeCode = (c: string) => c.toUpperCase().replace(/[^A-Z2-9]/g, "").replace(/(.{4})(?=.)/g, "$1-");
 
 /** 코드로 기기를 등록한다. 결제된 주문의 코드여야 하고, 기기 수 상한을 넘지 않아야 한다. 같은 기기는 다시 등록해도 한 자리 */
-export async function redeemCode(store: Pick<Store, "getKv" | "setKv">, code: string, endpoint: string, now = Date.now()): Promise<{ ok: true; order: Order } | { ok: false; reason: string }> {
+export async function redeemCode(store: Pick<Store, "getKv" | "setKv">, code: string, endpoint: string, now = Date.now(), via?: string): Promise<{ ok: true; order: Order } | { ok: false; reason: string }> {
   const norm = normalizeCode(code);
   const orders = await loadOrders(store);
   const o = orders.find((x) => x.code === norm);
@@ -267,6 +315,7 @@ export async function redeemCode(store: Pick<Store, "getKv" | "setKv">, code: st
   if (!o.devices.includes(endpoint)) {
     if (o.devices.length >= DEVICES_PER_CODE) return { ok: false, reason: `이 코드는 기기 ${DEVICES_PER_CODE}대까지 쓸 수 있어요. 이미 다 썼어요.` };
     o.devices.push(endpoint);
+    if (via) o.viaOn = [...(o.viaOn ?? []), via].slice(-DEVICES_PER_CODE * 2);
     await saveOrders(store, orders, now);
   }
   return { ok: true, order: o };
@@ -297,7 +346,8 @@ export async function refundOrder(store: Pick<Store, "getKv" | "setKv">, cfg: Pa
 /** 운영자 화면용 요약 (코드·결제번호 같은 민감한 값은 뺀다) */
 export async function billingSummary(store: Pick<Store, "getKv">, now: number) {
   const orders = await loadOrders(store);
-  const paid = orders.filter((o) => o.status === "paid");
+  // 손님 수·매출은 운영자 본인의 결제를 뺀 것이다 (own 은 따로 센다)
+  const paid = orders.filter((o) => o.status === "paid" && !o.own);
   const day = (ms: number) => new Date(ms + 9 * 3600_000).toISOString().slice(0, 10);
   const today = day(now);
   return {
@@ -307,6 +357,8 @@ export async function billingSummary(store: Pick<Store, "getKv">, now: number) {
     devices: paid.reduce((a, o) => a + o.devices.length, 0),
     pendingOrders: orders.filter((o) => o.status === "created").length,
     refunded: orders.filter((o) => o.status === "refunded").length,
+    own: orders.filter((o) => o.status === "paid" && o.own).length,
+    funnel: funnelOf(orders),
   };
 }
 
@@ -318,8 +370,12 @@ export function paymentPush(action: "paid" | "revoked", order: Order, orders: Or
   const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
   const d = new Date(now + 9 * 3600_000);
   const when = `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
-  const paid = orders.filter((o) => o.status === "paid"), refunded = orders.filter((o) => o.status === "refunded").length;
-  const total = `지금 이용 중 ${paid.length}명 (합계 ${won(paid.reduce((a, o) => a + o.amount, 0))})${refunded ? ` · 취소 ${refunded}건` : ""}`;
+  // 한눈에 맞는 숫자만 (11/18 사용자: "테스트로 결제한 것 때문에 헷갈린다 — 금액을 잘 따라갈 수 있게"): 첫 줄은 언제나 '지금 실제 손님 수와 매출'이고
+  // 환불된 것·운영자 본인 결제는 거기서 빠져 있다고 적는다. 둘째 줄은 오늘 하루의 결제·환불 건수.
+  const day = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(0, 10) : "");
+  const paid = orders.filter((o) => o.status === "paid" && !o.own);
+  const today = day(now), paidToday = orders.filter((o) => !o.own && (o.status === "paid" || o.status === "refunded") && day(o.paidAt) === today).length, refundedToday = orders.filter((o) => o.status === "refunded" && day(o.refundedAt) === today).length;
+  const total = `실제 손님 ${paid.length}명 · 매출 ${won(paid.reduce((a, o) => a + o.amount, 0))} (환불·본인 결제 제외)\n오늘: 결제 ${paidToday}건${refundedToday ? ` · 환불 ${refundedToday}건` : ""}`;
   const tail = `주문 …${order.orderId.slice(-4)} · ${when}`;
   return action === "paid"
     ? { title: `💰 결제 들어옴 — ${won(order.amount)}`, body: `${total}\n${tail}`, priority: 3, tag: `kew-pay-${order.orderId}` }

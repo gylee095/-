@@ -154,7 +154,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
   },
   rss_news: {
     id: "rss_news",
-    name: "언론 RSS (NK News, BBC 아시아, CSIS Beyond Parallel — 교차확인용)",
+    name: "언론 RSS (NK News, BBC 아시아, CSIS Beyond Parallel · 뉴욕타임스, CBS, ABC, NPR, BBC 세계, 알자지라)",
     kind: "media",
     access: "키 불필요",
     cost: "무료",
@@ -162,7 +162,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     latency: "보도 직후~수 분",
     realtime: "minutes",
     terms: "각 언론사 저작권. 제목·링크만 저장, 본문 미저장",
-    hosts: ["www.nknews.org", "feeds.bbci.co.uk"],
+    hosts: ["www.nknews.org", "feeds.bbci.co.uk", "feeds.npr.org", "www.aljazeera.com", "rss.nytimes.com", "www.cbsnews.com", "abcnews.go.com"],
     notes: "연합뉴스 속보와 독립된 두 번째 언론사로 교차확인. 리드타임 측정에도 사용.",
   },
   travel: {
@@ -292,7 +292,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     latency: "정부 발령 후 수 분~수 시간",
     realtime: "minutes",
     terms: "각국 정부 공공데이터 (출처 표시)",
-    hosts: ["data.international.gc.ca", "www.auswaertiges-amt.de", "www.ezairyu.mofa.go.jp"],
+    hosts: ["data.international.gc.ca", "www.auswaertiges-amt.de", "www.ezairyu.mofa.go.jp", "www.easa.europa.eu", "www.boho.or.kr"],
     notes: "비공개 정보를 가진 정부가 자국민에게 내는 경보. 여러 나라가 함께 올리면 전쟁 위험의 가장 강한 공개 신호. 일본은 주한 공관 영사 메일(미사일 발사 1보가 속보 3분 뒤)도 본다.",
   },
   polymarket: {

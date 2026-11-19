@@ -14,6 +14,18 @@ export interface RubricGroup { id: string; label: string; max: number; items: Ru
 export interface RubricLayer { id: LayerId; label: string; max: number; why: string; groups: RubricGroup[] }
 
 export const RUBRIC_VERSION = 3;
+/**
+ * 2022년 러시아의 우크라이나 침공(2월 24일) 때 그 신호가 며칠 전에 공개적으로 나왔나 (11/18 사용자가 가져온 '전쟁 직전 신호' 정리에서).
+ * 숫자만 볼 때보다 그 신호의 무게가 와닿게 항목 옆에 적는다. **한 사례일 뿐이다** — 다음 전쟁이 같은 순서·간격으로 온다는 뜻이 아니다.
+ * 날짜를 보도로 확인한 것만 넣었다(11/18 확인: 혈액 1/28 로이터 · KLM 2/12 · 대사관 직원 철수 2/12 · 정부 사이트 약 70곳 공격 1/14).
+ * 대사관 가족 철수(1/23)·'침공 임박' 경고(2/11)·예비군 소집(2/22)은 널리 알려진 날짜지만 이번에 보도로 다시 확인하지 못해 넣지 않았다.
+ */
+export const UKRAINE_LEAD: Record<string, { days: number; what: string }> = {
+  m_cyber: { days: 41, what: "정부 사이트 약 70곳이 공격받고 데이터 삭제 악성코드가 발견됨" },
+  m_logistics: { days: 27, what: "러시아가 국경 근처로 혈액을 옮겼다는 보도" },
+  m_airspace: { days: 12, what: "네덜란드 KLM 이 우크라이나 운항을 중단" },
+  g_evac_order: { days: 12, what: "미국이 대사관 직원 대부분을 철수" },
+};
 /** 전쟁 전 공통 징조 9개 — 예고된 전쟁의 절반 이상에서 나타난 것 (자료가 바뀌어 목록이 달라지면 build-precursors 가 실패한다) */
 export const SIGNS = ["i_leader_threat", "i_pretext", "m_buildup", "m_border_fire", "g_ultimatum", "g_talks_collapse", "t_trigger", "g_intel_warning", "m_strategic_assets"];
 /** 단계가 시작되는 켜진 비율 %: 10 긴장 · 25 위기 · 50 임박 (교전은 실제 교전 보도) */
@@ -43,7 +55,7 @@ export const RUBRIC: RubricLayer[] = [
     ])],
   },
   {
-    id: "moves", label: "조용한 움직임", max: 18, why: "뉴스와 무관하게 직접 재는 것 — 사람·돈·군이 평소를 벗어났나. 기습은 이쪽으로만 잡을 수 있다",
+    id: "moves", label: "조용한 움직임", max: 19, why: "뉴스와 무관하게 직접 재는 것 — 사람·돈·군이 평소를 벗어났나. 기습은 이쪽으로만 잡을 수 있다",
     groups: [
       g("P", "사람이 빠진다", [
         ["g_evac_order", "제3국 대사관 철수 명령"],
@@ -68,11 +80,13 @@ export const RUBRIC: RubricLayer[] = [
         ["m_gps_ew", "GPS 교란·전자전 급증"],
         ["a_launch_prep", "발사 준비 정황 (발사 예고 항행경보·발사장 열점)"],
         ["a_nk_dark", "북한이 어두워짐 (인터넷 장애·평양 밤 불빛 감소)"],
+        // 11/18: 참고 신호에서 올렸다 — 2022년 우크라이나에서는 침공 41일 전·9일 전·전날 세 번 나왔다. 옛 전쟁에는 없던 신호라 사례 통계(9개)에는 못 들었다. 일상적 해킹 시도는 아니다
+        ["m_cyber", "정부·주요 은행 전산망의 동시 마비·데이터 삭제 공격"],
       ]),
     ],
   },
   {
-    id: "context", label: "배경", max: 16, why: "전쟁 전 징조는 아니지만 위험의 바탕 — 세지 않고 따로 보여 준다. 한 달에 한 번쯤 점검",
+    id: "context", label: "배경", max: 17, why: "전쟁 전 징조는 아니지만 위험의 바탕 — 세지 않고 따로 보여 준다. 한 달에 한 번쯤 점검",
     groups: [
       g("X", "세계 정세", [
         ["w_us_war", "미국이 다른 지역에서 전쟁·대규모 군사작전 중"],
@@ -81,9 +95,10 @@ export const RUBRIC: RubricLayer[] = [
         ["w_taiwan", "대만해협·동중국해의 군사 위기"],
         ["w_nuclear", "강대국의 핵 위협·핵실험 재개·군비통제 붕괴"],
         ["w_markets", "세계 금융의 전쟁 공포 (금·유가·변동성 급등)"],
+        ["w_alarm", "한반도 전쟁과 가까운 세계 속보가 평소보다 몰림"],
         // 11/14 사용자: 세계 정세를 더 넓게 — 전쟁은 서로 이어져 있다
         ["w_infra", "미국·동맹국의 기반시설이 전국 규모로 마비되거나 공격받음 (최근 7일)"],
-        ["w_new_war", "새 전쟁·대규모 공격이 시작됨 (최근 30일)"],
+        ["w_new_war", "새 전쟁·대규모 공격이 시작됨 (최근 7일)"],
         ["w_power_clash", "강대국 사이의 직접 충돌 (격추·함정 충돌·교전)"],
         ["w_us_commit", "미국의 동맹 방위 공약이 약해지는 신호 (주한미군 감축 발표·방위비 갈등으로 철수 거론)"],
       ]),
@@ -98,12 +113,11 @@ export const RUBRIC: RubricLayer[] = [
     ],
   },
   {
-    id: "other", label: "참고 신호", max: 11, why: "전쟁 사례의 절반에 못 미쳐 9개에 들지 못한 것 — 판정에는 쓰지 않고 참고로만",
+    id: "other", label: "참고 신호", max: 10, why: "전쟁 사례의 절반에 못 미쳐 9개에 들지 못한 것 — 판정에는 쓰지 않고 참고로만",
     groups: [g("O", "참고", [
       ["m_alert_level", "군 경계태세 공식 격상"],
       ["m_exercise_cover", "'훈련' 병력이 남거나 훈련 연장"],
       ["m_leadership", "지도부의 이례적 동선"],
-      ["m_cyber", "정부·기반시설 사이버 공격"],
       ["f_sovereign", "국채·CDS 급등"],
       ["i_state_mobilization", "관영매체의 전시 동원 서사"],
       ["i_news_surge", "전쟁 관련 보도량 급증"],
@@ -115,7 +129,7 @@ export const RUBRIC: RubricLayer[] = [
   },
 ];
 
-export interface ScoredItem extends RubricItem { s: Obs; weak: boolean; got: number; ev?: string; by?: string; src?: { t: string; u: string }[] }
+export interface ScoredItem extends RubricItem { s: Obs; weak: boolean; got: number; ev?: string; by?: string; src?: { t: string; u: string }[]; /** 2022년 우크라이나에서 이 신호가 침공 며칠 전에 나왔나 */ lead?: { days: number; what: string } }
 export interface ScoredGroup { id: string; label: string; max: number; pts: number; items: ScoredItem[] }
 export interface ScoredLayer { id: LayerId; label: string; max: number; why: string; pts: number; groups: ScoredGroup[] }
 export interface RubricScore {
@@ -148,7 +162,7 @@ export function scoreRubric(status: Record<string, SignalNow | undefined>): Rubr
         const s: Obs = st?.s ?? "unk";
         const weak = s === "on" && (st?.w ?? 1) < 1;
         if (L.id !== "other") { if (s === "unk") waiting++; else watched++; }
-        return { ...it, s, weak, got: s === "on" ? (weak ? 0.5 : 1) : 0, ev: st?.ev, by: st?.by, ...(st?.src?.length ? { src: st.src } : {}) };
+        return { ...it, s, weak, got: s === "on" ? (weak ? 0.5 : 1) : 0, ev: st?.ev, by: st?.by, ...(st?.src?.length ? { src: st.src } : {}), ...(UKRAINE_LEAD[it.id] ? { lead: UKRAINE_LEAD[it.id] } : {}) };
       });
       return { id: gr.id, label: gr.label, max: gr.max, pts: items.reduce((a, x) => a + x.got, 0), items };
     });

@@ -70,7 +70,9 @@ export const EVENT_ALERTS_PER_DAY = 1;
 
 type Judged = Pick<WarRisk, "phase" | "phaseLabel" | "clash30d" | "usual" | "phaseReasons" | "tripwires"> & { vsUsual?: number; proximity?: WarRisk["proximity"] };
 /** 긴장(2단계)이 배경 때문만이 아니라 실제 징조(3개 이상)나 조용한 움직임(3개 이상) 때문인가 */
-export const realSigns = (w: Judged) => { const r = w.proximity?.rubric; return !!r && (r.signs >= SIGNS_AT[2] || r.moves >= MOVES_AT.watch); };
+/** 2주 사이 새로 켜진 징조·움직임이 이만큼이면 (지금 켜진 수가 3개에 못 미쳐도) 실제 징조가 나타난 것으로 본다 — 전쟁 직전은 빠르게 연달아 켜진다 (11/18) */
+export const FRESH_AT = 3;
+export const realSigns = (w: Judged) => { const r = w.proximity?.rubric; return !!r && (r.signs >= SIGNS_AT[2] || r.moves >= MOVES_AT.watch || (w.proximity?.fresh?.n ?? 0) >= FRESH_AT); };
 
 export interface PhaseMessage {
   title: string;
@@ -127,7 +129,9 @@ const pctOf = (w: Judged) => (w.proximity ? ` ${w.proximity.index}%` : "");
 /** 같은 긴장 단계 안에서 실제 징조·움직임이 나타났을 때 */
 export function subMessage(w: Judged, opts?: { dashboardUrl?: string }): PhaseMessage {
   const r = w.proximity!.rubric;
-  const what = r.surprise ? `뉴스의 징조는 적은데 사람·돈·군의 측정값 ${r.moves}개가 함께 움직였어요 (기습 주의).` : `전쟁 전 징조가 9개 중 ${r.signs}개로 늘었어요.`;
+  const fr = w.proximity!.fresh;
+  const fast = r.signs < SIGNS_AT[2] && r.moves < MOVES_AT.watch && fr && fr.n >= FRESH_AT;
+  const what = fast ? `최근 2주 사이 꺼져 있던 신호 ${fr!.n}개가 새로 켜졌어요: ${fr!.items.slice(0, 3).map((x) => x.ko).join(", ")}.` : r.surprise ? `뉴스의 징조는 적은데 사람·돈·군의 측정값 ${r.moves}개가 함께 움직였어요 (기습 주의).` : `전쟁 전 징조가 9개 중 ${r.signs}개로 늘었어요.`;
   return { title: `2단계 긴장${pctOf(w)} · 실제 징조가 나타남`, body: [what, counts(w), opts?.dashboardUrl ? `대시보드 : ${opts.dashboardUrl}` : ""].filter(Boolean).join("\n"), priority: 3, direction: "up", note: true };
 }
 

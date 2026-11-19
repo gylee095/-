@@ -1,0 +1,2121 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<!doctype html>
+<html lang="ko">
+    <head>
+    <meta charset="utf-8">
+    <title>KISA 보호나라&KrCERT/CC</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv="imagetoolbar" content="no" />
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta http-equiv="expires" content="0" />
+    <meta name="robots" content="index,nofollow"/>
+    <link rel="canonical" href="http://www.boho.or.kr:80">
+    <meta name="description" content="KISA 보호나라&KrCERT/CC"/>
+    <meta name="apple-mobile-web-app-title" content="KISA 보호나라&KrCERT/CC"/>
+    <meta property="og:title" content="KISA 보호나라&KrCERT/CC">
+    <meta property="og:url" content="http://www.boho.or.kr:80">
+    <meta property="og:image" content="http://www.boho.or.kr:80/images/common/metaimg_kisa.png">
+    <meta property="og:description" content="KISA 보호나라&KrCERT/CC"/>
+    <meta name="twitter:card" content="Summary">
+    <meta name="twitter:title" content="KISA 보호나라&KrCERT/CC">
+    <meta name="twitter:url" content="http://www.boho.or.kr:80">
+    <meta name="twitter:image" content="http://www.boho.or.kr:80/images/common/metaimg_kisa.png">
+    <meta name="twitter:description" content="KISA 보호나라&KrCERT/CC"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="shortcut icon" type="image/x-icon" href="/images/homepage/www/kr/favicon.ico"/>
+    <link rel="apple-touch-icon" href="/images/homepage/www/kr/favicon.png"/>
+    <link rel="stylesheet" href="/cdn/scrollbar/smooth-scrollbar.css">  <!-- -->
+    <link rel="stylesheet" href="/cdn/aos/aos.min.css">
+    <link rel="stylesheet" href="/cdn/slick/slick.min.css">
+    <link rel="stylesheet" href="/css/homepage/base/popup.css">
+    <link rel="stylesheet" href="/css/homepage/www/kr/common.css">
+    <link rel="stylesheet" href="/css/homepage/www/kr/main.css">
+	<link rel="stylesheet" href="/css/homepage/www/kr/media.css">
+    <script type="text/javascript" src="/cdn/jquery/jquery.3.7.1.min.js"></script>
+    <script type="text/javascript" src="/cdn/jquery/jquery.migrate.3.5.2.js"></script>
+    <script type="text/javascript" src="/cdn/jquery/jquery-ui.1.14.2.min.js"></script>
+    <script type="text/javascript" src="/cdn/jquery/jquery.easing.1.4.1.min.js"></script>
+    <script type="text/javascript" src="/cdn/slick/slick.min.js"></script>
+    <script type="text/javascript" src="/cdn/aos/aos.min.js"></script>
+    <script type="text/javascript" src="/cdn/scrollbar/smooth-scrollbar.js"></script>
+    <script type="text/javascript" src="/js/homepage/www/kr/common.js"></script>
+    <script type="text/javascript" src="/js/homepage/www/kr/main.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/homepage/base/jqcloud.min.css">
+    </head>
+
+
+<script src="/js/homepage/www/kr/diquest.js"></script>
+<script src="/js/common/web-popup.js"></script>
+
+<script src="/js/common/jqcloud.min.js"></script>
+
+
+<script type="text/javascript">
+
+	$(function () {
+		
+		/* 팝업 */
+		var $wrap = $(".kp-wrap");
+	    var hasShowPop = false;
+	    var now = Date.now();
+
+	    // ✅ 페이지 로드 시 개별 bd 체크
+	    $wrap.find(".bd").each(function(){
+	        var $bd = $(this);
+	        var popId = $bd.attr("id");
+	        var storageKey = "pop_hide_" + popId;
+	        var hideTime = localStorage.getItem(storageKey);
+
+	        if(hideTime && Number(hideTime) > now){
+	            // 기간 내 → 숨김
+	            $bd.hide();
+	        }else{
+	            // 기간 지났거나 저장값 없음 → 보여줌
+	            $bd.show();
+	            hasShowPop = true;
+	        }
+	    });
+
+	    if(hasShowPop){
+	        $wrap.addClass("open");
+	    }
+
+	    // ✅ 닫기 버튼 이벤트
+	    $(document).on("click", ".kp-wrap .close-btn", function (e) {
+	        e.preventDefault();
+	        var $this = $(this);
+	        var $currentBd = $this.closest(".bd");
+	        var popId = $currentBd.attr("id");
+	        var storageKey = "pop_hide_" + popId;
+	        var $chk = $currentBd.find(".todayc-chk");
+
+	        if ($chk.prop("checked")) {
+	            var midnight = new Date();
+	            midnight.setHours(24, 0, 0, 0);
+	            try {
+	                localStorage.setItem(storageKey, String(midnight.getTime()));
+	            } catch (err) {}
+	        }
+
+	        $currentBd.hide();
+
+	        // 남은 보이는 bd 체크
+	        var $allBd = $currentBd.closest(".kp-wrap").find(".bd");
+	        var visibleCount = $allBd.filter(":visible").length;
+	        if (visibleCount <= 0) {
+	            $wrap.removeClass("open");
+	        }
+	    });
+		
+	  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+	  function tick() {
+	    var d = new Date();
+	    var hours = d.getHours();
+	    var ampm = hours >= 12 ? '오후' : '오전';
+	    
+	    hours = hours % 12;
+	    hours = hours ? hours : 12;
+	    
+	    $('#clock').text(ampm + ' ' + pad(hours) + ':' + pad(d.getMinutes()));
+	    setTimeout(tick, 1000 - d.getMilliseconds()); // 다음 초 경계에 맞춰 갱신
+	  }
+
+	  tick();
+	});
+
+	var slideHtml;
+
+	$(document).ready(function(){
+		fn_bbs_type_list(1);
+		$(window).on('load resize', function (e) {
+			resizeEventAction(e);
+			setTimeout(function () {
+				resizeEventAction(e);
+			}, 500);
+		});
+
+		createWordCloud();
+		adjustWordCloudContainerSize();
+
+
+	});
+
+	function fileDown(atchFileId,fileSn,bbsId){
+		
+		if(bbsId == 'B0000134'){
+			var url = "/common/cmm/fms/FileDown.do?atchFileId="+atchFileId+"&fileSn="+fileSn+"&bbsId="+bbsId;			
+			n_click_logging(url);			
+			setTimeout(function(){location.href=url;}, 400);
+						
+			//window.location.href = url;
+			
+			
+		}else{
+			var url = "/common/cmm/fms/FileDown.do?atchFileId="+atchFileId+"&fileSn="+fileSn+"&bbsId="+bbsId;
+			window.location.href = url;
+		}
+	
+	}
+
+	function createWordCloud() {
+		var jsonList = [];
+
+
+
+		var orginKeywordList = '[{keyword=랜섬웨어, cnt=70, lastDate=2026-11-11 13:57:07.137, rankNum=1}, {keyword=Weaxor 랜섬웨어, cnt=1, lastDate=2026-11-11 13:57:07.136, rankNum=10}, {keyword=Gunra 랜섬웨어, cnt=1, lastDate=2026-10-28 14:26:12.291, rankNum=10}, {keyword=스미싱, cnt=24, lastDate=2026-10-07 11:22:36.0, rankNum=2}, {keyword=클라우드 접근키, cnt=1, lastDate=2026-10-04 15:38:37.638, rankNum=10}, {keyword=추석, cnt=1, lastDate=2026-10-04 15:38:37.636, rankNum=10}, {keyword=외부 노출 서비스, cnt=1, lastDate=2026-10-04 15:38:37.635, rankNum=10}, {keyword=랜섬웨어 대응, cnt=1, lastDate=2026-10-04 15:38:37.633, rankNum=10}, {keyword=관리자 단말·계정, cnt=1, lastDate=2026-10-04 15:38:37.631, rankNum=10}, {keyword=API 보안, cnt=1, lastDate=2026-10-04 15:38:37.629, rankNum=10}, {keyword=보안약점, cnt=2, lastDate=2026-10-01 14:37:53.263, rankNum=9}, {keyword=개발보안, cnt=2, lastDate=2026-10-01 14:37:53.262, rankNum=9}, {keyword=Python, cnt=3, lastDate=2026-10-01 14:37:53.26, rankNum=8}, {keyword=SW개발보안허브, cnt=1, lastDate=2026-10-01 14:37:13.919, rankNum=10}, {keyword=JavaScript, cnt=2, lastDate=2026-10-01 14:37:13.917, rankNum=9}, {keyword=침해사고 대응, cnt=2, lastDate=2026-10-01 00:04:05.86, rankNum=9}, {keyword=정보통신분야, cnt=3, lastDate=2026-10-01 00:04:05.859, rankNum=8}, {keyword=안내서, cnt=7, lastDate=2026-10-01 00:04:05.855, rankNum=6}, {keyword=침해사고 원인분석 및 대응조치 서비스, cnt=1, lastDate=2026-08-21 15:28:10.903, rankNum=10}, {keyword=가상화 인프라, cnt=1, lastDate=2026-08-21 15:28:10.9, rankNum=10}, {keyword=사이버 위협 동향, cnt=3, lastDate=2026-07-30 14:26:46.666, rankNum=8}, {keyword=사이버 위협, cnt=3, lastDate=2026-07-30 14:26:46.664, rankNum=8}, {keyword=2026년 상반기, cnt=1, lastDate=2026-07-30 14:26:46.662, rankNum=10}, {keyword=해킹메일, cnt=1, lastDate=2026-07-30 11:13:42.563, rankNum=10}, {keyword=워터링홀, cnt=2, lastDate=2026-07-30 11:13:42.561, rankNum=9}, {keyword=악성코드 유포, cnt=1, lastDate=2026-07-30 11:13:42.559, rankNum=10}, {keyword=사회공학, cnt=1, lastDate=2026-07-30 11:13:42.558, rankNum=10}, {keyword=보안권고, cnt=1, lastDate=2026-07-30 11:13:42.556, rankNum=10}, {keyword=기업, cnt=6, lastDate=2026-07-21 15:43:51.53, rankNum=7}, {keyword=공격표면, cnt=1, lastDate=2026-07-21 15:43:51.527, rankNum=10}, {keyword=TTPs$, cnt=1, lastDate=2026-07-21 15:43:51.524, rankNum=10}, {keyword=GitHub 악용, cnt=1, lastDate=2026-07-16 13:37:27.833, rankNum=10}, {keyword=AI 위장 악성코드, cnt=1, lastDate=2026-07-16 13:37:27.831, rankNum=10}, {keyword=클라우드, cnt=18, lastDate=2026-07-16 13:29:48.343, rankNum=3}, {keyword=자격증명 탈취, cnt=1, lastDate=2026-07-16 13:29:48.34, rankNum=10}, {keyword=공급망 공격, cnt=2, lastDate=2026-07-16 13:29:48.337, rankNum=9}, {keyword=TanStack, cnt=1, lastDate=2026-07-16 13:21:39.507, rankNum=10}, {keyword=npm, cnt=3, lastDate=2026-07-16 13:21:39.505, rankNum=8}, {keyword=Github, cnt=8, lastDate=2026-07-16 13:21:39.503, rankNum=5}, {keyword=깃허브, cnt=3, lastDate=2026-07-16 13:21:09.274, rankNum=8}, {keyword=Utility, cnt=1, lastDate=2026-07-16 13:21:09.271, rankNum=10}, {keyword=SEO, cnt=1, lastDate=2026-07-16 13:21:09.269, rankNum=10}, {keyword=해킹진단도구, cnt=7, lastDate=2026-07-06 13:27:59.244, rankNum=6}, {keyword=서버 장악, cnt=1, lastDate=2026-07-06 13:27:59.242, rankNum=10}, {keyword=내부망 장악, cnt=1, lastDate=2026-07-06 13:15:00.062, rankNum=10}, {keyword=계정 탈취, cnt=1, lastDate=2026-07-06 13:15:00.059, rankNum=10}, {keyword=Fortinet, cnt=14, lastDate=2026-06-21 14:29:11.419, rankNum=4}, {keyword=유출, cnt=2, lastDate=2026-06-21 14:29:11.416, rankNum=9}, {keyword=IPS, cnt=1, lastDate=2026-06-21 14:29:11.413, rankNum=10}, {keyword=VPN, cnt=1, lastDate=2026-06-21 14:29:11.41, rankNum=10}]';
+
+		var keywordList = fn_javaListToJson(orginKeywordList);
+
+
+		// result 데이터를 순회하며 jsonList에 필요한 형식으로 데이터를 추가합니다.
+		keywordList.forEach(function(item) {
+
+			var jsonItem = {
+				text: item.keyword,
+				weight: item.cnt,
+				link: "/kr/searchList.do?menuNo=205036&searchRange=keyword&searchTerm="+item.keyword
+			};
+
+			jsonList.push(jsonItem);
+		});
+
+
+
+		$('.inbox').jQCloud(jsonList, {
+			autoResize: true,
+			steps: 8,
+			removeOverflowing : true,
+			shape : 'elliptic'
+
+		});
+
+
+	}
+
+
+	function adjustWordCloudContainerSize() {
+
+		$('.inbox').css({
+			overflow: 'hidden' // 스크롤 제거를 위해 overflow 속성을 hidden으로 설정
+		});
+
+	}
+
+	//자바 List<EgovMap> ->  JsonList로 변환
+	function fn_javaListToJson(obj){
+
+		var resultJson = [];
+
+		var str = obj.split('[{').join('').split('}]').join(''); //양끝 문자열 제거
+		var rows = str.split('}, {'); //str는 배열
+
+		for(var i = 0; rows.length > i; i++){ // rows 배열만큼 for돌림
+
+			var cols = rows[i].split(', ');
+			var rowData = {};
+
+			for(var j = 0; cols.length > j; j++){
+
+				var colData = cols[j];
+				colData = colData.trim();
+
+
+				var key = colData.substring(0, colData.indexOf("="));
+				var val = colData.substring(colData.indexOf("=") +1);
+
+				rowData[key] = val;
+			}
+
+			resultJson.push(rowData);
+		}
+
+		return resultJson;
+	}
+
+	function resizeEventAction(e) {
+
+		var type;
+		if(e.type=='resize'){
+			type = e.target.outerWidth;
+		}else{
+			type = window.outerWidth;
+		}
+
+		if(type > 767) {
+			if($('#sliderList').find('div.slick-track div').length < 1) {
+				if($('#sliderList').hasClass("slick-slider")){
+					$('#sliderList').slick('unslick');
+				}
+				$('#sliderList *').remove();
+				$('#sliderList').append(slideHtml);
+
+				adaptSlick();
+			} else {
+
+				if($('#sliderList').hasClass("slick-slider")){
+					$('#sliderList').slick('unslick');
+				}
+				adaptSlick();
+			}
+		}
+		else {
+			$('#sliderList *').remove();
+			$('#sliderList').append(slideHtml);
+		}
+	}
+
+	function fn_bbs_type_list(bbsType){
+		$.ajax({
+			url: '/kr/selectMainBbsList.do',
+			type : 'post',
+			data : {
+				bbsType : bbsType
+			},
+			dataType : 'JSON',
+			async: false,
+			success : function(data){
+				if($('#sliderList').hasClass("slick-slider")){
+					$('#sliderList').slick('unslick');
+				}
+				var list = data.resultList;
+				//console.log("ohhwan " + list[0].nttCn);
+				slideHtml ="";
+
+				$.each(list, function (index, item) {
+					//태그 및 공백 줄바꿈 제거
+					var nttCn = stripTags(item.nttCn);
+					var detailLink = "/kr/bbs/view.do?bbsId="+item.bbsId+"&pageIndex=1&nttId="+item.nttId+"&menuNo="+item.menuNo;
+					var categoryCd;
+					var categoryNm;
+					switch (item.bbsId) {
+						case 'B0000133' : categoryCd='c01'; categoryNm = '보안공지'; break;
+						case 'B0000302' : categoryCd='c02'; categoryNm = '취약점정보'; break;
+						case 'B0000127' : categoryCd='c03'; categoryNm = '보고서/가이드'; break;
+						case 'B0000132' : categoryCd='c04'; categoryNm = '공지사항'; break;
+					}
+
+
+					slideHtml += "<div><a href="+detailLink+"><strong>";
+					slideHtml += item.nttSj;
+					slideHtml += "</strong>";
+					//slideHtml += nttCn;
+					//slideHtml += "</span>";
+					slideHtml += "<ul>";
+					//카테고리명에 따라 c01~c04 까지 변함, 전체만 표시
+					if(bbsType == '1') {
+						slideHtml += "<li class='"+categoryCd+"'>";
+						slideHtml += categoryNm;
+						slideHtml +=  "</li>";
+					}
+					if(item.newIcon == '1'){
+						slideHtml +=  "<li class='new'>N</li>";
+					}
+					slideHtml +=  "</ul>";
+					slideHtml +=  "<em>";
+					slideHtml +=  item.nttDt;
+					slideHtml += "</em></a></div>";
+
+					//console.log("폼 >>>>"+nttCn);
+				});
+				$('#sliderList *').remove();
+				$('#sliderList').append(slideHtml);
+
+				adaptSlick();
+
+				var link;
+
+				switch (bbsType){
+					case '2' :
+						link = "kr/bbs/list.do?menuNo=205020&bbsId=B0000133"
+						break;
+					case '3' :
+						link = "kr/bbs/list.do?menuNo=205023&bbsId=B0000302"
+						break;
+					case '4' :
+						link = "kr/bbs/list.do?menuNo=205021&bbsId=B0000127"
+						break;
+					case '5' :
+						link = "kr/bbs/list.do?menuNo=205022&bbsId=B0000132"
+						break;
+					default :
+						link = "kr/bbs/list.do?menuNo=205020&bbsId=B0000133"
+				}
+
+				$('.morebtn').prop('href',link);
+
+			}
+		});
+	}
+
+	function adaptSlick(){
+		var settings = {
+			dots: false,
+			arrows: true,
+			autoplay: false,
+			infinite: true,
+			//autoplaySpeed: 1000,
+			slidesToShow: 5,
+			slidesToScroll: 1,
+			speed: 500,
+			responsive: [
+				{
+					breakpoint: 1360,
+					settings: {
+						slidesToShow: 4,
+					}
+				},{
+					breakpoint: 1180,
+					settings: {
+						slidesToShow: 3,
+					}
+				},{
+					breakpoint: 900,
+					settings: {
+						slidesToShow: 2,
+					}
+				},{
+					breakpoint: 767,
+					settings: "unslick"
+				}
+			]
+		};
+		$('#sliderList').slick(settings);
+
+	}
+
+	function stripTags(str){
+		str = str.replace(/<[^>]*>?/g, ''); // 태그 제거
+		str = str.replace(/\s\s+/g, ' '); // 연달아 있는 줄바꿈, 공백, 탭을 공백 1개로 줄임
+		return str;
+	}
+
+
+	function goService(type) {
+		/*
+		if(type == 'weakness'){
+			alert('26년도 보안취약점 점검 서비스 신청 접수 준비중입니다.');
+			return false;
+		}
+		*/
+		
+		/*
+		if(type == 'sw'){
+			alert('25년도 SW 보안약점 진단 서비스 신청 접수 준비중입니다.');
+			return false;
+		}
+		*/
+
+		var frm = document.frm;
+		frm.type.value = type;
+
+		frm.submit();
+	}
+
+	
+
+</script>
+
+<body>
+
+<!-- 오늘 날짜 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+<script>
+
+
+
+
+$(document).ready(function(){
+
+	var visibleCnt = 0;
+	$('#layer_pop .content').each(function(){
+		var popupId = $(this).attr('data-popup-id');
+		if(getCookies("layer_popup_" + popupId) == "done"){
+			$(this).hide();
+		}else{
+			visibleCnt++;
+		}
+	});
+
+	if(visibleCnt > 0){
+		openTopLayerPopups();
+	}
+	/* 삭제: 중복된 구버전 단일쿠키 판정 블록 (openTopLayerPopups 2중 호출 → #mask 2개 중첩되어 화면이 까맣게 보이던 원인) */
+
+	/*
+
+	 $('.popSlider').slick({//팝업슬라이더  추가
+         arrows: true,
+         dots: false,
+         autoplay: true,
+         infinite: true,
+         autoplaySpeed: 5000,
+         slidesToShow: 1,
+         slidesToScroll: 1,
+         speed: 1000,
+     });
+	*/
+});
+
+
+/* 삭제: 인자 없는 구버전 btnLayerOnedayClose() — 아래 popupId 인자 버전과 이름이 겹쳐 죽은 코드였음 */
+
+function openTopLayerPopups(){
+	 $('#layer_pop').show();
+	 $("#layer_pop").after('<div id="mask" style="display:block"></div>');
+}
+
+function closeTopLayerPopups(){
+	$('#layer_pop').fadeOut(100);
+	$('#mask').remove();
+}
+
+
+function setCookies( name, value, expiredays )
+{
+	var todayDate = new Date();
+	todayDate.setDate( todayDate.getDate() + expiredays );
+	document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+}
+
+function getCookies( name )
+{
+	var nameOfCookie = name + "=";
+	var x = 0;
+	while ( x <= document.cookie.length )
+	{
+		var y = (x+nameOfCookie.length);
+		if ( document.cookie.substring( x, y ) == nameOfCookie ) {
+			if ( (endOfCookie=document.cookie.indexOf( ";", y )) == -1 )
+				endOfCookie = document.cookie.length;
+			return unescape( document.cookie.substring( y, endOfCookie ) );
+		}
+		x = document.cookie.indexOf( " ", x ) + 1;
+		if ( x == 0 )
+			break;
+	}
+	return "";
+}
+
+function btnLayerOnedayClose(popupId){
+
+	if($("#btn_layer_oneday_" + popupId).prop("checked")==true)
+	{
+		setCookies("layer_popup_" + popupId, "done" , 24);
+	}
+
+	$("#pop_" + popupId).fadeOut(100, function(){
+		if($('#layer_pop .content:visible').length == 0){
+			closeTopLayerPopups();
+		}
+	});
+}
+
+</script>
+
+
+
+
+<!-- 웹접근성용 바로가기 링크 모음 -->
+<div id="shortcut">
+	<a href="#container">본문 바로가기</a>
+</div>
+
+<div id="wrap">
+	<div class="kp-wrap" >
+		<div class="kp-bg-opa"></div>
+		<div class="kp-body">
+			<!-- 팝업1 -->
+			<div class="bd" id="layout-pop1">
+				<div class="tit">
+					<p class="text"><span class="tag">긴급 보안 안내</span>홈페이지 운영자용 FAQ</p>
+					<button type="button" class="close-btn" aria-label="팝업 닫기"><img src="/images/homepage/www/kr/popup/kp_close_icon.png" alt=""></button>
+				</div>
+				<div class="cont">
+					<div class="txt-area">
+						<p class="lin1">홈페이지 운영자를 위한</p>
+						<p class="lin2"><span class="clr-blue">PHP2Shell</span> 보안 취약점 FAQ</p>
+						<p class="norm">최근 PHP2Shell 보안 취약점이 발견되어 홈페이지 운영자 여러분의<br>신속한 점검과 대응이 필요합니다. 아래 FAQ를 확인하시고,<br>안전한 홈페이지 운영을 위해 조치를 진행해 주시기 바랍니다.</p>
+					</div>
+					<div class="lka-area">
+						<div class="lk">
+							<ul>
+								<li>
+									<div class="lef">
+										<span></span>
+									</div>
+									<div class="rig">
+										<p class="nop"><span class="no">1</span>주요 내용</p>
+										<ul class="list-sty">
+											<li>PHP2Shell 취약점 개요</li>
+											<li>영향을 받을 수 있는 환경 (PHP 기반 웹사이트 등)</li>
+											<li>긴급 점검 및 대응 방법</li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<div class="lef">
+										<span></span>
+									</div>
+									<div class="rig">
+										<p class="nop"><span class="no">2</span>권고 사항</p>
+										<ul class="list-sty">
+											<li>최신 보안 패치 (권장 버전 이상) 적용</li>
+											<li>웹셸 업로드 여부 및 주요 로그 점검</li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<div class="lef">
+										<span></span>
+									</div>
+									<div class="rig">
+										<p class="nop"><span class="no">3</span>문의</p>
+										<ul class="list-sty">
+											<li>추가 문의는 KISA 상담센터(<strong>국번 없이 118</strong>)로 연락해 주세요.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="n1104-pop-wrap">
+							<div class="n1104-pop-box">
+								<div class="tit">점검하기</div>
+								<p>아래 보안기업 점검 사이트에서 홈페이지의 PHP 취약점 여부를 확인할 수 있습니다.</p>
+							</div>
+							<div class="ka">
+								<div class="kisa-link">
+									<div class="tit">KISA 제공</div>
+									<a href="https://www.boho.or.kr/kr/subPage.do?menuNo=205124" target="_blank">
+										<div>
+											<p class="p1"><strong>보호나라</strong> PHP 점검 서비스</p>
+											<p class="p2">PHP 취약점 진단 및 개선 가이드 제공</p>
+										</div>
+									</a>
+								</div>
+								<div class="out-links">
+									<div class="tit">외부 제공</div>
+									<ul class="links">
+										<li>
+											<a href="https://stealien.com/php2shell" target="_blank" rel="noopener noreferrer">
+												<p class="name">SiteCheck</p>
+												<p class="url">stealien.com/php2shell</p>
+											</a>
+										</li>
+										<li>
+											<a href="https://vuln.offen.im" target="_blank" rel="noopener noreferrer">
+												<p class="name">VulnScan</p>
+												<p class="url">vuln.offen.im</p>
+											</a>
+										</li>
+										<li>
+											<a href="https://phpguard.io" target="_blank" rel="noopener noreferrer">
+												<p class="name">PHPGuard</p>
+												<p class="url">phpguard.io</p>
+											</a>
+										</li>
+										<li>
+											<a href="https://piolink.com/kr/php2shell" target="_blank" rel="noopener noreferrer">
+												<p class="name">PIOLINK</p>
+												<p class="url">piolink.com/kr/php2shell</p>
+											</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="bm-area">
+						<div class="bmt">
+							
+							<a onclick="fileDown('oRW1jQ9iSW1AIQtLJ0Yx03si9TVMBTKF6Rxz6SG5L0U','1','B0000132')" href="javascript:void(0)" class="db-btn" title="261026_KISA_PHP2Shell_FAQ.pdf 파일 다운로드"><span class="txt">PDF 다운로드</span></a>
+							<a href="https://www.boho.or.kr/kr/bbs/view.do?searchCnd=&bbsId=B0000132&searchWrd=&menuNo=205022&pageIndex=1&categoryCode=&nttId=72239" target="_blank" class="lm-btn"><span class="txt">자세히 보기</span></a>
+						</div>
+						<div class="bmm">
+                               <span class="todayc">
+                                   <input type="checkbox" id="todayc1" class="todayc-chk">
+                                   <label for="todayc1">오늘 하루 보지 않기</label>
+                               </span>
+                               <button type="button" class="close-btn">닫기</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 팝업2 -->
+			<div class="bd" id="layout-pop2">
+				<div class="tit">
+					<p class="text"><span class="tag">긴급 보안 안내</span>KISA 한국인터넷진흥원</p>
+					<button type="button" class="close-btn" aria-label="팝업 닫기"><img src="/images/homepage/www/kr/popup/kp_close_icon.png" alt=""></button>
+				</div>
+				<a href="https://www.boho.or.kr/kr/bbs/view.do?searchCnd=&bbsId=B0000132&searchWrd=&menuNo=205022&pageIndex=1&categoryCode=&nttId=72253"> <img src="/images/homepage/www/kr/popup/KISA_summary_510x630.png" alt=""> </a>
+				<div class="cont">
+					<div class="bm-area">
+						<div class="bmt">
+							<a href="https://www.boho.or.kr/kr/subPage.do?menuNo=205111" target="_blank" class="db-btn"><span>신청하기</span></a>
+						</div>
+						<div class="bmm">
+							<span class="todayc">
+								<input type="checkbox" id="todayc1" class="todayc-chk">
+								<label for="todayc1">오늘 하루 보지 않기</label>
+							</span>
+							<button type="button" class="close-btn">닫기</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+<!-- ###Layer Popup End### -->
+
+<div id="wrapper">
+	<!-- #header -->
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+<script>
+
+    $(document).ready(function() {
+        var $window = $(window);
+        var header = $('#header');
+        var siteMap = $('#siteMap').detach();
+        var allMenu = $('#allMenu').detach();
+
+        changeMenu();
+        $window.on('resize', function() {
+            changeMenu();
+        });
+
+        function changeMenu() {
+            if ($window.width() >= 1181) {
+                if($('#allMenu').length > 0) {
+                    allMenu.remove();
+                }
+                if($('#siteMap').length <= 0) {
+                    header.append(siteMap);
+                }
+            }else {
+                if($('#siteMap').length > 0) {
+                    siteMap.remove();
+                }
+                if($('#allMenu').length <= 0) {
+                    header.append(allMenu);
+                }
+            }
+        }
+    });
+
+</script>
+
+<header id="header">
+    <div class="inner">
+        <h1 class="logo" title="KISA 보호나라&KrCERT/CC">
+            <a href="/">KISA 보호나라&KrCERT/CC</a>
+        </h1>
+        <nav id="gnb">
+            <ul class="dep01">
+                
+                    
+                        <li id="top_204923">
+                            <a href="/kr/subPage.do?menuNo=205007"  class="link" ><span>정보보호 서비스</span></a>
+                            
+                            
+                            
+                            <div class="depWrap">
+	                            <ul class="dep02">
+	                                
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205007"   >주요사업 소개</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/apply/list.do?menuNo=205003"   >서비스 신청하기</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205004"   >침해사고 원인분석 및 대응조치</a></li>
+                                        
+	                                
+	                            </ul>
+	                           </div>
+                            
+                        </li>
+                    
+                
+                    
+                        <li id="top_204985">
+                            <a href="/kr/bbs/list.do?menuNo=205024&amp;bbsId=B0000342"  class="link" ><span>사이버위협</span></a>
+                            
+                            
+                            
+                            <div class="depWrap">
+	                            <ul class="dep02">
+	                                
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205024&amp;bbsId=B0000342"   >경보단계</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205025&amp;bbsId=B0001020"   >정보보호 용어</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205023&amp;bbsId=B0000302"   >취약점 정보</a></li>
+                                        
+	                                
+	                            </ul>
+	                           </div>
+                            
+                        </li>
+                    
+                
+                    
+                        <li id="top_204986">
+                            <a href="/kr/subPage.do?menuNo=205033"  class="link" ><span>침해사고 신고</span></a>
+                            
+                            
+                            
+                            <div class="depWrap">
+	                            <ul class="dep02">
+	                                
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205033"   >신고안내</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/report/list.do?menuNo=205034"   >신고하기</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/consult/consultForm.do?menuNo=205035"   >보안상담</a></li>
+                                        
+	                                
+	                            </ul>
+	                           </div>
+                            
+                        </li>
+                    
+                
+                    
+                        <li id="top_204987">
+                            <a href="/kr/bbs/list.do?menuNo=205020&amp;bbsId=B0000133"  class="link" ><span>알림마당</span></a>
+                            
+                            
+                            
+                            <div class="depWrap">
+	                            <ul class="dep02">
+	                                
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205022&amp;bbsId=B0000132"   >공지사항</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205020&amp;bbsId=B0000133"   >보안공지</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205021&amp;bbsId=B0000127"   >보고서/가이드</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205090&amp;bbsId=B0001030"   >카드뉴스</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205027&amp;bbsId=B0000030"   >자세히 알아보기</a></li>
+                                        
+	                                
+	                            </ul>
+	                           </div>
+                            
+                        </li>
+                    
+                
+                    
+                        <li id="top_205001">
+                            <a href="/kr/subPage.do?menuNo=205028"  class="link" ><span>KrCERT/CC</span></a>
+                            
+                            
+                            
+                            <div class="depWrap">
+	                            <ul class="dep02">
+	                                
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205028"   >Welcome Message</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205029"   >Vision&Mission</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205065"   >Traffic Light Protocol</a></li>
+                                        
+	                                
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205030"   >Contact</a></li>
+                                        
+	                                
+	                            </ul>
+	                           </div>
+                            
+                        </li>
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+        <a href="/en/main.do" class="lang">ENG</a>  
+        <button class="menu"><i></i><em class="blind">사이트맵</em></button>
+    </div>
+    <div class="menuWrap"></div>    
+		
+</header>
+<div id="siteMap" class="sitemap">
+    <div class="inner">
+        <div class="top">
+            <h1 class="logo" title="KISA 인터넷 보호나라&KrCERT"><em class="sound">KISA 인터넷 보호나라&KrCERT</em></h1>
+        </div>
+        <div class="conts">
+            <ul class="dep01">
+                
+                    
+                        <li>
+                            <a href="/kr/subPage.do?menuNo=205007"  class="link" ><span>정보보호 서비스</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205007"   >주요사업 소개</a>
+                                            
+                                            
+                                            
+                                                <ul class="dep03">
+                                                    
+                                                        
+                                                            <li><a href="/kr/subPage.do?menuNo=205007"   >기업 서비스</a></li>
+                                                        
+                                                    
+                                                        
+                                                            <li><a href="/kr/subPage.do?menuNo=205116"   >개인 서비스</a></li>
+                                                        
+                                                    
+                                                </ul>
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/apply/list.do?menuNo=205003"   >서비스 신청하기</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205004"   >침해사고 원인분석 및 대응조치</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/bbs/list.do?menuNo=205024&amp;bbsId=B0000342"  class="link" ><span>사이버위협</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205024&amp;bbsId=B0000342"   >경보단계</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205025&amp;bbsId=B0001020"   >정보보호 용어</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205023&amp;bbsId=B0000302"   >취약점 정보</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/subPage.do?menuNo=205033"  class="link" ><span>침해사고 신고</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205033"   >신고안내</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/report/list.do?menuNo=205034"   >신고하기</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/consult/consultForm.do?menuNo=205035"   >보안상담</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/bbs/list.do?menuNo=205020&amp;bbsId=B0000133"  class="link" ><span>알림마당</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205022&amp;bbsId=B0000132"   >공지사항</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205020&amp;bbsId=B0000133"   >보안공지</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205021&amp;bbsId=B0000127"   >보고서/가이드</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205090&amp;bbsId=B0001030"   >카드뉴스</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205027&amp;bbsId=B0000030"   >자세히 알아보기</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/subPage.do?menuNo=205028"  class="link" ><span>KrCERT/CC</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205028"   >Welcome Message</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205029"   >Vision&Mission</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205065"   >Traffic Light Protocol</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205030"   >Contact</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/subPage.do?menuNo=205043"  class="link" ><span>이용안내</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205056&amp;bbsId=B0000131"   >FAQ</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/bbs/list.do?menuNo=205071&amp;bbsId=B0001010"   >개인정보처리방침</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li><a href="/kr/subPage.do?menuNo=205121"   >보호나라 RSS 서비스</a>
+                                            
+                                            
+                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                
+            </ul>
+        </div>
+        <a href="javascript:void(0);" class="close" data-focus="siteMapFocus" data-focus-next="siteMapFocus">닫기</a>
+    </div>
+</div>
+
+<div id="allMenu" class="sitemap">
+    <div class="inner">
+        <div class="top">
+            <h1 class="logo" title="KISA 인터넷 보호나라&KrCERT"><em class="sound">KISA 인터넷 보호나라&KrCERT</em></h1>
+        	<a href="/en/main.do" class="lang">ENG</a>  
+        </div>
+        <div class="conts">
+            <ul class="dep01">
+                
+                    
+                        <li>
+                            <a href="/kr/subPage.do?menuNo=205007"  class="link" ><span>정보보호 서비스</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/subPage.do?menuNo=205007"   >주요사업 소개</a>
+	                                            
+	                                            
+	                                            
+	                                                <ul class="dep03">
+	                                                    
+	                                                        
+	                                                            <li><a href="/kr/subPage.do?menuNo=205007"   >기업 서비스</a></li>
+	                                                        
+	                                                    
+	                                                        
+	                                                            <li><a href="/kr/subPage.do?menuNo=205116"   >개인 서비스</a></li>
+	                                                        
+	                                                    
+	                                                </ul>
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/apply/list.do?menuNo=205003"   >서비스 신청하기</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/subPage.do?menuNo=205004"   >침해사고 원인분석 및 대응조치</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/bbs/list.do?menuNo=205024&amp;bbsId=B0000342"  class="link" ><span>사이버위협</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205024&amp;bbsId=B0000342"   >경보단계</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205025&amp;bbsId=B0001020"   >정보보호 용어</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205023&amp;bbsId=B0000302"   >취약점 정보</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/subPage.do?menuNo=205033"  class="link" ><span>침해사고 신고</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/subPage.do?menuNo=205033"   >신고안내</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/report/list.do?menuNo=205034"   >신고하기</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/consult/consultForm.do?menuNo=205035"   >보안상담</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/bbs/list.do?menuNo=205020&amp;bbsId=B0000133"  class="link" ><span>알림마당</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205022&amp;bbsId=B0000132"   >공지사항</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205020&amp;bbsId=B0000133"   >보안공지</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205021&amp;bbsId=B0000127"   >보고서/가이드</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205090&amp;bbsId=B0001030"   >카드뉴스</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205027&amp;bbsId=B0000030"   >자세히 알아보기</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/subPage.do?menuNo=205028"  class="link" ><span>KrCERT/CC</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/subPage.do?menuNo=205028"   >Welcome Message</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/subPage.do?menuNo=205029"   >Vision&Mission</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/subPage.do?menuNo=205065"   >Traffic Light Protocol</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/subPage.do?menuNo=205030"   >Contact</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                        <li>
+                            <a href="/kr/subPage.do?menuNo=205043"  class="link" ><span>이용안내</span></a>
+                            
+                            
+                            
+                                <ul class="dep02">
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205056&amp;bbsId=B0000131"   >FAQ</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/bbs/list.do?menuNo=205071&amp;bbsId=B0001010"   >개인정보처리방침</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                            <li>
+	                                            <a href="/kr/subPage.do?menuNo=205121"   >보호나라 RSS 서비스</a>
+	                                            
+	                                            
+	                                            
+                                            </li>
+                                        
+                                    
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                
+                    
+                
+            </ul>
+        </div>
+        <a href="javascript:void(0);" class="close" data-focus="allMenuFocus" data-focus-next="allMenuFocus">닫기</a>
+    </div>
+</div>
+	<!-- #header -->
+	<div id="container">
+		<div class="container" id="main">
+			<section id="sec01">
+				<div class="inner">
+					<div class="alert" data-aos="flip-up">
+		            <span>
+		            	인터넷침해사고 경보단계 
+		                <strong>2026-11-17 <div id="clock">00:00</div></strong>
+		            </span>
+						<dl class="step s02"><!-- s01 ~ s04 : 관심 ~ 심각 단계별적용 -->
+							<dd>
+								<p></p>
+								<p></p>
+								<p></p>
+								<p></p>
+								
+							</dd>
+						</dl>
+					</div>
+					<div class="txt_area">
+						<figure>
+							<!-- <span data-aos="fade-left">korea internet & security agency</span> -->
+							<div>
+								<p data-aos="fade-left" data-aos-delay="100"><strong>사이버위협</strong>으로부터</p>
+								<p data-aos="fade-left" data-aos-delay="150"><strong>국가와 국민</strong>의</p>
+								<p data-aos="fade-left" data-aos-delay="200"><em>안전</em>을 지키겠습니다.</p>
+							</div>
+							<div class="search" data-aos="fade-up" data-aos-delay="300">
+								<form name="mainSearch" id="mainSearch" action="/kr/searchList.do" onsubmit="return goMainSearch(this);">
+									<input type="hidden" name="menuNo" value="205036" >
+									<input type="hidden" name="searchRange" value="" >
+									<fieldset>
+										<legend class="sound">검색</legend>
+										<input id="searchTerm" onkeyup="setTextbox(this);" onfocus="setTextbox(this);"  name="searchTerm" type="text" title="검색어 입력" maxlength="50" accesskey="s" style="ime-mode:active;" autocomplete="off" placeholder="검색어를 입력해 주세요.">
+										<div class="autoComplete" id="autoComplete" >
+											<ul data-scrollbar>
+												<li><a onclick=""><em>검색어</em> 입력</a></li>
+												<li><a onclick="">입력 <em>검색어</em></a></li>
+												<li><a onclick=""><em>검색어</em> 입력</a></li>
+												<li><a onclick="">입력 <em>검색어</em></a></li>
+												<li><a onclick=""><em>검색어</em> 입력</a></li>
+												<li><a onclick="">입력 <em>검색어</em></a></li>
+												<li><a onclick=""><em>검색어</em> 입력</a></li>
+												<li><a onclick="">입력 <em>검색어</em></a></li>
+											</ul>
+											<a class="close" href="javascript:void(0)" onclick="$('.autoComplete').hide();"><span class="sound">자동완성 닫기</span></a>
+										</div>
+										<button type="submit" title="검색" class="btn_submit"><span class="sound">검색</span></button>
+									</fieldset>
+								</form>
+							</div>
+							<div class="service" data-aos="fade-up" data-aos-delay="400">
+								<button type="button" data-title="01"><span>기업서비스</span></button>
+								<button type="button" data-title="02"><span>개인서비스</span></button>
+							</div>
+						</figure>
+					</div>
+					<div class="sv_link" id="sv01">
+						<form name="frm" action="/kr/apply/confirm.do" method="post" >
+							<input name="menuNo" type="hidden" value="205003">
+							<input name="type" type="hidden" value="">
+						</form>
+						<article>
+							<h3>기업서비스</h3>
+							<a class="close" href="javascript:void(0)" data-title="01"><span>닫기</span></a>
+							<ul id="randomHtml1" class="sortable">
+								<li><a href="/kr/consult/consultForm.do?menuNo=205035&mConNo=93">
+									<span class="i13"></span>
+									<p>기업서비스 보안상담</p>
+								</a></li>
+								<li><a href="/kr/report/list.do?menuNo=205034">
+									<span class="i12"></span>
+									<p>침해사고 신고</p>
+								</a></li>
+								<li><a href="javascript:void(0);" onclick="goService('care')">
+									<span class="i01"></span>
+									<p>내 서버 돌보미</p>
+								</a></li>
+								<li><a href="javascript:void(0);" onclick="goService('weakness')">
+									<span class="i02"></span>
+									<p>보안 취약점 점검</p>
+								</a></li>
+								<li><a href="javascript:void(0);" onclick="goService('sw')">
+									<span class="i03"></span>
+									<p>SW 공급망 보안 체계 진단</p>
+								</a></li>
+								<li><a href="/kr/subPage.do?menuNo=205012">
+									<span class="i04"></span>
+									<p>홈페이지 보안강화</p>
+									
+								</a></li>
+								<li><a href="javascript:void(0);" onclick="goService('shelters')">
+									<span class="i12"></span>
+									<p>사이버대피소</p>
+								</a></li>
+								<li><a href="/kr/subPage.do?menuNo=205013">
+									<span class="i05"></span>
+									<p>C-TAS</b></p>
+									
+								</a></li>
+								<li>
+									<!-- <a href="javascript:void(0);" onclick="goService('crisis')">
+                                         <a href="javascript:void(0);" onclick="alert('현재 접수기간이 아닙니다.')"> -->
+									<a href="/kr/subPage.do?menuNo=205014">
+										<span class="i06"></span>
+										<p>사이버 위기대응 <b>모의훈련</b></p>
+									</a></li>
+								<li><a href="javascript:void(0);" onclick="goService('security')">
+									<span class="i07"></span>
+									<p>사이버 시큐리티 <b>훈련 플랫폼</b></p>
+								</a></li>
+								<li><a href="javascript:void(0);" onclick="goService('dns')">
+									<span class="i08"></span>
+									<p>DNS 싱크홀</p>
+								</a></li>
+								<li><a href="javascript:void(0);" onclick="goService('hacking')">
+									<span class="i13"></span>
+									<p>해킹진단도구</p>
+								</a></li>
+							</ul>
+						</article>
+					</div>
+					<div class="sv_link" id="sv02">
+						<article>
+							<h3>개인서비스</h3>
+							<a class="close" href="javascript:void(0)" data-title="02"><span>닫기</span></a>
+							<ul id="randomHtml2" class="sortable">
+								<!-- <li><a href="/kr/subPage.do?menuNo=205017" target="_blank">
+									<span class="i09"></span>
+									<p>내 PC·모바일 돌보미</p>
+								</a></li>
+								<li><a href="/kr/bbs/list.do?menuNo=205018&bbsId=B0000134">
+									<span class="i10"></span>
+									<p>유형별 전용 백신</p>
+								</a></li>
+								<li><a href="/kr/subPage.do?menuNo=205115">
+									<span class="i10"></span>
+									<p>악성코드 감염PC 치료체계서비스</p>
+								</a></li>
+								-->
+								<li><a href="/kr/subPage.do?menuNo=205019" target="_blank">
+									<span class="i11"></span>
+									<p>사이버 보안 빅데이터 센터</p>
+								</a></li>
+								<li><a href="/kr/subPage.do?menuNo=205116">
+									<span class="i10"></span>
+									<p>스미싱 확인서비스</p>
+								</a></li>
+								<li><a href="/kr/consult/consultForm.do?menuNo=205035&mConNo=94">
+									<span class="i13"></span>
+									<p>개인서비스 보안상담</p>
+								</a></li>
+							</ul>
+						</article>
+					</div>
+					<div class="slider sec01">
+						
+							<a href="https://www.boho.or.kr/kr/bbs/view.do?searchCnd=&bbsId=B0000133&searchWrd=&menuNo=205020&pageIndex=1&categoryCode=&nttId=72230" target="_blank" title="새창열기"><img src="/cmm/fnw/getImage.do?atchFileId=FILE_000000000091641" alt="PHP제품 보안 업데이트 권고" ></a>
+						
+						
+					</div>
+					<div class="mainVisual_control">		
+						<div class="mainVisual_btn">
+							<button type="button" class="btn_prev">이전</button>
+							<div class="dots"></div>				
+							<span class="guide">터치하여 좌우로 슬라이드하시면 배너가 전환됩니다.</span>
+							<button type="button" class="btn_next">다음</button>
+							<button type="button" class="btn_pause">정지</button>
+						</div>
+						<div class="mainVisual_page"><span class="current">1</span><span class="total">6</span></div>
+					</div>
+				</div>
+			</section>
+			<section id="sec02">
+				<div class="inner tab" data-aos="fade-up">
+					<!-- <h2 data-aos="fade-right">news <span>보호나라의 주요공지를<br>알려드립니다.</span></h2> -->
+					<div>
+						<dl data-aos="fade-left">
+							<dd data-tab="tab01" class="active"><button type="button" onclick="fn_bbs_type_list('1')" title="선택됨">전체</button></dd>
+							<dd data-tab="tab01"><button type="button" onclick="fn_bbs_type_list('5')">공지사항</button></dd>
+							<dd data-tab="tab01"><button type="button" onclick="fn_bbs_type_list('2')">보안공지</button></dd>
+							<dd data-tab="tab01"><button type="button" onclick="fn_bbs_type_list('4')">보고서/가이드</button></dd>
+							<dd data-tab="tab01"><button type="button" onclick="fn_bbs_type_list('3')">취약점 정보</button></dd>
+						</dl>
+
+						<div id="tab01" class="view active">
+							<div class="slider List" id="sliderList">
+							</div>
+							<a href="" class="morebtn"><span class="sound">전체 더보기</span></a>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id="sec03">
+				<div class="inner" data-aos="fade-up">
+					<h2>주요사업소개</h2>
+					<div class="slider Icons">
+						<a href="/kr/subPage.do?menuNo=205008">
+							<span class="i01"></span>
+							<p>내 서버 돌보미</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205009">
+							<span class="i02"></span>
+							<p>보안취약점 점검</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205010">
+							<span class="i03"></span>
+							<p>SW 공급망 보안 체계 진단</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205012">
+							<span class="i04"></span>
+							<p>중소기업 홈페이지 보안강화</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205111">
+							<span class="i12"></span>
+							<p>사이버대피소</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205013">
+							<span class="i05"></span>
+							<p>사이버 위협정보 분석공유 <b>(C-TAS)</b></p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205014">
+							<span class="i06"></span>
+							<p>사이버 위기대응 모의훈련</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205015">
+							<span class="i07"></span>
+							<p>사이버 시큐리티 훈련 플랫폼</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205016">
+							<span class="i08"></span>
+							<p>DNS 싱크홀</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205112">
+							<span class="i13"></span>
+							<p>해킹진단도구</p>
+						</a>
+						<!-- <a href="/kr/subPage.do?menuNo=205017">
+							<span class="i09"></span>
+							<p>내 PC·모바일 돌보미</p>
+						</a>
+						<a href="/kr/bbs/list.do?menuNo=205018&bbsId=B0000134">
+							<span class="i10"></span>
+							<p>유형별 전용 백신</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205115">
+							<span class="i10"></span>
+							<p>악성코드 감염PC 치료체계서비스</p>
+						</a>
+						-->
+						<a href="/kr/subPage.do?menuNo=205019">
+							<span class="i11"></span>
+							<p>사이버 보안 빅데이터 센터</p>
+						</a>
+						<a href="/kr/subPage.do?menuNo=205116">
+							<span class="i14"></span>
+							<p>스미싱 확인서비스</p>
+						</a>
+					</div>
+				</div>
+			</section>
+
+			<!-- 		<section id="sec04"> -->
+			<!-- 		    <div data-aos="fade-up"> -->
+			
+			<!-- 			    <div class="inner"> -->
+			<!-- 			        <dl> -->
+			<!-- 			            <dd>보안공지</dd> -->
+			
+			<!-- 			        </dl> -->
+			<!-- 			        <dl> -->
+			<!-- 			            <dd>사고신고ㆍ상담</dd> -->
+			
+			<!-- 			        </dl> -->
+			
+			
+			
+			
+
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- 			        <dl> -->
+			
+			
+			<!-- 			        </dl> -->
+			
+			<!-- 			    </div> -->
+			<!-- 		    </div> -->
+			<!-- 		</section> -->
+
+			<section id="sec05">
+				<div class="inner" data-aos="fade-up">
+
+					<div class="keyword"><!-- data-aos="fade-right" -->
+						<h3>주요 키워드</h3>
+						<div class="inbox">
+							
+							
+							
+							
+							
+							
+							
+							
+						</div>
+
+					</div>
+					<div class="link_group">
+						<div class="banner"><!-- data-aos="fade-up" -->
+							<!-- <a href="/kr/subPage.do?menuNo=205045">
+                                 <div>
+                                    <strong>중소기업 지원</strong>
+                                    <p>중소기업 보안 강화를 위한 서비스를 지원해 드립니다.</p>
+                                </div>
+                            </a>
+                            <a href="/kr/subPage.do?menuNo=205044">
+                                <div>
+                                    <strong>정보보호 인증·제도</strong>
+                                    <p>정보보호 인증 및 제도를 안내해 드립니다.</p>
+                                </div>
+                            </a>
+                             -->
+							<a href="kr/subPage.do?menuNo=205004">
+								<div>
+									<strong>침해사고 원인분석 및 대응조치</strong>
+									<p>정보통신서비스 제공자의 침해사고 발생 시, <br>정확한 원인분석과 대응조치 방안을 지원합니다.</p>
+								</div>
+							</a>
+							<a href="/kr/report/list.do?menuNo=205034">
+								<div>
+									<strong>침해사고신고</strong>
+									<p>정보통신서비스 제공자는 침해사고 발생 즉시 <br>정보통신망법 48조의3(침해사고의 신고 등)에 따라 <br>신고하여야 합니다.</p>
+								</div>
+							</a>
+						</div>
+						<div class="familySite_slider">
+							<h3>주요사이트</h3>
+							<div class="page"><span class="current">1</span><span class="total">6</span></div>
+							<div class="site_btn">
+								<button type="button" class="btn_prev">이전</button>
+								<button type="button" class="btn_pause">정지</button>
+								<button type="button" class="btn_next">다음</button>
+							</div>
+							<div class="site_slider">
+								<a href="https://ctas.krcert.or.kr" class="site01" target="_blank" title="새 창">
+									<strong>사이버 위협정보 분석·공유(C-TAS)</strong>
+									<span class="txt">계속되는 사이버위협에 함께 대응하기 위해 다양한 분야에서 위협 정보를 공유하고 있으며 <br>긴급 상황 발생 시 모바일을 통해 "실시간 상황전파체계" 서비스를 제공하고 있습니다.</span>
+									<span class="btn">바로가기</span>
+								</a>
+								<a href="https://knvd.krcert.or.kr" class="site02" target="_blank" title="새 창">
+									<strong>보안 취약점 정보 포털</strong>
+									<span class="txt">보안취약점 사전 발굴 및 조치를 위해 보안취약점 신고 포상제를 운영하고, <br>핵더 챌린지 플랫폼을 통해 취약점을 신속하게 발굴할수 있는 환경을제공합니다.</span>
+									<span class="btn">바로가기</span>
+								</a>
+								<a href="https://risc.kisa.or.kr" class="site03" target="_blank" title="새 창">
+									<strong>지역정보보호센터</strong>
+									<span class="txt">지역 중소기업 보안역량 강화 등 정보보호 사각지대 해소를 위해 <br>지역정보보호지원센터(10개소) 운영하고있습니다.</span>
+									<span class="btn">바로가기</span>
+								</a>
+								<a href="https://isms-p.or.kr/main.do" class="site04" target="_blank" title="새 창">
+									<strong>ISMS-P</strong>
+									<span class="txt">정보보호 및 개인정보보호를 위한 일련의 조치와 활동이 <br>인증기준에 적합함을 인터넷진흥원 또는 인증기관이 증명하는 제도입니다.</span>
+									<span class="btn">바로가기</span>
+								</a>
+								<a href="https://academy.kisa.or.kr" class="site05" target="_blank" title="새 창">
+									<strong>KISA아카데미</strong>
+									<span class="txt">지식정보보안 컨설턴츠 아카데미, 전문인력 양성, 프로그램, 신청 및 수강 안내 등 <br>양질의 교육과정 개발 및 운영하여 지원합니다.</span>
+									<span class="btn">바로가기</span>
+								</a>
+								<a href="https://anti-forgery.kisa.or.kr" class="site06" target="_blank" title="새 창">
+									<strong>발신번호 거짓표시 신고</strong>
+									<span class="txt">한국인터넷진흥원에서는 신고접수 받은 발신번호를 추적하여 변작 등 <br>거짓표시 여부를 확인합니다.</span>
+									<span class="btn">바로가기</span>
+								</a>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</section>
+
+		</div>
+		<!-- container -->
+	</div>
+	<!-- #container -->
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+<script>
+
+function popWa(url){
+
+	var pop=window.open(url, '_blank', 'width=600, height=800');
+	setTimeout(function() {
+    pop.document.querySelector('body').style.background ="white";
+    pop.document.title = "정보통신접근성 품질인증서";
+	}, 150);
+
+}
+
+</script>
+
+<footer id="footer">
+    <div class="top">
+        <div class="inner">
+            <ul>
+                <li><a href="/kr/bbs/list.do?menuNo=205071&amp;bbsId=B0001010">개인정보처리방침</a></li>
+                <li><a href="/kr/bbs/list.do?menuNo=205056&bbsId=B0000131">FAQ</a></li>
+                <li class="tel"><span>해킹·스팸·개인정보침해 상담은 <a href="tel:118">118</a></span></li>
+                <li><a href="/common/cmm/fms/FileDown.do?atchFileId=BZGsFzB6faoPyQ0JnZsOOnw8h897iJ9VPr33ME99c3I&amp;fileSn=1" title="파일 다운로드">RFC 2350</a></li>
+            </ul>      
+			<!-- familySite_link -->
+			<div class="familySite_link">
+				<div class="group">
+					<a href="" class="label">KISA 대국민서비스 바로가기<span class="open">열기</span></a>
+					<div class="list">
+						<strong>KISA 대국민서비스</strong>
+						<ul>
+							<li><a href="https://ctas.krcert.or.kr" target="_blank" title="새 창">사이버 위협정보 분석·공유(C-TAS)</a></li>
+							<li><a href="https://knvd.krcert.or.kr" target="_blank" title="새 창">보안 취약점 정보 포털</a></li>
+							<li><a href="https://risc.kisa.or.kr" target="_blank" title="새 창">지역정보보호지원센터</a></li>
+							<li><a href="https://isms-p.or.kr/main.do" target="_blank" title="새 창">ISMS-P</a></li>
+							<li><a href="https://academy.kisa.or.kr" target="_blank" title="새 창">KISA 아카데미</a></li>
+							<li><a href="https://anti-forgery.kisa.or.kr" target="_blank" title="새 창">발신번호 거짓표시 신고</a></li>
+							<li><a href="https://seed.kisa.or.kr" target="_blank" title="새 창">암호이용활성화</a></li>
+							<li><a href="https://privacy.kisa.or.kr" target="_blank" title="새 창">개인정보침해 신고센터</a></li>
+							<li><a href="https://spam.kisa.or.kr" target="_blank" title="새 창">불법스팸대응센터</a></li>
+							<li><a href="https://whois.kisa.or.kr" target="_blank" title="새 창">인터넷주소등록정보 검색시스템</a></li>
+							<li><a href="https://www.privacy.go.kr" target="_blank" title="새 창">개인정보 포털</a></li>
+							<li><a href="https://kidc.eprivacy.go.kr" target="_blank" title="새 창">털린 내 정보 찾기 서비스</a></li>
+							<li><a href="https://dataprivacy.go.kr" target="_blank" title="새 창">가명정보 지원 플랫폼</a></li>
+							<li><a href="https://krnic.or.kr" target="_blank" title="새 창">인터넷주소자원시스템</a></li>
+							<li><a href="https://ecmc.or.kr" target="_blank" title="새 창">ICT분쟁조정지원센터</a></li>
+							<li><a href="https://www.npost.kr" target="_blank" title="새 창">전자문서 통합지원센터</a></li>
+						</ul>
+						<button type="button" class="close">주요사이트 바로가기 닫기</button>
+					</div>
+				</div>
+			</div>
+			<!-- //familySite_link -->                                                                                                                                                                                         
+            <div class="sns">
+                <a href="https://pf.kakao.com/_wKipC" target="_blank" class="ka" title="새창열기"><span class="sound">카카오톡</span></a>
+                <a href="https://www.youtube.com/user/KISA118" target="_blank" class="yo" title="새창열기"><span class="sound">유튜브</span></a>
+                 <a href="https://www.facebook.com/kisa118" target="_blank" class="fa" title="새창열기"><span class="sound">페이스북</span></a>
+            </div>
+        </div>
+    </div>
+    <div class="inner">
+        <h1 class="logo" title="KISA 인터넷 보호나라&KrCERT"><a href="/">KISA 인터넷 보호나라&KrCERT</a></h1>
+        <address>
+            <span>나주본원) <b>58324</b> 전남광주통합특별시 나주시 진흥길 9 한국인터넷진흥원</span>
+            <span>서울청사) <b>05717</b> 서울특별시 송파구 중대로 135 (가락동) IT벤처타워</span>
+            <span><em>대표번호 : <a href="tel:143325" title="전화걸기">1433-25</a>(수신자 요금 부담)</em>
+			<em>[해킹ㆍ스팸·개인정보침해 상담 <a href="tel:118" title="전화걸기">118]</a></em></span>
+            <p>Copyright(C) 2023 KISA. All rights reserved.</p>
+        </address>
+        <a href="/img/img_wa.png" onclick="popWa(this.href);return false;" class="wa" title="새 창 열림"><span class="sound">WA 품질인증 마크, 웹와치(WebWatch) 2024.01.07~2025.01.06</span></a>
+    </div>
+</footer>
+
+<div id="layerPop_survey" class="layerPop_survey">
+	<div class="layerPop_inner" style="background-color:#a2d3f3;"> 
+		<button type="button" class="close" onclick="layerClickClose('layerPop_survey')"><em>닫기</em></button>
+		<div class="survey_wrap" id="survey_wrap">
+		</div>
+	</div>
+</div>
+
+<div id="layerPop_basic" class="layerPop_survey layerPop_basic">
+	<div class="layerPop_inner">
+		<div class="icon_txt icon_care">
+			<strong>체크되지 않은 항목이 있습니다.</strong>
+			<span>모든 설문을 체크한 후에 제출버튼을 눌러주세요.</span>
+		</div>
+		<div class="survey_btn type2">
+			<button type="button" class="point" onclick="layerClickClose('layerPop_basic')"><span>확인</span></button>
+		</div><!-- 확인버특 클릭후 오류난 곳으로 초점이동해야 함. -->
+	</div>
+</div>
+
+
+<div id="layerPop_finish" class="layerPop_survey layerPop_basic">
+	<div class="layerPop_inner">
+		<div class="icon_txt icon_finish">
+			<strong>제출완료되었습니다.<br>참여해주셔서 감사합니다.</strong>
+		</div>
+		<div class="survey_btn type2">
+			<button type="button" class="point" onclick="layerClickClose('layerPop_finish')"><span>확인</span></button>
+		</div>
+	</div>
+</div>
+
+
+<div id="layerPop_deadline" class="layerPop_survey layerPop_basic"><!-- 참여기간 지났을때 알림 -->
+	<div class="layerPop_inner">
+		<div class="icon_txt icon_care">
+			<strong>설문 기간 마감 안내</strong>
+		</div>
+		<div class="survey_btn type2">
+			<button type="button" class="point" onclick="layerClickClose('layerPop_deadline')"><span>확인</span></button>
+		</div><!-- 확인버특 클릭후 오류난 곳으로 초점이동해야 함. -->
+	</div>
+</div>
+
+
+
+<script>
+
+function userSurveyFom(surveyId){
+	$.ajax({
+		 url: '/kr/survey/userReply.do',
+		 type : 'post',
+		 data : {surveyId:surveyId},
+		 dataType : 'html',
+		 success : function(data){
+			 $('#survey_wrap').empty().append(data);
+			 layerClickOpen('layerPop_survey', this); // 레이어 팝업 보이기
+		 }
+
+	 });
+}
+
+//레이어 열기
+function layerClickOpen(popID, tt){
+	$("#wrap").addClass("layerOpen");
+	$("#" + popID).addClass('open');
+    //layerFocusControl($('.layerPop_survey'));
+    $(tt).addClass("focusOn");
+	$('.layerPop_inner .close').focus();
+    return false;
+}
+
+//레이어 닫기
+function layerClickClose(popID){
+	$("#wrap").removeClass("layerOpen");
+	$("#" + popID).removeClass('open');
+
+	$(".focusOn").focus().removeClass("focusOn");
+    return false;
+}
+
+
+</script>
+
+
+</div>
+<!-- #wrapper -->
+<a href="javascript:void(0);" id="bttop"><span class="sound">상단으로</span></a>
+<!-- #wrapper -->
+
+
+</body>
+</html>
+
+<!-- #footer -->

@@ -5,7 +5,7 @@ import { collectSafetyData } from "./safetydata.js";
 import { collectNga } from "./nga.js";
 import { collectOpenSky } from "./opensky.js";
 import { collectAdsb } from "./adsb.js";
-import { BREAKING_FEEDS, SLOW_FEEDS, collectGdelt, collectRss } from "./news.js";
+import { BREAKING_FEEDS, EVENT_ONLY_FEEDS, SLOW_FEEDS, WORLD_FEEDS, worldFeedsDue, collectGdelt, collectRss } from "./news.js";
 import { collectTravel } from "./travel.js";
 import { collectKoreaKrMnd } from "./koreakr.js";
 import { collectMarkets } from "./markets.js";
@@ -39,8 +39,18 @@ export const COLLECTORS: Record<SourceId, Collector> = {
   adsb_lol: (_e, now, kv) => collectAdsb(now, kv),
   opensky: (env, now) => collectOpenSky({ id: env.OPENSKY_CLIENT_ID, secret: env.OPENSKY_CLIENT_SECRET }, now),
   gdelt: (_e, now) => collectGdelt(now),
-  rss_breaking: (_e, now) => collectRss(BREAKING_FEEDS, now, "rss_breaking"),
-  rss_news: (_e, now) => collectRss(SLOW_FEEDS, now),
+  rss_breaking: async (_e, now, kv) => {
+    const { kimSeenAt, ...r } = await collectRss(BREAKING_FEEDS, now, "rss_breaking", EVENT_ONLY_FEEDS);
+    // 김정은 공개활동 공백: 마지막으로 본 보도 시각을 기억해 두고 며칠 지났는지를 낸다 (목록에는 며칠 치만 있으므로)
+    if (kv) {
+      const prev = Number((await kv.getKv("kim:last_seen")) ?? 0) || undefined;
+      const last = Math.max(prev ?? 0, kimSeenAt ?? 0) || undefined;
+      if (last && last !== prev) await kv.setKv("kim:last_seen", String(last));
+      if (last) r.metrics = [...(r.metrics ?? []), { indicator: "nk.kim_absence_days", value: +((now - last) / 86400_000).toFixed(1), meta: { lastSeen: last, note: `마지막 공개활동 보도 ${new Date(last + 9 * 3600_000).toISOString().slice(5, 10).replace("-", "/")}` } }];
+    }
+    return r;
+  },
+  rss_news: async (_e, now) => { const { kimSeenAt: _k, ...r } = await collectRss(SLOW_FEEDS, now, "rss_news", [], worldFeedsDue(now) ? WORLD_FEEDS : []); return r; },
   travel: async (_e, now, kv) => {
     const prev = kv ? await kv.getKv("travel:us_level") : undefined;
     const r = await collectTravel(prev !== undefined ? Number(prev) : undefined, now);

@@ -43,6 +43,8 @@ export const ALL_IDS = RUBRIC.flatMap((l) => l.groups.flatMap((g) => g.items.map
 /** 바탕 항목의 분석관 확인이 유효한 시간 */
 export const BASE_TTL = 45 * 86400_000;
 /** 세계 정세 중 '사건'에 가까운 항목은 금방 낡는다 — 확인은 7일만 유효 */
+/** 제목으로 자동으로 켠 세계 사건이 화면에 남는 날 수 */
+export const WORLD_AUTO_DAYS = 3;
 export const WORLD_EVENT_IDS = ["w_infra", "w_new_war", "w_power_clash"];
 export const WORLD_EVENT_TTL = 7 * 86400_000;
 const DAY = 86400_000;
@@ -53,7 +55,7 @@ export const HOTSPOT = { km: 5, frp: 5 };
 /** 자동으로 볼 수 있는 가설 — 나머지는 분석관만 확인할 수 있다 */
 export const AUTO_IDS = new Set([
   "g_evac_order", "g_leave_now", "g_staff_restrict", "g_intel_warning", "m_buildup", "m_mobilization", "m_strategic_assets", "m_civil_defense", "m_airspace",
-  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_infra", "w_new_war",
+  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_alarm", "w_infra", "w_new_war", "w_markets", "m_leadership",
 ]);
 
 /** 징후판·보도에서 자동으로 읽은 한반도 상태 */
@@ -91,7 +93,9 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   const wired = (id: string, ...ids: string[]) => { const b = wire(...ids); set(id, b ? "on" : "off", 1, b?.headline); };
   wired("m_buildup", "nk_forward_deploy");
   wired("m_mobilization", "kr_mobilization");
-  wired("m_cyber", "cyber_alert");
+  // 사이버: 공식 경보 단계가 '경계'면 약하게, '심각'이면 온전히. 경보 격상 기사(경보 단어)가 있으면 그것으로도 켠다 (11/18)
+  fromIndicators("m_cyber", ["official.cyber_alert_level"], wire("cyber_alert"));
+  if (out.m_cyber.s === "unk") set("m_cyber", "off");
   wired("m_alert_level", "defcon_up", "watchcon_up", "defense_situation_a", "defense_situation", "nk_war_posture");
   // 전략자산 집결 (11/12 사용자: 군용기 4대 떴다고 켜지는 게 맞나 — 아니다): 이 징조는 과거 전쟁에서 항모·폭격기·급유기 편대의 '집결'을 센 것이다.
   // ADS-B 에 보이는 군용기 수(수송기·연락기 포함)가 평소보다 많은 것은 근거가 못 된다 — 징후판에는 그대로 보이고 판정에는 넣지 않는다.
@@ -99,8 +103,9 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   if (lvl("air.isr_airborne") === 2) set("m_strategic_assets", "on", 0.5, `정찰·급유기 ${by["air.isr_airborne"]!.reading!.value}대 동시 비행`);
   else set("m_strategic_assets", ok("air.isr_airborne") ? "off" : "unk");
   fromIndicators("m_civil_defense", ["official.civil_defense_alerts_6h"], wire("nk_border_evacuation"));
-  fromIndicators("m_airspace", ["air.civil_airborne"], wire("airlines_suspend", "war_insurance"));
-  if (out.m_airspace.s === "on" && !wire("airlines_suspend", "war_insurance")) out.m_airspace.w = 0.5;
+  fromIndicators("m_airspace", ["air.civil_airborne", "air.easa_czib_korea"], wire("airlines_suspend", "war_insurance"));
+  // 온전히 켜는 것은 항공사 운항 중단·전쟁 보험 중단 보도나 항공당국의 고시에 한국이 들어갔을 때뿐 — 민항기 수 감소나 북한 고시만으로는 약하게
+  if (out.m_airspace.s === "on" && !wire("airlines_suspend", "war_insurance") && lvl("air.easa_czib_korea") < 2) out.m_airspace.w = 0.5;
   fromIndicators("m_gps_ew", ["gnss.bad_ratio_korea", "gnss.bad_ratio_westsea", "gnss.bad_ratio_north"]);
   fromIndicators("m_border_fire", ["border.incidents_72h", "official.mnd_provocation_24h"]);
   // ── 돈 ──
@@ -136,11 +141,22 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   if (ok("thermal.launch_site_hotspots") && hot.length && out.a_launch_prep.s !== "on") set("a_launch_prep", "on", 0.5, `${hot[0].site} ${hot[0].km}km 안 열점 ${hot[0].frp}MW`);
   else if (out.a_launch_prep.s === "unk" && ok("thermal.launch_site_hotspots")) set("a_launch_prep", "off");
   fromIndicators("a_nk_dark", ["internet.kp_outage_alerts_24h", "nk.pyongyang_lights_pct"]);
+  // 세계 금융의 전쟁 공포·지도부 공백을 숫자로 (11/18) — 전에는 분석관이 뉴스로만 확인해 며칠씩 '미확인'이었다
+  fromIndicators("w_markets", ["market.world_fear"]);
+  fromIndicators("m_leadership", ["nk.kim_absence_days"]);
+  // 세계 매체의 무력·마비 속보가 평소보다 몰림 (11/18 사용자: "미국 뉴스를 받되 너무 크게 올리지 않게 — 불안한 배경 정도로" → 같은 날: "미국이 난리가 나서 속보가 마구 터지면 그때는 신호가 가야 한다")
+  // 평소보다 많으면 절반(0.5), 평소를 크게 벗어나면 온전히(1). 그래도 배경 한 항목이다
+  fromIndicators("w_alarm", ["media.world_alarm_24h"]);
   // 세계 정세 사건 (11/14): 제목으로 잡은 것은 약한 신호(절반) — 원인·규모는 분석관이 확인해 올리거나 내린다
   const worldOf = (kind: "infra" | "war", days: number) => briefs.find((b) => now - b.at < days * DAY && now - b.at >= -3600_000 && worldEvent(b.headline) === kind);
-  const wi = worldOf("infra", 7), ww = worldOf("war", 30);
+  // 세계 사건은 '아직 이어지는가'로 유지한다 (11/17 사용자: "기계적으로 다음 날 내리는 게 아니다 — 문제가 지속 중이면 유지하고, 그때 하루뿐이었으면 내린다").
+  // ① 관련 보도가 계속 나오면 그때마다 창이 뒤로 밀려 유지된다 ② 분석관이 하루 두 번 '이어지는 중'(1·0.5)이라고 적으면 유지된다 ③ 끝났다(0)고 적으면 내린다 —
+  // 그 뒤 새 보도가 오면 다시 켠다 ④ 보도도 분석관 확인도 사흘 동안 없으면 끝난 것으로 본다
+  const wi = worldOf("infra", WORLD_AUTO_DAYS), ww = worldOf("war", WORLD_AUTO_DAYS);
   set("w_infra", wi ? "on" : "off", 0.5, wi?.headline);
   set("w_new_war", ww ? "on" : "off", 0.5, ww?.headline);
+  if (wi) out.w_infra.evAt = wi.at;
+  if (ww) out.w_new_war.evAt = ww.at;
   return out;
 }
 
@@ -162,7 +178,9 @@ export function koreaStatus(board: BoardRow[], briefs: EventBrief[], now: number
     if (c.v > 0) {
       if (a?.s === "on" && (a.w ?? 1) >= c.v) continue;
       st[id] = { s: "on", ...(c.v < 1 ? { w: c.v } : {}), ev: ev ?? a?.ev, by: "analyst", ...(c.src ? { src: c.src } : {}) };
-    } else if (a?.s === "on") st[id] = { ...a, w: 0.5, ev: `${a.ev ?? ""}${ev ? ` — 분석관: ${ev}` : ""}`.slice(0, 120) };
+    } else if (a?.s === "on" && WORLD_EVENT_IDS.includes(id) && (a.evAt ?? 0) > checks!.at) continue; // 분석관이 '끝났다'고 적은 뒤에 새 보도가 왔다 — 다시 켜 두고 다음 분석 때 확인한다
+    else if (a?.s === "on" && WORLD_EVENT_IDS.includes(id)) st[id] = { s: "off", by: "analyst", ev: `${a.ev ?? ""} — 분석관: ${ev ?? "사고·일시 장애로 확인"}`.slice(0, 120) }; // 세계 사건은 제목만으로 켜지므로 분석관이 아니라고 하면 내린다
+    else if (a?.s === "on") st[id] = { ...a, w: 0.5, ev: `${a.ev ?? ""}${ev ? ` — 분석관: ${ev}` : ""}`.slice(0, 120) };
     else st[id] = { s: "off", by: "analyst", ...(ev ? { ev } : {}) };
   }
   // 대화 채널이 아예 없으면 '협상 결렬'은 일어날 수 없다 — 꺼짐으로 둔다 (코드북: 협상 자체가 없었으면 '없음')
@@ -184,12 +202,54 @@ export interface ProximityView extends Proximity {
   /** 분석관만 볼 수 있는데 아직 확인이 없는 가설 수 */
   waiting: number;
   /** 채점표 결과 — 화면의 점수·층·항목은 모두 여기서 나온다 */
+  /** 최근 2주 사이 새로 켜진 징조·조용한 움직임 (11/18) — 전쟁 직전은 '많이 켜진 상태'보다 '꺼져 있던 것이 며칠 사이 연달아 켜지는 것'이다 */
+  fresh?: Fresh;
   rubric: RubricScore;
   /** 과거 기록: 징조 수 구간별 사례 수와 그중 전쟁으로 간 수 */
   record: typeof PRECURSOR_DATA.record;
   score: typeof PRECURSOR_DATA.score;
   cases: typeof PRECURSOR_DATA.table.cases;
   text: string;
+}
+
+/** 하나만으로 단계의 바닥을 올리는 무거운 신호 — 확인된 것(온전히 켜진 것)만. 3 = 최소 위기, 4 = 최소 임박.
+ *  군 경계태세 격상(워치콘·데프콘·북한의 전시 태세 보도)은 넣지 않았다 — 워치콘 격상 기사 한 건으로 위기가 되면 과하다(징조 9개에도 못 든 참고 신호다) */
+export const HEAVY: { id: string; phase: 3 | 4; what: string }[] = [
+  { id: "m_mobilization", phase: 4, what: "한국의 동원령·전시 선포가 확인됐어요" },
+  { id: "g_evac_order", phase: 3, what: "동맹국 대사관의 철수·출국 명령이 확인됐어요" },
+  { id: "g_leave_now", phase: 3, what: "주요국이 자국민에게 한국을 즉시 떠나라고 권고했어요" },
+  { id: "m_airspace", phase: 3, what: "외국 항공사의 한국 노선 운항 중단·전쟁 보험 중단이 확인됐어요" },
+];
+export function heavyOf(status: Record<string, SignalNow>): { phase: 3 | 4; what: string } | undefined {
+  return HEAVY.filter((h) => status[h.id]?.s === "on" && (status[h.id].w ?? 1) >= 1).sort((a, b) => b.phase - a.phase)[0];
+}
+export const FRESH_DAYS = 14;
+/** 2주 사이 새로 켜진 징조·움직임이 이만큼이면 최소 위기(3단계) — 판단값 (알림은 3개부터: phasealert.ts FRESH_AT) */
+export const FRESH_CRISIS = 5;
+export interface Fresh { days: number; n: number; items: { id: string; ko: string; since: string }[]; /** 견줄 기록이 며칠 치 있나 (적으면 '새로'를 말하기 이르다) */ known: number }
+/**
+ * 지금 켜져 있는 징조·조용한 움직임 가운데, 2주 전에는 꺼져 있던 것. 하루 한 줄 기록(가설 33개의 그날 상태)에서 센다.
+ * 기록이 없는 항목(어선·발사 준비·북한이 어두워짐)과 2주 치 기록에 '못 봄'뿐인 항목은 세지 않는다 — 새로 켜진 것인지 알 수 없다.
+ */
+export function freshOf(r: RubricScore, days: ProxDay[], now: number): Fresh {
+  const from = dayAgo(now, FRESH_DAYS), today = kstDay(now);
+  const win = days.filter((x) => x.d >= from && x.d < today).sort((a, b) => a.d.localeCompare(b.d));
+  const items: Fresh["items"] = [];
+  for (const l of r.layers) {
+    if (l.id !== "signs" && l.id !== "moves") continue;
+    for (const g of l.groups) for (const it of g.items) {
+      if (it.got <= 0) continue;
+      const k = HYP_IDS.indexOf(it.id);
+      if (k < 0) continue;
+      const seq = win.map((x) => ({ d: x.d, c: x.s[k] ?? "?" })).filter((x) => x.c !== "?");
+      // 창의 처음에 꺼져 있었어야 '새로 켜진 것'이다. 켜진 날은 꺼짐이 마지막으로 보인 다음 날
+      if (!seq.length || seq[0].c !== "0") continue;
+      const lastOff = [...seq].reverse().find((x) => x.c === "0")!.d;
+      const since = seq.find((x) => x.d > lastOff && x.c !== "0")?.d ?? today;
+      items.push({ id: it.id, ko: it.ko.split(" (")[0], since });
+    }
+  }
+  return { days: FRESH_DAYS, n: items.length, items: items.sort((a, b) => b.since.localeCompare(a.since)), known: win.length };
 }
 
 /** 지금 징조 수가 속한 과거 기록 구간 */
@@ -201,7 +261,17 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const status = koreaStatus(board, briefs, now, checks);
   // 사례집 통계(가설별 '전쟁 몇 건 중 몇 건')는 항목 설명용으로만 쓴다. 점수·단계·확률은 채점표(rubric.ts)가 정한다
   const p0 = evaluate(PRECURSOR_DATA.table, status, hist?.base, PRECURSOR_DATA.anchorLogOdds);
-  const r = scoreRubric(status);
+  const r0 = scoreRubric(status);
+  // 빠르게 연달아 켜지면 숫자가 25%에 못 미쳐도 최소 위기로 본다 (11/18 사용자: "2주 사이 동시에 켜지면 그만큼 드라마틱하게 올라가야 한다").
+  // 배수를 곱하지 않고 단계의 바닥만 올린다 — %는 '켜진 개수의 비율' 그대로 두고, 왜 위기인지는 이유에 적는다.
+  const fresh = freshOf(r0, hist?.days ?? [], now);
+  const fast = fresh.n >= FRESH_CRISIS && r0.phase < 3;
+  const r1: RubricScore = fast ? { ...r0, phase: 3, reason: `2주 사이 꺼져 있던 신호 ${fresh.n}개가 연달아 켜졌어요 (${fresh.items.slice(0, 3).map((x) => x.ko).join(", ")}${fresh.n > 3 ? " 등" : ""}) — 켜진 수는 ${r0.index}%지만 위기로 봐요` } : r0;
+  // 무거운 신호는 하나만으로도 단계의 바닥을 올린다 (11/18 사용자가 가져온 설계 문서와 견주다 찾은 빈틈): '신호 하나로 울리지 않는다'는 대화 단절처럼
+  // 흔한 신호에 맞는 원칙이다. 동맹국의 대사관 철수·즉시 출국 권고, 외국 항공사의 운항 중단, 동원령은 수십 년에 한 번 있을까 말까 한 일이라
+  // 켜진 수가 적어도 긴장으로 두면 안 된다. 확인된 것(약함·미확인이 아닌 것)만 센다. %는 그대로 두고 이유에 적는다.
+  const heavy = heavyOf(status);
+  const r: RubricScore = heavy && heavy.phase > r1.phase ? { ...r1, phase: heavy.phase, reason: `${heavy.what} — 이 신호 하나만으로 ${heavy.phase === 4 ? "임박" : "위기"}으로 봐요 (켜진 수는 ${r0.index}%)` } : r1;
   const clashPct = clashOf(r.signs, r.phase, p0.quiet.clashPct);
   const warPct = +Math.min(clashPct, p0.quiet.warPct + Math.max(0, clashPct - p0.quiet.clashPct) * (MODEL.Q_WAR / MODEL.Q_CLASH)).toFixed(clashPct < 5 ? 2 : 1);
   const p = { ...p0, index: r.index, phase: r.phase, clashPct, warPct, on: Math.ceil(r.signs + r.moves), watched: r.watched, parts: r.layers.map((l) => ({ cluster: "G" as const, label: l.label, pts: l.pts })) };
@@ -213,7 +283,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
   const d1 = diff(1);
   const rec = recordFor(r.signs);
   const text =
-    `긴장 ${r.index}% (지켜보는 ${TOTAL_ITEMS}개 중 ${r.signs + r.moves + r.context}개 켜짐 — %는 고정 기준 ${PCT_BASE}개 대비: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/18 · 배경 ${r.context}/16). ${r.reason}.` +
+    `긴장 ${r.index}% (지켜보는 ${TOTAL_ITEMS}개 중 ${r.signs + r.moves + r.context}개 켜짐 — %는 고정 기준 ${PCT_BASE}개 대비: 전쟁 전 징조 ${r.signs}/9 · 조용한 움직임 ${r.moves}/19 · 배경 ${r.context}/16). ${r.reason}.` +
     (rec ? ` 과거 기록: 징조가 ${rec.label} 켜졌던 ${rec.cases}건 중 ${rec.wars}건이 전쟁으로 갔다${rec.surprise ? ` — 그 ${rec.surprise}건은 공개 징조 없이 온 기습` : ""} (조사한 사례 안에서 — 확률이 아니다).` : "") +
     (d1 === undefined ? "" : d1 === 0 ? " 어제와 같아요." : ` 어제보다 징조가 ${d1 > 0 ? "늘었어요" : "줄었어요"}.`);
   return {
@@ -224,6 +294,7 @@ export function assessProximity(board: BoardRow[], briefs: EventBrief[], now: nu
     learnedDays: days.length,
     checkedAt: checks && now - checks.at < CHECK_TTL ? checks.at : undefined,
     waiting: r.waiting,
+    fresh,
     rubric: r,
     record: PRECURSOR_DATA.record,
     score: PRECURSOR_DATA.score,
@@ -341,6 +412,9 @@ export const ANALYST_GUIDE: Record<string, string> = {
   i_pretext: "'도발·학살' 주장, 자작극 의혹, '우리 국민 보호' 서사가 평소보다 격해짐",
   i_state_mobilization: "북한 관영매체의 전시 동원 서사 (입대 탄원 군중대회, 준전시 선포 보도)",
   t_deadline: "공개된 시한·날짜 조건의 만료가 임박",
+  m_cyber: "정부 핵심 전산망과 주요 은행이 동시에 마비되거나 데이터 삭제(와이퍼) 공격을 받았나 — 일상적인 해킹 시도·개별 기관 침해는 아니다 (자동은 국가 사이버위기 경보 격상만 본다)",
+  w_infra: "(세계·사건) 미국·동맹국 기반시설의 전국 규모 마비·공격 — 원인보다 '아직 이어지는가'를 본다: 마비·혼란이 지금도 이어지면 유지(국가 배후 공격으로 확인 1 · 원인 불명이거나 사고지만 아직 정상화 안 됨 0.5), 정상화돼 끝났으면 0 (0 이면 내려간다). 매번 다시 확인한다",
+  w_new_war: "(세계·사건) 새 전쟁·대규모 공격 — 지금도 교전이 이어지면 1, 충돌 직전 대치·제한 교전이면 0.5, 가라앉았으면 0",
   w_power_clash: "(세계·사건) 강대국끼리 직접 부딪쳤나 — 격추, 함정 충돌, 교전 (7일 유효)",
   w_us_commit: "(세계) 미국이 동맹 방위에서 발을 빼는 신호가 있나 — 주한미군 감축 발표, 방위비 갈등으로 철수 거론",
   w_us_war: "(세계·한 달에 한 번) 미국이 한반도 밖에서 전쟁·대규모 군사작전을 하고 있나",
@@ -349,6 +423,7 @@ export const ANALYST_GUIDE: Record<string, string> = {
   w_taiwan: "(세계) 대만해협·동중국해에 봉쇄·대규모 포위 훈련 같은 군사 위기가 있나",
   w_nuclear: "(세계) 강대국의 핵 위협, 핵실험 재개, 군비통제 조약 붕괴가 있나",
   w_markets: "(세계) 금·유가·변동성 지수가 전쟁 공포로 급등했나",
+  w_alarm: "(세계·자동) 한반도 전쟁과 가까운 세계 속보(연관도 점수의 합)가 평소보다 몰렸나 — 숫자로 잰다. 많으면 절반(0.5), 크게 벗어나면 온전히(1)",
   s_talks: "(바탕·한 달에 한 번) 남북·북미 사이에 열려 있는 대화 채널이 하나도 없나",
   s_agreement: "(바탕) 9·19 군사합의 등 충돌 방지 합의가 파기·효력 정지 상태인가",
   s_doctrine: "(바탕) 북한이 한국을 적대국으로 규정했거나 핵 선제사용을 법에 명시했나",

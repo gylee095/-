@@ -48,7 +48,7 @@ function kst(ms){var d=new Date(ms+9*3600000);return (d.getUTCMonth()+1)+"/"+d.g
 function ago(ms){var m=Math.round((Date.now()-ms)/60000);if(m<1)return "방금";if(m<60)return m+"분 전";var h=Math.round(m/60);if(h<24)return h+"시간 전";var d=Math.round(h/24);return d+"일 전"}
 function env(){var ua=navigator.userAgent;var ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
   var android=/Android/.test(ua);var standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
-  var inapp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|everytimeApp|BAND\//i.test(ua);
+  var inapp=/KAKAOTALK|Instagram|Barcelona|FBAN|FBAV|NAVER\(inapp|Line\/|DaumApps|everytimeApp|BAND\//i.test(ua);
   var ok="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
   return {ios:ios,android:android,standalone:standalone,inapp:inapp,ok:ok,kakao:/KAKAOTALK/i.test(ua)}}
 var ENV=env();
@@ -66,7 +66,7 @@ function stepCard(c,me,on){
   var h='<div class="state main"><h2>마지막 한 단계: 이 폰에서 알림 켜기</h2>';
   var g=kewGuide(kewEnv(),"/me?code="+encodeURIComponent(c));
   if(g){setTimeout(function(){kewDrawQr("/me?code="+encodeURIComponent(c))},0);return '<div>'+g+'<p class="mute">활성화 코드 <b>'+esc(c)+'</b> — 주소에 들어 있어 따로 넣을 필요는 없어요.</p></div>'}
-  if(!ENV.ok)return h+'<p class="big">이 브라우저는 알림을 지원하지 않아요. 안드로이드는 <b>크롬</b>, 아이폰은 <b>사파리</b>에서 열어 주세요.</p></div>';
+  if(!ENV.ok)return h+'<p class="big">이 화면에서는 알림을 켤 수 없어요. 화면 <b>오른쪽 위 ⋯</b> → <b>외부 브라우저에서 열기</b>를 누르거나, 크롬·사파리·삼성 인터넷에서 열어 주세요. 코드는 자동으로 함께 가요.</p></div>';
   if(Notification.permission==="denied")return h+'<p class="big">이 사이트의 알림이 <b>꺼져</b> 있어요. 휴대폰 <b>설정 → 알림</b>'+(ENV.ios?' → 조기경보':' (크롬: 주소창 왼쪽 자물쇠 → 권한 → 알림)')+'에서 켠 뒤 이 화면을 새로고침해 주세요.</p></div>';
   return h+'<p class="big">버튼을 누르고 휴대폰이 묻는 창에서 <b>허용</b>을 눌러 주세요.</p><button class="btn" id="enable" onclick="enable()">알림 켜기</button></div>'}
 
@@ -98,7 +98,7 @@ ${ORDERS_JS}
 ${INSTALL_JS}
 var PENDING=null,WATCH=null;
 function noCode(msg){
-  var KE=kewEnv();var g=(KE.desktop||KE.inapp)?kewGuide(KE,"/"):"";if(g){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+g+'<div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';kewDrawQr("/");return}
+  var KE=kewEnv();var g=(KE.desktop||(KE.inapp&&!KE.soft))?kewGuide(KE,"/"):"";if(g){$("#app").innerHTML=(msg?'<div class="state"><p class="err">'+esc(msg)+'</p></div>':'')+g+'<div class="state"><a class="btn ghost" href="/?p=1">상품 소개 보기</a></div>';kewDrawQr("/");return}
   var h=ENV.standalone?'<div class="state" style="border:2px solid var(--ok)"><b style="font-size:17px">이미 결제하셨나요?</b><p class="mute" style="margin:6px 0 10px">결제 뒤 버튼을 누를 때 코드가 복사돼 있어요. 아래 버튼을 누르고 휴대폰이 물으면 <b>붙여넣기</b>를 누르세요.</p><button class="btn" onclick="pasteCode()">📋 결제 코드 붙여넣기</button></div>':'';
   h+='<div class="state main"><h2>알림 받기 · 4,900원 <span class="mute" style="font-weight:400">한 번 결제 · 평생</span></h2>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
   '<ul class="big" style="margin:6px 0 10px;padding-left:20px"><li>결제 즉시 지금 상황 리포트 (그때의 대시보드 전체)</li><li>전쟁 위험 단계가 바뀌거나, 실제 징조가 나타나거나, 북한 발사 같은 큰 사건이 확인될 때 이 폰이 울려요 — 올라갈 때도, 내려갈 때도</li><li>알림마다 리포트가 이 앱에 쌓여요 · 기기 3대까지</li></ul>'+
@@ -170,10 +170,14 @@ async function render(){
   if(!r.ok){try{localStorage.removeItem("kew_code")}catch(e){}CODE=null;return noCode(me.error)}
   var on=await pushOn();
   var h=stepCard(CODE,me,on);
+  // 앱 속 화면(스레드 등)에서는 할 일이 '바깥 브라우저로 나가기' 하나뿐이다 — 알림 목록·초록 불은 바깥에서 다시 보이니 여기서는 겹치지 않게 뺀다 (11/18 사용자)
+  if(!on&&kewEnv().soft){$("#app").innerHTML=h;return}
   if(on&&ENV.android&&!ENV.standalone){var sam=/SamsungBrowser/.test(navigator.userAgent);
     h+='<div class="state" style="border:2px solid var(--brand)"><b style="font-size:17px">📲 홈 화면에 앱으로 추가하세요</b><p class="mute" style="margin:6px 0 10px">앱처럼 아이콘을 눌러 알림 목록과 리포트를 바로 볼 수 있어요. 알림은 지금도 와요.</p>'+
       '<button class="btn" id="install" style="display:none;margin:0 0 8px" onclick="install()">앱으로 추가</button>'+
       '<p class="big" id="installhow" style="margin:0">'+(sam?'아래 <b>메뉴 ≡</b> → <b>현재 페이지 추가</b> → <b>홈 화면</b>':'오른쪽 위 <b>⋮</b> → <b>홈 화면에 추가</b> (또는 <b>앱 설치</b>)')+'</p></div>'}
+  // 초록 불 (11/18): 숫자나 화면은 보여 주지 않고 '켜져 있다'만 — 알림이 없는 날 열어 봐도 죽은 앱처럼 보이지 않게
+  if(me.alive)h+='<div style="margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--card,#f2f2f7);font-size:14px">'+(me.alive.ok?'🟢 <b>정상 작동 중</b> · 마지막 확인 '+ago(me.alive.at):'🟡 <b>확인이 늦어지고 있어요</b> · 마지막 확인 '+ago(me.alive.at))+'<div class="mute" style="font-size:12.5px;margin-top:2px">5분마다 44가지 신호를 확인해요. 달라진 것이 있을 때만 알림이 와요.</div></div>';
   var sn=seen(),fresh=me.reports.filter(function(x){return sn.indexOf(x.id)<0}).length;
   h+='<h2 style="margin-top:22px">알림 '+me.reports.length+'개'+(fresh?' · <span style="color:var(--brand)">새 알림 '+fresh+'개</span>':'')+'</h2>';
   if(!me.reports.length)h+='<div class="state mute">첫 리포트를 준비하고 있어요. 잠시 뒤 새로고침해 주세요.</div>';

@@ -4,7 +4,7 @@
 //  - 독일: auswaertiges-amt.de opendata — warning / partialWarning / situationWarning / situationPartWarning
 //  - 일본: 외무성 해외안전정보 오픈데이터(한국 0082L.xml) — 위험 레벨 1~4 와 주한 공관 영사 메일(최신순)
 import type { CollectResult, Metric } from "../types.js";
-import { fetchHead, fetchJson } from "../util.js";
+import { fetchHead, fetchJson, fetchText } from "../util.js";
 
 export const CA_URL = "https://data.international.gc.ca/travel-voyage/index-updated.json";
 export const DE_URL = "https://www.auswaertiges-amt.de/opendata/travelwarning";
@@ -115,6 +115,37 @@ export function advisoryMetrics(ca: CaAdvisory | undefined, de: DeAdvisory | und
   return out;
 }
 
+// ── 항공 분쟁지역 고시 (2026-11-18): 유럽 항공안전청(EASA)의 분쟁지역 정보 고시(CZIB) ──
+// 항공사가 노선을 끊기 전에 항공당국의 고시가 먼저 나온다. 2017년에는 북한의 예고 없는 미사일 발사 때문에 평양 비행정보구역 고시가 나왔다가 2018년에 철회됐다.
+// 값: 0 = 한반도 관련 유효 고시 없음 · 1 = 북한(평양 비행정보구역)만 · 2 = 한국(인천 비행정보구역 등)이 포함됨
+export const EASA_URL = "https://www.easa.europa.eu/en/domains/air-operations/czibs";
+export interface CzibRow { title: string; number: string; status: string }
+export function parseEasa(html: string): CzibRow[] {
+  const out: CzibRow[] = [];
+  const re = /<div class="cz-title">([^<]+)<\/div>\s*<div class="czib_number">([^<]*)<\/div>[\s\S]*?cz-status cz-status-(\w+)/g;
+  for (const m of html.matchAll(re)) out.push({ title: m[1].trim(), number: m[2].trim(), status: m[3] });
+  return out;
+}
+export function easaMetric(rows: CzibRow[]): Metric | undefined {
+  if (!rows.length) return undefined; // 표를 못 읽었으면 값을 내지 않는다 (0 으로 적으면 '고시 없음'으로 읽힌다)
+  const active = rows.filter((r) => /active/i.test(r.status));
+  const korea = active.filter((r) => /korea|pyongyang|incheon|seoul/i.test(r.title));
+  const south = korea.filter((r) => /south korea|republic of korea|incheon|seoul/i.test(r.title) && !/democratic/i.test(r.title));
+  return { indicator: "air.easa_czib_korea", value: south.length ? 2 : korea.length ? 1 : 0, meta: { titles: korea.map((r) => `${r.title} (${r.number})`), activeTotal: active.length, note: korea.length ? korea.map((r) => r.title).join(" · ") : `한반도 관련 유효 고시 없음 (전 세계 유효 ${active.length}건)` } };
+}
+
+// ── 사이버 위기 경보 단계 (2026-11-18): 한국인터넷진흥원(KISA) 첫 화면의 '인터넷침해사고 경보단계' ──
+// 기사 제목('경보 격상')을 기다리지 않고 공식 단계를 직접 읽는다. 값: 0 정상 · 1 관심 · 2 주의 · 3 경계 · 4 심각
+export const KISA_URL = "https://www.boho.or.kr/kr/main.do";
+export const CYBER_LEVELS = ["정상", "관심", "주의", "경계", "심각"];
+export function parseKisaLevel(html: string): number | undefined {
+  // '경보단계'라는 말은 메뉴·검색어 목록에도 나온다 — 첫 화면의 '인터넷침해사고 경보단계' 상자 바로 뒤의 단계 표시만 읽는다
+  // (11/17: 맨 처음 나오는 '경보단계' 뒤를 읽다가 서버에서 값을 못 읽었다)
+  const m = /인터넷침해사고\s*경보단계[\s\S]{0,500}?<dl class="step(?:\s+s0([1-4]))?"/.exec(html);
+  return m ? (m[1] ? Number(m[1]) : 0) : undefined;
+}
+export const cyberMetric = (level: number | undefined): Metric | undefined => (level === undefined ? undefined : { indicator: "official.cyber_alert_level", value: level, meta: { note: `민간 분야 경보 '${CYBER_LEVELS[level]}' 단계` } });
+
 export async function collectAdvisories(now = Date.now()): Promise<CollectResult> {
   const [ca, de, jp] = await Promise.allSettled([
     fetchJson<any>(CA_URL, {}, 20000).then(parseCanada),
@@ -125,6 +156,15 @@ export async function collectAdvisories(now = Date.now()): Promise<CollectResult
   const val = <T>(r: PromiseSettledResult<T>) => (r.status === "fulfilled" ? r.value : undefined);
   const errors = [ca, de, jp].map((r, i) => (r.status === "rejected" ? `${["캐나다", "독일", "일본"][i]}: ${String((r.reason as Error)?.message ?? r.reason).slice(0, 120)}` : "")).filter(Boolean);
   const metrics = advisoryMetrics(val(ca), val(de), val(jp), now);
+  // 덤으로 받는 공식 고시 둘 — 실패해도 여행경보 수집을 실패로 보지 않는다
+  const [easa, kisa] = await Promise.allSettled([fetchText(EASA_URL, {}, 20000).then(parseEasa).then(easaMetric), fetchText(KISA_URL, {}, 20000).then(parseKisaLevel).then(cyberMetric)]);
+  for (const r of [easa, kisa]) if (r.status === "fulfilled" && r.value) metrics.push(r.value);
+  // 못 받은 까닭은 남긴다 (값이 없으면 화면에 '측정 불가'로만 보여 원인을 알 수 없다 — 11/17 사이버 경보가 서버에서만 안 들어왔다)
+  [easa, kisa].forEach((r, i) => {
+    const name = ["항공 고시(EASA)", "사이버 경보(KISA)"][i];
+    if (r.status === "rejected") errors.push(`${name}: ${String((r.reason as Error)?.message ?? r.reason).slice(0, 120)}`);
+    else if (!r.value) errors.push(`${name}: 받았지만 값을 읽지 못함`);
+  });
   return {
     source: "advisories",
     ok: metrics.length > 0,

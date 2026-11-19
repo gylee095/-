@@ -154,6 +154,11 @@ export const INDICATORS: IndicatorDef[] = [
     measure: "연합뉴스 제목 중 전쟁·전면전·확전·교전·동원령·대피령 + 북한·남북·한반도 문맥 (6·25 기념·다른 나라 전쟁·무역전쟁 제외)", latency: "수 분", caveats: "북한 담화를 인용한 제목('전쟁 불사')도 잡힌다. 정부·돈의 움직임과 함께 볼 때만 의미가 있다.",
   },
   {
+    id: "media.world_alarm_24h", label: "세계 속보의 한반도 연관 점수 (24h)", group: "media", unit: "점", direction: "high", slots: 1,
+    why: "전쟁은 서로 이어져 있다 — 다만 모든 속보가 같은 무게는 아니다. 한반도 전쟁과 가까운 속보(대만해협·인도태평양 미군·강대국 충돌·핵·미국 본토)가 몰릴수록 한반도의 바탕이 불안해진다.",
+    measure: "뉴욕타임스(첫 화면·세계), CBS, ABC, NPR, BBC 세계, 알자지라의 무력·마비 속보마다 한반도 연관도를 매겨 더한 값 — 먼 배경(다른 지역 전쟁의 전황) 1점, 한 다리 건너 3점, 무관(재판·사건 사고·해설) 0점. 같은 이야기는 한 번만", latency: "15분", caveats: "연관도는 제목의 낱말로 매긴 임시 점수라 거칠다(정확한 판단은 분석관이 사건마다 남긴다). 평소에도 0 이 아니어서 지난 4주보다 뚜렷이 높을 때만 본다. 평소보다 높으면 '불안한 배경' 절반(0.5), 크게 벗어나면 한 개(1) — 배경 한 항목이라 혼자서는 단계 구간을 넘지 못하지만, 다른 항목과 겹치면 단계가 오르고 알림이 나간다.",
+  },
+  {
     id: "psych.wiki_korea_attention", label: "세계의 한반도 관심 (위키백과 조회수, 평소 대비)", group: "psych", unit: "%", direction: "high", slots: 1, absolute: { elevated: 160, anomalous: 250 },
     why: "사람들이 '한국전쟁·DMZ·조선인민군'을 찾아보기 시작하면 위기를 체감한다는 뜻이다. 대중은 보통 정부·돈보다 늦게 움직인다.",
     measure: "영어·일본어·한국어 위키백과 한반도 문서 9개의 어제 조회수 ÷ 직전 28일 중앙값 — 그 배율들의 중앙값 (여러 문서가 함께 늘어야 커진다)", latency: "약 1일", caveats: "인물 뉴스(김정은 동정)·영화·기념일에도 는다. 한 문서만 튀면 무시한다.",
@@ -167,6 +172,26 @@ export const INDICATORS: IndicatorDef[] = [
     id: "market.usdkrw_change_pct", label: "원·달러 환율 변동 (전일 대비 %)", group: "market", unit: "%", direction: "high", slots: 1, absolute: { elevated: 1.5, anomalous: 3 },
     why: "지정학 위험은 원화 약세로 즉시 반영된다. 뉴스 없는 시간대의 급변은 시장이 무언가를 먼저 알았다는 신호일 수 있다.",
     measure: "Yahoo Finance KRW=X 현재가의 전일 종가 대비 변동률(절대값)", latency: "수 분", caveats: "금리·달러 강세 등 경제 요인이 대부분. 다른 징후와 겹칠 때만 의미 있다.",
+  },
+  {
+    id: "market.world_fear", label: "세계 금융의 전쟁 공포 (금·유가·변동성)", group: "market", unit: "개", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "큰 전쟁이 다가오면 금과 유가가 뛰고 변동성 지수가 치솟는다. 한반도 밖의 전쟁 공포도 한반도 위험의 배경이다 — 채점표의 '세계 금융의 전쟁 공포' 칸을 숫자로 채운다.",
+    measure: "Yahoo Finance 금(GC=F)·서부텍사스유(CL=F)·변동성 지수(^VIX). 금이 직전 20거래일 평균보다 5% 이상, 유가가 15% 이상 높거나 변동성 지수가 30 이상인 것의 수(0~3)", latency: "수 분~하루", caveats: "문턱은 판단값이다. 금리·경기·산유국 결정 같은 전쟁과 무관한 이유로도 움직인다 — 둘 이상이 함께 넘을 때만 의미를 둔다.",
+  },
+  {
+    id: "official.cyber_alert_level", label: "사이버 위기 경보 단계 (KISA)", group: "official", unit: "단계", direction: "high", slots: 1, absolute: { elevated: 3, anomalous: 4 },
+    why: "2022년 우크라이나에서는 침공 41일 전·9일 전·전날 정부와 은행 전산망이 공격받았다. 정부가 경보를 '경계'·'심각'으로 올리면 대규모 공격이 진행 중이거나 임박했다는 뜻이다.",
+    measure: "한국인터넷진흥원(boho.or.kr) 첫 화면의 인터넷침해사고 경보단계 — 0 정상 · 1 관심 · 2 주의 · 3 경계 · 4 심각", latency: "발령 뒤 1시간 안", caveats: "민간 분야 경보다(공공 분야는 국가사이버안보센터가 따로 낸다). '주의'는 몇 달씩 이어지기도 해 '경계'부터 본다. 대형 장애·랜섬웨어 유행으로도 오른다.",
+  },
+  {
+    id: "air.easa_czib_korea", label: "항공 분쟁지역 고시에 한반도 (EASA)", group: "air", unit: "", direction: "high", slots: 1, absolute: { elevated: 1, anomalous: 2 },
+    why: "항공사가 노선을 끊기 전에 항공당국의 분쟁지역 고시가 먼저 나온다. 2022년 2월 우크라이나에서는 침공 12일 전 KLM 이 운항을 멈췄다. 2017년에는 북한의 예고 없는 미사일 발사로 평양 비행정보구역 고시가 나왔다(2018년 철회).",
+    measure: "유럽 항공안전청 분쟁지역 정보 고시(CZIB) 목록에서 유효한 고시의 제목 — 0 한반도 없음 · 1 북한(평양 비행정보구역)만 · 2 한국(인천 비행정보구역 등) 포함", latency: "발령 뒤 1시간 안", caveats: "유럽 항공사에 대한 권고다. 미국 연방항공청·한국 국토교통부의 고시는 따로 나온다. 북한 고시만으로는(1) 미사일 발사 위험을 뜻할 뿐 전쟁 임박이 아니다.",
+  },
+  {
+    id: "nk.kim_absence_days", label: "김정은 공개활동 공백", group: "nkinside", unit: "일", direction: "high", slots: 1, absolute: { elevated: 21, anomalous: 35 },
+    why: "전쟁을 결심한 지도부는 개전 전에 지하 지휘소로 들어간다 — 그것은 공개 정보로 볼 수 없지만, 최고지도자가 며칠째 공개 석상에 나오지 않았는지는 보도로 셀 수 있다.",
+    measure: "연합뉴스 목록에서 김정은이 직접 나타난 활동(시찰·참석·참관·연설·접견·회담) 보도의 마지막 시각으로부터 지난 날 수. 축전·서한·담화는 세지 않는다", latency: "북한 매체는 보통 다음 날 보도", caveats: "참고 신호다. 건강·휴양·내부 일정으로 2~3주 비는 일이 한 해에 여러 번 있다(2020년 4월 20일, 2014년 가을 40일). 다른 신호와 겹칠 때만 의미를 둔다. 제목 규칙이라 놓치는 보도가 있을 수 있다.",
   },
   {
     id: "nk.fuel_price_change_pct", label: "북한 장마당 휘발유값 (직전 8주 대비 %)", group: "nkinside", unit: "%", direction: "high", slots: 1, absolute: { elevated: 50, anomalous: 70 },

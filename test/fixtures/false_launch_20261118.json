@@ -1,0 +1,73 @@
+{
+ "id": "evt_80cig2",
+ "group": "strike",
+ "categories": [
+  "civil_alert_other",
+  "missile"
+ ],
+ "status": "CORROBORATED",
+ "severity": 35,
+ "title": "북한 인터넷 외부망 장애 경보 2건 (24시간)",
+ "signalIds": [
+  "ioda:kp:83100",
+  "ioda:kp:83101",
+  "rss_news:r9utw6"
+ ],
+ "sources": [
+  "ioda",
+  "nknews.org"
+ ],
+ "eventTime": 1794974400000,
+ "firstPublishedTime": 1794967023000,
+ "firstDetectedTime": 1794967214454,
+ "firstMediaTime": 1794967023000,
+ "drill": false,
+ "retracted": false,
+ "basis": "primary",
+ "breaking": false,
+ "alertedTime": null,
+ "signals": [
+  {
+   "id": "ioda:kp:83100",
+   "source": "ioda",
+   "sourceKind": "sensor",
+   "category": "civil_alert_other",
+   "title": "북한 인터넷 외부망 장애 경보 2건 (24시간)",
+   "summary": "IODA 데이터원: bgp",
+   "url": "https://ioda.inetintel.cc.gatech.edu/country/KP",
+   "eventTime": 1794974400000,
+   "publishedTime": 1794974400000,
+   "detectedTime": 1794978699588,
+   "severity": 30
+  },
+  {
+   "id": "ioda:kp:83101",
+   "source": "ioda",
+   "sourceKind": "sensor",
+   "category": "civil_alert_other",
+   "title": "북한 인터넷 외부망 장애 경보 2건 (24시간)",
+   "summary": "IODA 데이터원: bgp",
+   "url": "https://ioda.inetintel.cc.gatech.edu/country/KP",
+   "eventTime": 1794978000000,
+   "publishedTime": 1794978000000,
+   "detectedTime": 1794982299588,
+   "severity": 30
+  },
+  {
+   "id": "rss_news:r9utw6",
+   "source": "rss_news",
+   "sourceKind": "media",
+   "category": "missile",
+   "title": "Kim Jong Un’s naval expansion and North Korea’s misleading missile claims",
+   "summary": "nknews.org",
+   "url": "https://www.nknews.org/2026/11/kim-jong-uns-naval-expansion-and-north-koreas-misleading-missile-claims/",
+   "publishedTime": 1794967023000,
+   "detectedTime": 1794967214454,
+   "severity": 20,
+   "citesOfficial": false,
+   "breaking": false,
+   "drill": false,
+   "retraction": false
+  }
+ ]
+}

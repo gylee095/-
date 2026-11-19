@@ -25,8 +25,8 @@ export const THREADS_STATE_KEY = "threads:state";
 export const THREADS_TOKEN_KEY = "threads:token";
 /** 소개 글에 붙이는 예시 화면 (src/worker/promo.ts 가 내준다) */
 export const PROMO_IMAGES = ["/promo/1.jpg", "/promo/2.jpg"];
-/** 웹사이트 첫 화면의 신호 수와 같아야 한다 ('39가지 신호로 보는 한반도 전쟁 위험') */
-export const SIGNAL_COUNT = 39;
+/** 웹사이트 첫 화면의 신호 수와 같아야 한다 ('44가지 신호로 보는 한반도 전쟁 위험') */
+export const SIGNAL_COUNT = 44;
 
 export type PostKind = "intro" | "news" | "dev";
 

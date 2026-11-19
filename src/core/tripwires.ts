@@ -24,7 +24,7 @@ const KOREAN_TERMS = new Set(["defcon_up", "watchcon_up", "defense_situation_a",
 export const TRIPWIRES: Tripwire[] = [
   // ── 한국·미국 군과 정부의 태세 (정보를 가진 쪽의 행동) ──
   { id: "defcon_up", label: "데프콘 격상", domain: "gov", level: 3, re: /데프콘\s*\d?\s*(으로|로)?\s*(격상|상향|발령)|DEFCON\s*\d?\s*(raised|upgraded)/i,
-    why: "한미연합 방어준비태세. 평시 4단계에서 3단계로 올린 것은 1976년 판문점 도끼만행, 1983년 아웅산 테러 때뿐이다." },
+    why: "한미연합 방어준비태세. 평시 4단계에서 3단계로 올린 것은 1976년 판문점 도끼만행 사건 때가 6·25 이후 처음이었다 (그 뒤 사례는 자료마다 달라 적지 않는다 — 11/18 확인)." },
   { id: "watchcon_up", label: "워치콘 격상", domain: "gov", level: 2, re: /워치콘\s*\d?\s*(으로|로)?\s*(격상|상향|발령)|WATCHCON\s*\d?\s*(raised|upgraded)/i,
     why: "대북 정보감시태세. 핵실험·천안함 같은 큰 도발 뒤 2단계로 올려 왔다 — 정보기관이 위험을 높게 본다는 공식 신호." },
   { id: "defense_situation_a", label: "통합방위사태 갑종 선포", domain: "gov", level: 3, re: /통합방위사태\s*갑종|갑종\s*사태/,

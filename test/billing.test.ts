@@ -260,7 +260,11 @@ describe("결제 알림 — 운영자에게만 (11/17)", () => {
     const now = Date.parse("2026-11-17T14:03:00+09:00");
     const m = paymentPush("paid", o("kew-abc-1234", "paid"), [o("kew-abc-1234", "paid"), o("x2", "paid"), o("x3", "refunded"), o("x4", "created")], now);
     expect(m.title).toBe("💰 결제 들어옴 — 4,900원");
-    expect(m.body).toBe("지금 이용 중 2명 (합계 9,800원) · 취소 1건\n주문 …1234 · 11/17 14:03");
+    expect(m.body).toBe("실제 손님 2명 · 매출 9,800원 (환불·본인 결제 제외)\n오늘: 결제 0건\n주문 …1234 · 11/17 14:03"); // 이 시험의 주문에는 결제 시각이 없어 '오늘 0건'
+    // 오늘 결제 2건 중 1건을 환불하면 첫 줄은 남은 손님만, 둘째 줄은 오늘의 결제·환불 건수 (11/18 테스트 결제 때문에 헷갈렸다)
+    const t = (id: string, status: string, x: object) => ({ ...o(id, status), ...x });
+    const m2 = paymentPush("revoked", t("r1", "refunded", { paidAt: now - 3600_000, refundedAt: now }), [t("a", "paid", { paidAt: now - 7200_000 }), t("r1", "refunded", { paidAt: now - 3600_000, refundedAt: now }), t("me", "paid", { paidAt: now - 100, own: true })], now);
+    expect(m2.body.split("\n").slice(0, 2)).toEqual(["실제 손님 1명 · 매출 4,900원 (환불·본인 결제 제외)", "오늘: 결제 2건 · 환불 1건"]);
     expect(paymentPush("revoked", o("kew-abc-1234", "refunded"), [o("kew-abc-1234", "refunded")], now).title).toBe("↩️ 결제 취소됨 — 4,900원");
     expect(JSON.stringify(m)).not.toMatch(/audience|01\d-|claim/);
   });
@@ -270,5 +274,58 @@ describe("결제 알림 — 운영자에게만 (11/17)", () => {
     expect(idx).toMatch(/\(r\.action === "paid" \|\| r\.action === "revoked"\) && r\.order\) \{\s*const m = paymentPush\(/);
     expect(idx).not.toMatch(/paymentPush[\s\S]{0,300}audience/);
     expect(idx).toMatch(/\/ops\/app` : undefined \}, fetch, store\)/); // 운영자 앱(웹 푸시)에도 가게 store 를 넘긴다
+  });
+});
+
+describe("운영자 본인의 결제는 손님 수·매출에서 뺀다 (11/18)", () => {
+  it("결제 알림의 '이용 중 N명 (합계)'와 요약에서 빠지고 own 으로 따로 센다", async () => {
+    const { paymentPush, billingSummary, markOwn, ORDERS_KEY } = await import("../src/core/billing.js");
+    const { MemoryStore } = await import("../src/core/store.js");
+    const now = Date.parse("2026-11-17T20:12:00+09:00");
+    const o = (id: string, paidAt: number, own?: boolean) => ({ orderId: id, claim: "c", code: "X", amount: 4900, status: "paid", createdAt: paidAt - 40_000, paidAt, devices: ["d"], ...(own ? { own: true } : {}) }) as any;
+    const orders = [o("mine", Date.parse("2026-11-06T00:30:08+09:00")), o("c1", now - 600_000), o("c2", now)];
+    const store = new MemoryStore();
+    await store.setKv(ORDERS_KEY, JSON.stringify(orders));
+    expect((await billingSummary(store, now)).paid).toBe(3);
+    expect(await markOwn(store, { paidAt: "11-17 99:99" }, true, now)).toBeUndefined(); // 못 찾으면 아무것도 바꾸지 않는다
+    expect((await markOwn(store, { paidAt: "11-06 00:30" }, true, now))!.orderId).toBe("mine");
+    const sum = await billingSummary(store, now);
+    expect(sum).toMatchObject({ paid: 2, revenueKrw: 9800, own: 1, paidToday: 2 });
+    const saved = JSON.parse((await store.getKv(ORDERS_KEY))!);
+    expect(paymentPush("paid", saved[2], saved, now).body).toMatch(/^실제 손님 2명 · 매출 9,800원/);
+    expect((await markOwn(store, { orderId: "mine" }, false, now))!.own).toBeUndefined();
+    expect((await billingSummary(store, now)).paid).toBe(3);
+  });
+});
+
+// 11/18 사용자: 가입 흐름을 더 고치기 전에 숫자부터 — 어디서 들어와 어디까지 갔나
+describe("가입 흐름 기록: 기기·브라우저 종류만 남긴다", async () => {
+  const { browserKind, viaLabel, funnelOf } = await import("../src/core/billing.js");
+  it("User-Agent 를 한 낱말로 줄인다", () => {
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22B83 Barcelona 355.0.0.0")).toBe("ios:threads");
+    expect(browserKind("Mozilla/5.0 (Linux; Android 14; SM-S918N; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/130.0.0.0 Mobile Safari/537.36 Barcelona 355.0.0.0 Android")).toBe("android:threads");
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1")).toBe("ios:safari");
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0.6778.73 Mobile/15E148 Safari/604.1")).toBe("ios:chrome");
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")).toBe("ios:app");
+    expect(browserKind("Mozilla/5.0 (Linux; Android 14; SM-S918N) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/26.0 Chrome/122.0.0.0 Mobile Safari/537.36")).toBe("android:samsung");
+    expect(browserKind("Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36")).toBe("android:chrome");
+    expect(browserKind("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 11.0.0")).toBe("ios:kakao");
+    expect(browserKind(null)).toBe("desktop:other");
+    expect(viaLabel("ios:threads")).toBe("아이폰 · 스레드 앱 안");
+  });
+  it("시작 → 결제 → 알림 켬을 들어온 곳별로 센다. 본인 주문과 기록 없는 옛 주문은 뺀다. 환불돼도 알림을 켰던 기록은 남는다", () => {
+    const o = (x: object) => ({ orderId: "k", claim: "c", amount: 4900, status: "created", createdAt: 1, devices: [], ...x }) as never;
+    const f = funnelOf([
+      o({ via: "ios:threads" }),
+      o({ via: "ios:threads", status: "paid" }),
+      o({ via: "ios:threads", status: "paid", devices: ["e1"], viaOn: ["ios:app"] }),
+      o({ via: "ios:threads", status: "refunded", viaOn: ["ios:app"] }),
+      o({ via: "android:chrome", status: "paid", devices: ["e2"] }),
+      o({ via: "ios:safari", status: "paid", own: true }),
+      o({ status: "paid", devices: ["old"] }),
+    ]);
+    expect(f[0]).toEqual({ via: "ios:threads", label: "아이폰 · 스레드 앱 안", started: 4, paid: 3, enabled: 2, refunded: 1 });
+    expect(f[1]).toMatchObject({ via: "android:chrome", started: 1, paid: 1, enabled: 1 });
+    expect(f).toHaveLength(2);
   });
 });

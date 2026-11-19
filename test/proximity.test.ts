@@ -164,15 +164,15 @@ describe("판정: 전쟁 전 징조 세기 · 조용한 움직임 · 배경 (rub
   it("단계는 켜진 비율(%)의 구간: 10%부터 긴장 · 25%부터 위기 · 50%부터 임박", () => {
     expect(PCT_AT).toEqual({ 2: 10, 3: 25, 4: 50 });
     const some = (n: number) => on(...ALL_IDS.filter((i) => !RUBRIC.find((l) => l.id === "other")!.groups[0].items.some((x) => x.id === i)).slice(0, n));
-    expect(TOTAL_ITEMS).toBe(43);
+    expect(TOTAL_ITEMS).toBe(45); // 11/18 세계 매체 속보(배경) 추가 · 11/18 사이버 공격을 참고 신호에서 조용한 움직임으로 올림 — 기준(39)은 그대로라 %는 안 바뀐다
     expect(PCT_BASE).toBe(39); // 고정 — 항목을 늘려도 %가 바뀌지 않게 (11/14 사용자). 이 숫자를 바꾸면 같은 상황의 %가 달라진다
     expect(scoreRubric(some(3))).toMatchObject({ index: 8, phase: 1 });
     expect(scoreRubric(some(4))).toMatchObject({ index: 10, phase: 2 });
     expect(scoreRubric(some(9))).toMatchObject({ index: 23, phase: 2 });
     expect(scoreRubric(some(10))).toMatchObject({ index: 26, phase: 3 });
     expect(scoreRubric(some(20))).toMatchObject({ index: 51, phase: 4 });
-    expect(scoreRubric(some(43))).toMatchObject({ index: 100, phase: 4 }); // 100을 넘지 않는다
-    for (let n = 0; n <= 43; n++) { const r = scoreRubric(some(n)); expect(r.phase).toBe(r.index >= 50 ? 4 : r.index >= 25 ? 3 : r.index >= 10 ? 2 : 1); }
+    expect(scoreRubric(some(44))).toMatchObject({ index: 100, phase: 4 }); // 100을 넘지 않는다
+    for (let n = 0; n <= 44; n++) { const r = scoreRubric(some(n)); expect(r.phase).toBe(r.index >= 50 ? 4 : r.index >= 25 ? 3 : r.index >= 10 ? 2 : 1); }
   });
   it("약함·미확인은 반 개, 못 본 것은 세지 않고 '확인 대기'", () => {
     const r = scoreRubric({ ...all("off"), i_pretext: { s: "on", w: 0.5 }, m_buildup: { s: "on" }, g_ultimatum: undefined });
@@ -246,7 +246,7 @@ describe("세계 정세를 넓게 (11/14)", () => {
     expect(koreaStatus([], b, NOW, parseChecks("w_infra=1:국가 배후 공격으로 확인", NOW)).w_infra).toMatchObject({ s: "on", by: "analyst" });
     expect(koreaStatus([], [], NOW + 8 * 86400_000, parseChecks("w_power_clash=1:격추", NOW)).w_power_clash.s).toBe("unk"); // 7일이 지나면 다시 확인
     expect(WORLD_EVENT_IDS.every((i) => ALL_IDS.includes(i))).toBe(true);
-    expect(RUBRIC.find((l) => l.id === "context")!.max).toBe(16);
+    expect(RUBRIC.find((l) => l.id === "context")!.max).toBe(17);
   });
 });
 
@@ -264,5 +264,106 @@ describe("출처 링크 (11/14)", () => {
     const lit = r.layers.flatMap((l) => l.groups.flatMap((g) => g.items)).filter((x) => x.s === "on");
     expect(lit.length).toBeGreaterThan(0);
     for (const x of lit) expect(x.src?.length, x.id).toBeGreaterThan(0);
+  });
+});
+
+describe("세계 사건이 며칠째 그대로 남지 않게 (11/17)", () => {
+  const b = (daysAgo: number) => [{ at: NOW - daysAgo * 86400_000, headline: "美전역 항공기 운항중단 '올스톱' 사태", danger: { level: 1, label: "", reason: "" }, isProvocation: false }] as any;
+  it("제목만으로 켠 것은 사흘 뒤 꺼진다", () => {
+    expect(koreaStatus([], b(2), NOW).w_infra).toMatchObject({ s: "on", w: 0.5 });
+    expect(koreaStatus([], b(3.1), NOW).w_infra.s).toBe("off");
+  });
+  it("분석관이 사고라고 적으면(0) 바로 내려간다 — 다른 자동 항목처럼 '약함'으로 남지 않는다", () => {
+    const st = koreaStatus([], b(1), NOW, parseChecks("w_infra=0:관제통신 장애, 당국 사이버 공격 징후 없음", NOW));
+    expect(st.w_infra).toMatchObject({ s: "off", by: "analyst" });
+    expect(st.w_infra.ev).toMatch(/분석관: 관제통신 장애/);
+    expect(ANALYST_GUIDE.w_infra).toMatch(/0 이면 내려간다/);
+  });
+  it("문제가 이어지면 유지한다 — 새 보도가 계속 나오면 사흘이 지나도, 분석관이 '이어지는 중'이라고 적으면 보도가 없어도", () => {
+    const many = [...b(5), ...b(4), ...b(0.5)] as any; // 닷새 전 시작, 반나절 전에도 보도
+    expect(koreaStatus([], many, NOW).w_infra).toMatchObject({ s: "on", w: 0.5 });
+    expect(koreaStatus([], b(5), NOW, parseChecks("w_infra=0.5:닷새째 지연·결항 이어지는 중", NOW - 3600_000)).w_infra).toMatchObject({ s: "on", w: 0.5, by: "analyst" });
+    expect(koreaStatus([], b(5), NOW, parseChecks("w_infra=1:국가 배후 공격으로 확인, 복구 안 됨", NOW - 3600_000)).w_infra).toMatchObject({ s: "on", by: "analyst" });
+  });
+  it("분석관이 끝났다고 적은 뒤에 새 보도가 오면 다시 켠다 (다음 분석 때 다시 확인)", () => {
+    const st = koreaStatus([], b(0.1), NOW, parseChecks("w_infra=0:정상화", NOW - 86400_000));
+    expect(st.w_infra).toMatchObject({ s: "on", w: 0.5, by: "auto" });
+    expect(ANALYST_GUIDE.w_infra).toMatch(/아직 이어지는가/);
+  });
+});
+
+describe("영상 '전쟁 직전 신호 7가지'에서 가져온 것 (11/18)", () => {
+  const all = (v: "on" | "off") => Object.fromEntries(ALL_IDS.map((id) => [id, { s: v }]));
+  const on = (...ids: string[]) => ({ ...all("off"), ...Object.fromEntries(ids.map((k) => [k, { s: "on" as const }])) });
+  it("사이버 동시 마비는 참고 신호가 아니라 조용한 움직임으로 센다 — 항목이 늘어도 %의 기준은 그대로", () => {
+    const moves = RUBRIC.find((l) => l.id === "moves")!, other = RUBRIC.find((l) => l.id === "other")!;
+    expect(moves.max).toBe(19);
+    expect(other.max).toBe(10);
+    expect(moves.groups.flatMap((g) => g.items.map((x) => x.id))).toContain("m_cyber");
+    expect(other.groups[0].items.map((x) => x.id)).not.toContain("m_cyber");
+    expect(PCT_BASE).toBe(39);
+    expect(scoreRubric(on("m_cyber"))).toMatchObject({ moves: 1, index: 3 });
+    expect(ANALYST_GUIDE.m_cyber).toMatch(/일상적인 해킹 시도.*아니다/);
+  });
+  it("우크라이나 때 침공 며칠 전이었는지를 항목에 붙인다 — 보도로 확인한 넷만", async () => {
+    const { UKRAINE_LEAD } = await import("../src/core/rubric.js");
+    expect(UKRAINE_LEAD).toMatchObject({ m_cyber: { days: 41 }, m_logistics: { days: 27 }, m_airspace: { days: 12 }, g_evac_order: { days: 12 } });
+    expect(Object.keys(UKRAINE_LEAD)).toHaveLength(4);
+    const items = scoreRubric(on("m_logistics")).layers.flatMap((l) => l.groups.flatMap((g) => g.items));
+    expect(items.find((x) => x.id === "m_logistics")!.lead).toEqual(UKRAINE_LEAD.m_logistics);
+    expect(items.find((x) => x.id === "f_fx")!.lead).toBeUndefined();
+  });
+  it("최근 2주 사이 새로 켜진 것: 2주 전에 꺼져 있다가 지금 켜진 징조·움직임만 — 원래 켜져 있던 것·기록이 없는 것은 아니다", async () => {
+    const { freshOf, FRESH_DAYS } = await import("../src/core/proximity.js");
+    const { PRECURSOR_DATA } = await import("../src/core/precursor_data.js");
+    const H = PRECURSOR_DATA.table.hyps.map((h) => h.id);
+    const line = (codes: Record<string, string>) => H.map((id) => codes[id] ?? "0").join("");
+    const day = (n: number) => new Date(NOW - n * 86400_000 + 9 * 3600_000).toISOString().slice(0, 10);
+    const d = (n: number, codes: Record<string, string>) => ({ d: day(n), s: line(codes), i: 15, c: 3, w: 0.5, ph: 2 });
+    const days = [d(20, { g_ultimatum: "2" }), d(12, { m_buildup: "2" }), d(8, { m_buildup: "2" }), d(5, { m_buildup: "2", m_logistics: "1" }), d(2, { m_buildup: "2", m_logistics: "2", m_airspace: "2" }), d(1, { m_buildup: "2", m_logistics: "2", m_airspace: "2", g_intel_warning: "?" })];
+    const r = scoreRubric(on("m_buildup", "m_logistics", "m_airspace", "g_ultimatum", "a_fleet", "s_talks"));
+    const f = freshOf(r, days as any, NOW);
+    expect(FRESH_DAYS).toBe(14);
+    expect(f.items.map((x) => x.id).sort()).toEqual(["g_ultimatum", "m_airspace", "m_logistics"]); // m_buildup 은 창의 처음부터 켜져 있었다 · a_fleet 은 기록이 없다 · s_talks 는 배경
+    expect(f.items.find((x) => x.id === "m_logistics")!.since).toBe(day(5));
+    expect(f.items.find((x) => x.id === "m_airspace")!.since).toBe(day(2));
+    expect(f).toMatchObject({ n: 3, known: 5 });
+    expect(freshOf(r, [], NOW)).toMatchObject({ n: 0, known: 0 }); // 기록이 없으면 '새로'를 말하지 않는다
+  });
+  it("2주 사이 5개가 연달아 켜지면 숫자가 25%에 못 미쳐도 최소 위기 — %는 켜진 개수 그대로 두고 이유를 적는다", async () => {
+    const { FRESH_CRISIS } = await import("../src/core/proximity.js");
+    const { PRECURSOR_DATA } = await import("../src/core/precursor_data.js");
+    expect(FRESH_CRISIS).toBe(5);
+    const H = PRECURSOR_DATA.table.hyps.map((h) => h.id);
+    const day = (n: number) => new Date(NOW - n * 86400_000 + 9 * 3600_000).toISOString().slice(0, 10);
+    const quiet = { v: 1 as const, days: [10, 7, 4, 1].map((n) => ({ d: day(n), s: H.map(() => "0").join(""), i: 15, c: 3, w: 0.5, ph: 2 })), base: {}, baseUpTo: undefined } as any;
+    // 반 개짜리 다섯 — 개수로는 22%(긴장)지만 2주 전에는 모두 꺼져 있었다
+    const five = parseChecks("g_ultimatum=0.5:a i_leader_threat=0.5:b i_pretext=0.5:c m_logistics=0.5:d g_attacker_evac=0.5:e", NOW);
+    const p = assessProximity([], [], NOW, quiet, five);
+    expect(p.fresh).toMatchObject({ n: 5 });
+    expect(p.index).toBeLessThan(25);
+    expect(p.phase).toBe(3);
+    expect(p.rubric.reason).toMatch(/2주 사이 꺼져 있던 신호 5개가 연달아 켜졌어요.*위기로 봐요/);
+    // 넷이면 알림만(phasealert FRESH_AT), 단계는 개수대로
+    const four = parseChecks("g_ultimatum=0.5:a i_leader_threat=0.5:b i_pretext=0.5:c m_logistics=0.5:d", NOW);
+    expect(assessProximity([], [], NOW, quiet, four)).toMatchObject({ phase: 2 });
+    // 기록이 없으면(새로 켜진 것인지 모르면) 바닥을 올리지 않는다
+    expect(assessProximity([], [], NOW, undefined, five).phase).toBe(2);
+  });
+  it("무거운 신호는 하나만으로 단계의 바닥을 올린다 — 확인된 것만, %는 그대로", async () => {
+    const { heavyOf, HEAVY } = await import("../src/core/proximity.js");
+    expect(HEAVY.map((h) => h.id)).toEqual(["m_mobilization", "g_evac_order", "g_leave_now", "m_airspace"]);
+    expect(heavyOf(on("m_alert_level") as any)).toBeUndefined(); // 워치콘 격상 기사 한 건으로 위기가 되지는 않는다
+    expect(heavyOf(on("g_evac_order") as any)).toMatchObject({ phase: 3 });
+    expect(heavyOf({ ...all("off"), g_evac_order: { s: "on", w: 0.5 } } as any)).toBeUndefined(); // 보도만·미확인은 아니다
+    expect(heavyOf(on("g_evac_order", "m_mobilization") as any)).toMatchObject({ phase: 4 });
+    expect(heavyOf(on("s_talks", "f_fx", "i_leader_threat") as any)).toBeUndefined(); // 흔한 신호는 묶여야 한다
+    // 대사관 철수가 확인되면: 켜진 수는 18%(긴장)지만 위기
+    const p = assessProximity([], [], NOW, undefined, parseChecks("g_evac_order=1:미 국무부, 주한 대사관 직원 가족 철수 명령 https://kr.usembassy.gov/x", NOW));
+    expect(p.index).toBeLessThan(25);
+    expect(p.phase).toBe(3);
+    expect(p.rubric.reason).toMatch(/대사관의 철수·출국 명령이 확인됐어요 — 이 신호 하나만으로 위기으로 봐요|위기로 봐요/);
+    expect(assessProximity([], [], NOW, undefined, parseChecks("g_evac_order=0.5:보도만", NOW)).phase).toBe(2);
+    expect(assessProximity([], [], NOW, undefined, parseChecks("m_mobilization=1:예비군 동원령 선포", NOW)).phase).toBe(4);
   });
 });

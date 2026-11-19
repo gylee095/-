@@ -267,9 +267,12 @@ export async function trackBizjets(kv: { getKv(k: string): Promise<string | unde
   return jetMetric(hist, now);
 }
 
+/** 하루 한도에 걸린 실패는 그렇다고 쉽게 적는다 — '수집 실패'만 보면 고장인지 한도인지 모른다 */
+export const limitText = (msg: string) => (/HTTP 429/.test(msg) && /adsb\.lol/.test(msg) ? `adsb.lol 하루 사용 한도(주소당 500번)에 걸림 — 한도가 풀리면 자동으로 다시 받음 (${msg.slice(0, 60)})` : msg);
+
 export async function collectAdsb(now = Date.now(), kv?: { getKv(k: string): Promise<string | undefined>; setKv(k: string, v: string): Promise<void> }): Promise<CollectResult> {
   const [korea, mil] = await Promise.allSettled([fetchAircraft(AIR_REGIONS.korea), fetchMilitaryNeAsia()]);
-  if (korea.status === "rejected") throw korea.reason;
+  if (korea.status === "rejected") throw new Error(limitText(String((korea.reason as Error)?.message ?? korea.reason)));
   const k = korea.value;
   const m = mil.status === "fulfilled" ? mil.value.aircraft : [];
   const metrics = airMetrics(k.aircraft, m);

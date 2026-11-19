@@ -57,6 +57,31 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
   );
 
   server.registerTool(
+    "update_analyst_notebook",
+    {
+      title: "분석관 노트 고쳐 쓰기 (분석관)",
+      description:
+        "다음 분석관에게 남기는 짧은 노트를 통째로 고쳐 쓴다(get_situation 의 notebook 이 지금 노트다). 매 분석이 끝날 때 한 번. 정기 분석관은 매번 새 대화라 지난 판단을 모른다 — 이 노트가 기억이다. " +
+        "세 칸으로 쓴다: '[평소]' 신호·사건의 평소 모습(예: '- 북한 인터넷 장애 경보: 한 달 2~3번, 대개 정전·점검 — 단독으로는 의미 없음') · " +
+        "'[교훈]' 틀렸거나 헷갈렸던 판단과 다음에 할 일(예: '- 11/18 해설 기사 제목의 \'missile\' 이 발사로 읽혔다 — 제목 낱말만으로 발사를 판단하지 않는다') · " +
+        "'[흐름]' 지금 이어지는 큰 흐름과 언제부터인지(예: '- 미-이란 전쟁 2/28부터 진행, 주한미군 사드 일부 중동 이동(복귀 미확인)'). " +
+        "줄마다 '- '로 시작, 날짜를 붙인다. 30줄·한 줄 160자까지 — 넘치면 저장되지 않으니 끝난 흐름·이미 몸에 밴 교훈부터 지운다. 확인한 사실만, 추측은 '추정'이라고 쓴다. 비밀값·개인정보 금지.",
+      inputSchema: { text: z.string().min(5).max(8000).describe("노트 전체 (지금 노트를 고친 결과를 통째로)") },
+    },
+    async ({ text }) => {
+      try {
+        const { NOTEBOOK_KEY, checkNotebook } = await import("../core/notebook.js");
+        const c = checkNotebook(text);
+        if (!c.ok) return fail(new Error(c.error));
+        await store.setKv(NOTEBOOK_KEY, JSON.stringify({ text: c.text, at: Date.now(), lines: c.lines }));
+        return out({ ok: true, lines: c.lines });
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.registerTool(
     "add_news_event",
     {
       title: "놓친 뉴스를 사건으로 올리기 (분석관)",
@@ -114,6 +139,8 @@ export function registerTools(server: McpServer, ctx: ToolContext) {
             " if e.get('type')!='assistant' or 'usage' not in m or m.get('id') in s:continue\n s.add(m.get('id'));x=m['usage']\n" +
             " for k,v in (('input_tokens','input_tokens'),('output_tokens','output_tokens'),('cache_read_tokens','cache_read_input_tokens'),('cache_write_tokens','cache_creation_input_tokens')):u[k]=u.get(k,0)+x.get(v,0)\n" +
             "print(json.dumps(u),os.path.basename(f))\" 로 자기 대화 기록을 합산해 record_usage(kind=scheduled, usage, session_id=파일 이름)로 남긴다. 누적값이어도 서버가 증가분만 더한다.",
+          // 분석관 노트 (11/19): 지난 분석관들이 남긴 평소 모습·교훈·흐름. 먼저 읽고, 끝날 때 update_analyst_notebook 으로 고쳐 쓴다 (30줄 고정)
+          notebook: await (async () => { const { NOTEBOOK_KEY, loadNotebook } = await import("../core/notebook.js"); const nb = loadNotebook(await store.getKv(NOTEBOOK_KEY).catch(() => null)); return nb ? { updated: fmtKst(nb.at), lines: nb.lines, text: nb.text } : { text: "(아직 없음 — 이번 분석 끝에 update_analyst_notebook 으로 처음 쓴다)" }; })(),
           // 넓은 그물로 받은 군사·안보 소식 가운데 아직 판단하지 않은 것 — 분석관이 하나씩 읽고 record_news_judgments 로 중요도를 남긴다
           newsToJudge: st.events.filter((e) => e.brief.relBy === "auto" && e.categories.length === 1 && (e.categories[0] === "security_news" || e.categories[0] === "world_event")).sort((a, b) => b.brief.rel - a.brief.rel || b.brief.at - a.brief.at).slice(0, 30).map((e) => ({ id: e.id, title: e.title, at: fmtKst(e.brief.at), tentative: e.brief.rel, official: e.severity >= 40, urls: e.signals.map((x) => x.url).filter(Boolean).slice(0, 2) })),
           threat: st.threat,

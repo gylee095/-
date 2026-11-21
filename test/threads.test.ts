@@ -3,7 +3,7 @@ import { correlate } from "../src/core/correlate.js";
 import { MemoryStore } from "../src/core/store.js";
 import {
   INTRO_TEXTS, NEWS_TEXTS, PROMO_IMAGES, THREADS_TOPIC, SIGNAL_COUNT, THREADS_GAP_MS, THREADS_MAX_CHARS, THREADS_STATE_KEY, THREADS_TOKEN_KEY,
-  maybePostThreads, maybePostThreadsRise, threadsInsights, postThreadsManual, riseOf, RISE_HOLD_MS, newsLine, postable, refreshThreadsToken, threadsText, type ThreadsState,
+  maybePostThreads, maybePostThreadsRise, maybePostThreadsWide, widePick, threadsInsights, postThreadsManual, riseOf, RISE_HOLD_MS, newsLine, postable, refreshThreadsToken, threadsText, type ThreadsState,
 } from "../src/core/threads.js";
 import type { CrisisEvent, Signal } from "../src/core/types.js";
 import { OFFICIAL_KEY } from "../src/core/official.js";
@@ -283,6 +283,62 @@ describe("반응 통계 (11/17)", () => {
     expect(d.posts[0].error).toMatch(/\(10\).*permission/);
     expect(JSON.stringify(d)).not.toContain("TOK");
     expect((await threadsInsights({ ...env, STAGING: "1" }, store, ok)).skipped).toMatch(/시험 서버/);
+  });
+});
+
+describe("② 큰 뉴스 넓힘 — 분석관이 한반도와 가깝다고 본 속보 (11/21)", () => {
+  const ev = (id: string, title: string, rel: number, relBy = "analyst", ago = 3600_000, cat = "security_news") => ({ id, title, categories: [cat], brief: { at: T0 - ago, rel, relBy } });
+  it("분석관 판단 2 이상·한국어 제목·6시간 안·처음인 것만, 가까운 것부터", () => {
+    const list = [
+      ev("a", "중국 군용기 KADIZ 진입", 2),
+      ev("b", "주한미군 패트리엇 중동 이동", 3),
+      ev("c", "러시아 우크라이나 공습 계속", 1),
+      ev("d", "대만해협 중국 해군 훈련", 2, "auto"),
+      ev("e", "US carrier moves to Taiwan Strait", 3, "analyst", 3600_000, "world_event"),
+      ev("f", "주일미군 F-35 긴급 출격", 3, "analyst", 7 * 3600_000),
+    ];
+    expect(widePick(list, {}, T0)?.id).toBe("b");
+    expect(widePick(list, { b: T0 }, T0)?.id).toBe("a");
+    expect(widePick(list, { a: T0, b: T0 }, T0)).toBeUndefined();
+    expect(widePick([{ ...ev("g", "북한 미사일", 3), categories: ["missile"] }], {}, T0)).toBeUndefined(); // 규칙 사건은 기존 길로
+  });
+  it("뉴스 문장으로 올리고, 같은 속보는 다시 올리지 않으며 한도를 함께 쓴다", async () => {
+    const store = new MemoryStore();
+    const { f, calls } = fakeApi();
+    const list = [ev("b", "주한미군  패트리엇 중동 이동", 3)];
+    const r = await maybePostThreadsWide(env, store, list, T0, f, noSleep);
+    expect(r.posted).toMatchObject({ ok: true, kind: "news", style: "N1", eventId: "b" });
+    expect(posts(calls)[0].body.get("text")).toMatch(/^주한미군 패트리엇 중동 이동\n/);
+    expect((await maybePostThreadsWide(env, store, list, T0 + 3 * 3600_000, f, noSleep)).skipped).toMatch(/새 속보 없음/);
+    expect((await maybePostThreadsWide(env, store, [ev("a", "중국 군용기 KADIZ 진입", 2, "analyst", 0)], T0 + 3600_000, f, noSleep)).skipped).toMatch(/2시간/);
+    expect((await maybePostThreadsWide({ ...env, STAGING: "1" }, store, list, T0, f)).skipped).toMatch(/시험 서버/);
+  });
+});
+
+describe("사진 묶음 다시 시도 (11/21 — 글만 올라간 일)", () => {
+  it("태그 단 묶음이 거절되면 사진 조각부터 새로 담아 태그 없이 묶는다", async () => {
+    const store = new MemoryStore();
+    const calls: URLSearchParams[] = [];
+    let n = 0;
+    const f = (async (url: string, init?: RequestInit) => {
+      const b = new URLSearchParams(String(init?.body ?? ""));
+      calls.push(b);
+      if (b.get("media_type") === "CAROUSEL" && b.get("topic_tag")) return new Response(JSON.stringify({ error: { message: "Invalid parameter", code: 100 } }), { status: 400 });
+      return new Response(JSON.stringify({ id: url.endsWith("threads_publish") ? "post1" : `box${++n}` }));
+    }) as unknown as typeof fetch;
+    const r = await postThreadsManual(env, store, "", T0, f, noSleep, { intro: true });
+    expect(r.posted).toMatchObject({ ok: true, images: 2 });
+    expect(calls.filter((b) => b.get("media_type")).map((b) => [b.get("media_type"), b.get("topic_tag")])).toEqual([
+      ["IMAGE", null], ["IMAGE", null], ["CAROUSEL", "전쟁"], ["IMAGE", null], ["IMAGE", null], ["CAROUSEL", null],
+    ]);
+    expect(calls.find((b) => b.get("media_type") === "CAROUSEL" && !b.get("topic_tag"))!.get("children")).toBe("box3,box4");
+  });
+  it("사진이 끝내 안 되면 글만 올리고 까닭을 남긴다", async () => {
+    const store = new MemoryStore();
+    const { f } = fakeApi(["IMAGE"]);
+    const r = await postThreadsManual(env, store, "", T0, f, noSleep, { intro: true });
+    expect(r.posted).toMatchObject({ ok: true, images: 0 });
+    expect(r.posted!.imageError).toMatch(/사진 담기/);
   });
 });
 

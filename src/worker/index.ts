@@ -239,6 +239,8 @@ export default {
           if (env.THREADS_ACCESS_TOKEN) {
             const th = await import("../core/threads.js");
             await th.maybePostThreadsRise(env, store, st.warRisk.live, report.at).catch(() => undefined);
+            // 스레드 ② 큰 뉴스(넓힘, 11/21): 분석관이 한반도 전쟁과 가깝다(2 이상)고 판단한 속보 — 하루 한도·간격은 ①②가 함께 쓴다
+            await th.maybePostThreadsWide(env, store, st.events as never, report.at).catch(() => undefined);
           }
           if (env.CLAUDE_ROUTINE_URL && env.CLAUDE_ROUTINE_TOKEN)
             await maybeFireDeep(store, env, { warRisk: st.warRisk.live, briefs: st.events.map((e) => e.brief), patterns: st.patterns, now: report.at, dashboardUrl: (env.DASHBOARD_URL ? `${env.DASHBOARD_URL}/ops` : undefined), customerAlert });

@@ -56,6 +56,8 @@ export interface ThreadsLog {
   text: string;
   /** 붙인 사진 수 (사진 올리기에 실패하면 글만 올리고 0) */
   images?: number;
+  /** 사진을 붙이려다 실패한 까닭 (글만 올라갔을 때) */
+  imageError?: string;
   ok: boolean;
   postId?: string;
   error?: string;
@@ -173,24 +175,28 @@ export async function publishThreads(token: string, text: string, fetchImpl: typ
 }
 
 /** 사진 여러 장(넘겨 보기) + 글. 사진 한 장씩 담고 → 묶고 → 공개. 사진 쪽이 실패하면 글만 올린다 */
-export async function publishThreadsWithImages(token: string, text: string, imageUrls: string[], fetchImpl: typeof fetch = fetch, sleep: (ms: number) => Promise<void> = wait): Promise<{ id?: string; error?: string; images: number }> {
+export async function publishThreadsWithImages(token: string, text: string, imageUrls: string[], fetchImpl: typeof fetch = fetch, sleep: (ms: number) => Promise<void> = wait): Promise<{ id?: string; error?: string; images: number; imageError?: string }> {
+  // 11/21: 태그를 단 사진 묶음이 거절된 뒤 같은 사진 조각으로 태그 없이 다시 묶으려다 실패해 글만 올라갔다 (조각은 묶음 하나에만 쓸 수 있는 것으로 보인다).
+  // 그래서 태그 있이 한 번, 안 되면 사진 조각부터 새로 담아 태그 없이 한 번 — 둘 다 안 되면 글만 올리고 까닭을 남긴다
+  let imageError: string | undefined;
   if (imageUrls.length >= 2) {
-    const items: string[] = [];
-    for (const image_url of imageUrls) {
-      const it = await call(fetchImpl, "threads", { media_type: "IMAGE", is_carousel_item: "true", image_url, access_token: token });
-      if (!it.id) break;
-      items.push(it.id);
-    }
-    if (items.length === imageUrls.length) {
-      await sleep(5000); // 스레드가 사진을 내려받을 시간
-      const box = await withTopic((t) => call(fetchImpl, "threads", { media_type: "CAROUSEL", children: items.join(","), text, ...t, access_token: token }));
-      if (box.id) {
-        const out = await publishContainer(token, box.id, fetchImpl, sleep, [0, 5000, 15000, 30000]);
-        if (out.id) return { ...out, images: imageUrls.length };
+    for (const topic of [{ topic_tag: THREADS_TOPIC }, {}] as Record<string, string>[]) {
+      const items: string[] = [];
+      for (const image_url of imageUrls) {
+        const it = await call(fetchImpl, "threads", { media_type: "IMAGE", is_carousel_item: "true", image_url, access_token: token });
+        if (!it.id) { imageError = `사진 담기 ${it.error ?? ""}`.trim(); break; }
+        items.push(it.id);
       }
+      if (items.length !== imageUrls.length) break; // 사진 자체가 안 되면 태그를 빼도 같다
+      await sleep(5000); // 스레드가 사진을 내려받을 시간
+      const box = await call(fetchImpl, "threads", { media_type: "CAROUSEL", children: items.join(","), text, ...topic, access_token: token });
+      if (!box.id) { imageError = `${topic.topic_tag ? "태그 단 " : ""}묶음 ${box.error ?? ""}`.trim(); continue; }
+      const out = await publishContainer(token, box.id, fetchImpl, sleep, [0, 5000, 15000, 30000]);
+      if (out.id) return { ...out, images: imageUrls.length };
+      imageError = `${topic.topic_tag ? "태그 단 " : ""}묶음 공개 ${out.error ?? ""}`.trim();
     }
   }
-  return { ...(await publishThreads(token, text, fetchImpl, sleep)), images: 0 };
+  return { ...(await publishThreads(token, text, fetchImpl, sleep)), images: 0, ...(imageError ? { imageError: imageError.slice(0, 200) } : {}) };
 }
 
 export interface ThreadsResult {
@@ -216,7 +222,7 @@ async function postOne(env: PushEnv, store: Kv, token: string, key: string, kind
   const res = kind === "intro"
     ? await publishThreadsWithImages(token, text, PROMO_IMAGES.map((p) => site + p), fetchImpl, sleep)
     : { ...(await publishThreads(token, text, fetchImpl, sleep)), images: 0 };
-  const entry: ThreadsLog = { at: now, eventId: key, kind, style, text, images: res.images, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
+  const entry: ThreadsLog = { at: now, eventId: key, kind, style, text, images: res.images, ...("imageError" in res && res.imageError ? { imageError: res.imageError } : {}), ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
 
   st.log = [...st.log, entry].slice(-40);
   if (entry.ok) {
@@ -267,6 +273,30 @@ export async function maybePostThreads(
   if (!picks.length) return { skipped: "올릴 만한 사건 없음 (훈련·정정·미확인·이미 올림)" };
   const { e, p } = picks[0];
   return postOne(env, store, token, e.id, "news", newsLine(p.headline, p.unconfirmed), now, fetchImpl, sleep);
+}
+
+/** ② 큰 뉴스 (넓힘, 11/21 사용자: "전쟁 관련 속보가 뜨면 자동으로 올리기로 했잖아"): 북한 발사·포격만이 아니라,
+ *  분석관이 읽고 '한반도 전쟁과 가깝다(2 이상)'고 판단한 군사·안보·세계 속보도 올린다. 낱말 임시 점수는 쓰지 않는다(잡음).
+ *  글에는 제목을 그대로 쓰므로 한국어 제목만 (영어 외신 제목은 올리지 않는다). 최근 6시간 안의 소식만 */
+export const WIDE_NEWS_MIN_REL = 2;
+export const WIDE_NEWS_MAX_AGE_MS = 6 * 3600_000;
+type WideEvent = { id: string; title: string; categories: string[]; drill?: boolean; retracted?: boolean; brief?: { at?: number; rel?: number; relBy?: string } };
+export function widePick(events: WideEvent[], posted: Record<string, number>, now: number): WideEvent | undefined {
+  return events
+    .filter((e) => e.categories.length === 1 && (e.categories[0] === "security_news" || e.categories[0] === "world_event"))
+    .filter((e) => e.brief?.relBy === "analyst" && (e.brief.rel ?? 0) >= WIDE_NEWS_MIN_REL && !e.drill && !e.retracted && !posted[e.id])
+    .filter((e) => now - (e.brief?.at ?? 0) <= WIDE_NEWS_MAX_AGE_MS && /[가-힣]/.test(e.title))
+    .sort((a, b) => (b.brief?.rel ?? 0) - (a.brief?.rel ?? 0) || (b.brief?.at ?? 0) - (a.brief?.at ?? 0))[0];
+}
+export async function maybePostThreadsWide(env: PushEnv, store: Kv, events: WideEvent[], now: number, fetchImpl: typeof fetch = fetch, sleep?: (ms: number) => Promise<void>): Promise<ThreadsResult> {
+  if (env.STAGING) return { skipped: "시험 서버" };
+  if (!env.THREADS_ACCESS_TOKEN) return { skipped: "스레드 토큰 없음" };
+  const st = await loadState(store);
+  const e = widePick(events, st.posted, now);
+  if (!e) return { skipped: "분석관이 가깝다고 본 새 속보 없음" };
+  const token = await currentToken(env, store);
+  if (!token) return { skipped: "스레드 토큰 없음" };
+  return postOne(env, store, token, e.id, "news", e.title.replace(/\s+/g, " ").trim(), now, fetchImpl, sleep);
 }
 
 /** ① 앱 소개를 올리는 때 (11/16 사용자): 앱의 % 가 오늘 아침 판정보다 이만큼(%p) 넘게 오르고 */
@@ -349,7 +379,7 @@ export async function postThreadsManual(env: PushEnv, store: Kv, text: string, n
     ? await publishThreadsWithImages(token, t, PROMO_IMAGES.map((p) => site + p), fetchImpl, sleep)
     : { ...(await publishThreads(token, t, fetchImpl, sleep)), images: 0 };
   const kind: PostKind = opts.intro ? "intro" : "dev";
-  const entry: ThreadsLog = { at: now, eventId: `${opts.intro ? "intro-manual" : "dev"}:${now}`, kind, style: made.style, text: t, images: res.images, ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
+  const entry: ThreadsLog = { at: now, eventId: `${opts.intro ? "intro-manual" : "dev"}:${now}`, kind, style: made.style, text: t, images: res.images, ...("imageError" in res && res.imageError ? { imageError: res.imageError } : {}), ok: !!res.id, ...(res.id ? { postId: res.id } : { error: res.error }) };
   const st2 = await loadState(store);
   st2.log = [...st2.log, entry].slice(-40);
   if (entry.ok && opts.intro) st2.nk = { ...(st2.nk ?? {}), intro: (st2.nk?.intro ?? 0) + 1 };

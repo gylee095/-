@@ -244,7 +244,7 @@ describe("세계 정세를 넓게 (11/14)", () => {
     expect(s0.w_infra).toMatchObject({ s: "on", w: 0.5 });
     expect(s0.w_new_war.s).toBe("off");
     expect(koreaStatus([], b, NOW, parseChecks("w_infra=1:국가 배후 공격으로 확인", NOW)).w_infra).toMatchObject({ s: "on", by: "analyst" });
-    expect(koreaStatus([], [], NOW + 8 * 86400_000, parseChecks("w_power_clash=1:격추", NOW)).w_power_clash.s).toBe("unk"); // 7일이 지나면 다시 확인
+    expect(koreaStatus([], [], NOW + 8 * 86400_000, parseChecks("w_power_clash=1:격추", NOW)).w_power_clash.s).toBe("off"); // 7일이 지나면 분석관 확인은 끝나고 자동 판단(제목 없음 → 꺼짐)으로 돌아간다 (11/21부터 자동 반 개)
     expect(WORLD_EVENT_IDS.every((i) => ALL_IDS.includes(i))).toBe(true);
     expect(RUBRIC.find((l) => l.id === "context")!.max).toBe(17);
   });

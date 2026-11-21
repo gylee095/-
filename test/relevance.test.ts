@@ -53,3 +53,35 @@ describe("분석관은 손님 알림이 나갈 때만 추가로 깨운다 (11/18
     expect(a[0].text).toContain("손님 알림");
   });
 });
+
+// 11/21 사용자: "러시아가 쐈는데 왜 % 가 안 올라가?" — 러시아 미사일이 나토 회원국 폴란드에 떨어진 보도가 1점으로 묻히고, '강대국 직접 충돌' 칸은 비어 0이었다
+describe("강대국 직접 충돌 — 러시아·중국이 나토·미국·일본 쪽을 쳤다는 제목", async () => {
+  const { powerClash } = await import("../src/core/relevance.js");
+  const { autoStatus } = await import("../src/core/proximity.js");
+  it("그날 실제 제목: 폴란드 피격은 잡고 2점", () => {
+    for (const t of [
+      "Poland hit by at least one Russian missile, says Polish govt",
+      "Russian missiles hit Poland: What happened, and could NATO respond?",
+      "Russia missiles pummel Ukraine and hit NATO soil in Poland",
+      "Russian drones shot down over Romania, NATO says",
+      "Chinese warship rams Philippine vessel near Second Thomas Shoal",
+      "러시아 미사일, 나토 회원국 폴란드 영토에 떨어져",
+      "중국 군함, 필리핀 보급선 들이받아",
+    ]) { expect(powerClash(t), t).toBe(true); expect(koreaRelevance(t, ["security_news"]), t).toBe(2); }
+  });
+  it("누가 쐈는지 모르거나, 우크라이나 안의 전황이거나, 재판은 아니다", () => {
+    for (const t of [
+      "Russia says Kaliningrad-bound ship struck by drones in Gulf of Finland",
+      "Russian attacks on Ukraine's energy grid intensify ahead of winter",
+      "Three Kyiv bridges hit during major Russian missile attack",
+      "Russia and China hold joint naval drills near Japan",
+      "Man charged with spying for Russia at NATO base in Germany",
+    ]) expect(powerClash(t), t).toBe(false);
+  });
+  it("그런 사건이 사흘 안에 있으면 '강대국 직접 충돌'이 반 개 켜진다 — 없으면 꺼짐", () => {
+    const now = Date.UTC(2026, 10, 21, 3);
+    const b = (headline: string) => ({ headline, at: now - 3600_000, isProvocation: false, danger: { level: 1, label: "관심", reason: "" } }) as never;
+    expect(autoStatus([], [b("Poland hit by at least one Russian missile, says Polish govt")], now).w_power_clash).toMatchObject({ s: "on", w: 0.5 });
+    expect(autoStatus([], [b("Russian attacks on Ukraine's energy grid intensify ahead of winter")], now).w_power_clash.s).toBe("off");
+  });
+});

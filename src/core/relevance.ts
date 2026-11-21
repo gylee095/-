@@ -30,11 +30,24 @@ const US_PARALYSIS_RE = /\b(nationwide|classified|N\.?S\.?A\.?|Pentagon|power gr
 // ⑤ 중국·러시아와 일본의 군사 마찰 (한반도 바로 옆)
 const JAPAN_RE = /\bJapan(?:ese)?\b|일본|자위대/;
 
+// ⑥ 강대국이 나토·미국·일본의 영토·군대를 직접 쳤다 (11/21: 러시아 미사일이 폴란드에 떨어진 보도가 1점으로 묻혔다)
+// 러시아·중국의 무기가 주어여야 한다 — 'Kaliningrad 행 러시아 배가 핀란드만에서 드론에 맞았다'처럼 누가 쐈는지 모르는 제목은 아니다
+const PC_WEAPON_EN = /\b(Russian?|Chinese|China)\s+(missiles?|drones?|jets?|fighters?|warships?|aircraft|bombers?|forces|troops|navy|military)\b|\b(Russia|China)\s+(fires?|fired|strikes?|struck|attacks?|attacked|shoots? down|shot down|hits?|downs|rams?|rammed)\b/i;
+const PC_TARGET_EN = /\bNATO\b|\b(Poland|Polish|Netherlands|Dutch|Lithuania|Latvia|Estonia|Romania|Germany|German|Britain|British|Norway|Denmark|Sweden|Japan|Japanese|Philippines|Philippine|Taiwan)\b(?! Strait)|\b(U\.?S\.?|American) (base|troops|forces|warship|ship|jet|aircraft|drone|destroyer|carrier|soldiers)\b|\bUSS\b/;
+const PC_HIT_EN = /\b(hits?|struck|strikes?|lands?|landed|crash(ed|es)?|shot down|downed|attack(ed|s)?|fired|collid\w+|rams?|rammed|clash\w*|violat\w+|intercept\w+|soil|territory)\b/i;
+const PC_KO = /(러시아|러|중국|中)\s?(미사일|드론|군용기|전투기|폭격기|군함|해경|군)[^.]{0,30}(폴란드|나토|네덜란드|발트|루마니아|리투아니아|에스토니아|라트비아|독일|영국|노르웨이|일본|필리핀|대만|미군|미 군함|미국 군함)|(폴란드|나토|네덜란드|일본|필리핀|미군)[^.]{0,30}(러시아|러|중국|中)\s?(미사일|드론|군용기|전투기|군함)/;
+const PC_KO_HIT = /피격|떨어|타격|공격|격추|충돌|침범|발사|추락|들이받/;
+/** 러시아·중국이 나토·미국·일본·대만·필리핀의 영토·군대를 쳤다는 제목인가 — '강대국 직접 충돌'의 자동 근거(절반)와 연관도 2 */
+export function powerClash(title: string): boolean {
+  if (NOISE_RE.test(title)) return false;
+  return (PC_WEAPON_EN.test(title) && PC_TARGET_EN.test(title) && PC_HIT_EN.test(title)) || (PC_KO.test(title) && PC_KO_HIT.test(title));
+}
+
 /** 제목만 보고 매기는 임시 연관도. 규칙이 종류를 정한 한반도 사건(발사·포격·경보 등)은 3 */
 export function koreaRelevance(title: string, categories: string[]): Rel {
   if (!isWideNet(categories) || isKoreaContext(title) || KOREA_RE.test(title)) return 3;
   if (NOISE_RE.test(title)) return 0;
-  if (NUCLEAR_RE.test(title) || NEAR_FORCE_RE.test(title)) return 2;
+  if (NUCLEAR_RE.test(title) || NEAR_FORCE_RE.test(title) || powerClash(title)) return 2;
   if (TAIWAN_RE.test(title) && FORCE_RE.test(title)) return 2;
   if (US_RE.test(title) && POWER_RE.test(title) && DIRECT_RE.test(title)) return 2;
   if (POWER_RE.test(title) && JAPAN_RE.test(title) && FORCE_RE.test(title)) return 2;

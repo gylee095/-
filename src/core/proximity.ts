@@ -10,6 +10,7 @@ import { PRECURSOR_DATA } from "./precursor_data.js";
 import { MODEL, evaluate, type Obs, type Proximity, type SignalNow, type SourceLink } from "./precursors.js";
 import { BASE_SEED, RUBRIC, TOTAL_ITEMS, PCT_BASE, clashOf, scoreRubric, type RubricScore } from "./rubric.js";
 import { worldEvent } from "./classify.js";
+import { powerClash } from "./relevance.js";
 import { BANDS, PHASE_LABEL, eventFloors, fmtRiskPct, type Band, type Phase, type WarRisk } from "./warrisk.js";
 
 export const PROX_HIST_KEY = "prox:hist";
@@ -55,7 +56,7 @@ export const HOTSPOT = { km: 5, frp: 5 };
 /** 자동으로 볼 수 있는 가설 — 나머지는 분석관만 확인할 수 있다 */
 export const AUTO_IDS = new Set([
   "g_evac_order", "g_leave_now", "g_staff_restrict", "g_intel_warning", "m_buildup", "m_mobilization", "m_strategic_assets", "m_civil_defense", "m_airspace",
-  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_alarm", "w_infra", "w_new_war", "w_markets", "m_leadership",
+  "m_gps_ew", "m_cyber", "m_border_fire", "m_alert_level", "f_fx", "f_equity", "f_safe_haven", "f_prediction", "f_capital_flight", "i_news_surge", "i_public_anxiety", "t_trigger", "t_provocation", "t_major_test", "a_fleet", "a_launch_prep", "a_nk_dark", "w_alarm", "w_infra", "w_new_war", "w_power_clash", "w_markets", "m_leadership",
 ]);
 
 /** 징후판·보도에서 자동으로 읽은 한반도 상태 */
@@ -157,6 +158,11 @@ export function autoStatus(board: BoardRow[], briefs: EventBrief[], now: number)
   set("w_new_war", ww ? "on" : "off", 0.5, ww?.headline);
   if (wi) out.w_infra.evAt = wi.at;
   if (ww) out.w_new_war.evAt = ww.at;
+  // 강대국 직접 충돌 (11/21): 러시아 미사일이 나토 회원국 폴란드에 떨어졌는데 분석관이 이 칸을 비워 둬 0으로 셌다. 제목으로 잡히면 절반 켜 두고,
+  // 고의인지·실수인지는 분석관이 확인해 1 또는 0 으로 바꾼다 (다른 세계 사건과 같은 길 — 보도가 이어지면 유지, 사흘 조용하면 내린다)
+  const pc = briefs.find((b) => now - b.at < WORLD_AUTO_DAYS * DAY && now - b.at >= -3600_000 && powerClash(b.headline));
+  set("w_power_clash", pc ? "on" : "off", 0.5, pc?.headline);
+  if (pc) out.w_power_clash.evAt = pc.at;
   return out;
 }
 
@@ -415,7 +421,7 @@ export const ANALYST_GUIDE: Record<string, string> = {
   m_cyber: "정부 핵심 전산망과 주요 은행이 동시에 마비되거나 데이터 삭제(와이퍼) 공격을 받았나 — 일상적인 해킹 시도·개별 기관 침해는 아니다 (자동은 국가 사이버위기 경보 격상만 본다)",
   w_infra: "(세계·사건) 미국·동맹국 기반시설의 전국 규모 마비·공격 — 원인보다 '아직 이어지는가'를 본다: 마비·혼란이 지금도 이어지면 유지(국가 배후 공격으로 확인 1 · 원인 불명이거나 사고지만 아직 정상화 안 됨 0.5), 정상화돼 끝났으면 0 (0 이면 내려간다). 매번 다시 확인한다",
   w_new_war: "(세계·사건) 새 전쟁·대규모 공격 — 지금도 교전이 이어지면 1, 충돌 직전 대치·제한 교전이면 0.5, 가라앉았으면 0",
-  w_power_clash: "(세계·사건) 강대국끼리 직접 부딪쳤나 — 격추, 함정 충돌, 교전 (7일 유효)",
+  w_power_clash: "(세계·사건·비워 두지 않는다) 강대국끼리 직접 부딪쳤나 — 러시아·중국이 나토·미국·일본·대만·필리핀의 영토·군대를 쳤거나 격추·함정 충돌·교전. 고의로 확인되면 1, 실수·유탄 가능성이 있거나 한 번 뒤 가라앉았으면 0.5, 찾아봤지만 없으면 0 (7일 유효)",
   w_us_commit: "(세계) 미국이 동맹 방위에서 발을 빼는 신호가 있나 — 주한미군 감축 발표, 방위비 갈등으로 철수 거론",
   w_us_war: "(세계·한 달에 한 번) 미국이 한반도 밖에서 전쟁·대규모 군사작전을 하고 있나",
   w_us_assets_out: "(세계) 주한미군·인도태평양 전력(사드·패트리엇·항모·탄약)이 다른 곳으로 빠져 있나",

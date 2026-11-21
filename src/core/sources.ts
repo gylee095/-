@@ -105,7 +105,7 @@ export const SOURCES: Record<SourceId, SourceMeta> = {
     kind: "sensor",
     access: "키 불필요",
     cost: "무료",
-    refresh: "수 초",
+    refresh: "15분",
     latency: "수 초~수십 초. 한반도 수신기 커버리지 제한적 → 결측 가능",
     realtime: "near-realtime",
     terms: "ODbL (출처 표시, 동일조건 공유)",
@@ -387,9 +387,11 @@ export function listSources(): SourceMeta[] {
  */
 export const SCHEDULE: Record<string, SourceId[]> = {
   "* * * * *": ["rss_breaking"],
-  "*/5 * * * *": ["safetydata", "usgs", "emsc", "adsb_lol", "rss_news"],
+  "*/5 * * * *": ["safetydata", "usgs", "emsc", "rss_news"],
   // bluesky·aisstream 은 뺐다(2026-11-01): 서버에서 막히거나(블루스카이 403) 한국 바다를 몇 척밖에 못 봐서 지표가 '사실상 모름'이었다
-  "3-59/15 * * * *": ["nga_msi", "markets"],
+  // adsb_lol 은 15분마다 (11/20): adsb.lol 이 주소(IP)마다 하루 500번으로 막는다(응답 머리 x-ratelimit-limit: 500;w=86400).
+  // 5분마다 두 번(위치·군용기)이면 하루 576번이라 매일 저녁쯤 한도가 차 '수집 실패'가 몇 시간씩 이어졌다. 15분마다면 하루 192번
+  "3-59/15 * * * *": ["nga_msi", "markets", "adsb_lol"],
   "11 * * * *": ["travel", "korea_kr_mnd", "ioda", "firms", "advisories", "polymarket", "nightlights"],
   "41 2 * * *": ["gpsjam", "gfw", "wiki", "naver_datalab", "ecos", "nk_market"],
 };

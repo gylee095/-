@@ -77,7 +77,7 @@ describe("암호화·서명", () => {
 });
 
 describe("구독 저장과 묶음 발송", () => {
-  it("같은 주소는 하나만, 끝난 구독(410)은 지우고, 세 번 실패도 지운다", async () => {
+  it("같은 주소는 하나만, 끝난 구독(410)만 지운다 — 일시 오류(500)는 여러 번이어도 남긴다 (11/24)", async () => {
     const store = new MemoryStore();
     const a = await fakeBrowser(), b = await fakeBrowser();
     b.sub.endpoint = "https://push.example/send/def";
@@ -90,8 +90,17 @@ describe("구독 저장과 묶음 발송", () => {
     expect(r).toEqual({ sent: 1, failed: 1, removed: 1, total: 2 });
     expect((await loadSubs(store)).map((s) => s.endpoint)).toEqual([a.sub.endpoint]);
     const bad = (async () => new Response("", { status: 500 })) as unknown as typeof fetch;
-    for (let i = 0; i < 3; i++) await broadcastWebPush(store, "https://kew.example", { title: "t", body: "b" }, bad);
-    expect(await loadSubs(store)).toEqual([]);
+    for (let i = 0; i < 5; i++) await broadcastWebPush(store, "https://kew.example", { title: "t", body: "b" }, bad);
+    expect((await loadSubs(store)).map((x) => [x.fails, x.lastStatus])).toEqual([[5, 500]]);
+    expect(JSON.parse((await store.getKv("push:last"))!)).toMatchObject({ total: 1, sent: 0, failed: 1, statuses: { "500": 1 } });
+    await broadcastWebPush(store, "https://kew.example", { title: "t", body: "b" }, f); // 다시 되면 실패 기록은 지운다
+    expect((await loadSubs(store)).map((x) => [x.fails, x.lastStatus])).toEqual([[0, undefined]]);
+    // 브라우저가 구독을 바꾸면 옛 주소를 새 주소로 (등급은 그대로)
+    const { renewSub } = await import("../src/core/webpush.js");
+    expect(await renewSub(store, "https://nope", b.sub, 9)).toBe(false);
+    expect(await renewSub(store, a.sub.endpoint, b.sub, 9)).toBe(true);
+    expect((await loadSubs(store)).map((x) => [x.endpoint, x.who])).toEqual([[b.sub.endpoint, "owner"]]);
+    await removeSub(store, b.sub.endpoint);
     expect(await removeSub(store, "x")).toEqual({ count: 0 });
   });
 

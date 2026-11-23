@@ -130,6 +130,20 @@ export async function sendWebPush(keys: VapidKeys, sub: PushSubscriptionJson, pa
 import type { Store } from "./store.js";
 
 export const SUBS_KEY = "webpush:subs";
+/** 마지막 일괄 발송 결과 (점검용 — 주소는 남기지 않는다) */
+export const PUSH_LAST_KEY = "push:last";
+
+/** 브라우저가 구독을 새로 바꿨을 때(서비스 워커의 pushsubscriptionchange): 옛 주소를 새 주소로 바꾼다. 옛 주소를 아는 쪽만 할 수 있다 */
+export async function renewSub(store: Pick<Store, "getKv" | "setKv">, oldEndpoint: string, sub: PushSubscriptionJson, now: number): Promise<boolean> {
+  if (!sub?.endpoint?.startsWith("https://") || !sub.keys?.p256dh || !sub.keys?.auth) return false;
+  const all = await loadSubs(store);
+  const prev = all.find((s) => s.endpoint === oldEndpoint);
+  if (!prev) return false;
+  const rest = all.filter((s) => s.endpoint !== oldEndpoint && s.endpoint !== sub.endpoint);
+  rest.push({ endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth }, at: prev.at ?? now, who: prev.who });
+  await store.setKv(SUBS_KEY, JSON.stringify(rest));
+  return true;
+}
 export const VAPID_KEY = "webpush:vapid";
 export const MAX_SUBS = 5000;
 
@@ -138,8 +152,10 @@ export interface StoredSub extends PushSubscriptionJson {
   at: number;
   /** 등록한 쪽 (대시보드 주인 = owner, 그 밖은 public) */
   who?: string;
-  /** 마지막 실패 시각·횟수 — 여러 번 실패하면 지운다 */
+  /** 연속 실패 횟수 — 구독이 끝났다는 답(404·410)일 때만 지운다 */
   fails?: number;
+  /** 마지막 실패 응답 코드 (점검용) */
+  lastStatus?: number;
 }
 
 /** 키 쌍: 없으면 한 번 만들어 저장한다 (배포·설정 단계 없이 바로 쓰려고) */
@@ -202,12 +218,16 @@ export async function broadcastWebPush(
   for (const s of subs) {
     const r = byEndpoint.get(s.endpoint);
     if (!r) { keep.push(s); continue; }
-    if (r.ok) { sent++; keep.push({ ...s, fails: 0 }); continue; }
+    if (r.ok) { sent++; const { lastStatus: _l, ...rest } = s; keep.push({ ...rest, fails: 0 }); continue; }
     failed++;
     const fails = (s.fails ?? 0) + 1;
-    if (r.gone || fails >= 3) removed++;
-    else keep.push({ ...s, fails });
+    // 지우는 것은 푸시 서버가 '이 구독은 끝났다'(404·410)고 할 때만 (11/24): 전에는 일시 오류 세 번에도 지워, 손님 폰은 켜져 있다고 믿는데 서버 목록에서는 빠졌다
+    if (r.gone) removed++;
+    else keep.push({ ...s, fails, ...(r.status ? { lastStatus: r.status } : {}) });
   }
-  if (removed || failed) await store.setKv(SUBS_KEY, JSON.stringify(keep));
+  if (removed || failed || sent) await store.setKv(SUBS_KEY, JSON.stringify(keep));
+  const statuses: Record<string, number> = {};
+  for (const r of results) if (!r.ok) statuses[String(r.status ?? "network")] = (statuses[String(r.status ?? "network")] ?? 0) + 1;
+  await store.setKv(PUSH_LAST_KEY, JSON.stringify({ at: Date.now(), title: payload.title.slice(0, 60), total: targets.length, sent, failed, removed, statuses })).catch(() => undefined);
   return { sent, failed, removed, total: targets.length };
 }

@@ -48,6 +48,18 @@ self.addEventListener("push", function(e){
     data: { url: d.url || "/me" }
   }); }));
 });
+// 브라우저가 구독을 바꾸면(안드로이드에서 가끔) 새로 구독하고 서버에 알린다 — 안 하면 서버는 끝난 옛 주소로 보내 알림이 안 온다 (11/24)
+self.addEventListener("pushsubscriptionchange", function(e){
+  var old = e.oldSubscription ? e.oldSubscription.endpoint : null;
+  e.waitUntil(fetch("/api/push/key").then(function(r){ return r.json(); }).then(function(k){
+    var raw = atob(k.publicKey.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((k.publicKey.length + 3) % 4)), key = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) key[i] = raw.charCodeAt(i);
+    return e.newSubscription || self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+  }).then(function(sub){
+    if (!old || !sub) return;
+    return fetch("/api/push/renew", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ old: old, subscription: sub.toJSON() }) });
+  }).catch(function(){}));
+});
 self.addEventListener("notificationclick", function(e){
   e.notification.close();
   var url = (e.notification.data && e.notification.data.url) || "/";

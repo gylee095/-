@@ -235,9 +235,9 @@ describe("경로 규칙 (코드 검사)", () => {
     const src = readFileSync(new URL("../src/worker/index.ts", import.meta.url), "utf8");
     const sub = src.slice(src.indexOf('"/api/push/subscribe"'), src.indexOf('"/api/push/subscribe"') + 700);
     expect(sub).toMatch(/if \(!authed\) return json\(\{ error: "알림은 결제 뒤 받은 활성화 코드로 켤 수 있어요"[^)]*\}, 402\)/);
-    const act = src.slice(src.indexOf('"/api/billing/activate"'), src.indexOf('"/api/billing/activate"') + 700);
+    const act = src.slice(src.indexOf('"/api/billing/activate"'), src.indexOf('"/api/billing/activate"') + 1600);
     expect(act).toMatch(/redeemCode\(/);
-    expect(act).toMatch(/addSub\(store, body\.subscription, "paid"/);
+    expect(act).toMatch(/addSub\(store, body\.subscription, "paid"/); // quiet 재등록도 같은 길 (결제 코드가 맞아야)
     // 주문 응답(브라우저로 가는 것)에 연동 KEY·VALUE·결제KEY 가 없다
     const order = src.slice(src.indexOf('"/api/billing/order"'), src.indexOf('"/api/billing/payapp-notify"'));
     expect(order).not.toMatch(/linkkey|linkval|requestkey/);
@@ -327,5 +327,18 @@ describe("가입 흐름 기록: 기기·브라우저 종류만 남긴다", async
     expect(f[0]).toEqual({ via: "ios:threads", label: "아이폰 · 스레드 앱 안", started: 4, paid: 3, enabled: 2, refunded: 1 });
     expect(f[1]).toMatchObject({ via: "android:chrome", started: 1, paid: 1, enabled: 1 });
     expect(f).toHaveLength(2);
+  });
+});
+
+// 11/24: 손님 폰은 '알림 켜짐'인데 서버 구독 목록에서 빠져 알림이 안 갔다 — 알림함을 열 때 조용히 다시 등록한다
+describe("끝난 기기 자리를 비우고 다시 등록한다", async () => {
+  const { redeemCode, ORDERS_KEY } = await import("../src/core/billing.js");
+  const { MemoryStore } = await import("../src/core/store.js");
+  it("기기 3대가 다 찼어도 서버에서 끝난 기기는 빼고 새 기기를 받는다", async () => {
+    const store = new MemoryStore();
+    await store.setKv(ORDERS_KEY, JSON.stringify([{ orderId: "k1", claim: "c", code: "ABCD-EFGH-JKLM", amount: 4900, status: "paid", createdAt: 1, devices: ["https://p/a", "https://p/b", "https://p/c"] }]));
+    expect((await redeemCode(store, "ABCD-EFGH-JKLM", "https://p/new", 2)).ok).toBe(false); // 예전 방식: 자리 없음
+    const r = await redeemCode(store, "ABCD-EFGH-JKLM", "https://p/new", 2, undefined, new Set(["https://p/c"]));
+    expect(r.ok && r.order.devices).toEqual(["https://p/c", "https://p/new"]);
   });
 });

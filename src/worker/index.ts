@@ -1,9 +1,9 @@
 // Cloudflare Worker: 5분 크론 감시 사이클 + 원격 MCP 커넥터 + 모바일 대시보드
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { notifyPhaseChange } from "../core/phasealert.js";
-import { addSub, loadSubs, loadVapid, removeSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
+import { addSub, loadSubs, loadVapid, removeSub, renewSub, sendWebPush, type PushSubscriptionJson } from "../core/webpush.js";
 import { ICON_SVG, OPS_MANIFEST, SERVICE_WORKER_JS, WEB_MANIFEST } from "./pwa.js";
-import { browserKind, viaLabel, DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, markOwn, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
+import { renewOrderDevice, browserKind, viaLabel, DEVICES_PER_CODE, PAYAPP_PAYTYPES, PRODUCT_NAME, SHOP_NAME, attachStartReport, billingSummary, setExtraReports, createOrder, loadOrders, markOwn, paymentPush, handlePayAppNotice, orderStatus, paidOrderByCode, payAppConfig, redeemCode, refundOrder } from "../core/billing.js";
 import { CURRENT_KEY, addDemoReports, freezeState, loadFull, loadReports, reportFromRisk, saveCurrent, snapshotForPurchase, summarize, visibleReports, type Report } from "../core/reports.js";
 import { SHELL_HEAD, buyPage, failPage, successPage, termsPage } from "./buy.js";
 import { OG_JPG_BASE64 } from "./og.js";
@@ -435,11 +435,15 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
   }
   if (url.pathname === "/api/billing/activate" && req.method === "POST") {
     // 코드 + 이 기기의 푸시 구독 → paid 구독. 코드가 문지기라 인증은 필요 없다
-    const body = (await req.json().catch(() => null)) as { code?: string; subscription?: PushSubscriptionJson } | null;
+    // quiet: 알림함을 열 때마다 폰이 가진 구독을 조용히 다시 등록한다 (11/24 — 서버 목록에서 빠진 기기를 스스로 되살린다). 환영 알림은 보내지 않는다
+    const body = (await req.json().catch(() => null)) as { code?: string; subscription?: PushSubscriptionJson; quiet?: boolean } | null;
     if (!body?.code || !body.subscription?.endpoint) return json({ error: "code·subscription 필요" }, 400);
-    const r = await redeemCode(store, body.code, body.subscription.endpoint, Date.now(), browserKind(req.headers.get("user-agent")));
+    const live = new Set((await loadSubs(store)).map((s) => s.endpoint));
+    const known = live.has(body.subscription.endpoint);
+    const r = await redeemCode(store, body.code, body.subscription.endpoint, Date.now(), body.quiet ? undefined : browserKind(req.headers.get("user-agent")), live);
     if (!r.ok) return json({ error: r.reason }, 403);
     const s = await addSub(store, body.subscription, "paid", Date.now());
+    if (body.quiet) return json({ ok: true, who: s.who, restored: !known, devicesUsed: r.order.devices.length, devicesMax: DEVICES_PER_CODE });
     // 켜자마자 이 기기 하나에만 '켜졌어요' 알림 — 고객이 바로 확인하고(체감), 서비스 제공이 시작됐다는 기록도 된다. 다른 구독자에게는 가지 않는다
     const keys = await loadVapid(store, env.DASHBOARD_URL ?? url.origin);
     const welcome = await sendWebPush(keys, body.subscription, { title: "✅ 알림이 켜졌어요 — 한반도 조기경보", body: "앞으로 전쟁 위험 단계가 바뀌거나 북한 발사 같은 큰 사건이 있을 때 이렇게 알려 드려요. 평소엔 조용합니다.\n지금 상황 리포트는 알림함에 있어요.", url: `${url.origin}/me`, tag: "kew-welcome" }).catch(() => ({ ok: false }));
@@ -557,6 +561,14 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
       orders: orders.map((o) => ({ order: `…${o.orderId.slice(-4)}`, paid: kst(o.paidAt), own: !!o.own, devices: o.devices.map((e) => { const s = live.get(e); return { push: host(e), subscribed: !!s, who: s?.who ?? null, fails: s?.fails ?? 0, lastStatus: (s as { lastStatus?: number } | undefined)?.lastStatus ?? null }; }) })),
       subs: { total: subs.length, byWho: subs.reduce((m, s) => ({ ...m, [s.who ?? "?"]: ((m as Record<string, number>)[s.who ?? "?"] ?? 0) + 1 }), {} as Record<string, number>) },
     });
+  }
+  if (url.pathname === "/api/push/renew" && req.method === "POST") {
+    // 서비스 워커가 브라우저의 새 구독을 알려 온다 (pushsubscriptionchange). 옛 주소를 알아야 바꿀 수 있다
+    const body = (await req.json().catch(() => null)) as { old?: string; subscription?: PushSubscriptionJson } | null;
+    if (!body?.old || !body.subscription?.endpoint) return json({ error: "old·subscription 필요" }, 400);
+    const ok = await renewSub(store, body.old, body.subscription, Date.now());
+    if (ok) await renewOrderDevice(store, body.old, body.subscription.endpoint, Date.now());
+    return json({ ok });
   }
   if (url.pathname === "/api/push/subs" && req.method === "GET") {
     const subs = await loadSubs(store);

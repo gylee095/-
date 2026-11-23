@@ -307,11 +307,13 @@ export async function paidOrderByCode(store: Pick<Store, "getKv">, code: string)
 export const normalizeCode = (c: string) => c.toUpperCase().replace(/[^A-Z2-9]/g, "").replace(/(.{4})(?=.)/g, "$1-");
 
 /** 코드로 기기를 등록한다. 결제된 주문의 코드여야 하고, 기기 수 상한을 넘지 않아야 한다. 같은 기기는 다시 등록해도 한 자리 */
-export async function redeemCode(store: Pick<Store, "getKv" | "setKv">, code: string, endpoint: string, now = Date.now(), via?: string): Promise<{ ok: true; order: Order } | { ok: false; reason: string }> {
+export async function redeemCode(store: Pick<Store, "getKv" | "setKv">, code: string, endpoint: string, now = Date.now(), via?: string, live?: Set<string>): Promise<{ ok: true; order: Order } | { ok: false; reason: string }> {
   const norm = normalizeCode(code);
   const orders = await loadOrders(store);
   const o = orders.find((x) => x.code === norm);
   if (!o || o.status !== "paid") return { ok: false, reason: "맞지 않는 코드예요. 결제 뒤 받은 코드를 다시 확인해 주세요." };
+  // 서버 구독 목록에서 이미 빠진(끝난) 기기는 자리를 비운다 (11/24): 폰이 구독 주소를 바꾸면 옛 주소가 3대 자리를 차지한 채 남아 다시 켤 수 없었다
+  if (live && !o.devices.includes(endpoint)) o.devices = o.devices.filter((e) => live.has(e));
   if (!o.devices.includes(endpoint)) {
     if (o.devices.length >= DEVICES_PER_CODE) return { ok: false, reason: `이 코드는 기기 ${DEVICES_PER_CODE}대까지 쓸 수 있어요. 이미 다 썼어요.` };
     o.devices.push(endpoint);
@@ -322,6 +324,14 @@ export async function redeemCode(store: Pick<Store, "getKv" | "setKv">, code: st
 }
 
 /** 환불: 페이앱 취소가 성공해야만 refunded 로 바꾸고, 그 코드로 켠 기기 목록을 돌려준다(호출한 쪽이 구독을 지운다). 코드는 즉시 못 쓰게 된다 */
+/** 기기 구독 주소가 바뀌었을 때 주문의 기기 목록도 바꾼다 */
+export async function renewOrderDevice(store: Pick<Store, "getKv" | "setKv">, oldEndpoint: string, newEndpoint: string, now: number): Promise<void> {
+  const orders = await loadOrders(store);
+  let changed = false;
+  for (const o of orders) if (o.devices.includes(oldEndpoint)) { o.devices = [...new Set(o.devices.map((e) => (e === oldEndpoint ? newEndpoint : e)))]; changed = true; }
+  if (changed) await saveOrders(store, orders, now);
+}
+
 export async function refundOrder(store: Pick<Store, "getKv" | "setKv">, cfg: PayAppConfig, by: { orderId?: string; code?: string }, reason: string, now: number, fetchImpl: typeof fetch = fetch): Promise<{ ok: true; orderId: string; devices: string[] } | { ok: false; error: string }> {
   const norm = by.code ? normalizeCode(by.code) : undefined;
   const find = (list: Order[]) => list.find((x) => (by.orderId && x.orderId === by.orderId) || (norm && x.code === norm));

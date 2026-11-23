@@ -545,6 +545,19 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     for (const ep of r.devices) await removeSub(store, ep);
     return json({ ok: true, orderId: r.orderId, devicesRemoved: r.devices.length });
   }
+  if (url.pathname === "/api/push/health" && req.method === "GET") {
+    // 결제한 손님 기기마다 서버에 알림 구독이 아직 있는지 (11/24: 손님이 '알림함에는 보이는데 폰에 안 울린다'고 했다). 주소·코드는 내보내지 않는다
+    const subs = await loadSubs(store);
+    const live = new Map(subs.map((s) => [s.endpoint, s]));
+    const kst = (ms?: number) => (ms ? new Date(ms + 9 * 3600_000).toISOString().slice(5, 16).replace("T", " ") : null);
+    const host = (e: string) => { try { return new URL(e).hostname.replace(/^.*\.(push\.apple\.com)$/, "$1"); } catch { return "?"; } };
+    const orders = (await loadOrders(store)).filter((o) => o.status === "paid");
+    return json({
+      last: JSON.parse((await store.getKv("push:last")) ?? "null"),
+      orders: orders.map((o) => ({ order: `…${o.orderId.slice(-4)}`, paid: kst(o.paidAt), own: !!o.own, devices: o.devices.map((e) => { const s = live.get(e); return { push: host(e), subscribed: !!s, who: s?.who ?? null, fails: s?.fails ?? 0, lastStatus: (s as { lastStatus?: number } | undefined)?.lastStatus ?? null }; }) })),
+      subs: { total: subs.length, byWho: subs.reduce((m, s) => ({ ...m, [s.who ?? "?"]: ((m as Record<string, number>)[s.who ?? "?"] ?? 0) + 1 }), {} as Record<string, number>) },
+    });
+  }
   if (url.pathname === "/api/push/subs" && req.method === "GET") {
     const subs = await loadSubs(store);
     return json({ total: subs.length, owner: subs.filter((s) => s.who === "owner").length, public: subs.filter((s) => s.who !== "owner").length });

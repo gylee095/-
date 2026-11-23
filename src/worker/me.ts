@@ -170,9 +170,14 @@ async function render(){
   if(!r.ok){try{localStorage.removeItem("kew_code")}catch(e){}CODE=null;return noCode(me.error)}
   var on=await pushOn();
   // 이 폰이 가진 알림 구독을 조용히 서버에 다시 알린다 (11/24: 서버 목록에서 빠진 안드로이드 기기 3대 — 폰은 켜져 있다고 보여 줬는데 알림이 오지 않았다). 열 때 한 번
+  var fixed=false;
   if(on){try{if(!sessionStorage.getItem("kew_resync")){sessionStorage.setItem("kew_resync","1");var rg=await navigator.serviceWorker.getRegistration(),ps=rg&&await rg.pushManager.getSubscription();
-    if(ps)fetch("/api/billing/activate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code:CODE,subscription:ps.toJSON(),quiet:true})}).catch(function(){})}}catch(e){}}
+    if(ps){var rr=await fetch("/api/billing/activate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code:CODE,subscription:ps.toJSON(),quiet:true})}).catch(function(){return null});
+      var rj=rr&&rr.ok?await rr.json().catch(function(){return {}}):{};if(rj.restored){fixed=true;me.devicesLost=Math.max(0,(me.devicesLost||0)-1)}}}}catch(e){}}
   var h=stepCard(CODE,me,on);
+  // 알림 연결 안내 (11/24 사용자: "전화할 수 없다 — 알림으로 보내는 게 아니라 앱을 열면 거기서 안내하게"): 이 폰을 방금 되살렸거나, 같은 코드의 다른 폰이 끊겨 있으면
+  if(fixed||me.devicesLost>0)h+='<div class="state" style="border:2px solid var(--brand)">'+(fixed?'<b style="font-size:16px">🔔 이 휴대폰의 알림을 다시 연결했어요</b><p class="mute" style="margin:4px 0 0">연결이 잠시 끊겨 있었어요. 이제 알림이 정상으로 와요.</p>':'')+
+    (me.devicesLost>0?'<p style="margin:'+(fixed?'10px':'0')+' 0 0;font-size:15px;line-height:1.55">이 코드로 알림을 켠 휴대폰 중 <b>'+me.devicesLost+'대</b>가 연결이 끊겨 있어요. 그 휴대폰에서 <b>조기경보 앱을 한 번 열어 주세요</b> — 여는 것만으로 다시 연결돼요. 가족 폰이라면 전해 주세요.</p>':'')+'</div>';
   // 앱 속 화면(스레드 등)에서는 할 일이 '바깥 브라우저로 나가기' 하나뿐이다 — 알림 목록·초록 불은 바깥에서 다시 보이니 여기서는 겹치지 않게 뺀다 (11/18 사용자)
   if(!on&&kewEnv().soft){$("#app").innerHTML=h;return}
   if(on&&ENV.android&&!ENV.standalone){var sam=/SamsungBrowser/.test(navigator.userAgent);

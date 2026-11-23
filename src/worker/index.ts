@@ -324,7 +324,10 @@ async function route(req: Request, url: URL, env: Env, store: D1Store): Promise<
     const now = Date.now();
     const alive = aliveOf(await store.getKv("last_cycle").catch(() => null), now);
     await store.setKv(INBOX_OPENS_KEY, JSON.stringify(bumpOpens(await store.getKv(INBOX_OPENS_KEY).catch(() => null), now))).catch(() => undefined);
-    return new Response(JSON.stringify({ code: o.code, paidAt: o.paidAt, devicesUsed: o.devices.length, devicesMax: DEVICES_PER_CODE, reports: list, ...(alive ? { alive } : {}) }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+    // 이 코드로 켰지만 서버 구독 목록에서 빠진 기기 수 (11/24) — 알림함에 '그 폰에서 앱을 한 번 열어 주세요'로 안내한다. 어떤 기기인지는 내보내지 않는다
+    const liveSubs = new Set((await loadSubs(store)).map((s) => s.endpoint));
+    const devicesLost = o.devices.filter((e) => !liveSubs.has(e)).length;
+    return new Response(JSON.stringify({ code: o.code, paidAt: o.paidAt, devicesUsed: o.devices.length, devicesMax: DEVICES_PER_CODE, devicesLost, reports: list, ...(alive ? { alive } : {}) }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
   }
   if (url.pathname === "/api/report" && req.method === "GET") {
     const o = await paidOrderByCode(store, url.searchParams.get("code") ?? "");
